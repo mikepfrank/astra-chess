@@ -1,0 +1,207 @@
+{
+  "kind": "analysis",
+  "start_fen": "r4rk1/1pp1ppbp/p2q1np1/3Pp3/P3P3/2NB1Q1P/1PP2PP1/R4RK1 w - - 1 13",
+  "turn": "white",
+  "requested_depth": 5,
+  "completed_depth": 3,
+  "nodes": 22137,
+  "elapsed_seconds": 3.688,
+  "time_limit_seconds": 4.0,
+  "timed_out": true,
+  "fallback": false,
+  "candidates": [
+    {
+      "uci": [
+        "g2g4",
+        "c7c5",
+        "b2b3"
+      ],
+      "san": [
+        "g4",
+        "c5",
+        "b3"
+      ],
+      "fens": [
+        "r4rk1/1pp1ppbp/p2q1np1/3Pp3/P3P3/2NB1Q1P/1PP2PP1/R4RK1 w - - 1 13",
+        "r4rk1/1pp1ppbp/p2q1np1/3Pp3/P3P1P1/2NB1Q1P/1PP2P2/R4RK1 b - g3 0 13",
+        "r4rk1/1p2ppbp/p2q1np1/2pPp3/P3P1P1/2NB1Q1P/1PP2P2/R4RK1 w - c6 0 14",
+        "r4rk1/1p2ppbp/p2q1np1/2pPp3/P3P1P1/1PNB1Q1P/2P2P2/R4RK1 b - - 0 14"
+      ],
+      "ending": null,
+      "claim_by_intended_move": null,
+      "rank": 1,
+      "root_move": "g2g4",
+      "score_cp": 55,
+      "mate_in_plies": null,
+      "depth": 3,
+      "score_is_exact_for_search": true
+    },
+    {
+      "uci": [
+        "d3c4",
+        "e7e6",
+        "d5e6",
+        "f7e6"
+      ],
+      "san": [
+        "Bc4",
+        "e6",
+        "dxe6",
+        "fxe6"
+      ],
+      "fens": [
+        "r4rk1/1pp1ppbp/p2q1np1/3Pp3/P3P3/2NB1Q1P/1PP2PP1/R4RK1 w - - 1 13",
+        "r4rk1/1pp1ppbp/p2q1np1/3Pp3/P1B1P3/2N2Q1P/1PP2PP1/R4RK1 b - - 2 13",
+        "r4rk1/1pp2pbp/p2qpnp1/3Pp3/P1B1P3/2N2Q1P/1PP2PP1/R4RK1 w - - 0 14",
+        "r4rk1/1pp2pbp/p2qPnp1/4p3/P1B1P3/2N2Q1P/1PP2PP1/R4RK1 b - - 0 14",
+        "r4rk1/1pp3bp/p2qpnp1/4p3/P1B1P3/2N2Q1P/1PP2PP1/R4RK1 w - - 0 15"
+      ],
+      "ending": null,
+      "claim_by_intended_move": null,
+      "rank": 2,
+      "root_move": "d3c4",
+      "score_cp": 51,
+      "mate_in_plies": null,
+      "depth": 3,
+      "score_is_exact_for_search": true
+    },
+    {
+      "uci": [
+        "a1d1",
+        "e7e6",
+        "d3c4",
+        "e6d5",
+        "c3d5",
+        "f6d5",
+        "c4d5"
+      ],
+      "san": [
+        "Rad1",
+        "e6",
+        "Bc4",
+        "exd5",
+        "Nxd5",
+        "Nxd5",
+        "Bxd5"
+      ],
+      "fens": [
+        "r4rk1/1pp1ppbp/p2q1np1/3Pp3/P3P3/2NB1Q1P/1PP2PP1/R4RK1 w - - 1 13",
+        "r4rk1/1pp1ppbp/p2q1np1/3Pp3/P3P3/2NB1Q1P/1PP2PP1/3R1RK1 b - - 2 13",
+        "r4rk1/1pp2pbp/p2qpnp1/3Pp3/P3P3/2NB1Q1P/1PP2PP1/3R1RK1 w - - 0 14",
+        "r4rk1/1pp2pbp/p2qpnp1/3Pp3/P1B1P3/2N2Q1P/1PP2PP1/3R1RK1 b - - 1 14",
+        "r4rk1/1pp2pbp/p2q1np1/3pp3/P1B1P3/2N2Q1P/1PP2PP1/3R1RK1 w - - 0 15",
+        "r4rk1/1pp2pbp/p2q1np1/3Np3/P1B1P3/5Q1P/1PP2PP1/3R1RK1 b - - 0 15",
+        "r4rk1/1pp2pbp/p2q2p1/3np3/P1B1P3/5Q1P/1PP2PP1/3R1RK1 w - - 0 16",
+        "r4rk1/1pp2pbp/p2q2p1/3Bp3/P3P3/5Q1P/1PP2PP1/3R1RK1 b - - 0 16"
+      ],
+      "ending": null,
+      "claim_by_intended_move": null,
+      "rank": 3,
+      "root_move": "a1d1",
+      "score_cp": 47,
+      "mate_in_plies": null,
+      "depth": 3,
+      "score_is_exact_for_search": true
+    }
+  ],
+  "terminal": null,
+  "draw_claim_available": false,
+  "current_draw_claim_available": false,
+  "draw_claim_reasons": [],
+  "draw_claim_by_intended_moves": [],
+  "intended_move": null,
+  "root_score_cp": 55,
+  "recommended_action": "move",
+  "history_supplied": true,
+  "diagnostics": {
+    "score_view": "root side",
+    "depth_unit": "plies",
+    "history_note": "Earlier repetition is unknown without supplied history.",
+    "quiescence_capture_depth": 8,
+    "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+    "transposition_reuse": "move ordering only; no cached evaluation bounds",
+    "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+    "stop_reason": "time_limit",
+    "qnodes": 21645,
+    "cutoffs": 5469
+  },
+  "budget_overrun_seconds": 0.0,
+  "label": "Wally game 8, move 13: Centralize rook on d-file; watch queen activity toward b4 and central e6 break.",
+  "query": {
+    "label": "Wally game 8, move 13: Centralize rook on d-file; watch queen activity toward b4 and central e6 break.",
+    "mode": "analyze",
+    "fen": "r4rk1/1pp1ppbp/p2q1np1/3Pp3/P3P3/2NB1Q1P/1PP2PP1/R4RK1 w - - 1 13",
+    "history_fens": [
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1",
+      "rnbqkbnr/ppp1pppp/3p4/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 0 2",
+      "rnbqkbnr/ppp1pppp/3p4/8/3P4/5N2/PPP1PPPP/RNBQKB1R b KQkq d3 0 2",
+      "rnbqkb1r/ppp1pppp/3p1n2/8/3P4/5N2/PPP1PPPP/RNBQKB1R w KQkq - 1 3",
+      "rnbqkb1r/ppp1pppp/3p1n2/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R b KQkq - 2 3",
+      "rnbqkb1r/ppp1pp1p/3p1np1/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R w KQkq - 0 4",
+      "rnbqkb1r/ppp1pp1p/3p1np1/8/3PP3/2N2N2/PPP2PPP/R1BQKB1R b KQkq e3 0 4",
+      "rnbqk2r/ppp1ppbp/3p1np1/8/3PP3/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 1 5",
+      "rnbqk2r/ppp1ppbp/3p1np1/8/3PP3/2NB1N2/PPP2PPP/R1BQK2R b KQkq - 2 5",
+      "rnbq1rk1/ppp1ppbp/3p1np1/8/3PP3/2NB1N2/PPP2PPP/R1BQK2R w KQ - 3 6",
+      "rnbq1rk1/ppp1ppbp/3p1np1/8/3PP3/2NB1N2/PPP2PPP/R1BQ1RK1 b - - 4 6",
+      "rnbq1rk1/1pp1ppbp/p2p1np1/8/3PP3/2NB1N2/PPP2PPP/R1BQ1RK1 w - - 0 7",
+      "rnbq1rk1/1pp1ppbp/p2p1np1/8/P2PP3/2NB1N2/1PP2PPP/R1BQ1RK1 b - a3 0 7",
+      "r1bq1rk1/1pp1ppbp/p1np1np1/8/P2PP3/2NB1N2/1PP2PPP/R1BQ1RK1 w - - 1 8",
+      "r1bq1rk1/1pp1ppbp/p1np1np1/8/P2PPB2/2NB1N2/1PP2PPP/R2Q1RK1 b - - 2 8",
+      "r2q1rk1/1pp1ppbp/p1np1np1/8/P2PPBb1/2NB1N2/1PP2PPP/R2Q1RK1 w - - 3 9",
+      "r2q1rk1/1pp1ppbp/p1np1np1/3P4/P3PBb1/2NB1N2/1PP2PPP/R2Q1RK1 b - - 0 9",
+      "r2q1rk1/1pp1ppbp/p2p1np1/3Pn3/P3PBb1/2NB1N2/1PP2PPP/R2Q1RK1 w - - 1 10",
+      "r2q1rk1/1pp1ppbp/p2p1np1/3PB3/P3P1b1/2NB1N2/1PP2PPP/R2Q1RK1 b - - 0 10",
+      "r2q1rk1/1pp1ppbp/p4np1/3Pp3/P3P1b1/2NB1N2/1PP2PPP/R2Q1RK1 w - - 0 11",
+      "r2q1rk1/1pp1ppbp/p4np1/3Pp3/P3P1b1/2NB1N1P/1PP2PP1/R2Q1RK1 b - - 0 11",
+      "r2q1rk1/1pp1ppbp/p4np1/3Pp3/P3P3/2NB1b1P/1PP2PP1/R2Q1RK1 w - - 0 12",
+      "r2q1rk1/1pp1ppbp/p4np1/3Pp3/P3P3/2NB1Q1P/1PP2PP1/R4RK1 b - - 0 12"
+    ],
+    "depth": 5,
+    "seconds": 4.0,
+    "candidates": 3
+  },
+  "position_history_fens": [
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1",
+    "rnbqkbnr/ppp1pppp/3p4/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 0 2",
+    "rnbqkbnr/ppp1pppp/3p4/8/3P4/5N2/PPP1PPPP/RNBQKB1R b KQkq d3 0 2",
+    "rnbqkb1r/ppp1pppp/3p1n2/8/3P4/5N2/PPP1PPPP/RNBQKB1R w KQkq - 1 3",
+    "rnbqkb1r/ppp1pppp/3p1n2/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R b KQkq - 2 3",
+    "rnbqkb1r/ppp1pp1p/3p1np1/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R w KQkq - 0 4",
+    "rnbqkb1r/ppp1pp1p/3p1np1/8/3PP3/2N2N2/PPP2PPP/R1BQKB1R b KQkq e3 0 4",
+    "rnbqk2r/ppp1ppbp/3p1np1/8/3PP3/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 1 5",
+    "rnbqk2r/ppp1ppbp/3p1np1/8/3PP3/2NB1N2/PPP2PPP/R1BQK2R b KQkq - 2 5",
+    "rnbq1rk1/ppp1ppbp/3p1np1/8/3PP3/2NB1N2/PPP2PPP/R1BQK2R w KQ - 3 6",
+    "rnbq1rk1/ppp1ppbp/3p1np1/8/3PP3/2NB1N2/PPP2PPP/R1BQ1RK1 b - - 4 6",
+    "rnbq1rk1/1pp1ppbp/p2p1np1/8/3PP3/2NB1N2/PPP2PPP/R1BQ1RK1 w - - 0 7",
+    "rnbq1rk1/1pp1ppbp/p2p1np1/8/P2PP3/2NB1N2/1PP2PPP/R1BQ1RK1 b - a3 0 7",
+    "r1bq1rk1/1pp1ppbp/p1np1np1/8/P2PP3/2NB1N2/1PP2PPP/R1BQ1RK1 w - - 1 8",
+    "r1bq1rk1/1pp1ppbp/p1np1np1/8/P2PPB2/2NB1N2/1PP2PPP/R2Q1RK1 b - - 2 8",
+    "r2q1rk1/1pp1ppbp/p1np1np1/8/P2PPBb1/2NB1N2/1PP2PPP/R2Q1RK1 w - - 3 9",
+    "r2q1rk1/1pp1ppbp/p1np1np1/3P4/P3PBb1/2NB1N2/1PP2PPP/R2Q1RK1 b - - 0 9",
+    "r2q1rk1/1pp1ppbp/p2p1np1/3Pn3/P3PBb1/2NB1N2/1PP2PPP/R2Q1RK1 w - - 1 10",
+    "r2q1rk1/1pp1ppbp/p2p1np1/3PB3/P3P1b1/2NB1N2/1PP2PPP/R2Q1RK1 b - - 0 10",
+    "r2q1rk1/1pp1ppbp/p4np1/3Pp3/P3P1b1/2NB1N2/1PP2PPP/R2Q1RK1 w - - 0 11",
+    "r2q1rk1/1pp1ppbp/p4np1/3Pp3/P3P1b1/2NB1N1P/1PP2PP1/R2Q1RK1 b - - 0 11",
+    "r2q1rk1/1pp1ppbp/p4np1/3Pp3/P3P3/2NB1b1P/1PP2PP1/R2Q1RK1 w - - 0 12",
+    "r2q1rk1/1pp1ppbp/p4np1/3Pp3/P3P3/2NB1Q1P/1PP2PP1/R4RK1 b - - 0 12"
+  ],
+  "query_time_limit_seconds": 4.0,
+  "created_utc": "2026-09-07T17:01:13.327957+00:00",
+  "engine": {
+    "name": "Astra Search Lab",
+    "version": "0.1",
+    "source_sha256": "c610956f6253e4f09c84a602cb5f45e09bb1a0af55af510fd7ab5980627ecef7"
+  },
+  "turn_budget": {
+    "elapsed_seconds": 14.591,
+    "remaining_seconds": 45.409,
+    "engine_remaining_seconds": 8.312,
+    "reserve_seconds": 8,
+    "query_available_seconds": 8.312,
+    "expired": false,
+    "calls": 1
+  },
+  "interface_elapsed_seconds": 3.719
+}

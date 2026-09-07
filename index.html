@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="Replay six games played by Astra against Chess.com bots, including a trial with a chess engine written from scratch. Explore every move with animated chessboards.">
+  <title>Astra vs. the bots — Chess replays</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ctext y='32' font-size='34'%3E♞%3C/text%3E%3C/svg%3E">
+  <style>
+    :root {
+      color-scheme: dark light;
+      --page:#111b18; --text:#edf2e9; --muted:#a9bbae;
+      --line:#33483c; --hover:#1a2722; --accent:#c7e89f;
+    }
+    @media (prefers-color-scheme:light) {
+      :root { --page:#f5f6ef; --text:#263b2d; --muted:#637562; --line:#d5dfcf; --hover:#e7ecdf; --accent:#395f40; }
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--page); color:var(--text); font:1rem/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { max-width:1060px; margin:0 auto; padding:48px 32px 30px; }
+    header { margin-bottom:32px; }
+    .eyebrow { margin:0 0 10px; color:var(--muted); font-size:.75rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase; }
+    h1 { margin:0; font:400 clamp(2rem,5vw,3rem)/1.15 Georgia,"Times New Roman",serif; letter-spacing:-.025em; }
+    .intro { margin:14px 0 0; max-width:650px; color:var(--muted); }
+    .games { list-style:none; margin:0; padding:0; border-top:1px solid var(--line); }
+    .game {
+      display:grid; grid-template-columns:40px minmax(0,1fr) 180px 70px;
+      gap:20px; align-items:center; padding:23px 12px;
+      border-bottom:1px solid var(--line); color:inherit; text-decoration:none;
+    }
+    .game:hover { background:var(--hover); }
+    .game:focus-visible { position:relative; outline:3px solid var(--accent); outline-offset:3px; border-radius:3px; }
+    .number { align-self:start; padding-top:3px; color:var(--muted); font-size:.875rem; font-variant-numeric:tabular-nums; }
+    .kind { margin:0 0 5px; color:var(--muted); font-size:.8125rem; }
+    h2 { margin:0; font:400 1.45rem/1.3 Georgia,"Times New Roman",serif; }
+    .meta { margin:7px 0 0; color:var(--muted); font-size:.875rem; }
+    .result { display:flex; flex-direction:column; gap:4px; }
+    .result strong { font-size:1rem; font-weight:500; }
+    .win { color:var(--accent); }
+    .finish { color:var(--muted); font-size:.8125rem; }
+    .replay { color:var(--accent); text-align:right; white-space:nowrap; font-size:.875rem; }
+    footer { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px 24px; padding:22px 12px 0; color:var(--muted); font-size:.8125rem; }
+    footer p { margin:0; }
+    @media (max-width:760px) {
+      main { padding:30px 20px 24px; }
+      header { margin-bottom:25px; }
+      .game { grid-template-columns:28px minmax(0,1fr) auto; gap:10px 14px; padding:21px 4px; }
+      .number { grid-column:1; grid-row:1; }
+      .info { grid-column:2 / 4; grid-row:1; }
+      h2 { font-size:1.3rem; }
+      .result { grid-column:2; grid-row:2; gap:2px; }
+      .replay { grid-column:3; grid-row:2; }
+      footer { padding-left:4px; padding-right:4px; }
+    }
+    @media (max-width:380px) {
+      main { padding-left:14px; padding-right:14px; }
+      .game { grid-template-columns:22px minmax(0,1fr) auto; column-gap:10px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">Chess replay collection</p>
+      <h1>Astra vs. the bots</h1>
+      <p class="intro">Six recorded games against Chess.com bots, including a trial assisted by Astra’s own chess engine. Choose a game to replay the moves at your own pace.</p>
+    </header>
+    <nav aria-label="Game replays">
+      <ol class="games">
+        <li>
+          <a class="game" href="https://astra-vs-sven.netlify.app/">
+            <span class="number" aria-label="Game 2">02</span>
+            <div class="info">
+              <p class="kind">Rematch · <time datetime="2026-09-05">September 5, 2026</time></p>
+              <h2>Astra (Extra High) vs. Sven</h2>
+              <p class="meta">Bot rating 1100 · 41 moves</p>
+            </div>
+            <div class="result"><strong class="win">Astra won · 1–0</strong><span class="finish">41. Qxh6# · Checkmate</span></div>
+            <span class="replay">Replay <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="game" href="https://astra-vs-nelson.netlify.app/">
+            <span class="number" aria-label="Game 4">04</span>
+            <div class="info">
+              <p class="kind">Rematch · <time datetime="2026-09-05">September 5, 2026</time></p>
+              <h2>Astra (Ultra) vs. Nelson</h2>
+              <p class="meta">Bot rating 1300 · 45 moves</p>
+            </div>
+            <div class="result"><strong class="win">Astra won · 1–0</strong><span class="finish">45. Rh8# · Checkmate</span></div>
+            <span class="replay">Replay <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="game" href="https://astra-vs-wendy.netlify.app/">
+            <span class="number" aria-label="Game 5">05</span>
+            <div class="info">
+              <p class="kind"><time datetime="2026-09-05">September 5, 2026</time></p>
+              <h2>Astra (Ultra) vs. Wendy</h2>
+              <p class="meta">Bot rating 1500 · 36 moves</p>
+            </div>
+            <div class="result"><strong class="win">Astra won · 1–0</strong><span class="finish">36. Rg6# · Checkmate</span></div>
+            <span class="replay">Replay <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="game" href="https://astra-vs-wally.netlify.app/">
+            <span class="number" aria-label="Game 6">06</span>
+            <div class="info">
+              <p class="kind"><time datetime="2026-09-05">September 5, 2026</time></p>
+              <h2>Astra (Ultra) vs. Wally</h2>
+              <p class="meta">Bot rating 1800 · 33 moves</p>
+            </div>
+            <div class="result"><strong>Wally won · 0–1</strong><span class="finish">33… Qf1# · Checkmate</span></div>
+            <span class="replay">Replay <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="game" href="https://astra-vs-wally-rematch.netlify.app/">
+            <span class="number" aria-label="Game 7">07</span>
+            <div class="info">
+              <p class="kind">Rematch · <time datetime="2026-09-06">September 6, 2026</time></p>
+              <h2>Astra (Ultra) vs. Wally</h2>
+              <p class="meta">Bot rating 1800 · 47 moves</p>
+            </div>
+            <div class="result"><strong>Wally won · 0–1</strong><span class="finish">After 47… Kg6 · Resignation</span></div>
+            <span class="replay">Replay <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+        <li>
+          <a class="game" href="https://astra-vs-wally-engine.netlify.app/">
+            <span class="number" aria-label="Game 8">08</span>
+            <div class="info">
+              <p class="kind">Engine-assisted trial · <time datetime="2026-09-07">September 7, 2026</time></p>
+              <h2>Astra (Ultra) vs. Wally</h2>
+              <p class="meta">Bot rating 1800 · 40 moves · Astra Search Lab</p>
+            </div>
+            <div class="result"><strong>Wally won · 0–1</strong><span class="finish">After 40… Re1 · Resignation</span></div>
+            <span class="replay">Replay <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
+      </ol>
+    </nav>
+    <footer>
+      <p>Astra played White in every game.</p>
+      <p>Game numbers follow the original session.</p>
+    </footer>
+  </main>
+</body>
+</html>

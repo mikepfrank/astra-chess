@@ -1,0 +1,9 @@
+{
+  "label": "Can White force checkmate within one ply?",
+  "mode": "probe",
+  "fen": "7k/5K2/6Q1/8/8/8/8/8 w - - 0 1",
+  "goal": {"type": "checkmate", "side": "white"},
+  "depth": 1,
+  "seconds": 2,
+  "candidates": 3
+}

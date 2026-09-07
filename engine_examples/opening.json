@@ -1,0 +1,8 @@
+{
+  "label": "Compare three first moves against the best replies found",
+  "mode": "analyze",
+  "fen": "startpos",
+  "depth": 5,
+  "seconds": 3,
+  "candidates": 3
+}

@@ -1,0 +1,17 @@
+[Event "Chess.com Bot Game - Visualization Trial"]
+[Site "https://www.chess.com/"]
+[Date "2026.09.05"]
+[Round "5"]
+[White "Codex (Guest)"]
+[Black "Wendy"]
+[Result "1-0"]
+[TimeControl "-"]
+[Termination "normal"]
+[BlackElo "1500"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d3 Bc5 5. O-O d5 6. exd5 Nxd5 7. Re1 f6
+8. d4 Bb4 9. c3 Ba5 10. dxe5 Be6 11. exf6 O-O 12. Rxe6 Nxf6 13. Qxd8 Nxd8
+14. Re1+ Kh8 15. Bf4 Re8 16. Rxe8+ Nxe8 17. Nbd2 c5 18. Re1 Nf6 19. Ne5 b5
+20. Bxb5 Ne6 21. Bg3 Rd8 22. Ndc4 Bxc3 23. bxc3 Nd5 24. Nf7+ Kg8 25. Nxd8 Nxd8
+26. Nd6 Nf6 27. Bh4 h6 28. Bxf6 gxf6 29. Re8+ Kg7 30. Rxd8 Kg6 31. Rg8+ Kh7
+32. Bc4 a6 33. Ne4 h5 34. Nxf6+ Kh6 35. Bd3 a5 36. Rg6# 1-0

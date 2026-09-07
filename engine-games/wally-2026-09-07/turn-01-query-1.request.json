@@ -1,0 +1,9 @@
+{
+  "label": "Wally game 8, move 1: Natural development; prior opening benchmark already known, so not an independent first-move comparison.",
+  "mode": "analyze",
+  "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  "history_fens": [],
+  "depth": 5,
+  "seconds": 3,
+  "candidates": 3
+}

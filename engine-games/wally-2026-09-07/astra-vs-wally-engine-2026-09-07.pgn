@@ -1,0 +1,12 @@
+[Event "Astra Search Lab trial"]
+[Site "https://www.chess.com/"]
+[Date "2026.09.07"]
+[Round "8"]
+[White "Astra (Ultra)"]
+[Black "Wally"]
+[BlackElo "1800"]
+[Result "0-1"]
+[Termination "resignation"]
+[TimeControl "-"]
+
+1. Nf3 d6 2. d4 Nf6 3. Nc3 g6 4. e4 Bg7 5. Bd3 O-O 6. O-O a6 7. a4 Nc6 8. Bf4 Bg4 9. d5 Ne5 10. Bxe5 dxe5 11. h3 Bxf3 12. Qxf3 Qd6 13. Rad1 h5 14. Bc4 Rfd8 15. b3 Rab8 16. Ne2 b5 17. axb5 axb5 18. Bd3 e6 19. dxe6 Qxe6 20. Ra1 c5 21. Rfd1 c4 22. Ra7 cxd3 23. Rxd3 Ra8 24. Qe3 Kh7 25. Rxd8 Rxd8 26. Nc3 b4 27. Nb5 Rd1+ 28. Kh2 Bh6 29. Qf3 Rc1 30. c3 bxc3 31. Nxc3 Kg7 32. Nd5 Bg5 33. b4 Rb1 34. g3 Bd2 35. Qd3 Rd1 36. Qc2 Rf1 37. Qxd2 Nxe4 38. Qd3 Rh1+ 39. Kg2 Qxh3+ 40. Kf3 Re1 0-1

@@ -1,0 +1,18 @@
+[Event "Chess.com Bot Rematch - Visualization Trial"]
+[Site "https://www.chess.com/"]
+[Date "2026.09.05"]
+[Round "4"]
+[White "Codex (Guest)"]
+[Black "Nelson"]
+[Result "1-0"]
+[BlackElo "1300"]
+[TimeControl "-"]
+[Termination "normal"]
+
+1. e4 e5 2. Nf3 Qf6 3. Nc3 g6 4. d4 Nc6 5. d5 Be7 6. dxc6 h6 7. cxb7 Bxb7 8. Bc4
+Qd6 9. O-O Qxd1 10. Rxd1 Bxe4 11. Nxe4 Rh7 12. Nxe5 d6 13. Nf3 Bg5 14. Bxg5 hxg5
+15. Nexg5 Rg7 16. Re1+ Kf8 17. Bd5 Rb8 18. b3 f6 19. Ne6+ Kf7 20. Nxg7+ Kxg7 21.
+Bxg8 Rxg8 22. Re7+ Kh8 23. Rae1 Ra8 24. Re8+ Rxe8 25. Rxe8+ Kg7 26. Re7+ Kg8 27.
+Rxc7 a5 28. Ra7 g5 29. Rxa5 g4 30. Nd4 Kf8 31. Rd5 Kf7 32. Rxd6 Ke8 33. Rxf6 Ke7
+34. Re6+ Kf7 35. Kf1 g3 36. hxg3 Kg7 37. Ke2 Kf8 38. Kf3 Kf7 39. Kf4 Kf8 40. Kg5
+Kg8 41. Kg6 Kf8 42. Kf6 Kg8 43. Re8+ Kh7 44. Ne6 Kh6 45. Rh8# 1-0

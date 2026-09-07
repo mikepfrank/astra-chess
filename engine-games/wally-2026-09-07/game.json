@@ -1,0 +1,1243 @@
+{
+  "event": "Astra Search Lab trial",
+  "date": "2026.09.07",
+  "round": 8,
+  "white": "Astra (Ultra)",
+  "black": "Wally",
+  "black_elo": 1800,
+  "result": "0-1",
+  "uci": [
+    "g1f3",
+    "d7d6",
+    "d2d4",
+    "g8f6",
+    "b1c3",
+    "g7g6",
+    "e2e4",
+    "f8g7",
+    "f1d3",
+    "e8g8",
+    "e1g1",
+    "a7a6",
+    "a2a4",
+    "b8c6",
+    "c1f4",
+    "c8g4",
+    "d4d5",
+    "c6e5",
+    "f4e5",
+    "d6e5",
+    "h2h3",
+    "g4f3",
+    "d1f3",
+    "d8d6",
+    "a1d1",
+    "h7h5",
+    "d3c4",
+    "f8d8",
+    "b2b3",
+    "a8b8",
+    "c3e2",
+    "b7b5",
+    "a4b5",
+    "a6b5",
+    "c4d3",
+    "e7e6",
+    "d5e6",
+    "d6e6",
+    "d1a1",
+    "c7c5",
+    "f1d1",
+    "c5c4",
+    "a1a7",
+    "c4d3",
+    "d1d3",
+    "b8a8",
+    "f3e3",
+    "g8h7",
+    "d3d8",
+    "a8d8",
+    "e2c3",
+    "b5b4",
+    "c3b5",
+    "d8d1",
+    "g1h2",
+    "g7h6",
+    "e3f3",
+    "d1c1",
+    "c2c3",
+    "b4c3",
+    "b5c3",
+    "h7g7",
+    "c3d5",
+    "h6g5",
+    "b3b4",
+    "c1b1",
+    "g2g3",
+    "g5d2",
+    "f3d3",
+    "b1d1",
+    "d3c2",
+    "d1f1",
+    "c2d2",
+    "f6e4",
+    "d2d3",
+    "f1h1",
+    "h2g2",
+    "e6h3",
+    "g2f3",
+    "h1e1"
+  ],
+  "san": [
+    "Nf3",
+    "d6",
+    "d4",
+    "Nf6",
+    "Nc3",
+    "g6",
+    "e4",
+    "Bg7",
+    "Bd3",
+    "O-O",
+    "O-O",
+    "a6",
+    "a4",
+    "Nc6",
+    "Bf4",
+    "Bg4",
+    "d5",
+    "Ne5",
+    "Bxe5",
+    "dxe5",
+    "h3",
+    "Bxf3",
+    "Qxf3",
+    "Qd6",
+    "Rad1",
+    "h5",
+    "Bc4",
+    "Rfd8",
+    "b3",
+    "Rab8",
+    "Ne2",
+    "b5",
+    "axb5",
+    "axb5",
+    "Bd3",
+    "e6",
+    "dxe6",
+    "Qxe6",
+    "Ra1",
+    "c5",
+    "Rfd1",
+    "c4",
+    "Ra7",
+    "cxd3",
+    "Rxd3",
+    "Ra8",
+    "Qe3",
+    "Kh7",
+    "Rxd8",
+    "Rxd8",
+    "Nc3",
+    "b4",
+    "Nb5",
+    "Rd1+",
+    "Kh2",
+    "Bh6",
+    "Qf3",
+    "Rc1",
+    "c3",
+    "bxc3",
+    "Nxc3",
+    "Kg7",
+    "Nd5",
+    "Bg5",
+    "b4",
+    "Rb1",
+    "g3",
+    "Bd2",
+    "Qd3",
+    "Rd1",
+    "Qc2",
+    "Rf1",
+    "Qxd2",
+    "Nxe4",
+    "Qd3",
+    "Rh1+",
+    "Kg2",
+    "Qxh3+",
+    "Kf3",
+    "Re1"
+  ],
+  "fens": [
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1",
+    "rnbqkbnr/ppp1pppp/3p4/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 0 2",
+    "rnbqkbnr/ppp1pppp/3p4/8/3P4/5N2/PPP1PPPP/RNBQKB1R b KQkq d3 0 2",
+    "rnbqkb1r/ppp1pppp/3p1n2/8/3P4/5N2/PPP1PPPP/RNBQKB1R w KQkq - 1 3",
+    "rnbqkb1r/ppp1pppp/3p1n2/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R b KQkq - 2 3",
+    "rnbqkb1r/ppp1pp1p/3p1np1/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R w KQkq - 0 4",
+    "rnbqkb1r/ppp1pp1p/3p1np1/8/3PP3/2N2N2/PPP2PPP/R1BQKB1R b KQkq e3 0 4",
+    "rnbqk2r/ppp1ppbp/3p1np1/8/3PP3/2N2N2/PPP2PPP/R1BQKB1R w KQkq - 1 5",
+    "rnbqk2r/ppp1ppbp/3p1np1/8/3PP3/2NB1N2/PPP2PPP/R1BQK2R b KQkq - 2 5",
+    "rnbq1rk1/ppp1ppbp/3p1np1/8/3PP3/2NB1N2/PPP2PPP/R1BQK2R w KQ - 3 6",
+    "rnbq1rk1/ppp1ppbp/3p1np1/8/3PP3/2NB1N2/PPP2PPP/R1BQ1RK1 b - - 4 6",
+    "rnbq1rk1/1pp1ppbp/p2p1np1/8/3PP3/2NB1N2/PPP2PPP/R1BQ1RK1 w - - 0 7",
+    "rnbq1rk1/1pp1ppbp/p2p1np1/8/P2PP3/2NB1N2/1PP2PPP/R1BQ1RK1 b - a3 0 7",
+    "r1bq1rk1/1pp1ppbp/p1np1np1/8/P2PP3/2NB1N2/1PP2PPP/R1BQ1RK1 w - - 1 8",
+    "r1bq1rk1/1pp1ppbp/p1np1np1/8/P2PPB2/2NB1N2/1PP2PPP/R2Q1RK1 b - - 2 8",
+    "r2q1rk1/1pp1ppbp/p1np1np1/8/P2PPBb1/2NB1N2/1PP2PPP/R2Q1RK1 w - - 3 9",
+    "r2q1rk1/1pp1ppbp/p1np1np1/3P4/P3PBb1/2NB1N2/1PP2PPP/R2Q1RK1 b - - 0 9",
+    "r2q1rk1/1pp1ppbp/p2p1np1/3Pn3/P3PBb1/2NB1N2/1PP2PPP/R2Q1RK1 w - - 1 10",
+    "r2q1rk1/1pp1ppbp/p2p1np1/3PB3/P3P1b1/2NB1N2/1PP2PPP/R2Q1RK1 b - - 0 10",
+    "r2q1rk1/1pp1ppbp/p4np1/3Pp3/P3P1b1/2NB1N2/1PP2PPP/R2Q1RK1 w - - 0 11",
+    "r2q1rk1/1pp1ppbp/p4np1/3Pp3/P3P1b1/2NB1N1P/1PP2PP1/R2Q1RK1 b - - 0 11",
+    "r2q1rk1/1pp1ppbp/p4np1/3Pp3/P3P3/2NB1b1P/1PP2PP1/R2Q1RK1 w - - 0 12",
+    "r2q1rk1/1pp1ppbp/p4np1/3Pp3/P3P3/2NB1Q1P/1PP2PP1/R4RK1 b - - 0 12",
+    "r4rk1/1pp1ppbp/p2q1np1/3Pp3/P3P3/2NB1Q1P/1PP2PP1/R4RK1 w - - 1 13",
+    "r4rk1/1pp1ppbp/p2q1np1/3Pp3/P3P3/2NB1Q1P/1PP2PP1/3R1RK1 b - - 2 13",
+    "r4rk1/1pp1ppb1/p2q1np1/3Pp2p/P3P3/2NB1Q1P/1PP2PP1/3R1RK1 w - h6 0 14",
+    "r4rk1/1pp1ppb1/p2q1np1/3Pp2p/P1B1P3/2N2Q1P/1PP2PP1/3R1RK1 b - - 1 14",
+    "r2r2k1/1pp1ppb1/p2q1np1/3Pp2p/P1B1P3/2N2Q1P/1PP2PP1/3R1RK1 w - - 2 15",
+    "r2r2k1/1pp1ppb1/p2q1np1/3Pp2p/P1B1P3/1PN2Q1P/2P2PP1/3R1RK1 b - - 0 15",
+    "1r1r2k1/1pp1ppb1/p2q1np1/3Pp2p/P1B1P3/1PN2Q1P/2P2PP1/3R1RK1 w - - 1 16",
+    "1r1r2k1/1pp1ppb1/p2q1np1/3Pp2p/P1B1P3/1P3Q1P/2P1NPP1/3R1RK1 b - - 2 16",
+    "1r1r2k1/2p1ppb1/p2q1np1/1p1Pp2p/P1B1P3/1P3Q1P/2P1NPP1/3R1RK1 w - b6 0 17",
+    "1r1r2k1/2p1ppb1/p2q1np1/1P1Pp2p/2B1P3/1P3Q1P/2P1NPP1/3R1RK1 b - - 0 17",
+    "1r1r2k1/2p1ppb1/3q1np1/1p1Pp2p/2B1P3/1P3Q1P/2P1NPP1/3R1RK1 w - - 0 18",
+    "1r1r2k1/2p1ppb1/3q1np1/1p1Pp2p/4P3/1P1B1Q1P/2P1NPP1/3R1RK1 b - - 1 18",
+    "1r1r2k1/2p2pb1/3qpnp1/1p1Pp2p/4P3/1P1B1Q1P/2P1NPP1/3R1RK1 w - - 0 19",
+    "1r1r2k1/2p2pb1/3qPnp1/1p2p2p/4P3/1P1B1Q1P/2P1NPP1/3R1RK1 b - - 0 19",
+    "1r1r2k1/2p2pb1/4qnp1/1p2p2p/4P3/1P1B1Q1P/2P1NPP1/3R1RK1 w - - 0 20",
+    "1r1r2k1/2p2pb1/4qnp1/1p2p2p/4P3/1P1B1Q1P/2P1NPP1/R4RK1 b - - 1 20",
+    "1r1r2k1/5pb1/4qnp1/1pp1p2p/4P3/1P1B1Q1P/2P1NPP1/R4RK1 w - c6 0 21",
+    "1r1r2k1/5pb1/4qnp1/1pp1p2p/4P3/1P1B1Q1P/2P1NPP1/R2R2K1 b - - 1 21",
+    "1r1r2k1/5pb1/4qnp1/1p2p2p/2p1P3/1P1B1Q1P/2P1NPP1/R2R2K1 w - - 0 22",
+    "1r1r2k1/R4pb1/4qnp1/1p2p2p/2p1P3/1P1B1Q1P/2P1NPP1/3R2K1 b - - 1 22",
+    "1r1r2k1/R4pb1/4qnp1/1p2p2p/4P3/1P1p1Q1P/2P1NPP1/3R2K1 w - - 0 23",
+    "1r1r2k1/R4pb1/4qnp1/1p2p2p/4P3/1P1R1Q1P/2P1NPP1/6K1 b - - 0 23",
+    "r2r2k1/R4pb1/4qnp1/1p2p2p/4P3/1P1R1Q1P/2P1NPP1/6K1 w - - 1 24",
+    "r2r2k1/R4pb1/4qnp1/1p2p2p/4P3/1P1RQ2P/2P1NPP1/6K1 b - - 2 24",
+    "r2r4/R4pbk/4qnp1/1p2p2p/4P3/1P1RQ2P/2P1NPP1/6K1 w - - 3 25",
+    "r2R4/R4pbk/4qnp1/1p2p2p/4P3/1P2Q2P/2P1NPP1/6K1 b - - 0 25",
+    "3r4/R4pbk/4qnp1/1p2p2p/4P3/1P2Q2P/2P1NPP1/6K1 w - - 0 26",
+    "3r4/R4pbk/4qnp1/1p2p2p/4P3/1PN1Q2P/2P2PP1/6K1 b - - 1 26",
+    "3r4/R4pbk/4qnp1/4p2p/1p2P3/1PN1Q2P/2P2PP1/6K1 w - - 0 27",
+    "3r4/R4pbk/4qnp1/1N2p2p/1p2P3/1P2Q2P/2P2PP1/6K1 b - - 1 27",
+    "8/R4pbk/4qnp1/1N2p2p/1p2P3/1P2Q2P/2P2PP1/3r2K1 w - - 2 28",
+    "8/R4pbk/4qnp1/1N2p2p/1p2P3/1P2Q2P/2P2PPK/3r4 b - - 3 28",
+    "8/R4p1k/4qnpb/1N2p2p/1p2P3/1P2Q2P/2P2PPK/3r4 w - - 4 29",
+    "8/R4p1k/4qnpb/1N2p2p/1p2P3/1P3Q1P/2P2PPK/3r4 b - - 5 29",
+    "8/R4p1k/4qnpb/1N2p2p/1p2P3/1P3Q1P/2P2PPK/2r5 w - - 6 30",
+    "8/R4p1k/4qnpb/1N2p2p/1p2P3/1PP2Q1P/5PPK/2r5 b - - 0 30",
+    "8/R4p1k/4qnpb/1N2p2p/4P3/1Pp2Q1P/5PPK/2r5 w - - 0 31",
+    "8/R4p1k/4qnpb/4p2p/4P3/1PN2Q1P/5PPK/2r5 b - - 0 31",
+    "8/R4pk1/4qnpb/4p2p/4P3/1PN2Q1P/5PPK/2r5 w - - 1 32",
+    "8/R4pk1/4qnpb/3Np2p/4P3/1P3Q1P/5PPK/2r5 b - - 2 32",
+    "8/R4pk1/4qnp1/3Np1bp/4P3/1P3Q1P/5PPK/2r5 w - - 3 33",
+    "8/R4pk1/4qnp1/3Np1bp/1P2P3/5Q1P/5PPK/2r5 b - - 0 33",
+    "8/R4pk1/4qnp1/3Np1bp/1P2P3/5Q1P/5PPK/1r6 w - - 1 34",
+    "8/R4pk1/4qnp1/3Np1bp/1P2P3/5QPP/5P1K/1r6 b - - 0 34",
+    "8/R4pk1/4qnp1/3Np2p/1P2P3/5QPP/3b1P1K/1r6 w - - 1 35",
+    "8/R4pk1/4qnp1/3Np2p/1P2P3/3Q2PP/3b1P1K/1r6 b - - 2 35",
+    "8/R4pk1/4qnp1/3Np2p/1P2P3/3Q2PP/3b1P1K/3r4 w - - 3 36",
+    "8/R4pk1/4qnp1/3Np2p/1P2P3/6PP/2Qb1P1K/3r4 b - - 4 36",
+    "8/R4pk1/4qnp1/3Np2p/1P2P3/6PP/2Qb1P1K/5r2 w - - 5 37",
+    "8/R4pk1/4qnp1/3Np2p/1P2P3/6PP/3Q1P1K/5r2 b - - 0 37",
+    "8/R4pk1/4q1p1/3Np2p/1P2n3/6PP/3Q1P1K/5r2 w - - 0 38",
+    "8/R4pk1/4q1p1/3Np2p/1P2n3/3Q2PP/5P1K/5r2 b - - 1 38",
+    "8/R4pk1/4q1p1/3Np2p/1P2n3/3Q2PP/5P1K/7r w - - 2 39",
+    "8/R4pk1/4q1p1/3Np2p/1P2n3/3Q2PP/5PK1/7r b - - 3 39",
+    "8/R4pk1/6p1/3Np2p/1P2n3/3Q2Pq/5PK1/7r w - - 0 40",
+    "8/R4pk1/6p1/3Np2p/1P2n3/3Q1KPq/5P2/7r b - - 1 40",
+    "8/R4pk1/6p1/3Np2p/1P2n3/3Q1KPq/5P2/4r3 w - - 2 41"
+  ],
+  "turns": [
+    {
+      "move": 1,
+      "observed_utc": "2026-09-07T16:46:12.211509+00:00",
+      "initial_candidate": "g1f3",
+      "concern": "Natural development; prior opening benchmark already known, so not an independent first-move comparison.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-01-query-1.json"
+      ],
+      "selected_move": "g1f3",
+      "selected_san": "Nf3",
+      "assessment": "Confirmed initial candidate. Nf3 and Nc3 tied at depth4; no forcing opponent threat in the displayed development line.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 23.375,
+        "remaining_seconds": 36.625,
+        "engine_remaining_seconds": 9.235,
+        "reserve_seconds": 8,
+        "query_available_seconds": 9.235,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T16:49:36.042Z",
+      "seconds_to_submit": 203.830491
+    },
+    {
+      "move": 2,
+      "observed_utc": "2026-09-07T16:49:58.725Z",
+      "initial_candidate": "d2d4",
+      "concern": "Take central space while developing; watch the e5 break.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-02-query-1.json",
+        "engine-games\\wally-2026-09-07\\turn-02-query-2.json"
+      ],
+      "selected_move": "d2d4",
+      "selected_san": "d4",
+      "assessment": "Kept initial central move. Targeted depth5 search puts d4 only 0.06 below Nc3 and reveals no tactical objection; early flank-pawn preferences suggest evaluation weakness.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 34.777,
+        "remaining_seconds": 25.223,
+        "engine_remaining_seconds": 7.297,
+        "reserve_seconds": 8,
+        "query_available_seconds": 7.297,
+        "expired": false,
+        "calls": 2
+      },
+      "submitted_utc": "2026-09-07T16:50:53.452Z",
+      "seconds_to_submit": 54.727
+    },
+    {
+      "move": 3,
+      "observed_utc": "2026-09-07T16:51:03.735Z",
+      "initial_candidate": "b1c3",
+      "concern": "Develop and prepare e4; review possible central pawn pressure.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-03-query-1.json"
+      ],
+      "selected_move": "b1c3",
+      "selected_san": "Nc3",
+      "assessment": "Engine confirms initial development. Its d5 line includes Nb4 activity; no need to commit to that pawn push yet.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 19.612,
+        "remaining_seconds": 40.388,
+        "engine_remaining_seconds": 9.235,
+        "reserve_seconds": 8,
+        "query_available_seconds": 9.235,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T16:51:39.782Z",
+      "seconds_to_submit": 36.047
+    },
+    {
+      "move": 4,
+      "observed_utc": "2026-09-07T16:51:48.608Z",
+      "initial_candidate": "e2e4",
+      "concern": "Establish full center before Black castles; assess e4 and development against bishop pressure.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-04-query-1.json",
+        "engine-games\\wally-2026-09-07\\turn-04-query-2.json"
+      ],
+      "selected_move": "e2e4",
+      "selected_san": "e4",
+      "assessment": "Kept full-center plan. Targeted depth4 finds e4 playable with no forcing material loss; modest score difference is positional, and Nb4 again cautions against reflexive d5.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 32.379,
+        "remaining_seconds": 27.621,
+        "engine_remaining_seconds": 6.468,
+        "reserve_seconds": 8,
+        "query_available_seconds": 6.468,
+        "expired": false,
+        "calls": 2
+      },
+      "submitted_utc": "2026-09-07T16:52:39.280Z",
+      "seconds_to_submit": 50.672
+    },
+    {
+      "move": 5,
+      "observed_utc": "2026-09-07T16:52:48.970Z",
+      "initial_candidate": "f1e2",
+      "concern": "Develop bishop and prepare safe castling; watch e4 and d4 pressure.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-05-query-1.json",
+        "engine-games\\wally-2026-09-07\\turn-05-query-2.json"
+      ],
+      "selected_move": "f1d3",
+      "selected_san": "Bd3",
+      "assessment": "Changed initial Be2 to Bd3: reinforcement of e4 is useful and depth4 comparison supports it, although the 0.05 difference is too small to call a demonstrated improvement.",
+      "changed_candidate": true,
+      "decision_clock": {
+        "elapsed_seconds": 33.192,
+        "remaining_seconds": 26.808,
+        "engine_remaining_seconds": 6.469,
+        "reserve_seconds": 8,
+        "query_available_seconds": 6.469,
+        "expired": false,
+        "calls": 2
+      },
+      "submitted_utc": "2026-09-07T16:53:40.645Z",
+      "seconds_to_submit": 51.675
+    },
+    {
+      "move": 6,
+      "observed_utc": "2026-09-07T16:53:48.384Z",
+      "initial_candidate": "e1g1",
+      "concern": "Castle before pursuing central activity; verify no immediate tactical issue.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-06-query-1.json"
+      ],
+      "selected_move": "e1g1",
+      "selected_san": "O-O",
+      "assessment": "Confirmed castling. Alternative Be3 line reveals Ng4 and bishop exchange; useful candidate-reply reminder, not a proven tactical gain.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 21.952,
+        "remaining_seconds": 38.048,
+        "engine_remaining_seconds": 9.234,
+        "reserve_seconds": 8,
+        "query_available_seconds": 9.234,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T16:54:45.693Z",
+      "seconds_to_submit": 57.309
+    },
+    {
+      "move": 7,
+      "observed_utc": "2026-09-07T16:54:52.843Z",
+      "initial_candidate": "a2a4",
+      "concern": "Restrain b5 expansion while keeping center; compare development alternatives.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-07-query-1.json",
+        "engine-games\\wally-2026-09-07\\turn-07-query-2.json"
+      ],
+      "selected_move": "a2a4",
+      "selected_san": "a4",
+      "assessment": "Kept initial restraint plan; e5 surfaced as an alternative but targeted depth4 difference only 0.07 and no immediate tactical gain.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 30.942,
+        "remaining_seconds": 29.058,
+        "engine_remaining_seconds": 6.469,
+        "reserve_seconds": 8,
+        "query_available_seconds": 6.469,
+        "expired": false,
+        "calls": 2
+      },
+      "submitted_utc": "2026-09-07T16:55:39.773Z",
+      "seconds_to_submit": 46.93
+    },
+    {
+      "move": 8,
+      "observed_utc": "2026-09-07T16:55:48.833Z",
+      "initial_candidate": "c1e3",
+      "concern": "Complete bishop development and reinforce d4; inspect Ng4 and central exchanges.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-08-query-1.json",
+        "engine-games\\wally-2026-09-07\\turn-08-query-2.json"
+      ],
+      "selected_move": "c1f4",
+      "selected_san": "Bf4",
+      "assessment": "Changed Be3 to Bf4 after comparison showed Ng4 forcing an exchange option against Be3. Prefer retaining bishops without doubled e-pawns; small score difference is not proof of superiority.",
+      "changed_candidate": true,
+      "decision_clock": {
+        "elapsed_seconds": 33.305,
+        "remaining_seconds": 26.695,
+        "engine_remaining_seconds": 6.469,
+        "reserve_seconds": 8,
+        "query_available_seconds": 6.469,
+        "expired": false,
+        "calls": 2
+      },
+      "submitted_utc": "2026-09-07T16:56:39.405Z",
+      "seconds_to_submit": 50.572
+    },
+    {
+      "move": 9,
+      "observed_utc": "2026-09-07T16:56:47.417Z",
+      "initial_candidate": "h2h3",
+      "concern": "Challenge bishop pin on f3; inspect exchanges and threats against d4.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-09-query-1.json",
+        "engine-games\\wally-2026-09-07\\turn-09-query-2.json",
+        "engine-games\\wally-2026-09-07\\turn-09-query-3.json"
+      ],
+      "selected_move": "d4d5",
+      "selected_san": "d5",
+      "assessment": "Changed h3 to d5. Engine confirmed h3 Bxf3 Qxf3 Nxd4 loses pawn; d5 secures it and targeted depth4 is positive. Extra query and malformed request consumed time.",
+      "changed_candidate": true,
+      "decision_clock": {
+        "elapsed_seconds": 55.557,
+        "remaining_seconds": 4.443,
+        "engine_remaining_seconds": 2.827,
+        "reserve_seconds": 8,
+        "query_available_seconds": 0.0,
+        "expired": false,
+        "calls": 3
+      },
+      "submitted_utc": "2026-09-07T16:58:01.704Z",
+      "seconds_to_submit": 74.287
+    },
+    {
+      "move": 10,
+      "observed_utc": "2026-09-07T16:58:09.484Z",
+      "initial_candidate": "f4e5",
+      "concern": "Remove active knight while f3 is pinned; check central recaptures and bishop safety.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-10-query-1.json"
+      ],
+      "selected_move": "f4e5",
+      "selected_san": "Bxe5",
+      "assessment": "Initial Bxe5 remains sound in depth3 search; trades the active knight and eases d3/f3 pressure. No new tactical correction needed.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 26.472,
+        "remaining_seconds": 33.528,
+        "engine_remaining_seconds": 8.313,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.313,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T16:58:53.945Z",
+      "seconds_to_submit": 44.461
+    },
+    {
+      "move": 11,
+      "observed_utc": "2026-09-07T16:59:22.893Z",
+      "initial_candidate": "h2h3",
+      "concern": "Now challenge pin with d4 vacated and enemy active knight exchanged; watch Bxf3 and queen pressure.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-11-query-1.json"
+      ],
+      "selected_move": "h2h3",
+      "selected_san": "h3",
+      "assessment": "Engine confirms h3 in changed position, with no d4 pawn to lose after Bxf3. Useful reuse of the earlier tactical diagnosis.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 20.098,
+        "remaining_seconds": 39.902,
+        "engine_remaining_seconds": 8.312,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.312,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:00:03.763Z",
+      "seconds_to_submit": 40.87
+    },
+    {
+      "move": 12,
+      "observed_utc": "2026-09-07T17:00:11.121Z",
+      "initial_candidate": "d1f3",
+      "concern": "Recapture without damaging king pawns; inspect resulting queen exposure.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-12-query-1.json"
+      ],
+      "selected_move": "d1f3",
+      "selected_san": "Qxf3",
+      "assessment": "Confirms straightforward Qxf3; avoids doubled f-pawns and leaves no immediate queen trap in searched line.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 18.475,
+        "remaining_seconds": 41.525,
+        "engine_remaining_seconds": 9.234,
+        "reserve_seconds": 8,
+        "query_available_seconds": 9.234,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:00:47.030Z",
+      "seconds_to_submit": 35.909
+    },
+    {
+      "move": 13,
+      "observed_utc": "2026-09-07T17:00:58.748Z",
+      "initial_candidate": "f1d1",
+      "concern": "Centralize rook on d-file; watch queen activity toward b4 and central e6 break.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-13-query-1.json"
+      ],
+      "selected_move": "a1d1",
+      "selected_san": "Rad1",
+      "assessment": "Use a-rook instead of initially considered f-rook, retaining f-file defender. Engine central exchange line gives a concrete development plan; rejected its top g4 as unnecessary king exposure.",
+      "changed_candidate": true,
+      "decision_clock": {
+        "elapsed_seconds": 24.184,
+        "remaining_seconds": 35.816,
+        "engine_remaining_seconds": 8.312,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.312,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:01:44.594Z",
+      "seconds_to_submit": 45.846
+    },
+    {
+      "move": 14,
+      "observed_utc": "2026-09-07T17:01:52.570Z",
+      "initial_candidate": "d3c4",
+      "concern": "Free d-file for rook and improve bishop; watch h4 and kingside knight entry.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-14-query-1.json"
+      ],
+      "selected_move": "d3c4",
+      "selected_san": "Bc4",
+      "assessment": "Confirms initial Bc4, clearing rook d-file. Depth3 does not establish long-term safety against h-pawn attack; avoid overstating small positive score.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 22.398,
+        "remaining_seconds": 37.602,
+        "engine_remaining_seconds": 8.312,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.312,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:02:34.359Z",
+      "seconds_to_submit": 41.789
+    },
+    {
+      "move": 15,
+      "observed_utc": "2026-09-07T17:02:42.047Z",
+      "initial_candidate": "b2b3",
+      "concern": "Support bishop and queenside structure before knight reroute; monitor c6 break and h4.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-15-query-1.json"
+      ],
+      "selected_move": "b2b3",
+      "selected_san": "b3",
+      "assessment": "Confirms b3. Search highlights c5 break and en-passant option; no forcing vulnerability found within completed depth3.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 23.602,
+        "remaining_seconds": 36.398,
+        "engine_remaining_seconds": 8.312,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.312,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:03:50.557Z",
+      "seconds_to_submit": 68.51
+    },
+    {
+      "move": 16,
+      "observed_utc": "2026-09-07T17:04:00.877Z",
+      "initial_candidate": "c3e2",
+      "concern": "Reroute knight toward g3/f5 while Black prepares b5; verify central and queenside pawn safety.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-16-query-1.json",
+        "engine-games\\wally-2026-09-07\\turn-16-query-2.json"
+      ],
+      "selected_move": "c3e2",
+      "selected_san": "Ne2",
+      "assessment": "Kept knight reroute. Targeted search identifies b5 attacking bishop, with Bd3 and b-file opening; no immediate loss seen, but depth3 leaves strategic uncertainty.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 37.352,
+        "remaining_seconds": 22.648,
+        "engine_remaining_seconds": 5.547,
+        "reserve_seconds": 8,
+        "query_available_seconds": 5.547,
+        "expired": false,
+        "calls": 2
+      },
+      "submitted_utc": "2026-09-07T17:04:54.868Z",
+      "seconds_to_submit": 53.991
+    },
+    {
+      "move": 17,
+      "observed_utc": "2026-09-07T17:05:11.958Z",
+      "initial_candidate": "c4d3",
+      "concern": "Bishop is attacked; compare retreat with captures without losing a pawn or opening dangerous rook lines.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-17-query-1.json"
+      ],
+      "selected_move": "a4b5",
+      "selected_san": "axb5",
+      "assessment": "Changed Bd3 to axb5. Depth4 comparison reveals direct retreat permits Rb2 after exchanges; capturing first reduces that immediate rook invasion route.",
+      "changed_candidate": true,
+      "decision_clock": {
+        "elapsed_seconds": 30.169,
+        "remaining_seconds": 29.831,
+        "engine_remaining_seconds": 8.312,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.312,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:06:07.418Z",
+      "seconds_to_submit": 55.46
+    },
+    {
+      "move": 18,
+      "observed_utc": "2026-09-07T17:06:14.976Z",
+      "initial_candidate": "c4d3",
+      "concern": "Retreat attacked bishop while keeping e4 defended and king secure.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-18-query-1.json"
+      ],
+      "selected_move": "c4d3",
+      "selected_san": "Bd3",
+      "assessment": "Confirms required bishop retreat. Engine now evaluates near equality after e6 break; no material advantage claimed.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 19.866,
+        "remaining_seconds": 40.134,
+        "engine_remaining_seconds": 8.313,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.313,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:06:56.613Z",
+      "seconds_to_submit": 41.637
+    },
+    {
+      "move": 19,
+      "observed_utc": "2026-09-07T17:07:14.236Z",
+      "initial_candidate": "d5e6",
+      "concern": "Resolve central tension; inspect queen or pawn recapture and exposed lines against both kings.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-19-query-1.json"
+      ],
+      "selected_move": "d5e6",
+      "selected_san": "dxe6",
+      "assessment": "Confirms dxe6, with Qxe6 the principal reply at depth4. Stable near-equal score; no forcing opportunity found.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 21.705,
+        "remaining_seconds": 38.295,
+        "engine_remaining_seconds": 8.313,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.313,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:07:54.415Z",
+      "seconds_to_submit": 40.179
+    },
+    {
+      "move": 20,
+      "observed_utc": "2026-09-07T17:08:02.525Z",
+      "initial_candidate": "e2g3",
+      "concern": "Improve knight toward f5; check h4 tempo and newly opened queen lines before committing.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-20-query-1.json",
+        "engine-games\\wally-2026-09-07\\turn-20-query-2.json"
+      ],
+      "selected_move": "d1a1",
+      "selected_san": "Ra1",
+      "assessment": "Changed Ng3 to Ra1. Engine gives knight route no convincing payoff and returns knight to e2 after c5; open a-file offers concrete rook activity. No forced refutation of Ng3 established.",
+      "changed_candidate": true,
+      "decision_clock": {
+        "elapsed_seconds": 35.285,
+        "remaining_seconds": 24.715,
+        "engine_remaining_seconds": 5.547,
+        "reserve_seconds": 8,
+        "query_available_seconds": 5.547,
+        "expired": false,
+        "calls": 2
+      },
+      "submitted_utc": "2026-09-07T17:09:14.809Z",
+      "seconds_to_submit": 72.284
+    },
+    {
+      "move": 21,
+      "observed_utc": "2026-09-07T17:09:27.290Z",
+      "initial_candidate": "f1d1",
+      "concern": "Develop rook while anticipating c4 attack on bishop and b3; inspect exchanges and queen pressure.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-21-query-1.json"
+      ],
+      "selected_move": "f1d1",
+      "selected_san": "Rfd1",
+      "assessment": "Confirms Rfd1 and anticipated c4 exchange. Keeps rook defense of bishop; subsequent bishop response will need fresh search.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 32.084,
+        "remaining_seconds": 27.916,
+        "engine_remaining_seconds": 8.313,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.313,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:10:22.429Z",
+      "seconds_to_submit": 55.139
+    },
+    {
+      "move": 22,
+      "observed_utc": "2026-09-07T17:10:30.759Z",
+      "initial_candidate": "b3c4",
+      "concern": "Resolve attack on bishop with pawn capture; inspect recapture and bishop retreat.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-22-query-1.json",
+        "engine-games\\wally-2026-09-07\\turn-22-query-2.json"
+      ],
+      "selected_move": "a1a7",
+      "selected_san": "Ra7",
+      "assessment": "Major horizon failure: bishop trapped after c4, which earlier searches displayed without revealing material loss. Changed bxc4 to active Ra7; both lose about piece for pawn at depth4. Human review also missed absent retreat squares.",
+      "changed_candidate": true,
+      "decision_clock": {
+        "elapsed_seconds": 49.901,
+        "remaining_seconds": 10.099,
+        "engine_remaining_seconds": 4.624,
+        "reserve_seconds": 8,
+        "query_available_seconds": 2.099,
+        "expired": false,
+        "calls": 2
+      },
+      "submitted_utc": "2026-09-07T17:11:40.494Z",
+      "seconds_to_submit": 69.735
+    },
+    {
+      "move": 23,
+      "observed_utc": "2026-09-07T17:11:47.963Z",
+      "initial_candidate": "d1d3",
+      "concern": "Recapture pawn and activate rook; inspect checks and threats against seventh-rank rook.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-23-query-1.json"
+      ],
+      "selected_move": "d1d3",
+      "selected_san": "Rxd3",
+      "assessment": "Confirms active Rxd3; cxd3 allows Qxb3 and larger deficit. Engine useful for limiting damage after the earlier miss.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 21.305,
+        "remaining_seconds": 38.695,
+        "engine_remaining_seconds": 8.312,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.312,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:12:29.293Z",
+      "seconds_to_submit": 41.33
+    },
+    {
+      "move": 24,
+      "observed_utc": "2026-09-07T17:12:37.227Z",
+      "initial_candidate": "f3e3",
+      "concern": "Defend a7 rook along diagonal while retaining activity; inspect checks against king and queen.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-24-query-1.json",
+        "engine-games\\wally-2026-09-07\\turn-24-query-2.json"
+      ],
+      "selected_move": "f3e3",
+      "selected_san": "Qe3",
+      "assessment": "Kept Qe3 after targeted depth4 search. Defends a7, avoids immediate simplification and preserves active queen; no tactical recovery found.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 36.492,
+        "remaining_seconds": 23.508,
+        "engine_remaining_seconds": 5.547,
+        "reserve_seconds": 8,
+        "query_available_seconds": 5.547,
+        "expired": false,
+        "calls": 2
+      },
+      "submitted_utc": "2026-09-07T17:13:46.922Z",
+      "seconds_to_submit": 69.695
+    },
+    {
+      "move": 25,
+      "observed_utc": "2026-09-07T17:13:55.502Z",
+      "initial_candidate": "e2g3",
+      "concern": "Seek active knight squares and king threats while checking rook safety and h4.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-25-query-1.json",
+        "engine-games\\wally-2026-09-07\\turn-25-query-2.json"
+      ],
+      "selected_move": "d3d8",
+      "selected_san": "Rxd8",
+      "assessment": "Changed Ng3 to Rxd8. Targeted search shows Ng3 permits rook liquidation and Qxb3, worsening deficit. Concrete useful warning against pursuing own plan.",
+      "changed_candidate": true,
+      "decision_clock": {
+        "elapsed_seconds": 34.329,
+        "remaining_seconds": 25.671,
+        "engine_remaining_seconds": 5.548,
+        "reserve_seconds": 8,
+        "query_available_seconds": 5.548,
+        "expired": false,
+        "calls": 2
+      },
+      "submitted_utc": "2026-09-07T17:14:50.396Z",
+      "seconds_to_submit": 54.894
+    },
+    {
+      "move": 26,
+      "observed_utc": "2026-09-07T17:14:58.126Z",
+      "initial_candidate": "e2c3",
+      "concern": "Activate knight centrally; anticipate b4 and rook checks along open files.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-26-query-1.json"
+      ],
+      "selected_move": "e2c3",
+      "selected_san": "Nc3",
+      "assessment": "Confirms Nc3 with explicit b4 Nb5 Rd1+ Kh2 line. Checking the resulting king escape and queen-rook diagonal before move.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 22.879,
+        "remaining_seconds": 37.121,
+        "engine_remaining_seconds": 8.312,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.312,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:15:47.049Z",
+      "seconds_to_submit": 48.923
+    },
+    {
+      "move": 27,
+      "observed_utc": "2026-09-07T17:15:56.193Z",
+      "initial_candidate": "c3d5",
+      "concern": "Knight attacked; compare central outpost and b5 while watching Rd1 checks.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-27-query-1.json"
+      ],
+      "selected_move": "c3b5",
+      "selected_san": "Nb5",
+      "assessment": "Changed first idea Nd5 to Nb5 from completed depth4 search. Retains knight and active options; checked Rd1+ escape via h2.",
+      "changed_candidate": true,
+      "decision_clock": {
+        "elapsed_seconds": 26.659,
+        "remaining_seconds": 33.341,
+        "engine_remaining_seconds": 8.312,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.312,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:16:41.680Z",
+      "seconds_to_submit": 45.487
+    },
+    {
+      "move": 28,
+      "observed_utc": "2026-09-07T17:16:49.942Z",
+      "initial_candidate": "g1h2",
+      "concern": "Answer check without allowing immediate mating net; inspect follow-up checks.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-28-query-1.json"
+      ],
+      "selected_move": "g1h2",
+      "selected_san": "Kh2",
+      "assessment": "Confirms forced practical Kh2. Search warns Bh6 can attack queen on e3 and prepare Rd2.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 22.067,
+        "remaining_seconds": 37.933,
+        "engine_remaining_seconds": 8.313,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.313,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:17:30.412Z",
+      "seconds_to_submit": 40.47
+    },
+    {
+      "move": 29,
+      "observed_utc": "2026-09-07T17:17:55.012Z",
+      "initial_candidate": "e3e2",
+      "concern": "Queen attacked; maintain king defense and watch Rd2 intrusion.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-29-query-1.json"
+      ],
+      "selected_move": "e3f3",
+      "selected_san": "Qf3",
+      "assessment": "Changed Qe2 to Qf3. Engine shows Qe2 allows more favorable simplification for Black; Qf3 also attacks d1 rook along diagonal and keeps king-side defense.",
+      "changed_candidate": true,
+      "decision_clock": {
+        "elapsed_seconds": 27.389,
+        "remaining_seconds": 32.611,
+        "engine_remaining_seconds": 8.312,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.312,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:18:40.578Z",
+      "seconds_to_submit": 45.566
+    },
+    {
+      "move": 30,
+      "observed_utc": "2026-09-07T17:18:49.591Z",
+      "initial_candidate": "c2c4",
+      "concern": "Escape c2 pressure and activate knight after possible en-passant capture; watch king checks.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-30-query-1.json"
+      ],
+      "selected_move": "c2c3",
+      "selected_san": "c3",
+      "assessment": "Use single-step c3 rather than initial c4. Engine supports pawn exchange and Nxc3 activation; inspect queen e6 and rook c1 attacks in resulting position.",
+      "changed_candidate": true,
+      "decision_clock": {
+        "elapsed_seconds": 24.131,
+        "remaining_seconds": 35.869,
+        "engine_remaining_seconds": 8.313,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.313,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:19:33.223Z",
+      "seconds_to_submit": 43.632
+    },
+    {
+      "move": 31,
+      "observed_utc": "2026-09-07T17:19:41.649Z",
+      "initial_candidate": "b5c3",
+      "concern": "Recapture with knight; verify no pin wins knight against rook c1 and king h2.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-31-query-1.json"
+      ],
+      "selected_move": "b5c3",
+      "selected_san": "Nxc3",
+      "assessment": "Confirms Nxc3. Extended capture line warns Bf4+ and Qxb3/Rxc3; no better practical alternative in search.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 22.712,
+        "remaining_seconds": 37.288,
+        "engine_remaining_seconds": 8.313,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.313,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:20:24.641Z",
+      "seconds_to_submit": 42.992
+    },
+    {
+      "move": 32,
+      "observed_utc": "2026-09-07T17:20:33.063Z",
+      "initial_candidate": "g2g3",
+      "concern": "Reduce Bf4 checks and create king breathing room; inspect dark-square weaknesses and knight exposure.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-32-query-1.json"
+      ],
+      "selected_move": "c3d5",
+      "selected_san": "Nd5",
+      "assessment": "Changed g3 to active Nd5. Engine suggests Re7 counterplay in one reply, and knight is supported by e4 pawn. This provides a concrete attacking option rather than passive defense.",
+      "changed_candidate": true,
+      "decision_clock": {
+        "elapsed_seconds": 30.691,
+        "remaining_seconds": 29.309,
+        "engine_remaining_seconds": 8.313,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.313,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:21:27.553Z",
+      "seconds_to_submit": 54.49
+    },
+    {
+      "move": 33,
+      "observed_utc": "2026-09-07T17:21:45.564Z",
+      "initial_candidate": "b3b4",
+      "concern": "Advance passed b-pawn for counterplay; maintain knight support and inspect queen/rook attacks.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-33-query-1.json"
+      ],
+      "selected_move": "b3b4",
+      "selected_san": "b4",
+      "assessment": "Confirms initial passed-pawn counterplay b4. Evaluation remains losing but slightly improves with active pieces; no forced recovery claimed.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 24.294,
+        "remaining_seconds": 35.706,
+        "engine_remaining_seconds": 8.313,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.313,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:22:46.400Z",
+      "seconds_to_submit": 60.836
+    },
+    {
+      "move": 34,
+      "observed_utc": "2026-09-07T17:22:58.464Z",
+      "initial_candidate": "g2g3",
+      "concern": "Reduce checks; b4 currently defended by knight so do not advance it blindly against rook.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-34-query-1.json"
+      ],
+      "selected_move": "g2g3",
+      "selected_san": "g3",
+      "assessment": "Kept g3 after search shows no immediate tactical refutation. Knight continues guarding b4; queen can improve to d3 later.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 27.175,
+        "remaining_seconds": 32.825,
+        "engine_remaining_seconds": 8.312,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.312,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:23:46.798Z",
+      "seconds_to_submit": 48.334
+    },
+    {
+      "move": 35,
+      "observed_utc": "2026-09-07T17:23:57.292Z",
+      "initial_candidate": "f3d3",
+      "concern": "Bishop adds pressure to b4; seek active queen defense and tactical counterplay.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-35-query-1.json"
+      ],
+      "selected_move": "f3d3",
+      "selected_san": "Qd3",
+      "assessment": "Confirms Qd3, improving queen and supporting prospective b5. Main line offers active pawn advance; still materially worse.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 42.409,
+        "remaining_seconds": 17.591,
+        "engine_remaining_seconds": 8.313,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.313,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:24:59.578Z",
+      "seconds_to_submit": 62.286
+    },
+    {
+      "move": 36,
+      "observed_utc": "2026-09-07T17:25:08.113Z",
+      "initial_candidate": "b4b5",
+      "concern": "Advance supported passed pawn; inspect bishop moves discovering rook attack on queen.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-36-query-1.json",
+        "engine-games\\wally-2026-09-07\\turn-36-query-2.json"
+      ],
+      "selected_move": "d3c2",
+      "selected_san": "Qc2",
+      "assessment": "Clear engine-found opportunity: Qc2 double attacks d1 rook and d2 bishop. Targeted depth4 score becomes slightly positive; review confirms both attacks but avoid assuming exact score is reliable.",
+      "changed_candidate": true,
+      "decision_clock": {
+        "elapsed_seconds": 49.97,
+        "remaining_seconds": 10.03,
+        "engine_remaining_seconds": 5.546,
+        "reserve_seconds": 8,
+        "query_available_seconds": 2.03,
+        "expired": false,
+        "calls": 2
+      },
+      "submitted_utc": "2026-09-07T17:26:25.338Z",
+      "seconds_to_submit": 77.225
+    },
+    {
+      "move": 37,
+      "observed_utc": "2026-09-07T17:26:34.293Z",
+      "initial_candidate": "c2d2",
+      "concern": "Capture loose bishop to restore material; inspect Rxf2 checks and queen-king safety.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-37-query-1.json"
+      ],
+      "selected_move": "c2d2",
+      "selected_san": "Qxd2",
+      "assessment": "Confirms Qxd2 recovers bishop. Search warns Nxe4 attacks queen and may cost f2, so material recovery does not imply an advantage.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 23.69,
+        "remaining_seconds": 36.31,
+        "engine_remaining_seconds": 8.312,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.312,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:27:30.535Z",
+      "seconds_to_submit": 56.242
+    },
+    {
+      "move": 38,
+      "observed_utc": "2026-09-07T17:27:38.834Z",
+      "initial_candidate": "d2d3",
+      "concern": "Queen attacked; inspect f2 capture and checks while keeping active counterplay.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-38-query-1.json"
+      ],
+      "selected_move": "d2d3",
+      "selected_san": "Qd3",
+      "assessment": "Confirms Qd3 as clearly strongest practical defense; Qe3 loses knight after checks. Anticipated Rxf2+ Kg1 Rd2 keeps pressure but no immediate mate.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 25.053,
+        "remaining_seconds": 34.947,
+        "engine_remaining_seconds": 8.313,
+        "reserve_seconds": 8,
+        "query_available_seconds": 8.313,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:28:22.602Z",
+      "seconds_to_submit": 43.768
+    },
+    {
+      "move": 39,
+      "observed_utc": "2026-09-07T17:28:30.357Z",
+      "initial_candidate": "h2g2",
+      "concern": "Avoid rook-sacrifice fork: Kxh1 may permit Nxf2+ hitting queen d3; inspect all check evasions.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-39-query-1.json"
+      ],
+      "selected_move": "h2g2",
+      "selected_san": "Kg2",
+      "assessment": "Engine confirms independently spotted trap: Kxh1 Nxf2+ wins queen. Depth5 supports Kg2, with forced king exposure but far smaller deficit.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 33.34,
+        "remaining_seconds": 26.66,
+        "engine_remaining_seconds": 9.703,
+        "reserve_seconds": 8,
+        "query_available_seconds": 9.703,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:29:22.481Z",
+      "seconds_to_submit": 52.124
+    },
+    {
+      "move": 40,
+      "observed_utc": "2026-09-07T17:29:33.745Z",
+      "initial_candidate": "g2f3",
+      "concern": "Escape forcing queen check; inspect mating threats and defensive knight interpositions.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-40-query-1.json"
+      ],
+      "selected_move": "g2f3",
+      "selected_san": "Kf3",
+      "assessment": "Only legal move. Depth5 score worsens sharply and sees Re1 followed by sacrifice to survive; confirms remaining horizon vulnerability in prior king-escape line.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "elapsed_seconds": 27.846,
+        "remaining_seconds": 32.154,
+        "engine_remaining_seconds": 10.578,
+        "reserve_seconds": 8,
+        "query_available_seconds": 10.578,
+        "expired": false,
+        "calls": 1
+      },
+      "submitted_utc": "2026-09-07T17:30:21.296Z",
+      "seconds_to_submit": 47.551
+    },
+    {
+      "move": 41,
+      "observed_utc": "2026-09-07T17:30:30.503Z",
+      "initial_candidate": "d5f4",
+      "concern": "Counter queen with Nf4 while facing mating threats; compare forcing sacrifices and legal king escapes.",
+      "queries": [
+        "engine-games\\wally-2026-09-07\\turn-41-query-1.json",
+        "engine-games\\wally-2026-09-07\\turn-41-query-2.json"
+      ]
+    }
+  ],
+  "pending": null,
+  "termination": "resignation"
+}

@@ -1,0 +1,12 @@
+{
+  "label": "Wally game 8, move 2: Take central space while developing; watch the e5 break.",
+  "mode": "analyze",
+  "fen": "rnbqkbnr/ppp1pppp/3p4/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 0 2",
+  "history_fens": [
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1"
+  ],
+  "depth": 5,
+  "seconds": 3,
+  "candidates": 3
+}

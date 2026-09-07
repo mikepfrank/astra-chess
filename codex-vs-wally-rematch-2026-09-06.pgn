@@ -1,0 +1,19 @@
+[Event "Chess.com Bot Game - Visualization Trial"]
+[Site "https://www.chess.com/"]
+[Date "2026.09.06"]
+[Round "7"]
+[White "Codex (Guest)"]
+[Black "Wally"]
+[Result "0-1"]
+[TimeControl "-"]
+[Termination "normal"]
+[BlackElo "1800"]
+
+1. d4 d6 2. e4 Nf6 3. Nc3 g6 4. Nf3 Bg7 5. Be2 O-O 6. O-O a6 7. a4 b6 8. h3 Bb7
+9. Bd3 Nc6 10. Be3 e5 11. d5 Nb4 12. Bc4 h6 13. Qd2 Qb8 14. Bxh6 Bxh6
+15. Qxh6 Nxc2 16. Rac1 Nd4 17. Nxd4 exd4 18. Ne2 b5 19. axb5 axb5 20. Bd3 Re8
+21. Ng3 Re7 22. Nf5 gxf5 23. Qxf6 Re5 24. f4 Rxe4 25. Bxe4 fxe4 26. Qxd4 Ra4
+27. Qd2 Qa7+ 28. Kh2 e3 29. Qd3 Qd4 30. Qxd4 Rxd4 31. Rfe1 Re4 32. Rc3 e2
+33. Rc2 Bxd5 34. Rexe2 c6 35. Rxe4 Bxe4 36. Rf2 d5 37. Kg3 Kg7 38. Kg4 Kg6
+39. h4 f5+ 40. Kh3 Kh5 41. Rf1 d4 42. Rd1 c5 43. Rc1 c4 44. Ra1 d3 45. Ra7 d2
+46. Rd7 Bd3 47. Rh7+ Kg6 0-1

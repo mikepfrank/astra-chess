@@ -1,0 +1,9 @@
+{
+  "label": "Can White capture the queen that starts on e4?",
+  "mode": "probe",
+  "fen": "7k/8/8/8/4q3/8/4R3/K7 w - - 0 1",
+  "goal": {"type": "capture", "side": "white", "target": "e4"},
+  "depth": 3,
+  "seconds": 2,
+  "candidates": 3
+}

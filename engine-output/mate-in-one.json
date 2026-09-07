@@ -1,0 +1,112 @@
+{
+  "kind": "goal_probe",
+  "start_fen": "7k/5K2/6Q1/8/8/8/8/8 w - - 0 1",
+  "goal": {
+    "type": "checkmate",
+    "side": "white"
+  },
+  "horizon_plies": 1,
+  "status": "forced",
+  "proof_status": "forced",
+  "witness_status": "found",
+  "proof_completed_depth": 1,
+  "witness_exhausted_depth": 0,
+  "lines": [
+    {
+      "uci": [
+        "g6h5"
+      ],
+      "san": [
+        "Qh5#"
+      ],
+      "fens": [
+        "7k/5K2/6Q1/8/8/8/8/8 w - - 0 1",
+        "7k/5K2/8/7Q/8/8/8/8 b - - 1 1"
+      ],
+      "ending": "goal_reached",
+      "claim_by_intended_move": null,
+      "evidence": "proof_representative"
+    },
+    {
+      "uci": [
+        "g6g7"
+      ],
+      "san": [
+        "Qg7#"
+      ],
+      "fens": [
+        "7k/5K2/6Q1/8/8/8/8/8 w - - 0 1",
+        "7k/5KQ1/8/8/8/8/8/8 b - - 1 1"
+      ],
+      "ending": "goal_reached",
+      "claim_by_intended_move": null,
+      "evidence": "cooperative_witness"
+    },
+    {
+      "uci": [
+        "g6h6"
+      ],
+      "san": [
+        "Qh6#"
+      ],
+      "fens": [
+        "7k/5K2/6Q1/8/8/8/8/8 w - - 0 1",
+        "7k/5K2/7Q/8/8/8/8/8 b - - 1 1"
+      ],
+      "ending": "goal_reached",
+      "claim_by_intended_move": null,
+      "evidence": "cooperative_witness"
+    }
+  ],
+  "nodes": 14,
+  "time_limit_seconds": 2.0,
+  "timed_out": false,
+  "history_supplied": true,
+  "semantics": {
+    "forced": "Goal-side strategy covers every legal opponent reply within the stated horizon; not beyond it.",
+    "possible": "A cooperative witness exists, but no forcing strategy exists within this horizon.",
+    "unreachable": "Exhaustive cooperative search found no successful line within this horizon.",
+    "unknown": "The available search did not establish the full result; a listed witness may still exist.",
+    "line_warning": "Lines are witnesses, not a complete strategy tree. Opponent choices may cooperate.",
+    "achievement": "At least once within the horizon; an already satisfied initial check/mate/stalemate counts.",
+    "avoidance": "Every position through the full horizon or earlier game termination; no immediate vacuous success.",
+    "target": "The original piece is tracked through movement, en passant, castling and promotion.",
+    "stalemate": "stalemate targets the opponent; avoid_stalemate forbids either side being stalemated.",
+    "draw_claims": "Optional current or intended-move claims can end the game; all-defenses proof includes them.",
+    "history": "Earlier repetitions cannot be inferred from FEN; supply keys for preceding positions.",
+    "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver."
+  },
+  "diagnostics": {
+    "proof_nodes": 5,
+    "witness_nodes": 9,
+    "proof_budget_exhausted": false,
+    "witness_budget_exhausted": false,
+    "material_pruning": false,
+    "quiet_moves_included": true
+  },
+  "elapsed_seconds": 0.0,
+  "budget_overrun_seconds": 0.0,
+  "label": "Can White force checkmate within one ply?",
+  "query": {
+    "label": "Can White force checkmate within one ply?",
+    "mode": "probe",
+    "fen": "7k/5K2/6Q1/8/8/8/8/8 w - - 0 1",
+    "goal": {
+      "type": "checkmate",
+      "side": "white"
+    },
+    "depth": 1,
+    "seconds": 2,
+    "candidates": 3
+  },
+  "position_history_fens": [],
+  "query_time_limit_seconds": 2.0,
+  "created_utc": "2026-09-07T16:25:09.099826+00:00",
+  "engine": {
+    "name": "Astra Search Lab",
+    "version": "0.1",
+    "source_sha256": "c610956f6253e4f09c84a602cb5f45e09bb1a0af55af510fd7ab5980627ecef7"
+  },
+  "turn_budget": null,
+  "interface_elapsed_seconds": 0.0
+}

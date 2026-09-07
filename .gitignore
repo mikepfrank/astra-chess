@@ -1,0 +1,8 @@
+.replay-deps/
+__pycache__/
+*.log
+*.pyc
+# Runtime budgets use process-local monotonic timestamps; evidence is in query results.
+engine-games/*/clock.json
+engine-turn.json
+*.lock

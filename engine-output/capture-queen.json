@@ -1,0 +1,126 @@
+{
+  "kind": "goal_probe",
+  "start_fen": "7k/8/8/8/4q3/8/4R3/K7 w - - 0 1",
+  "goal": {
+    "type": "capture",
+    "side": "white",
+    "target": "e4"
+  },
+  "horizon_plies": 3,
+  "status": "forced",
+  "proof_status": "forced",
+  "witness_status": "found",
+  "proof_completed_depth": 1,
+  "witness_exhausted_depth": 2,
+  "lines": [
+    {
+      "uci": [
+        "e2e4"
+      ],
+      "san": [
+        "Rxe4"
+      ],
+      "fens": [
+        "7k/8/8/8/4q3/8/4R3/K7 w - - 0 1",
+        "7k/8/8/8/4R3/8/8/K7 b - - 0 1"
+      ],
+      "ending": "goal_reached",
+      "claim_by_intended_move": null,
+      "evidence": "proof_representative"
+    },
+    {
+      "uci": [
+        "e2e3",
+        "e4e5",
+        "e3e5"
+      ],
+      "san": [
+        "Re3",
+        "Qe5+",
+        "Rxe5"
+      ],
+      "fens": [
+        "7k/8/8/8/4q3/8/4R3/K7 w - - 0 1",
+        "7k/8/8/8/4q3/4R3/8/K7 b - - 1 1",
+        "7k/8/8/4q3/8/4R3/8/K7 w - - 2 2",
+        "7k/8/8/4R3/8/8/8/K7 b - - 0 2"
+      ],
+      "ending": "goal_reached",
+      "claim_by_intended_move": null,
+      "evidence": "cooperative_witness"
+    },
+    {
+      "uci": [
+        "e2e3",
+        "e4d3",
+        "e3d3"
+      ],
+      "san": [
+        "Re3",
+        "Qd3",
+        "Rxd3"
+      ],
+      "fens": [
+        "7k/8/8/8/4q3/8/4R3/K7 w - - 0 1",
+        "7k/8/8/8/4q3/4R3/8/K7 b - - 1 1",
+        "7k/8/8/8/8/3qR3/8/K7 w - - 2 2",
+        "7k/8/8/8/8/3R4/8/K7 b - - 0 2"
+      ],
+      "ending": "goal_reached",
+      "claim_by_intended_move": null,
+      "evidence": "cooperative_witness"
+    }
+  ],
+  "nodes": 748,
+  "time_limit_seconds": 2.0,
+  "timed_out": false,
+  "history_supplied": true,
+  "semantics": {
+    "forced": "Goal-side strategy covers every legal opponent reply within the stated horizon; not beyond it.",
+    "possible": "A cooperative witness exists, but no forcing strategy exists within this horizon.",
+    "unreachable": "Exhaustive cooperative search found no successful line within this horizon.",
+    "unknown": "The available search did not establish the full result; a listed witness may still exist.",
+    "line_warning": "Lines are witnesses, not a complete strategy tree. Opponent choices may cooperate.",
+    "achievement": "At least once within the horizon; an already satisfied initial check/mate/stalemate counts.",
+    "avoidance": "Every position through the full horizon or earlier game termination; no immediate vacuous success.",
+    "target": "The original piece is tracked through movement, en passant, castling and promotion.",
+    "stalemate": "stalemate targets the opponent; avoid_stalemate forbids either side being stalemated.",
+    "draw_claims": "Optional current or intended-move claims can end the game; all-defenses proof includes them.",
+    "history": "Earlier repetitions cannot be inferred from FEN; supply keys for preceding positions.",
+    "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver."
+  },
+  "diagnostics": {
+    "proof_nodes": 3,
+    "witness_nodes": 745,
+    "proof_budget_exhausted": false,
+    "witness_budget_exhausted": false,
+    "material_pruning": false,
+    "quiet_moves_included": true
+  },
+  "elapsed_seconds": 0.015,
+  "budget_overrun_seconds": 0.0,
+  "label": "Can White capture the queen that starts on e4?",
+  "query": {
+    "label": "Can White capture the queen that starts on e4?",
+    "mode": "probe",
+    "fen": "7k/8/8/8/4q3/8/4R3/K7 w - - 0 1",
+    "goal": {
+      "type": "capture",
+      "side": "white",
+      "target": "e4"
+    },
+    "depth": 3,
+    "seconds": 2,
+    "candidates": 3
+  },
+  "position_history_fens": [],
+  "query_time_limit_seconds": 2.0,
+  "created_utc": "2026-09-07T16:25:09.228827+00:00",
+  "engine": {
+    "name": "Astra Search Lab",
+    "version": "0.1",
+    "source_sha256": "c610956f6253e4f09c84a602cb5f45e09bb1a0af55af510fd7ab5980627ecef7"
+  },
+  "turn_budget": null,
+  "interface_elapsed_seconds": 0.015
+}

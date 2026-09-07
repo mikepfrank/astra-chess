@@ -1,0 +1,25 @@
+[Event "Chess.com Bot Game"]
+[Site "https://www.chess.com/"]
+[Date "2026.09.05"]
+[Round "3"]
+[White "Codex (Guest)"]
+[Black "Nelson"]
+[Result "0-1"]
+[BlackElo "1300"]
+[TimeControl "-"]
+[Termination "normal"]
+
+1. d4 e5 2. dxe5 Qh4 3. Nf3 Qg4 4. Nc3 f6 5. exf6 Nxf6
+6. h3 Qe6 7. e3 Na6 8. Be2 Bb4 9. O-O Bxc3 10. bxc3 Kd8
+11. Nd4 Qe8 12. Ba3 Ne4 13. Qd3 d6 14. Bf3 Nac5 15. Qd2 Nxd2
+16. Bxc5 Nxf3+ 17. Nxf3 dxc5 18. Rfd1+ Ke7 19. Rd5 Qg8 20. Rxc5 Be6
+21. Rxc7+ Kd6 22. Rxb7 Bd5 23. Rd1 Kc5 24. Rb4 Bxf3 25. gxf3 Rd8
+26. Rdd4 Rxd4 27. exd4+ Kc6 28. c4 Qd8 29. d5+ Kd6 30. Rb7 Rf8
+31. Kg2 Qg5+ 32. Kh2 a5 33. Rb6+ Kc7 34. Rc6+ Kd7 35. c5 Qxd5
+36. Rd6+ Qxd6+ 37. cxd6 Rd8 38. Kg3 Rc8 39. Kf4 Rxc2 40. Ke5 Rxa2
+41. f4 h6 42. f5 Re2+ 43. Kd5 Rd2+ 44. Ke5 Re2+ 45. Kd5 Rd2+
+46. Ke5 Rxf2 47. h4 Rb2 48. h5 Rb5+ 49. Kf4 Rb6 50. Ke5 Rxd6
+51. Kf4 Kc7 52. Kg4 Kb8 53. Kf4 Rd5 54. Kg4 Kc7 55. Kf4 Kd7
+56. Kg4 Kd8 57. Kf4 Kc8 58. Kg4 Kc7 59. Kf4 Rd3 60. Kg4 Kc6
+61. Kf4 a4 62. Kg4 a3 63. Kf4 Kd5 64. Kg4 a2 65. Kf4 a1=Q
+66. Kg4 Qd4# 0-1

@@ -1,0 +1,259 @@
+{
+  "board": {
+    "b2": "P",
+    "a7": "p",
+    "h7": "p",
+    "g6": "P",
+    "g8": "k",
+    "b5": "p",
+    "a3": "P",
+    "d5": "p",
+    "d4": "P",
+    "e5": "R",
+    "c6": "b",
+    "g4": "P",
+    "h6": "Q",
+    "f2": "r",
+    "h1": "K",
+    "f1": "q"
+  },
+  "journal": [
+    {
+      "edits": [
+        "d2d4",
+        "d7d6"
+      ],
+      "san": "1. d4 d6"
+    },
+    {
+      "edits": [
+        "e2e4",
+        "g8f6"
+      ],
+      "san": "2. e4 Nf6"
+    },
+    {
+      "edits": [
+        "b1c3",
+        "g7g6"
+      ],
+      "san": "3. Nc3 g6"
+    },
+    {
+      "edits": [
+        "g1f3",
+        "f8g7"
+      ],
+      "san": "4. Nf3 Bg7"
+    },
+    {
+      "edits": [
+        "f1e2",
+        "e8g8",
+        "h8f8"
+      ],
+      "san": "5. Be2 O-O"
+    },
+    {
+      "edits": [
+        "e1g1",
+        "h1f1",
+        "c7c6"
+      ],
+      "san": "6. O-O c6"
+    },
+    {
+      "edits": [
+        "h2h3",
+        "b8d7"
+      ],
+      "san": "7. h3 Nbd7"
+    },
+    {
+      "edits": [
+        "c1e3",
+        "e7e5"
+      ],
+      "san": "8. Be3 e5"
+    },
+    {
+      "edits": [
+        "d1d2",
+        "b7b5"
+      ],
+      "san": "9. Qd2 b5"
+    },
+    {
+      "edits": [
+        "a2a3",
+        "f8e8"
+      ],
+      "san": "10. a3 Re8"
+    },
+    {
+      "edits": [
+        "d4e5",
+        "d7e5"
+      ],
+      "san": "11. dxe5 Nxe5"
+    },
+    {
+      "edits": [
+        "f3e5",
+        "e8e5"
+      ],
+      "san": "12. Nxe5 Rxe5"
+    },
+    {
+      "edits": [
+        "e2d3",
+        "d6d5"
+      ],
+      "san": "13. Bd3 d5"
+    },
+    {
+      "edits": [
+        "f2f4",
+        "e5e6"
+      ],
+      "san": "14. f4 Re6"
+    },
+    {
+      "edits": [
+        "e4d5",
+        "f6d5"
+      ],
+      "san": "15. exd5 Nxd5"
+    },
+    {
+      "edits": [
+        "c3d5",
+        "c6d5"
+      ],
+      "san": "16. Nxd5 cxd5"
+    },
+    {
+      "edits": [
+        "c2c3",
+        "d8e8"
+      ],
+      "san": "17. c3 Qe8"
+    },
+    {
+      "edits": [
+        "a1e1",
+        "f7f5"
+      ],
+      "san": "18. Rae1 f5"
+    },
+    {
+      "edits": [
+        "e3d4",
+        "g7d4"
+      ],
+      "san": "19. Bd4 Bxd4+"
+    },
+    {
+      "edits": [
+        "c3d4",
+        "c8d7"
+      ],
+      "san": "20. cxd4 Bd7"
+    },
+    {
+      "edits": [
+        "e1e5",
+        "d7c6"
+      ],
+      "san": "21. Re5 Bc6"
+    },
+    {
+      "edits": [
+        "f1e1",
+        "e6e5"
+      ],
+      "san": "22. Rfe1 Rxe5"
+    },
+    {
+      "edits": [
+        "e1e5",
+        "e8f7"
+      ],
+      "san": "23. Rxe5 Qf7"
+    },
+    {
+      "edits": [
+        "d2e3",
+        "a8e8"
+      ],
+      "san": "24. Qe3 Re8"
+    },
+    {
+      "edits": [
+        "g2g4",
+        "f5g4"
+      ],
+      "san": "25. g4 fxg4"
+    },
+    {
+      "edits": [
+        "h3g4",
+        "e8f8"
+      ],
+      "san": "26. hxg4 Rf8"
+    },
+    {
+      "edits": [
+        "f4f5",
+        "f8e8"
+      ],
+      "san": "27. f5 Re8"
+    },
+    {
+      "edits": [
+        "e3g5",
+        "e8f8"
+      ],
+      "san": "28. Qg5 Rf8"
+    },
+    {
+      "edits": [
+        "f5g6",
+        "f7f2"
+      ],
+      "san": "29. fxg6 Qf2+"
+    },
+    {
+      "edits": [
+        "g1h1",
+        "f2f3"
+      ],
+      "san": "30. Kh1 Qf3+"
+    },
+    {
+      "edits": [
+        "h1h2",
+        "f3d3"
+      ],
+      "san": "31. Kh2 Qxd3"
+    },
+    {
+      "edits": [
+        "g5h6",
+        "f8f2"
+      ],
+      "san": "32. Qh6 Rf2+"
+    },
+    {
+      "edits": [
+        "h2h1",
+        "d3f1"
+      ],
+      "san": "33. Kh1 Qf1#"
+    }
+  ],
+  "last_edits": [
+    "h2h1",
+    "d3f1"
+  ]
+}

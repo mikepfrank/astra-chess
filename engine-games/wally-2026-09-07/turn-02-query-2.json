@@ -1,0 +1,138 @@
+{
+  "kind": "analysis",
+  "start_fen": "rnbqkbnr/ppp1pppp/3p4/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 0 2",
+  "turn": "white",
+  "requested_depth": 5,
+  "completed_depth": 5,
+  "nodes": 12969,
+  "elapsed_seconds": 1.938,
+  "time_limit_seconds": 3.0,
+  "timed_out": false,
+  "fallback": false,
+  "candidates": [
+    {
+      "uci": [
+        "b1c3",
+        "b8c6",
+        "a2a4",
+        "g8f6",
+        "h2h4"
+      ],
+      "san": [
+        "Nc3",
+        "Nc6",
+        "a4",
+        "Nf6",
+        "h4"
+      ],
+      "fens": [
+        "rnbqkbnr/ppp1pppp/3p4/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 0 2",
+        "rnbqkbnr/ppp1pppp/3p4/8/8/2N2N2/PPPPPPPP/R1BQKB1R b KQkq - 1 2",
+        "r1bqkbnr/ppp1pppp/2np4/8/8/2N2N2/PPPPPPPP/R1BQKB1R w KQkq - 2 3",
+        "r1bqkbnr/ppp1pppp/2np4/8/P7/2N2N2/1PPPPPPP/R1BQKB1R b KQkq a3 0 3",
+        "r1bqkb1r/ppp1pppp/2np1n2/8/P7/2N2N2/1PPPPPPP/R1BQKB1R w KQkq - 1 4",
+        "r1bqkb1r/ppp1pppp/2np1n2/8/P6P/2N2N2/1PPPPPP1/R1BQKB1R b KQkq h3 0 4"
+      ],
+      "ending": null,
+      "claim_by_intended_move": null,
+      "rank": 1,
+      "root_move": "b1c3",
+      "score_cp": 34,
+      "mate_in_plies": null,
+      "depth": 5,
+      "score_is_exact_for_search": true
+    },
+    {
+      "uci": [
+        "d2d4",
+        "g8f6",
+        "b1c3",
+        "b8c6",
+        "c1e3"
+      ],
+      "san": [
+        "d4",
+        "Nf6",
+        "Nc3",
+        "Nc6",
+        "Be3"
+      ],
+      "fens": [
+        "rnbqkbnr/ppp1pppp/3p4/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 0 2",
+        "rnbqkbnr/ppp1pppp/3p4/8/3P4/5N2/PPP1PPPP/RNBQKB1R b KQkq d3 0 2",
+        "rnbqkb1r/ppp1pppp/3p1n2/8/3P4/5N2/PPP1PPPP/RNBQKB1R w KQkq - 1 3",
+        "rnbqkb1r/ppp1pppp/3p1n2/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R b KQkq - 2 3",
+        "r1bqkb1r/ppp1pppp/2np1n2/8/3P4/2N2N2/PPP1PPPP/R1BQKB1R w KQkq - 3 4",
+        "r1bqkb1r/ppp1pppp/2np1n2/8/3P4/2N1BN2/PPP1PPPP/R2QKB1R b KQkq - 4 4"
+      ],
+      "ending": null,
+      "claim_by_intended_move": null,
+      "rank": 2,
+      "root_move": "d2d4",
+      "score_cp": 28,
+      "mate_in_plies": null,
+      "depth": 5,
+      "score_is_exact_for_search": true
+    }
+  ],
+  "terminal": null,
+  "draw_claim_available": false,
+  "current_draw_claim_available": false,
+  "draw_claim_reasons": [],
+  "draw_claim_by_intended_moves": [],
+  "intended_move": null,
+  "root_score_cp": 34,
+  "recommended_action": "move",
+  "history_supplied": true,
+  "diagnostics": {
+    "score_view": "root side",
+    "depth_unit": "plies",
+    "history_note": "Earlier repetition is unknown without supplied history.",
+    "quiescence_capture_depth": 8,
+    "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+    "transposition_reuse": "move ordering only; no cached evaluation bounds",
+    "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+    "stop_reason": "depth_limit",
+    "qnodes": 10856,
+    "cutoffs": 3195
+  },
+  "budget_overrun_seconds": 0.0,
+  "label": "Wally game 8, move 2: Compare central pawn development with engine preference",
+  "query": {
+    "label": "Wally game 8, move 2: Compare central pawn development with engine preference",
+    "mode": "analyze",
+    "fen": "rnbqkbnr/ppp1pppp/3p4/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 0 2",
+    "history_fens": [
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1"
+    ],
+    "depth": 5,
+    "seconds": 3.0,
+    "candidates": 3,
+    "root_moves": [
+      "d2d4",
+      "b1c3"
+    ]
+  },
+  "position_history_fens": [
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1"
+  ],
+  "query_time_limit_seconds": 3.0,
+  "created_utc": "2026-09-07T16:50:21.633450+00:00",
+  "engine": {
+    "name": "Astra Search Lab",
+    "version": "0.1",
+    "source_sha256": "c610956f6253e4f09c84a602cb5f45e09bb1a0af55af510fd7ab5980627ecef7"
+  },
+  "turn_budget": {
+    "elapsed_seconds": 22.902,
+    "remaining_seconds": 37.098,
+    "engine_remaining_seconds": 7.297,
+    "reserve_seconds": 8,
+    "query_available_seconds": 7.297,
+    "expired": false,
+    "calls": 2
+  },
+  "interface_elapsed_seconds": 1.969
+}

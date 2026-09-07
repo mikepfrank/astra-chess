@@ -1,0 +1,20 @@
+[Event "Chess.com Bot Rematch"]
+[Site "https://www.chess.com/"]
+[Date "2026.09.05"]
+[Round "2"]
+[White "Codex (Guest)"]
+[Black "Sven"]
+[Result "1-0"]
+[BlackElo "1100"]
+[TimeControl "-"]
+[Termination "normal"]
+
+1. d4 d5 2. c4 dxc4 3. Nf3 Qd5 4. Nc3 Qc6 5. e4 b5
+6. a4 Qd7 7. axb5 h6 8. Bxc4 Qd6 9. O-O Qb4 10. Qe2 Be6
+11. Bxe6 fxe6 12. Ra4 c5 13. Rxb4 cxb4 14. Na4 Nf6 15. Bf4 Nbd7
+16. Qc4 Kf7 17. Qc6 Rb8 18. e5 Nd5 19. Qxd7 Nxf4 20. g3 Nh3+
+21. Kg2 Ra8 22. Kxh3 g6 23. Nc5 a5 24. Qxe6+ Kg7 25. Nh4 Rg8
+26. Qxg6+ Kh8 27. Qe4 Rc8 28. Ng6+ Kg7 29. Ne6+ Kf7 30. Ngxf8 Rcxf8
+31. Nxf8 Rxf8 32. d5 Kg7 33. e6 Rf6 34. d6 exd6 35. e7 d5
+36. Qe5 d4 37. e8=Q h5 38. Qg5+ Kh7 39. Qgxh5+ Rh6 40. Qf7+ Kh8
+41. Qxh6# 1-0

@@ -1,0 +1,46 @@
+{
+  "tests_run": 38,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "elapsed_seconds": 1.359,
+  "runtime_import_audit": {
+    "astra_chess.py": [
+      "__future__",
+      "argparse",
+      "astra_engine",
+      "contextlib",
+      "datetime",
+      "hashlib",
+      "json",
+      "math",
+      "os",
+      "pathlib",
+      "time"
+    ],
+    "astra_engine\\report.py": [
+      "html",
+      "json",
+      "pathlib"
+    ],
+    "astra_engine\\rules.py": [
+      "__future__",
+      "dataclasses",
+      "re"
+    ],
+    "astra_engine\\search.py": [
+      "__future__",
+      "collections",
+      "dataclasses",
+      "math",
+      "time",
+      "typing"
+    ],
+    "astra_engine\\__init__.py": []
+  },
+  "notes": [
+    "No external engine, opening book, tablebase, or runtime chess library.",
+    "python-chess is only an optional independent rules oracle in tests.",
+    "Playing strength is not yet measured."
+  ]
+}

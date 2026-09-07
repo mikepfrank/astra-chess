@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "method": "Rules-only python-chess replay; no engine or move-quality analysis.",
+  "chess_version": "1.11.2",
+  "pgn": "codex-vs-wally-rematch-2026-09-06.pgn",
+  "journal": "wally-rematch-board.json",
+  "legal_plies": 94,
+  "canonical_san_plies": 94,
+  "journal_rows_verified": 47,
+  "manual_edits_verified": 96,
+  "intermediate_positions_verified": 94,
+  "final_board_matches": true,
+  "last_edits_match": true,
+  "result": "0-1",
+  "final_fen": "8/7R/6k1/1p3p2/2p2P1P/3b3K/1P1p2P1/8 w - - 4 48",
+  "resignation": "Reported by root as confirmed in Chess.com UI; not inferable from board rules alone."
+}

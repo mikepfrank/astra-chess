@@ -1,0 +1,151 @@
+{
+  "kind": "analysis",
+  "start_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  "turn": "white",
+  "requested_depth": 5,
+  "completed_depth": 4,
+  "nodes": 19842,
+  "elapsed_seconds": 2.765,
+  "time_limit_seconds": 3.0,
+  "timed_out": true,
+  "fallback": false,
+  "candidates": [
+    {
+      "uci": [
+        "b1c3",
+        "b8c6",
+        "g1f3",
+        "g8f6"
+      ],
+      "san": [
+        "Nc3",
+        "Nc6",
+        "Nf3",
+        "Nf6"
+      ],
+      "fens": [
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b KQkq - 1 1",
+        "r1bqkbnr/pppppppp/2n5/8/8/2N5/PPPPPPPP/R1BQKBNR w KQkq - 2 2",
+        "r1bqkbnr/pppppppp/2n5/8/8/2N2N2/PPPPPPPP/R1BQKB1R b KQkq - 3 2",
+        "r1bqkb1r/pppppppp/2n2n2/8/8/2N2N2/PPPPPPPP/R1BQKB1R w KQkq - 4 3"
+      ],
+      "ending": null,
+      "claim_by_intended_move": null,
+      "rank": 1,
+      "root_move": "b1c3",
+      "score_cp": 0,
+      "mate_in_plies": null,
+      "depth": 4,
+      "score_is_exact_for_search": true
+    },
+    {
+      "uci": [
+        "g1f3",
+        "b8c6",
+        "b1c3",
+        "g8f6"
+      ],
+      "san": [
+        "Nf3",
+        "Nc6",
+        "Nc3",
+        "Nf6"
+      ],
+      "fens": [
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1",
+        "r1bqkbnr/pppppppp/2n5/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2",
+        "r1bqkbnr/pppppppp/2n5/8/8/2N2N2/PPPPPPPP/R1BQKB1R b KQkq - 3 2",
+        "r1bqkb1r/pppppppp/2n2n2/8/8/2N2N2/PPPPPPPP/R1BQKB1R w KQkq - 4 3"
+      ],
+      "ending": null,
+      "claim_by_intended_move": null,
+      "rank": 2,
+      "root_move": "g1f3",
+      "score_cp": 0,
+      "mate_in_plies": null,
+      "depth": 4,
+      "score_is_exact_for_search": true
+    },
+    {
+      "uci": [
+        "b1a3",
+        "b8c6",
+        "g1f3",
+        "g8f6"
+      ],
+      "san": [
+        "Na3",
+        "Nc6",
+        "Nf3",
+        "Nf6"
+      ],
+      "fens": [
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "rnbqkbnr/pppppppp/8/8/8/N7/PPPPPPPP/R1BQKBNR b KQkq - 1 1",
+        "r1bqkbnr/pppppppp/2n5/8/8/N7/PPPPPPPP/R1BQKBNR w KQkq - 2 2",
+        "r1bqkbnr/pppppppp/2n5/8/8/N4N2/PPPPPPPP/R1BQKB1R b KQkq - 3 2",
+        "r1bqkb1r/pppppppp/2n2n2/8/8/N4N2/PPPPPPPP/R1BQKB1R w KQkq - 4 3"
+      ],
+      "ending": null,
+      "claim_by_intended_move": null,
+      "rank": 3,
+      "root_move": "b1a3",
+      "score_cp": -22,
+      "mate_in_plies": null,
+      "depth": 4,
+      "score_is_exact_for_search": true
+    }
+  ],
+  "terminal": null,
+  "draw_claim_available": false,
+  "current_draw_claim_available": false,
+  "draw_claim_reasons": [],
+  "draw_claim_by_intended_moves": [],
+  "intended_move": null,
+  "root_score_cp": 0,
+  "recommended_action": "move",
+  "history_supplied": true,
+  "diagnostics": {
+    "score_view": "root side",
+    "depth_unit": "plies",
+    "history_note": "Earlier repetition is unknown without supplied history.",
+    "quiescence_capture_depth": 8,
+    "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+    "transposition_reuse": "move ordering only; no cached evaluation bounds",
+    "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+    "stop_reason": "time_limit",
+    "qnodes": 16420,
+    "cutoffs": 3786
+  },
+  "budget_overrun_seconds": 0.0,
+  "label": "Wally game 8, move 1: Natural development; prior opening benchmark already known, so not an independent first-move comparison.",
+  "query": {
+    "label": "Wally game 8, move 1: Natural development; prior opening benchmark already known, so not an independent first-move comparison.",
+    "mode": "analyze",
+    "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "history_fens": [],
+    "depth": 5,
+    "seconds": 3,
+    "candidates": 3
+  },
+  "position_history_fens": [],
+  "query_time_limit_seconds": 3.0,
+  "created_utc": "2026-09-07T16:46:15.015415+00:00",
+  "engine": {
+    "name": "Astra Search Lab",
+    "version": "0.1",
+    "source_sha256": "c610956f6253e4f09c84a602cb5f45e09bb1a0af55af510fd7ab5980627ecef7"
+  },
+  "turn_budget": {
+    "elapsed_seconds": 2.812,
+    "remaining_seconds": 57.188,
+    "engine_remaining_seconds": 9.235,
+    "reserve_seconds": 8,
+    "query_available_seconds": 9.235,
+    "expired": false,
+    "calls": 1
+  },
+  "interface_elapsed_seconds": 2.797
+}
