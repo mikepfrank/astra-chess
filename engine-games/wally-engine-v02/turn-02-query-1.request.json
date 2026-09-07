@@ -1,0 +1,13 @@
+{
+  "label": "Wally game 9, move 2: Claim the center while watching attacks on e4.",
+  "mode": "analyze",
+  "fen": "rnbqkb1r/pppppppp/5n2/8/8/2N5/PPPPPPPP/R1BQKBNR w KQkq - 2 2",
+  "history_fens": [
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b KQkq - 1 1"
+  ],
+  "depth": 8,
+  "seconds": 15.0,
+  "candidates": 3,
+  "diagnostics": true
+}

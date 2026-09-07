@@ -201,6 +201,149 @@ class ClockTests(unittest.TestCase):
             clock.verify_submission(self.path, 0, "e2e4", verified_utc=backdated)
         self.assertEqual(clock.clock_status(self.path)["elapsed_seconds"], 20)
 
+    def test_own_time_settles_at_submission_only_after_verification(self):
+        self.create(charge_to_submission=True)
+        clock.observe_turn(self.path, 0)
+        self.time.advance(30)
+        clock.record_event(self.path, "submission", move="e2e4")
+        self.time.advance(25)  # Bot thinking/browser confirmation, still provisional.
+        self.assertEqual(clock.clock_status(self.path)["elapsed_seconds"], 55)
+        done = clock.verify_submission(self.path, 0, "e2e4")
+        self.assertEqual(done["game_seconds_used"], 30)
+        self.assertEqual(done["game_remaining_seconds"], 3570)
+        self.assertEqual(done["excluded_verification_seconds"], 25)
+        event = self.events()[-1]["data"]
+        self.assertEqual(event["charged_seconds"], 30)
+        self.assertNotEqual(event["charged_through_utc"], event["verified_utc"])
+        self.time.advance(50)
+        self.assertEqual(clock.observe_turn(self.path, 2)["game_seconds_used"], 30)
+
+    def test_own_time_can_record_confirmed_submission_and_verification_later(self):
+        self.create(charge_to_submission=True)
+        clock.observe_turn(self.path, 0)
+        self.time.advance(35)
+        submitted = self.time.iso()
+        self.time.advance(20)
+        verified = self.time.iso()
+        self.time.advance(10)
+        done = clock.verify_submission(self.path, 0, "e2e4", submitted_utc=submitted,
+                                       verified_utc=verified)
+        self.assertEqual(done["game_seconds_used"], 35)
+        self.assertEqual(done["excluded_verification_seconds"], 20)
+
+    def test_own_time_missing_submission_uses_conservative_verification(self):
+        self.create(charge_to_submission=True)
+        clock.observe_turn(self.path, 0)
+        self.time.advance(40)
+        done = clock.verify_submission(self.path, 0, "e2e4")
+        self.assertEqual(done["game_seconds_used"], 40)
+        self.assertEqual(done["excluded_verification_seconds"], 0)
+        self.assertTrue(any("No separate submission timestamp" in s for s in done["timing_uncertainty"]))
+
+    def test_own_time_rejected_submission_cannot_be_reused_as_cutoff(self):
+        self.create(charge_to_submission=True)
+        clock.observe_turn(self.path, 0)
+        self.time.advance(20)
+        rejected = self.time.iso()
+        clock.record_event(self.path, "submission", move="e2e4")
+        self.time.advance(10)
+        clock.record_event(self.path, "submission_rejected", reason="Board unchanged")
+        self.time.advance(10)
+        with self.assertRaisesRegex(ValueError, "Submission cutoff cannot precede"):
+            clock.verify_submission(self.path, 0, "e2e4", submitted_utc=rejected)
+        self.assertEqual(clock.clock_status(self.path)["elapsed_seconds"], 40)
+        clock.record_event(self.path, "submission", move="e2e4")
+        self.time.advance(15)
+        done = clock.verify_submission(self.path, 0, "e2e4")
+        self.assertEqual(done["game_seconds_used"], 40)
+        self.assertEqual(done["excluded_verification_seconds"], 15)
+
+    def test_own_time_submission_cannot_erase_later_analysis(self):
+        self.create(charge_to_submission=True)
+        clock.observe_turn(self.path, 0)
+        self.time.advance(10)
+        clock.record_event(self.path, "submission", move="e2e4")
+        with clock.query_clock(self.path, 10):
+            self.time.advance(10)
+        with self.assertRaisesRegex(ValueError, "Submission cutoff cannot precede"):
+            clock.verify_submission(self.path, 0, "e2e4")
+        self.assertEqual(clock.clock_status(self.path)["elapsed_seconds"], 20)
+
+    def test_charge_to_submission_requires_boolean(self):
+        with self.assertRaisesRegex(ValueError, "must be a boolean"):
+            self.create(charge_to_submission=1)
+        self.assertFalse(self.path.exists())
+
+    def test_user_refund_restores_start_balance_and_preserves_raw_evidence(self):
+        self.create(charge_to_submission=True)
+        clock.observe_turn(self.path, 0)
+        self.time.advance(35)
+        clock.verify_submission(self.path, 0, "e2e4")
+        start = clock.observe_turn(self.path, 2)
+        self.time.advance(150)
+        clock.verify_submission(self.path, 2, "g1f3")
+        before = self.path.read_bytes()
+        status = clock.refund_turn_time(self.path, 2, 150,
+                reason="User forgives this turn after a UI interruption", adjustment_id="interruption-1")
+        self.assertTrue(self.path.read_bytes().startswith(before))
+        self.assertEqual(status["game_remaining_seconds"], start["game_remaining_seconds"])
+        self.assertEqual(status["game_seconds_used"], 35)
+        self.assertEqual(status["raw_game_seconds_used"], 185)
+        self.assertEqual(status["refunded_seconds"], 150)
+        self.assertEqual(status["verified_turn_overruns"], [{"ply": 2, "seconds": 60}])
+        refund = status["time_refunds"][0]
+        self.assertEqual(refund["authorization"], "express_user_request")
+        self.assertEqual(refund["original_charge_seconds"], 150)
+        self.assertEqual(self.events()[refund["charge_event_seq"]]["kind"], "verification")
+
+    def test_refund_rejects_duplicate_id_and_cumulative_overcredit(self):
+        self.create()
+        clock.observe_turn(self.path, 0)
+        self.time.advance(60)
+        clock.verify_submission(self.path, 0, "e2e4")
+        clock.refund_turn_time(self.path, 0, 20, reason="User-requested credit", adjustment_id="a")
+        before = self.path.read_bytes()
+        with self.assertRaisesRegex(ValueError, "already been refunded"):
+            clock.refund_turn_time(self.path, 0, 20, reason="Retry", adjustment_id="a")
+        with self.assertRaisesRegex(ValueError, "exceeds"):
+            clock.refund_turn_time(self.path, 0, 41, reason="Too much", adjustment_id="b")
+        self.assertEqual(self.path.read_bytes(), before)
+        status = clock.refund_turn_time(self.path, 0, 40, reason="Remaining credit", adjustment_id="c")
+        self.assertEqual(status["game_seconds_used"], 0)
+        self.assertEqual(status["game_remaining_seconds"], 3600)
+        self.assertEqual(status["refunded_seconds"], 60)
+
+    def test_refund_does_not_reset_a_later_active_turn(self):
+        self.create()
+        clock.observe_turn(self.path, 0)
+        self.time.advance(30)
+        clock.verify_submission(self.path, 0, "e2e4")
+        clock.observe_turn(self.path, 2)
+        self.time.advance(17)
+        status = clock.refund_turn_time(self.path, 0, 30,
+                reason="User forgives earlier interruption", adjustment_id="earlier")
+        self.assertEqual(status["active_ply"], 2)
+        self.assertEqual(status["elapsed_seconds"], 17)
+        self.assertEqual(status["game_seconds_used"], 17)
+        self.assertEqual(status["raw_game_seconds_used"], 47)
+        self.time.advance(8)
+        self.assertEqual(clock.clock_status(self.path)["game_seconds_used"], 25)
+
+    def test_refund_requires_completed_turn_positive_amount_and_audit_fields(self):
+        self.create()
+        clock.observe_turn(self.path, 0)
+        self.time.advance(20)
+        before = self.path.read_bytes()
+        with self.assertRaisesRegex(ValueError, "completed turn"):
+            clock.refund_turn_time(self.path, 0, 10, reason="User credit", adjustment_id="a")
+        for amount in (0, -1, float("nan"), float("inf"), True):
+            with self.subTest(amount=amount), self.assertRaises(ValueError):
+                clock.refund_turn_time(self.path, 0, amount, reason="User credit", adjustment_id="a")
+        for kwargs in ({"reason": "", "adjustment_id": "a"}, {"reason": "User credit", "adjustment_id": " "}):
+            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                clock.refund_turn_time(self.path, 0, 10, **kwargs)
+        self.assertEqual(self.path.read_bytes(), before)
+
 
 class JournalTests(unittest.TestCase):
     def setUp(self):
@@ -243,7 +386,10 @@ class JournalTests(unittest.TestCase):
         data = journal.load(self.game)
         self.assertEqual(data["uci"], ["d2d4", "d7d5"])
         self.assertEqual(data["turns"][-1]["initial_candidate"], "c2c4")
-        self.assertEqual(clock.clock_status(self.game / "clock.jsonl")["game_seconds_used"], 32)
+        status = clock.clock_status(self.game / "clock.jsonl")
+        self.assertTrue(status["charge_to_submission"])
+        self.assertEqual(status["game_seconds_used"], 30)
+        self.assertEqual(status["excluded_verification_seconds"], 2)
 
     def test_invalid_candidate_or_opponent_does_not_mutate_journal(self):
         before = (self.game / "game.json").read_bytes()

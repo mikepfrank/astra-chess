@@ -1,0 +1,15 @@
+{
+  "label": "Wally game 9, move 3: Stop ...d4 hitting Nc3; develop bishops next.",
+  "mode": "analyze",
+  "fen": "rnbqkb1r/ppp1pppp/5n2/3p4/8/2N2N2/PPPPPPPP/R1BQKB1R w KQkq d6 0 3",
+  "history_fens": [
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b KQkq - 1 1",
+    "rnbqkb1r/pppppppp/5n2/8/8/2N5/PPPPPPPP/R1BQKBNR w KQkq - 2 2",
+    "rnbqkb1r/pppppppp/5n2/8/8/2N2N2/PPPPPPPP/R1BQKB1R b KQkq - 3 2"
+  ],
+  "depth": 8,
+  "seconds": 15.0,
+  "candidates": 3,
+  "diagnostics": true
+}

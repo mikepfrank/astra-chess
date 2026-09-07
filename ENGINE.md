@@ -203,7 +203,11 @@ source fingerprint covering rules, search, and optional diagnostic/evaluation co
 ## Clock and procedure for the next live game
 
 Default: **one hour of cumulative own-turn time**, including deliberation,
-queries, commentary, browser interaction, retries, and verification. Aim for
+queries, commentary, browser interaction, and retries. A verified move is charged
+through its accepted submission timestamp, excluding Wally's thinking and the
+subsequent confirmation interval. Without a separate submission timestamp, the
+clock conservatively charges through verification and records that uncertainty.
+Aim for
 **60–90 seconds on ordinary moves**, with up to **120–180 seconds for a concrete
 critical position** and **40 seconds reserved for review and move entry**.
 Allocations shrink as the balance runs down. Alternatively initialize with
@@ -218,6 +222,14 @@ rejection, and verification commands. An append-only `clock.jsonl` ledger record
 the events; a turn starts at first observation and ends only after the submitted
 legal move is verified. Repeating the same ply or marking a position critical
 cannot reset elapsed time. A failed click leaves the clock running.
+
+New journal games default to `--own-time-only`; `--no-own-time-only` preserves
+the older charge-through-verification behavior. An expressly user-authorized
+interruption credit can be appended with
+`astra_engine.clock.refund_turn_time(path, ply, seconds, reason=..., adjustment_id=...)`
+after that turn is verified. Original charges and timestamps remain intact;
+status reports raw usage, refunded seconds, and adjusted usage separately.
+Credits require a unique ID and cannot exceed the recorded charge for that turn.
 
 The general query interface attaches to that same ledger:
 

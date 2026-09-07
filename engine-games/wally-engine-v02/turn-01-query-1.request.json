@@ -1,0 +1,10 @@
+{
+  "label": "Wally game 9, move 1: Develop centrally; inspect candidate development and Black counterplay.",
+  "mode": "analyze",
+  "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  "history_fens": [],
+  "depth": 8,
+  "seconds": 15.0,
+  "candidates": 3,
+  "diagnostics": true
+}

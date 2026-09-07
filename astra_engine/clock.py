@@ -80,6 +80,9 @@ def _state(events):
     prior_plies = set()
     uncertainty = []
     overruns = []
+    excluded_verification = 0.0
+    refunded = 0.0
+    refunds = []
     for event in events[1:]:
         data = event["data"]
         if event["kind"] == "turn_observed":
@@ -103,14 +106,20 @@ def _state(events):
             active["submission"] = None
         elif event["kind"] in ("verification", "turn_ended"):
             used += data["charged_seconds"]
+            excluded_verification += data.get("excluded_verification_seconds", 0.0)
             uncertainty.extend(data.get("uncertainty", []))
             if data["overrun_seconds"] > 0:
                 overruns.append({"ply": data["ply"], "seconds": data["overrun_seconds"]})
             active = None
         elif event["kind"] == "game_finished":
             finished = True
-    return dict(active=active, used=used, finished=finished, turns=turns,
-                prior_plies=prior_plies, uncertainty=uncertainty, overruns=overruns)
+        elif event["kind"] == "user_time_refund":
+            refunded += data["seconds"]
+            refunds.append(dict(data, recorded_utc=event["utc"]))
+    return dict(active=active, used=max(0.0, used-refunded), raw_used=used,
+                refunded=refunded, refunds=refunds, finished=finished, turns=turns,
+                prior_plies=prior_plies, uncertainty=uncertainty, overruns=overruns,
+                excluded_verification=excluded_verification)
 
 
 def _elapsed(active, sample):
@@ -151,6 +160,8 @@ def _status(events, sample=None):
         "allocation_seconds": allocation, "elapsed_seconds": elapsed, "remaining_seconds": remaining,
         "reserve_seconds": config["reserve_seconds"], "query_available_seconds": query_available,
         "game_seconds_used": total_used, "game_remaining_seconds": game_remaining,
+        "raw_game_seconds_used": state["raw_used"] + elapsed,
+        "refunded_seconds": state["refunded"], "time_refunds": state["refunds"],
         "turn_overrun_seconds": max(0.0, elapsed - allocation),
         "game_overrun_seconds": max(0.0, total_used - config["total_seconds"]) if config["mode"] == "game" else 0.0,
         "expired": bool(active and remaining <= 0), "calls": active["queries"] if active else 0,
@@ -158,15 +169,25 @@ def _status(events, sample=None):
         "verified_turn_overruns": state["overruns"],
         "timing_uncertainty": list(dict.fromkeys(state["uncertainty"] + extra_warnings)),
         "submission_pending_verification": bool(active and active["submission"]),
+        "charge_to_submission": config.get("charge_to_submission", False),
+        "excluded_verification_seconds": state["excluded_verification"],
         "cooperative_clock": True,
     }
     return {key: round(value, 3) if isinstance(value, float) else value for key, value in status.items()}
 
 
-def create_game_clock(path, *, mode="game", total_seconds=3600, move_seconds=120, reserve_seconds=40):
-    """Create once. mode='game' shares a cumulative budget; 'move' has no game cap."""
+def create_game_clock(path, *, mode="game", total_seconds=3600, move_seconds=120, reserve_seconds=40,
+                      charge_to_submission=False):
+    """Create once. Optionally settle verified moves at their recorded submission.
+
+    Until verified, attempted moves keep the clock running. Legacy ledgers charge
+    through verification; charge_to_submission excludes waiting for the opponent
+    and browser confirmation when a valid submission timestamp is available.
+    """
     if mode not in ("game", "move"):
         raise ValueError("Clock mode must be game or move")
+    if not isinstance(charge_to_submission, bool):
+        raise ValueError("charge_to_submission must be a boolean")
     total_seconds = _number(total_seconds, "total_seconds", 1)
     move_seconds = _number(move_seconds, "move_seconds", 1)
     reserve_seconds = _number(reserve_seconds, "reserve_seconds")
@@ -180,12 +201,50 @@ def create_game_clock(path, *, mode="game", total_seconds=3600, move_seconds=120
             pass
         events = []
         _append(path, events, "game_started", dict(schema=1, mode=mode, total_seconds=total_seconds,
-                move_seconds=move_seconds, reserve_seconds=reserve_seconds))
+                move_seconds=move_seconds, reserve_seconds=reserve_seconds,
+                charge_to_submission=charge_to_submission))
     return _status(events)
 
 
 def clock_status(path):
     return _status(_read(path))
+
+
+def refund_turn_time(path, ply, seconds, *, reason, adjustment_id):
+    """Append an explicit user-authorized credit for a completed turn.
+
+    Call only following an express user instruction to forgive recorded time.
+    Original charges, timestamps and overruns remain intact as audit evidence.
+    A unique adjustment_id prevents duplicate credits when a caller retries.
+    Refunds cannot exceed the target turn's original charge in aggregate.
+    """
+    if isinstance(ply, bool) or not isinstance(ply, int) or ply < 0:
+        raise ValueError("ply must be a nonnegative integer")
+    seconds = _number(seconds, "seconds")
+    if seconds <= 0:
+        raise ValueError("Refund seconds must be positive")
+    if not isinstance(reason, str) or not reason.strip():
+        raise ValueError("Record the user's reason for the clock refund")
+    if not isinstance(adjustment_id, str) or not adjustment_id.strip():
+        raise ValueError("A unique adjustment_id is required")
+    adjustment_id = adjustment_id.strip()
+    with _locked(path) as path:
+        events = _read(path)
+        refunds = [event["data"] for event in events if event["kind"] == "user_time_refund"]
+        if any(refund["adjustment_id"] == adjustment_id for refund in refunds):
+            raise ValueError("This adjustment_id has already been refunded")
+        completed = next((event for event in events if event["kind"] in ("verification", "turn_ended")
+                          and event["data"]["ply"] == ply), None)
+        if completed is None:
+            raise ValueError("Refund requires a completed turn with a recorded charge")
+        charged = completed["data"]["charged_seconds"]
+        already_refunded = sum(refund["seconds"] for refund in refunds if refund["ply"] == ply)
+        if seconds > charged - already_refunded:
+            raise ValueError("Refund exceeds the turn's remaining recorded charge")
+        _append(path, events, "user_time_refund", dict(ply=ply, seconds=seconds,
+                reason=reason.strip(), adjustment_id=adjustment_id, authorization="express_user_request",
+                original_charge_seconds=charged, charge_event_seq=completed["seq"]))
+        return _status(events)
 
 
 def observe_turn(path, ply, *, observed_utc=None, initial_candidate=None, concern="", critical=False):
@@ -302,8 +361,9 @@ def query_clock(path, requested_seconds, metadata=None):
 def verify_submission(path, ply, move, *, submitted_utc=None, verified_utc=None, uncertainty=""):
     """End an own turn only after the caller confirms the legal move on the board.
 
-    If verification is recorded later, a supplied verified_utc stops at that actual
-    observation. Without it, charge through now (a conservative upper estimate).
+    If configured, a verified move is charged only through its submission. Without
+    a trustworthy submission timestamp, conservatively charge through verification.
+    A supplied verified_utc records the actual observation when entered later.
     """
     with _locked(path) as path:
         events = _read(path)
@@ -320,17 +380,27 @@ def verify_submission(path, ply, move, *, submitted_utc=None, verified_utc=None,
         submitted = _utc(submitted_utc) if submitted_utc else _utc(submission["submitted_utc"]) if submission else None
         if not observation <= verified <= stamp or (submitted and not observation <= submitted <= verified):
             raise ValueError("Require observation <= submission <= verification <= now")
+        activity = next((event for event in reversed(events) if event["kind"] in
+                         ("turn_observed", "initial_candidate", "query_completed", "decision", "submission_rejected")), None)
         if verified_utc:
-            activity = next((event for event in reversed(events) if event["kind"] in
-                             ("turn_observed", "query_completed", "decision", "submission_rejected")), None)
             if activity and activity["kind"] != "turn_observed" and verified < _utc(activity["utc"]):
                 raise ValueError("Verification cannot precede recorded analysis, decision, or a rejected submission")
+        charge_to_submission = events[0]["data"].get("charge_to_submission", False)
+        if charge_to_submission and submitted is not None:
+            if activity and activity["kind"] != "turn_observed" and submitted < _utc(activity["utc"]):
+                raise ValueError("Submission cutoff cannot precede recorded analysis, decision, or a rejected submission")
         elapsed, warnings = _elapsed(active, (stamp, mono))
         if verified_utc:
             # Caller-provided actual verification is authoritative; retain uncertainty.
             elapsed = (verified-observation).total_seconds()
             if (stamp-verified).total_seconds() > 1:
                 warnings.append("Verification entered later using the supplied observation timestamp")
+        excluded_verification = 0.0
+        charged_through = verified
+        if charge_to_submission and submitted is not None:
+            elapsed = (submitted-observation).total_seconds()
+            excluded_verification = (verified-submitted).total_seconds()
+            charged_through = submitted
         if submission is None:
             if submitted is None:
                 warnings.append("No separate submission timestamp; charged through verification")
@@ -340,6 +410,8 @@ def verify_submission(path, ply, move, *, submitted_utc=None, verified_utc=None,
         if uncertainty:
             warnings.append(uncertainty)
         _append(path, events, "verification", dict(ply=ply, move=move, verified_utc=verified.isoformat(),
+                charged_through_utc=charged_through.isoformat(),
+                excluded_verification_seconds=excluded_verification,
                 charged_seconds=elapsed, overrun_seconds=max(0.0, elapsed-active["allocation_seconds"]),
                 uncertainty=warnings), (stamp, mono))
         return _status(events, (stamp, mono))

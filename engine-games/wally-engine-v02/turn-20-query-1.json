@@ -1,0 +1,1220 @@
+{
+  "kind": "analysis",
+  "start_fen": "4k2r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 1 20",
+  "turn": "white",
+  "requested_depth": 8,
+  "completed_depth": 5,
+  "nodes": 151143,
+  "elapsed_seconds": 11.0,
+  "time_limit_seconds": 11.5,
+  "timed_out": true,
+  "fallback": false,
+  "candidates": [
+    {
+      "uci": [
+        "c6a5",
+        "b7b8",
+        "b6b7",
+        "g7g5",
+        "a5c6"
+      ],
+      "san": [
+        "Na5",
+        "Qb8",
+        "b7",
+        "g5",
+        "Nc6"
+      ],
+      "fens": [
+        "4k2r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 1 20",
+        "4k2r/1q1n1pp1/1P1pp2p/N2p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 b k - 2 20",
+        "1q2k2r/3n1pp1/1P1pp2p/N2p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 3 21",
+        "1q2k2r/1P1n1pp1/3pp2p/N2p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 b k - 0 21",
+        "1q2k2r/1P1n1p2/3pp2p/N2p1bp1/Q2P4/4P3/P1P2PPP/1R3RK1 w k g6 0 22",
+        "1q2k2r/1P1n1p2/2Npp2p/3p1bp1/Q2P4/4P3/P1P2PPP/1R3RK1 b k - 1 22"
+      ],
+      "ending": null,
+      "claim_by_intended_move": null,
+      "rank": 1,
+      "root_move": "c6a5",
+      "score_cp": 532,
+      "mate_in_plies": null,
+      "depth": 5,
+      "score_is_exact_for_search": true,
+      "position_diagnostics": [
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "4k2r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 1 20",
+          "side": "white",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "N",
+              "own_blockers": [
+                "d4"
+              ],
+              "geometric_destinations": [
+                "d8",
+                "e7",
+                "e5",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d8",
+                "e7",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [
+                "e5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [
+                "b7c6"
+              ],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Capture threat at c6: b7c6."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "4k2r/1q1n1pp1/1P1pp2p/N2p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 b k - 2 20",
+          "side": "white",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "a5",
+              "piece": "N",
+              "own_blockers": [],
+              "geometric_destinations": [
+                "b7",
+                "c6",
+                "c4",
+                "b3"
+              ],
+              "pawn_safe_destinations": [
+                "b7",
+                "c6",
+                "b3"
+              ],
+              "pawn_controlled_destinations": [
+                "c4"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "1q2k2r/3n1pp1/1P1pp2p/N2p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 3 21",
+          "side": "white",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "a5",
+              "piece": "N",
+              "own_blockers": [],
+              "geometric_destinations": [
+                "b7",
+                "c6",
+                "c4",
+                "b3"
+              ],
+              "pawn_safe_destinations": [
+                "b7",
+                "c6",
+                "b3"
+              ],
+              "pawn_controlled_destinations": [
+                "c4"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "1q2k2r/1P1n1pp1/3pp2p/N2p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 b k - 0 21",
+          "side": "white",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "a5",
+              "piece": "N",
+              "own_blockers": [
+                "b7"
+              ],
+              "geometric_destinations": [
+                "c6",
+                "c4",
+                "b3"
+              ],
+              "pawn_safe_destinations": [
+                "c6",
+                "b3"
+              ],
+              "pawn_controlled_destinations": [
+                "c4"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "1q2k2r/1P1n1p2/3pp2p/N2p1bp1/Q2P4/4P3/P1P2PPP/1R3RK1 w k g6 0 22",
+          "side": "white",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "a5",
+              "piece": "N",
+              "own_blockers": [
+                "b7"
+              ],
+              "geometric_destinations": [
+                "c6",
+                "c4",
+                "b3"
+              ],
+              "pawn_safe_destinations": [
+                "c6",
+                "b3"
+              ],
+              "pawn_controlled_destinations": [
+                "c4"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "1q2k2r/1P1n1p2/2Npp2p/3p1bp1/Q2P4/4P3/P1P2PPP/1R3RK1 b k - 1 22",
+          "side": "white",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "N",
+              "own_blockers": [
+                "d4"
+              ],
+              "geometric_destinations": [
+                "d8",
+                "e7",
+                "e5",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d8",
+                "e7",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [
+                "e5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        }
+      ]
+    },
+    {
+      "uci": [
+        "b1b2",
+        "e8f8",
+        "a4b5",
+        "h6h5",
+        "a2a4"
+      ],
+      "san": [
+        "Rb2",
+        "Kf8",
+        "Qb5",
+        "h5",
+        "a4"
+      ],
+      "fens": [
+        "4k2r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 1 20",
+        "4k2r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/PRP2PPP/5RK1 b k - 2 20",
+        "5k1r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/PRP2PPP/5RK1 w - - 3 21",
+        "5k1r/1q1n1pp1/1PNpp2p/1Q1p1b2/3P4/4P3/PRP2PPP/5RK1 b - - 4 21",
+        "5k1r/1q1n1pp1/1PNpp3/1Q1p1b1p/3P4/4P3/PRP2PPP/5RK1 w - - 0 22",
+        "5k1r/1q1n1pp1/1PNpp3/1Q1p1b1p/P2P4/4P3/1RP2PPP/5RK1 b - a3 0 22"
+      ],
+      "ending": null,
+      "claim_by_intended_move": null,
+      "rank": 2,
+      "root_move": "b1b2",
+      "score_cp": 509,
+      "mate_in_plies": null,
+      "depth": 5,
+      "score_is_exact_for_search": true,
+      "position_diagnostics": [
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "4k2r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 1 20",
+          "side": "white",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "N",
+              "own_blockers": [
+                "d4"
+              ],
+              "geometric_destinations": [
+                "d8",
+                "e7",
+                "e5",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d8",
+                "e7",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [
+                "e5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [
+                "b7c6"
+              ],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Capture threat at c6: b7c6."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "4k2r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/PRP2PPP/5RK1 b k - 2 20",
+          "side": "white",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "N",
+              "own_blockers": [
+                "d4"
+              ],
+              "geometric_destinations": [
+                "d8",
+                "e7",
+                "e5",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d8",
+                "e7",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [
+                "e5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [
+                "b7c6"
+              ],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Capture threat at c6: b7c6."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "5k1r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/PRP2PPP/5RK1 w - - 3 21",
+          "side": "white",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "N",
+              "own_blockers": [
+                "d4"
+              ],
+              "geometric_destinations": [
+                "d8",
+                "e7",
+                "e5",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d8",
+                "e7",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [
+                "e5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [
+                "b7c6"
+              ],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Capture threat at c6: b7c6."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "5k1r/1q1n1pp1/1PNpp2p/1Q1p1b2/3P4/4P3/PRP2PPP/5RK1 b - - 4 21",
+          "side": "white",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "N",
+              "own_blockers": [
+                "d4"
+              ],
+              "geometric_destinations": [
+                "d8",
+                "e7",
+                "e5",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d8",
+                "e7",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [
+                "e5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [
+                "b7c6"
+              ],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Capture threat at c6: b7c6."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "5k1r/1q1n1pp1/1PNpp3/1Q1p1b1p/3P4/4P3/PRP2PPP/5RK1 w - - 0 22",
+          "side": "white",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "N",
+              "own_blockers": [
+                "d4"
+              ],
+              "geometric_destinations": [
+                "d8",
+                "e7",
+                "e5",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d8",
+                "e7",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [
+                "e5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [
+                "b7c6"
+              ],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Capture threat at c6: b7c6."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "5k1r/1q1n1pp1/1PNpp3/1Q1p1b1p/P2P4/4P3/1RP2PPP/5RK1 b - a3 0 22",
+          "side": "white",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "N",
+              "own_blockers": [
+                "d4"
+              ],
+              "geometric_destinations": [
+                "d8",
+                "e7",
+                "e5",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d8",
+                "e7",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [
+                "e5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [
+                "b7c6"
+              ],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Capture threat at c6: b7c6."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        }
+      ]
+    },
+    {
+      "uci": [
+        "f1c1",
+        "e8f8",
+        "a4b5",
+        "h6h5",
+        "a2a4"
+      ],
+      "san": [
+        "Rfc1",
+        "Kf8",
+        "Qb5",
+        "h5",
+        "a4"
+      ],
+      "fens": [
+        "4k2r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 1 20",
+        "4k2r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1RR3K1 b k - 2 20",
+        "5k1r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1RR3K1 w - - 3 21",
+        "5k1r/1q1n1pp1/1PNpp2p/1Q1p1b2/3P4/4P3/P1P2PPP/1RR3K1 b - - 4 21",
+        "5k1r/1q1n1pp1/1PNpp3/1Q1p1b1p/3P4/4P3/P1P2PPP/1RR3K1 w - - 0 22",
+        "5k1r/1q1n1pp1/1PNpp3/1Q1p1b1p/P2P4/4P3/2P2PPP/1RR3K1 b - a3 0 22"
+      ],
+      "ending": null,
+      "claim_by_intended_move": null,
+      "rank": 3,
+      "root_move": "f1c1",
+      "score_cp": 509,
+      "mate_in_plies": null,
+      "depth": 5,
+      "score_is_exact_for_search": true,
+      "position_diagnostics": [
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "4k2r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 1 20",
+          "side": "white",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "N",
+              "own_blockers": [
+                "d4"
+              ],
+              "geometric_destinations": [
+                "d8",
+                "e7",
+                "e5",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d8",
+                "e7",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [
+                "e5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [
+                "b7c6"
+              ],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Capture threat at c6: b7c6."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "4k2r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1RR3K1 b k - 2 20",
+          "side": "white",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "N",
+              "own_blockers": [
+                "d4"
+              ],
+              "geometric_destinations": [
+                "d8",
+                "e7",
+                "e5",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d8",
+                "e7",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [
+                "e5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [
+                "b7c6"
+              ],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Capture threat at c6: b7c6."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "5k1r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1RR3K1 w - - 3 21",
+          "side": "white",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "N",
+              "own_blockers": [
+                "d4"
+              ],
+              "geometric_destinations": [
+                "d8",
+                "e7",
+                "e5",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d8",
+                "e7",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [
+                "e5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [
+                "b7c6"
+              ],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Capture threat at c6: b7c6."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "5k1r/1q1n1pp1/1PNpp2p/1Q1p1b2/3P4/4P3/P1P2PPP/1RR3K1 b - - 4 21",
+          "side": "white",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "N",
+              "own_blockers": [
+                "d4"
+              ],
+              "geometric_destinations": [
+                "d8",
+                "e7",
+                "e5",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d8",
+                "e7",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [
+                "e5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [
+                "b7c6"
+              ],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Capture threat at c6: b7c6."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "5k1r/1q1n1pp1/1PNpp3/1Q1p1b1p/3P4/4P3/P1P2PPP/1RR3K1 w - - 0 22",
+          "side": "white",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "N",
+              "own_blockers": [
+                "d4"
+              ],
+              "geometric_destinations": [
+                "d8",
+                "e7",
+                "e5",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d8",
+                "e7",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [
+                "e5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [
+                "b7c6"
+              ],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Capture threat at c6: b7c6."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "5k1r/1q1n1pp1/1PNpp3/1Q1p1b1p/P2P4/4P3/2P2PPP/1RR3K1 b - a3 0 22",
+          "side": "white",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "N",
+              "own_blockers": [
+                "d4"
+              ],
+              "geometric_destinations": [
+                "d8",
+                "e7",
+                "e5",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d8",
+                "e7",
+                "b4",
+                "a5",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [
+                "e5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [
+                "b7c6"
+              ],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Capture threat at c6: b7c6."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        }
+      ]
+    }
+  ],
+  "terminal": null,
+  "draw_claim_available": false,
+  "current_draw_claim_available": false,
+  "draw_claim_reasons": [],
+  "draw_claim_by_intended_moves": [],
+  "intended_move": null,
+  "root_score_cp": 532,
+  "recommended_action": "move",
+  "history_supplied": true,
+  "settings": {
+    "evaluation": {
+      "mobility": false,
+      "restricted_piece": false,
+      "king_exposure": false
+    },
+    "threat_extensions": 0
+  },
+  "diagnostics": {
+    "score_view": "root side",
+    "depth_unit": "plies",
+    "history_note": "Earlier repetition is unknown without supplied history.",
+    "quiescence_capture_depth": 8,
+    "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+    "transposition_reuse": "move ordering only; no cached evaluation bounds",
+    "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+    "stop_reason": "time_limit",
+    "qnodes": 138304,
+    "cutoffs": 28126,
+    "extended_frontiers": 0,
+    "capped_threat_frontiers": 0,
+    "threat_frontier_unresolved": false,
+    "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+  },
+  "budget_overrun_seconds": 0.0,
+  "position_diagnostics": {
+    "kind": "heuristic_threat_diagnostics",
+    "fen": "4k2r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 1 20",
+    "side": "white",
+    "turn_context": "enemy_next_turn_hypothesis",
+    "minor_pieces": [
+      {
+        "square": "c6",
+        "piece": "N",
+        "own_blockers": [
+          "d4"
+        ],
+        "geometric_destinations": [
+          "d8",
+          "e7",
+          "e5",
+          "b4",
+          "a5",
+          "a7",
+          "b8"
+        ],
+        "pawn_safe_destinations": [
+          "d8",
+          "e7",
+          "b4",
+          "a5",
+          "a7",
+          "b8"
+        ],
+        "pawn_controlled_destinations": [
+          "e5"
+        ],
+        "restricted_mobility": false,
+        "legal_capture_threats": [
+          "b7c6"
+        ],
+        "pawn_push_threats": []
+      }
+    ],
+    "king_lines": [],
+    "new_king_lines": [],
+    "warnings": [
+      "Capture threat at c6: b7c6."
+    ],
+    "limitations": [
+      "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+      "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+      "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+      "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+    ]
+  },
+  "diagnostic_coverage": {
+    "positions_inspected": 16,
+    "positions_skipped": 0,
+    "complete": true,
+    "elapsed_seconds": 0.0,
+    "scope": "Query player's pieces and king; heuristic, not a proof of safety."
+  },
+  "label": "Wally game 9, move 20: Na5 attacks queen and supports b7 advance; check knight restriction and central checks.",
+  "query": {
+    "label": "Wally game 9, move 20: Na5 attacks queen and supports b7 advance; check knight restriction and central checks.",
+    "mode": "analyze",
+    "fen": "4k2r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 1 20",
+    "history_fens": [
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b KQkq - 1 1",
+      "rnbqkb1r/pppppppp/5n2/8/8/2N5/PPPPPPPP/R1BQKBNR w KQkq - 2 2",
+      "rnbqkb1r/pppppppp/5n2/8/8/2N2N2/PPPPPPPP/R1BQKB1R b KQkq - 3 2",
+      "rnbqkb1r/ppp1pppp/5n2/3p4/8/2N2N2/PPPPPPPP/R1BQKB1R w KQkq d6 0 3",
+      "rnbqkb1r/ppp1pppp/5n2/3p4/3P4/2N2N2/PPP1PPPP/R1BQKB1R b KQkq d3 0 3",
+      "rn1qkb1r/ppp1pppp/5n2/3p1b2/3P4/2N2N2/PPP1PPPP/R1BQKB1R w KQkq - 1 4",
+      "rn1qkb1r/ppp1pppp/5n2/3p1b2/3P1B2/2N2N2/PPP1PPPP/R2QKB1R b KQkq - 2 4",
+      "r2qkb1r/ppp1pppp/2n2n2/3p1b2/3P1B2/2N2N2/PPP1PPPP/R2QKB1R w KQkq - 3 5",
+      "r2qkb1r/ppp1pppp/2n2n2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2QKB1R b KQkq - 0 5",
+      "r2qkb1r/ppp2ppp/2n1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2QKB1R w KQkq - 0 6",
+      "r2qkb1r/ppp2ppp/2n1pn2/1B1p1b2/3P1B2/2N1PN2/PPP2PPP/R2QK2R b KQkq - 1 6",
+      "r2qkb1r/1pp2ppp/p1n1pn2/1B1p1b2/3P1B2/2N1PN2/PPP2PPP/R2QK2R w KQkq - 0 7",
+      "r2qkb1r/1pp2ppp/p1B1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2QK2R b KQkq - 0 7",
+      "r2qkb1r/2p2ppp/p1p1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2QK2R w KQkq - 0 8",
+      "r2qkb1r/2p2ppp/p1p1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2Q1RK1 b kq - 1 8",
+      "1r1qkb1r/2p2ppp/p1p1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2Q1RK1 w k - 2 9",
+      "1r1qkb1r/2p2ppp/p1p1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/1R1Q1RK1 b k - 3 9",
+      "1r1qk2r/2p2ppp/p1pbpn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/1R1Q1RK1 w k - 4 10",
+      "1r1qk2r/2p2ppp/p1pbpn2/3pNb2/3P1B2/2N1P3/PPP2PPP/1R1Q1RK1 b k - 5 10",
+      "3qk2r/2p2ppp/prpbpn2/3pNb2/3P1B2/2N1P3/PPP2PPP/1R1Q1RK1 w k - 6 11",
+      "3qk2r/2p2ppp/prpbpn2/3pNb2/N2P1B2/4P3/PPP2PPP/1R1Q1RK1 b k - 7 11",
+      "3qk2r/2p2ppp/p1pbpn2/3pNb2/Nr1P1B2/4P3/PPP2PPP/1R1Q1RK1 w k - 8 12",
+      "3qk2r/2p2ppp/p1Nbpn2/3p1b2/Nr1P1B2/4P3/PPP2PPP/1R1Q1RK1 b k - 0 12",
+      "3qk2r/2p2ppp/p1Nbpn2/3p4/Nr1P1Bb1/4P3/PPP2PPP/1R1Q1RK1 w k - 1 13",
+      "3qk2r/2p2ppp/p1Nbpn2/3p4/Nr1P1Bb1/3QP3/PPP2PPP/1R3RK1 b k - 2 13",
+      "3qk2r/2p2ppp/p1Nbpn2/3p1b2/Nr1P1B2/3QP3/PPP2PPP/1R3RK1 w k - 3 14",
+      "3qk2r/2p2ppp/Q1Nbpn2/3p1b2/Nr1P1B2/4P3/PPP2PPP/1R3RK1 b k - 0 14",
+      "3qk2r/2p2ppp/Q1Nbpn2/3p1b2/r2P1B2/4P3/PPP2PPP/1R3RK1 w k - 0 15",
+      "3qk2r/2p2ppp/2Nbpn2/3p1b2/Q2P1B2/4P3/PPP2PPP/1R3RK1 b k - 0 15",
+      "2q1k2r/2p2ppp/2Nbpn2/3p1b2/Q2P1B2/4P3/PPP2PPP/1R3RK1 w k - 1 16",
+      "2q1k2r/2p2ppp/2NBpn2/3p1b2/Q2P4/4P3/PPP2PPP/1R3RK1 b k - 0 16",
+      "2q1k2r/5ppp/2Nppn2/3p1b2/Q2P4/4P3/PPP2PPP/1R3RK1 w k - 0 17",
+      "2q1k2r/5ppp/2Nppn2/3p1b2/QP1P4/4P3/P1P2PPP/1R3RK1 b k b3 0 17",
+      "2q1k2r/5pp1/2Nppn1p/3p1b2/QP1P4/4P3/P1P2PPP/1R3RK1 w k - 0 18",
+      "2q1k2r/5pp1/2Nppn1p/1P1p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 b k - 0 18",
+      "2q1k2r/3n1pp1/2Npp2p/1P1p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 1 19",
+      "2q1k2r/3n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 b k - 0 19"
+    ],
+    "depth": 8,
+    "seconds": 12.0,
+    "candidates": 3,
+    "diagnostics": true
+  },
+  "position_history_fens": [
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b KQkq - 1 1",
+    "rnbqkb1r/pppppppp/5n2/8/8/2N5/PPPPPPPP/R1BQKBNR w KQkq - 2 2",
+    "rnbqkb1r/pppppppp/5n2/8/8/2N2N2/PPPPPPPP/R1BQKB1R b KQkq - 3 2",
+    "rnbqkb1r/ppp1pppp/5n2/3p4/8/2N2N2/PPPPPPPP/R1BQKB1R w KQkq d6 0 3",
+    "rnbqkb1r/ppp1pppp/5n2/3p4/3P4/2N2N2/PPP1PPPP/R1BQKB1R b KQkq d3 0 3",
+    "rn1qkb1r/ppp1pppp/5n2/3p1b2/3P4/2N2N2/PPP1PPPP/R1BQKB1R w KQkq - 1 4",
+    "rn1qkb1r/ppp1pppp/5n2/3p1b2/3P1B2/2N2N2/PPP1PPPP/R2QKB1R b KQkq - 2 4",
+    "r2qkb1r/ppp1pppp/2n2n2/3p1b2/3P1B2/2N2N2/PPP1PPPP/R2QKB1R w KQkq - 3 5",
+    "r2qkb1r/ppp1pppp/2n2n2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2QKB1R b KQkq - 0 5",
+    "r2qkb1r/ppp2ppp/2n1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2QKB1R w KQkq - 0 6",
+    "r2qkb1r/ppp2ppp/2n1pn2/1B1p1b2/3P1B2/2N1PN2/PPP2PPP/R2QK2R b KQkq - 1 6",
+    "r2qkb1r/1pp2ppp/p1n1pn2/1B1p1b2/3P1B2/2N1PN2/PPP2PPP/R2QK2R w KQkq - 0 7",
+    "r2qkb1r/1pp2ppp/p1B1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2QK2R b KQkq - 0 7",
+    "r2qkb1r/2p2ppp/p1p1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2QK2R w KQkq - 0 8",
+    "r2qkb1r/2p2ppp/p1p1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2Q1RK1 b kq - 1 8",
+    "1r1qkb1r/2p2ppp/p1p1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2Q1RK1 w k - 2 9",
+    "1r1qkb1r/2p2ppp/p1p1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/1R1Q1RK1 b k - 3 9",
+    "1r1qk2r/2p2ppp/p1pbpn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/1R1Q1RK1 w k - 4 10",
+    "1r1qk2r/2p2ppp/p1pbpn2/3pNb2/3P1B2/2N1P3/PPP2PPP/1R1Q1RK1 b k - 5 10",
+    "3qk2r/2p2ppp/prpbpn2/3pNb2/3P1B2/2N1P3/PPP2PPP/1R1Q1RK1 w k - 6 11",
+    "3qk2r/2p2ppp/prpbpn2/3pNb2/N2P1B2/4P3/PPP2PPP/1R1Q1RK1 b k - 7 11",
+    "3qk2r/2p2ppp/p1pbpn2/3pNb2/Nr1P1B2/4P3/PPP2PPP/1R1Q1RK1 w k - 8 12",
+    "3qk2r/2p2ppp/p1Nbpn2/3p1b2/Nr1P1B2/4P3/PPP2PPP/1R1Q1RK1 b k - 0 12",
+    "3qk2r/2p2ppp/p1Nbpn2/3p4/Nr1P1Bb1/4P3/PPP2PPP/1R1Q1RK1 w k - 1 13",
+    "3qk2r/2p2ppp/p1Nbpn2/3p4/Nr1P1Bb1/3QP3/PPP2PPP/1R3RK1 b k - 2 13",
+    "3qk2r/2p2ppp/p1Nbpn2/3p1b2/Nr1P1B2/3QP3/PPP2PPP/1R3RK1 w k - 3 14",
+    "3qk2r/2p2ppp/Q1Nbpn2/3p1b2/Nr1P1B2/4P3/PPP2PPP/1R3RK1 b k - 0 14",
+    "3qk2r/2p2ppp/Q1Nbpn2/3p1b2/r2P1B2/4P3/PPP2PPP/1R3RK1 w k - 0 15",
+    "3qk2r/2p2ppp/2Nbpn2/3p1b2/Q2P1B2/4P3/PPP2PPP/1R3RK1 b k - 0 15",
+    "2q1k2r/2p2ppp/2Nbpn2/3p1b2/Q2P1B2/4P3/PPP2PPP/1R3RK1 w k - 1 16",
+    "2q1k2r/2p2ppp/2NBpn2/3p1b2/Q2P4/4P3/PPP2PPP/1R3RK1 b k - 0 16",
+    "2q1k2r/5ppp/2Nppn2/3p1b2/Q2P4/4P3/PPP2PPP/1R3RK1 w k - 0 17",
+    "2q1k2r/5ppp/2Nppn2/3p1b2/QP1P4/4P3/P1P2PPP/1R3RK1 b k b3 0 17",
+    "2q1k2r/5pp1/2Nppn1p/3p1b2/QP1P4/4P3/P1P2PPP/1R3RK1 w k - 0 18",
+    "2q1k2r/5pp1/2Nppn1p/1P1p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 b k - 0 18",
+    "2q1k2r/3n1pp1/2Npp2p/1P1p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 1 19",
+    "2q1k2r/3n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 b k - 0 19"
+  ],
+  "query_time_limit_seconds": 12.0,
+  "created_utc": "2026-09-07T22:15:54.393864+00:00",
+  "engine": {
+    "name": "Astra Search Lab",
+    "version": "0.2",
+    "source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174"
+  },
+  "turn_budget": {
+    "clock_kind": "game_ledger",
+    "mode": "game",
+    "active_ply": 38,
+    "finished": false,
+    "critical": false,
+    "allocation_seconds": 90.0,
+    "elapsed_seconds": 29.279,
+    "remaining_seconds": 60.721,
+    "reserve_seconds": 40.0,
+    "query_available_seconds": 20.721,
+    "game_seconds_used": 1444.738,
+    "game_remaining_seconds": 2155.262,
+    "turn_overrun_seconds": 0.0,
+    "game_overrun_seconds": 0.0,
+    "expired": false,
+    "calls": 1,
+    "query_seconds_used": 11.024,
+    "verified_turn_overruns": [],
+    "timing_uncertainty": [
+      "Verification entered later using the supplied observation timestamp",
+      "First move included browser-control reinitialization; no failed coordinate attempt moved a piece. Start clock was recorded just after the first confirmed initial-board observation.",
+      "Observation timestamp entered 34.379s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 15.311s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 12.277s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 9.940s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 11.337s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 14.269s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 26.784s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 14.503s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 18.470s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 20.215s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 34.447s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 54.400s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 24.392s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 16.845s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 24.659s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 21.577s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 12.478s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 30.284s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 18.185s later; interval is charged from the supplied observation"
+    ],
+    "submission_pending_verification": false,
+    "charge_to_submission": true,
+    "excluded_verification_seconds": 7.097,
+    "cooperative_clock": true
+  },
+  "interface_elapsed_seconds": 11.031,
+  "budget_snapshot": "After query completion, before final artifact refresh"
+}

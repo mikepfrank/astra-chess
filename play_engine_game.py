@@ -167,6 +167,8 @@ def parser():
     ap.add_argument("--game-seconds", type=float, default=3600)
     ap.add_argument("--move-seconds", type=float, default=120)
     ap.add_argument("--reserve", type=float, default=40)
+    ap.add_argument("--own-time-only", action=argparse.BooleanOptionalAction, default=True,
+                    help="Settle verified moves at submission, excluding opponent/confirmation time (default)")
     return ap
 
 
@@ -180,7 +182,8 @@ def main(argv=None):
         if game.exists():
             raise ValueError("Game directory already exists; choose a new --game to preserve earlier evidence")
         status = create_game_clock(clock, mode=args.clock_mode, total_seconds=args.game_seconds,
-                                   move_seconds=args.move_seconds, reserve_seconds=args.reserve)
+                                   move_seconds=args.move_seconds, reserve_seconds=args.reserve,
+                                   charge_to_submission=args.own_time_only)
         save(game, dict(event="Astra Search Lab trial", date=datetime.now(timezone.utc).strftime("%Y.%m.%d"),
              round=args.round, white="Astra (Ultra)", black=args.opponent_name, black_elo=args.opponent_elo,
              result="*", uci=[], san=[], fens=[START_FEN], turns=[], pending=None,
