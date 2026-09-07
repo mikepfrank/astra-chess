@@ -142,46 +142,116 @@ intended legal move. Such a declaration appears separately as
 timeline. `recommended_action` distinguishes moving, claiming a draw, and an
 already finished game. Fivefold repetition and 75-move draws are automatic.
 
-`depth` counts plies (one player's move), from 1 to 12. `seconds` is a finite
-positive search budget up to 120 seconds for study; `candidates` is 1 to 10.
+`depth` counts plies (one player's move), from 1 to 32. `seconds` is a finite
+positive search budget up to 180 seconds for study; `candidates` is 1 to 10.
 Small scheduling, rules-generation, and output costs may extend the elapsed
 time slightly beyond a search deadline. Search reports actual elapsed time.
 
-## Turn budget for the next live game
+## Optional inspection and search features (version 0.2)
 
-I will aim for **30–45 seconds per ordinary move**, with a **60-second total
-turn budget**, at most **12 seconds of engine work**, and **8 seconds reserved**
-for final checking and entering the move. The shared clock starts when I
-observe the opponent's move and includes my deliberation and browser time.
+Add `"diagnostics": true` to either kind of query to inspect the starting board
+and returned candidate boards after search. The report lists own blockers,
+minor-piece destinations outside enemy pawn control, legal enemy pawn pushes
+that attack a piece, capture threats, and king lines. For example, the game 8
+bishop on d3 has c2 and e2 blocked and can be attacked by ...c5–c4. When the enemy
+is not to move, its threats are explicitly hypotheses on the unchanged board.
+Geometric mobility is not a list of safe legal escapes. No warning means only
+that these limited checks did not flag anything.
 
-```text
-python astra_chess.py turn-start --session engine-turn.json --seconds 60 --engine-seconds 12 --reserve 8
-python astra_chess.py query --request my-query.json --output engine-output/answer.json --html engine-output/answer.html --session engine-turn.json
-python astra_chess.py turn-status --session engine-turn.json
+Diagnostics are cached per returned position/preceding board, run outside the
+node evaluator, and have a shared deadline (at most one second, within the query
+allowance). `diagnostic_coverage` discloses skipped positions and elapsed cost.
+Queries reserve a small part of their allowance for inspection. HTML generation
+and all other query overhead also count against an attached game clock.
+
+Three extra evaluation terms are independently switchable and **off by default**:
+
+```json
+"evaluation": {"mobility": true, "restricted_piece": true, "king_exposure": true},
+"threat_extensions": 2
 ```
 
-Use `--replace` only when starting the next turn. Every attached query is capped
-by the remaining engine budget and the remaining turn time after the reserve.
-Exhausted budgets reject new queries, and a lock prevents concurrent queries
-from spending the same budget. This is a cooperative clock: it cannot forcibly
-end my deliberation or enter a browser move, so I must act on its remaining-time
-report. The default plan does not reset the clock for a second query.
+`mobility` adds a small minor-piece mobility term excluding enemy pawn controls.
+`restricted_piece` adds a capped penalty when such a piece has few destinations
+and a credible capture threat. `king_exposure` assesses enemy heavy-piece access
+along open files near the king. These hand-written heuristics can misjudge
+compensation or defense and cost search time; they are experimental, not trained
+chess knowledge.
+
+`threat_extensions` (0, 1, or 2; default 0) allows that many additional full-width
+plies per branch when a restricted minor piece is threatened at the search
+frontier. It retains quiet defenses, blocker moves, captures of the attacker,
+and counterchecks. Every legal check evasion is still searched independently of
+this option. Reports disclose extended and capped frontiers; a cap or timeout
+does not certify safety. A single extra ply was insufficient in the recorded
+bishop-trap regression, while two exposed the subsequent material loss.
+
+For a concrete piece question, use the existing `capture`/`avoid_capture` goal
+with the piece's current square and `"proof_only": true`. That dedicates the
+search budget to adversarial proof/refutation and skips cooperative witness
+search. A refutation is reported as `proof_status: "refuted"`; overall `status`
+may remain `unknown` because cooperative reachability was not examined.
+`witness_status: "not_searched"` is not absence of a line. Avoidance still must
+hold throughout the entire requested horizon, and capturing a piece does not
+by itself prove a favorable exchange. Omit/disable `proof_only` to request the
+original combination of proof and cooperative example search.
+
+The HTML follow-up exporter preserves these settings and the selected board's
+history. Every JSON result records effective search settings, version, and a
+source fingerprint covering rules, search, and optional diagnostic/evaluation code.
+
+## Clock and procedure for the next live game
+
+Default: **one hour of cumulative own-turn time**, including deliberation,
+queries, commentary, browser interaction, retries, and verification. Aim for
+**60–90 seconds on ordinary moves**, with up to **120–180 seconds for a concrete
+critical position** and **40 seconds reserved for review and move entry**.
+Allocations shrink as the balance runs down. Alternatively initialize with
+`--clock-mode move --move-seconds 120` for a fixed two-minute per-move allowance.
+Both modes are cooperative: they report overruns rather than forcing a browser
+move or concealing excess time.
+
+`play_engine_game.py` requires an explicit new game directory name. Initialization
+never overwrites a saved game. It does not control the browser or choose moves.
+Run its `--help` for the observation, candidate, query, decision, submission,
+rejection, and verification commands. An append-only `clock.jsonl` ledger records
+the events; a turn starts at first observation and ends only after the submitted
+legal move is verified. Repeating the same ply or marking a position critical
+cannot reset elapsed time. A failed click leaves the clock running.
+
+The general query interface attaches to that same ledger:
+
+```text
+python astra_chess.py query --request my-query.json --output engine-output/answer.json --html engine-output/answer.html --game-clock engine-games/NEW-GAME/clock.jsonl
+```
+
+The older `turn-start`/`--session` interface remains available for reproducing
+the first trial, but is not the recommended live-game clock. It cannot be
+combined with `--game-clock`. Queries are sequential under an exclusive lock.
+Clock discontinuities, delayed timestamp entry, and uncertain timing are visible
+in the ledger and status. The observation timestamp must come from the earliest
+observed own turn, not a later confirmation read.
 
 My planned turn procedure:
 
-1. Reconcile the observed move with the recorded position and start the clock.
-2. Ask for three candidates with about 3–4 seconds of search.
-3. Inspect the leading moves and the opponent's forcing replies. In particular,
-   examine checks, captures, changed lines, loose pieces, and promotion threats.
-4. If there is a concrete unresolved question, use a short goal probe or a
-   deeper comparison restricted to my candidate moves. Spend the shared budget,
-   not a fresh budget for each hypothesis.
-5. Choose using both the search evidence and my assessment; verify the final
-   position and execute the move before the turn budget expires.
+1. Record the earliest observation, reconcile the actual position, then record
+   my initial candidate and concern before querying.
+2. Request three candidates with roughly 15 seconds of search, a depth ceiling
+   of 8, and diagnostics enabled. A ceiling is not a promised achieved depth.
+3. Inspect the opponent's forcing replies and the candidate boards: checks,
+   captures, changed king lines, loose/restricted pieces, and promotion threats.
+4. For a concrete unresolved threat, mark the position critical and spend the
+   remaining shared allowance on a deeper restricted-root comparison, a
+   proof-only goal probe, or a comparison with up to two threat extensions.
+   Experimental evaluation terms remain opt-in until broader evidence warrants
+   making them defaults.
+5. Choose a legal move, record the submission, and verify the browser position.
+   Rejected or uncertain submissions consume the same turn balance.
 
-I will log candidate scores, achieved depths, queries, elapsed time, and the
-selected move so this combined method can be reviewed afterward. This engine
-has no measured playing rating yet. No new game is started by any engine command.
+Queries and decisions retain whether the engine changed my initial assessment,
+what concrete opportunity or vulnerability it revealed, achieved depth, options,
+and timing. These are qualitative observations, not an established playing
+rating. The next live game is a new trial; development tests do not start it.
 
 ## Files and verification
 
@@ -190,11 +260,18 @@ has no measured playing rating yet. No new game is started by any engine command
 - `astra_engine/search.py`: evaluation, bounded candidate search, draw handling,
   and goal proof/witness searches.
 - `astra_engine/report.py` and `report.template.html`: offline evidence viewer.
+- `astra_engine/diagnostics.py`: optional rule-derived inspection and heuristics.
+- `astra_engine/clock.py`: cumulative own-turn clock and append-only event ledger.
+- `play_engine_game.py`: explicit game journal and verified-move workflow.
 - `astra_chess.py`: validated requests, hypothetical positions, and turn budgets.
 - `engine_examples/`: small manufactured examples and two study queries around
   the original Wally game's 29. fxg6. Recorded games are input examples, never
   search knowledge or opening databases.
 - `tests/test_engine.py`: rules, search semantics, and interface checks.
+- `tests/test_*improvements.py`, `test_clock.py`, `test_diagnostics.py`: speed-path
+  equivalence, optional features, clock integrity, and interface integration.
+- `benchmark_engine.py`, `benchmark_diagnostics.py`, `engine-benchmarks/`: repeatable
+  comparisons against this engine's preserved baseline, including raw results.
 
 ```text
 python -m unittest discover -s tests -v
@@ -205,15 +282,17 @@ as an independent rules-only oracle. That library is not imported by the engine
 or interface, provides no evaluation or move advice, and is not needed to run
 the engine. The deterministic rules tests also work without it.
 
-Verified on September 7, 2026: all **38 tests passed** in the final run, including
+The preserved version 0.1 baseline passed **38 tests** on September 7, 2026, including
 six recorded games, 400 seeded random playout positions, initial perft counts
 20/400/8,902, all goal types, target identity through moves/promotion/en passant,
 prospective draw declarations, root rankings, deadlines, and shared-budget
 enforcement. The engine and report-generation command also ran with Python
 site packages disabled.
-The result and runtime import audit are in `engine-output/verification.json`.
+That baseline result and runtime import audit are in `engine-output/verification.json`.
+Version 0.2 passed **80 Python tests**, plus the report's browser integration
+checks. Its measurements and selected defaults are in [ENGINE-CHANGES.md](ENGINE-CHANGES.md).
 
-Representative measured queries on this machine:
+Representative original-baseline measurements on this machine:
 
 | Query | Completed base depth | Search elapsed |
 | --- | ---: | ---: |

@@ -9,11 +9,12 @@
 :root{color-scheme:dark light;--page:#111b18;--panel:#1a2722;--text:#edf2e9;--muted:#a9bbae;--line:#33483c;--accent:#c7e89f;--ink:#182914;--light:#e8edda;--dark:#789580}
 @media(prefers-color-scheme:light){:root{--page:#f5f6ef;--panel:#fffef7;--text:#263b2d;--muted:#637562;--line:#d5dfcf;--accent:#395f40;--ink:#fffef7}}
 *{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--text);font:16px/1.5 system-ui,sans-serif}main{max-width:1120px;margin:auto;padding:28px}h1{font:400 clamp(25px,4vw,36px)/1.2 Georgia,serif;margin:7px 0 14px}h2{font-size:18px;margin:0 0 12px}p{margin:8px 0}.eyebrow,.muted{color:var(--muted)}.eyebrow{font-size:12px;letter-spacing:.12em}.summary{border-left:3px solid var(--accent);padding:8px 16px;margin:20px 0}.summary strong{display:block}.summary p{font-size:14px}.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(290px,.85fr);gap:28px;align-items:start}.board{display:grid;grid-template-columns:repeat(8,1fr);width:100%;aspect-ratio:1;border-radius:4px;overflow:hidden}.square{position:relative;display:grid;place-items:center;background:var(--light);font-size:clamp(25px,4vw,48px);color:#182d20;aspect-ratio:1}.square.dark{background:var(--dark)}.square.white{color:#fffdf0;text-shadow:1px 1px 1px #203629,-1px -1px 1px #203629;-webkit-text-stroke:1px #203629}.coordinate{position:absolute;left:3px;bottom:1px;font:10px system-ui,sans-serif;color:#243d2c;text-shadow:none;-webkit-text-stroke:0}.controls{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.controls button{flex:1;min-height:40px}button,select,input,textarea{font:inherit;color:var(--text)}button,select,input{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px 10px}button{cursor:pointer}button:disabled{opacity:.4;cursor:default}:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.timeline{width:100%;accent-color:var(--accent);padding:0}.position-label{font-size:14px;margin:12px 0 6px}.fen{font:12px/1.5 ui-monospace,monospace;overflow-wrap:anywhere;color:var(--muted)}.line{display:block;width:100%;text-align:left;margin-bottom:9px;padding:12px}.line[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 3px 0 var(--accent)}.line strong,.line span{display:block}.line span{font-size:14px;margin-top:4px;color:var(--muted)}.evidence-note{font-size:14px;color:var(--muted)}.moves{display:flex;flex-wrap:wrap;gap:5px;margin:16px 0}.moves button{padding:5px 8px;font-size:14px}.moves button[aria-current=step]{background:var(--accent);color:var(--ink)}.review,.refine{margin-top:25px;border-top:1px solid var(--line);padding-top:20px}label{display:block;font-size:14px;margin-bottom:8px}textarea{display:block;width:100%;resize:vertical;min-height:95px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px}#follow-up{font:12px/1.5 ui-monospace,monospace;min-height:180px}.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}.fields label input,.fields label select{display:block;width:100%;margin-top:4px}.hidden{display:none}.footer{font-size:12px;color:var(--muted);margin-top:24px}.goal-state{font-size:14px;color:var(--muted)}@media(max-width:750px){main{padding:20px 16px}.layout{grid-template-columns:1fr}.fields{grid-template-columns:repeat(2,minmax(0,1fr))}.square{font-size:clamp(26px,8vw,45px)}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+.layout>section{min-width:0}.board{grid-template-columns:repeat(8,minmax(0,1fr))}
 </style>
 </head>
 <body><main>
 <header><p class="eyebrow">ASTRA SEARCH LAB · LOCAL EVIDENCE</p><h1>__QUESTION__</h1></header>
-<div class="summary"><strong id="verdict"></strong><p id="limits"></p><p id="semantics"></p><p id="budget"></p></div>
+<div class="summary"><strong id="verdict"></strong><p id="limits"></p><p id="semantics"></p><p id="budget"></p><p id="settings"></p></div>
 <div class="layout">
 <section aria-label="Candidate position">
 <div id="board" class="board" role="img" aria-label="Chessboard"></div>
@@ -21,6 +22,7 @@
 <label for="timeline">Position in this line</label><input id="timeline" class="timeline" type="range" min="0" max="0" value="0">
 <div class="controls"><button id="start">Start</button><button id="previous">Previous</button><button id="next">Next</button><button id="end">End</button><button id="flip">Flip</button></div>
 <p class="fen" id="fen"></p><div id="moves" class="moves" aria-label="Line moves"></div>
+<section class="review" aria-labelledby="threat-heading"><h2 id="threat-heading">Threat review</h2><p class="evidence-note" id="threat-scope"></p><div id="threats"></div></section>
 </section>
 <section aria-label="Search evidence"><h2 id="line-heading">Candidate lines</h2><div id="lines"></div><p class="evidence-note" id="line-note"></p>
 <section class="review"><h2>Independent judgment</h2><label for="judgment">What changed for the opponent? Check forcing replies, loose pieces, opened lines, and promotion threats.</label><textarea id="judgment" placeholder="My assessment of the selected line…"></textarea><div class="controls"><button id="save-review">Save review with evidence</button></div><p class="evidence-note">Notes stay in this page until downloaded. An engine score is a bounded heuristic, not a verdict.</p></section>
@@ -29,13 +31,24 @@
 <section class="refine"><h2>Ask a follow-up from this position</h2><p class="evidence-note">The exported query uses the displayed board and the line's preceding positions. Run it through the local engine to obtain a new report.</p>
 <div class="fields">
 <label>Question type<select id="mode"><option value="analyze">Rank candidate moves</option><option value="probe">Test a goal</option></select></label>
-<label>Depth (plies)<input id="depth" type="number" min="1" max="12" value="5"></label>
-<label>Search seconds<input id="seconds" type="number" min="0.1" max="120" step="0.1" value="3"></label>
+<label>Depth (plies)<input id="depth" type="number" min="1" max="32" value="8"></label>
+<label>Search seconds<input id="seconds" type="number" min="0.1" max="180" step="0.1" value="15"></label>
 <label class="goal-field hidden">Goal<select id="goal"><option value="capture">Capture a particular piece</option><option value="avoid_capture">Keep a particular piece</option><option value="castle">Castle</option><option value="check">Give check</option><option value="avoid_check">Avoid check</option><option value="checkmate">Deliver checkmate</option><option value="avoid_checkmate">Avoid being checkmated</option><option value="stalemate">Stalemate the opponent</option><option value="avoid_stalemate">Avoid any stalemate</option></select></label>
 <label class="goal-field hidden">Goal side<select id="side"><option value="white">White</option><option value="black">Black</option></select></label>
 <label class="goal-field hidden">Target piece's square<input id="target" type="text" maxlength="2" placeholder="e.g. d8"></label>
 </div>
-<p class="goal-state">For capture questions, the target is the piece occupying that square at the start of the new query; its identity is tracked as it moves.</p>
+<details><summary>Optional analysis features</summary>
+<label><input id="diagnostics" type="checkbox" checked> Inspect mobility, pawn threats, and king lines after search</label>
+<label class="goal-field hidden"><input id="proof-only" type="checkbox" checked> Spend the goal budget on proof or refutation only</label>
+<div class="analysis-field">
+<label><input id="mobility" type="checkbox"> Experimental minor-piece mobility evaluation</label>
+<label><input id="restricted-piece" type="checkbox"> Experimental restricted-piece penalty</label>
+<label><input id="king-exposure" type="checkbox"> Experimental king exposure evaluation</label>
+<label>Extra plies at concrete threat frontiers <select id="extensions"><option value="0">Off</option><option value="1">At most 1 per branch</option><option value="2">At most 2 per branch</option></select></label>
+</div>
+<p class="evidence-note">Diagnostics describe the query player's pieces and king. These are warning signals, not proofs of a trapped piece or a safe position. Experimental options can reduce the depth reached in the same time.</p>
+</details>
+<p class="goal-state" id="target-note">For capture questions, the target is the piece occupying that square at the start of the new query; its identity is tracked as it moves.</p>
 <label for="follow-up">Follow-up query JSON</label><textarea id="follow-up" readonly spellcheck="false"></textarea><div class="controls"><button id="export-query">Download follow-up query</button></div>
 </section>
 <p class="footer">Rules, search, and evaluation written for this experiment. No opening book, endgame tablebase, external engine, or network connection.</p>
@@ -49,28 +62,72 @@
  const lines=data.candidates||data.lines||[], glyph={k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
  const pieceNames={k:'king',q:'queen',r:'rook',b:'bishop',n:'knight',p:'pawn'};
  let lineIndex=0,ply=0,flipped=false,followUp={};
- const startingFen=data.start_fen||data.query.fen;
+ const startingFen=data.start_fen||data.query.fen,sourceGoal=data.goal||data.query?.goal;
  const isProbe=data.kind==='goal_probe';
  const verdicts={forced:'Goal forced within the searched horizon',possible:'Example found; goal is not forced within the horizon',unreachable:'No qualifying line within the searched horizon',unknown:'Unresolved within the search budget'};
  $('verdict').textContent=isProbe?(verdicts[data.status]||data.status):(data.terminal?`Game over: ${data.terminal.reason.replaceAll('_',' ')}`:data.recommended_action==='claim_draw'?'A draw claim is available and preferred by this search':data.fallback?'Time-limited fallback; no full iteration completed':'Moves ranked against adversarial replies');
+ if(isProbe&&(data.query?.proof_only||data.settings?.proof_only)&&data.proof_status==='refuted')$('verdict').textContent='No forcing strategy within this horizon; cooperative lines not searched';
  $('limits').textContent=`${isProbe?'Goal horizon '+data.horizon_plies:'Completed depth '+data.completed_depth} plies · ${data.nodes.toLocaleString()} nodes · ${Number(data.elapsed_seconds).toFixed(2)} seconds${data.timed_out?' · Time limit reached':''}`;
  $('semantics').textContent=isProbe?(typeof data.semantics==='string'?data.semantics:data.semantics[data.status]):`Scores are for ${data.turn==='white'?'White':'Black'}, the query's starting player. A displayed principal variation shows one selected defense; it is not a proof that every defense produces this sequence.`;
  if(data.recommended_action==='claim_draw')$('semantics').textContent+=' '+(data.intended_move?`Declare ${data.intended_move} and claim the draw before making that move.`:'A draw can be claimed in the current position.');
- $('budget').textContent=data.turn_budget?`Turn clock at report creation: ${data.turn_budget.elapsed_seconds.toFixed(1)} seconds elapsed; ${data.turn_budget.remaining_seconds.toFixed(1)} seconds remaining.`:'Study query; no shared turn clock attached.';
+ $('budget').textContent=data.turn_budget?`Turn clock at report creation: ${data.turn_budget.elapsed_seconds.toFixed(1)} seconds elapsed; ${data.turn_budget.remaining_seconds.toFixed(1)} seconds remaining.`+(data.turn_budget.game_remaining_seconds!=null?` Game balance: ${(data.turn_budget.game_remaining_seconds/60).toFixed(1)} minutes.`:''):'Study query; no shared turn clock attached.';
+ const selectedOptions={...data.settings,...data.query},evaluation=selectedOptions.evaluation||{};
+ $('settings').textContent=`Extra evaluation: ${Object.entries(evaluation).filter(([,v])=>v).map(([k])=>k.replaceAll('_',' ')).join(', ')||'off'} · Threat extensions: ${selectedOptions.threat_extensions||0}`+(isProbe?` · Proof-only: ${selectedOptions.proof_only?'on':'off'}`:'');
+ if(data.diagnostics?.capped_threat_frontiers)$('settings').textContent+=' · Some detected threats reached the extension cap.';
  $('line-heading').textContent=isProbe?'Witness lines':'Ranked candidates';
  $('line-note').textContent=isProbe?`Proof: ${data.proof_status}. Witness: ${data.witness_status}. A witness alone may require cooperative opponent moves. A bounded proof does not establish an outcome beyond its stated horizon.`:'Review the opponent’s strongest displayed reply before choosing a move. Scores beyond the horizon can change with deeper search.';
- $('depth').value=Math.min(12,(data.completed_depth||data.horizon_plies||3)+2);
+ $('depth').value=Math.min(32,(data.completed_depth||data.horizon_plies||3)+2);
+ $('mode').value=isProbe?'probe':'analyze';
+ $('diagnostics').checked=selectedOptions.diagnostics!==false;
+ $('proof-only').checked=selectedOptions.proof_only!==false;
+ $('mobility').checked=!!evaluation.mobility;$('restricted-piece').checked=!!evaluation.restricted_piece;$('king-exposure').checked=!!evaluation.king_exposure;
+ $('extensions').value=selectedOptions.threat_extensions||0;
  $('side').value=startingFen.split(' ')[1]==='w'?'white':'black';
+ if(sourceGoal){$('goal').value=sourceGoal.type;$('side').value=sourceGoal.side||$('side').value;$('target').value=sourceGoal.target||'';}
  function currentLine(){return lines[lineIndex]||{fens:[startingFen],san:[],uci:[]};}
  function currentFen(){return currentLine().fens[ply];}
+ function occupant(fen,square){let rank=8,file=0;for(const c of fen.split(' ')[0]){if(c==='/'){rank--;file=0;}else if(/[1-8]/.test(c))file+=Number(c);else{if(String.fromCharCode(97+file)+rank===square)return c;file++;}}return '';}
+ function originalTarget(){
+  let target=sourceGoal?.target;if(!target)return '';
+  const line=currentLine();
+  for(let i=0;i<ply&&target;i++){
+   const move=line.uci[i],from=move.slice(0,2),to=move.slice(2,4),piece=occupant(line.fens[i],from);
+   if(from===target)target=to;
+   else if(to===target)target='';
+   else if(piece.toLowerCase()==='p'&&from[0]!==to[0]&&!occupant(line.fens[i],to)&&target===to[0]+from[1])target='';
+   else if(piece.toLowerCase()==='k'&&Math.abs(from.charCodeAt(0)-to.charCodeAt(0))===2){const right=to[0]==='g',rookFrom=(right?'h':'a')+from[1];if(target===rookFrom)target=(right?'f':'d')+from[1];}
+  }
+  return target;
+ }
  function download(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)+'\n'],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
  function updateQuery(){
   const mode=$('mode').value,goalType=$('goal').value;
   document.querySelectorAll('.goal-field').forEach(el=>el.classList.toggle('hidden',mode!=='probe'));
+  document.querySelectorAll('.analysis-field').forEach(el=>el.classList.toggle('hidden',mode!=='analyze'));
   const history=[...(data.position_history_fens||[]),...currentLine().fens.slice(0,ply)];
   followUp={label:'Follow-up: '+data.label,mode,fen:currentFen(),history_fens:history,depth:Number($('depth').value),seconds:Number($('seconds').value),candidates:3};
-  if(mode==='probe'){followUp.goal={type:goalType,side:$('side').value};if(goalType==='capture'||goalType==='avoid_capture')followUp.goal.target=$('target').value.trim().toLowerCase();}
+  followUp.diagnostics=$('diagnostics').checked;
+  if(mode==='probe'){followUp.proof_only=$('proof-only').checked;followUp.goal={type:goalType,side:$('side').value};if(goalType==='capture'||goalType==='avoid_capture')followUp.goal.target=$('target').value.trim().toLowerCase();}
+  else {followUp.evaluation={mobility:$('mobility').checked,restricted_piece:$('restricted-piece').checked,king_exposure:$('king-exposure').checked};followUp.threat_extensions=Number($('extensions').value);}
+  const needsTarget=mode==='probe'&&(goalType==='capture'||goalType==='avoid_capture'),target=followUp.goal?.target||'',piece=occupant(currentFen(),target);
+  const own=piece&&((piece===piece.toUpperCase())===($('side').value==='white'));
+  const validTarget=!needsTarget||(/^[a-h][1-8]$/.test(target)&&piece&&piece.toLowerCase()!=='k'&&(goalType==='avoid_capture'?own:!own));
+  $('export-query').disabled=!validTarget;
+  $('target-note').textContent=validTarget?'Capture targets refer to the piece on that square in this displayed position; the engine tracks its identity. Original probe targets follow the selected line.':'Select a valid target in this displayed position. The original piece may already have been captured; an empty or wrong-side target cannot be exported.';
   $('follow-up').value=JSON.stringify(followUp,null,2);
+ }
+ function showThreats(){
+  const report=currentLine().position_diagnostics?.[ply]||(ply===0?data.position_diagnostics:null);
+  $('threats').replaceChildren();
+  $('threat-scope').textContent=report?`${report.side==='white'?'White':'Black'} pieces · ${report.turn_context==='enemy_to_move'?'Enemy to move':'Enemy threats assume it could move next on this board'} · Heuristic inspection`:(data.query?.diagnostics?'This position was not inspected within the diagnostic budget.':'Diagnostics were not requested for this report.');
+  if(!report)return;
+  const paragraph=text=>{const p=document.createElement('p');p.className='evidence-note';p.textContent=text;$('threats').append(p);};
+  for(const warning of report.warnings||[])paragraph(warning);
+  if(!report.warnings?.length)paragraph('No warning from these limited checks. This does not establish safety.');
+  const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Piece mobility and king lines';details.append(summary);
+  for(const piece of report.minor_pieces||[]){const p=document.createElement('p');p.className='evidence-note';p.textContent=`${piece.piece} on ${piece.square}: ${piece.pawn_safe_destinations.length} geometric destinations outside enemy pawn control. Own blockers: ${piece.own_blockers.join(', ')||'none'}. Legal enemy pawn pushes attacking it: ${piece.pawn_push_threats.join(', ')||'none'}. Capture threats: ${piece.legal_capture_threats.join(', ')||'none'}.`;details.append(p);}
+  for(const line of report.king_lines||[]){const p=document.createElement('p');p.className='evidence-note';p.textContent=`${line.kind}: attacker ${line.attacker}, king ${line.king}, screen ${line.screen||'none'}.`;details.append(p);}
+  $('threats').append(details);
  }
  function show(target){
   const line=currentLine();ply=Math.max(0,Math.min(line.fens.length-1,target));
@@ -89,7 +146,8 @@
   $('start').disabled=$('previous').disabled=ply===0;$('next').disabled=$('end').disabled=ply===line.fens.length-1;
   $('moves').replaceChildren();line.san.forEach((san,i)=>{const button=document.createElement('button');button.textContent=san;button.title=line.uci[i];if(i+1===ply)button.setAttribute('aria-current','step');button.addEventListener('click',()=>show(i+1));$('moves').append(button);});
   document.querySelectorAll('.line').forEach((el,i)=>el.setAttribute('aria-pressed',String(i===lineIndex)));
-  updateQuery();
+  if(sourceGoal?.target&&$('goal').value===sourceGoal.type)$('target').value=originalTarget();
+  showThreats();updateQuery();
  }
  lines.forEach((line,i)=>{
   const button=document.createElement('button');button.className='line';button.setAttribute('aria-pressed',String(i===0));
@@ -102,7 +160,7 @@
  });
  if(!lines.length){const p=document.createElement('p');p.textContent='No candidate line was returned. Inspect the starting position and the search status above.';$('lines').append(p);}
  $('start').addEventListener('click',()=>show(0));$('previous').addEventListener('click',()=>show(ply-1));$('next').addEventListener('click',()=>show(ply+1));$('end').addEventListener('click',()=>show(currentLine().fens.length-1));$('flip').addEventListener('click',()=>{flipped=!flipped;show(ply);});$('timeline').addEventListener('input',event=>show(Number(event.target.value)));
- for(const id of ['mode','depth','seconds','goal','side','target'])$(id).addEventListener('input',updateQuery);
+ for(const id of ['mode','depth','seconds','goal','side','target','diagnostics','proof-only','mobility','restricted-piece','king-exposure','extensions'])$(id).addEventListener('input',updateQuery);
  $('export-query').addEventListener('click',()=>{updateQuery();download(followUp,'follow-up-query.json');});
  $('save-review').addEventListener('click',()=>download({...data,review:{notes:$('judgment').value,candidate:lineIndex+1,ply,fen:currentFen()}},'reviewed-evidence.json'));
  document.addEventListener('keydown',event=>{if(event.ctrlKey||event.metaKey||event.altKey||/^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName))return;const map={ArrowLeft:ply-1,ArrowRight:ply+1,Home:0,End:currentLine().fens.length-1};if(event.key in map){event.preventDefault();show(map[event.key]);}});

@@ -1,0 +1,2289 @@
+{
+  "baseline_commit": "37f3767e4a9c9634fd6901a2918ee36a1997a316",
+  "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+  "fixed_depth": [
+    {
+      "case": "before_Ra1",
+      "measurements": [
+        {
+          "baseline": {
+            "case": "before_Ra1",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 11108,
+            "wall_seconds": 1.7789299001451582,
+            "search_seconds": 1.782,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 10809,
+              "cutoffs": 2727
+            },
+            "candidates": [
+              {
+                "root_move": "d1a1",
+                "score_cp": 13,
+                "uci": [
+                  "d1a1",
+                  "c7c5",
+                  "f1d1"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b3b4",
+                "score_cp": 12,
+                "uci": [
+                  "b3b4",
+                  "c7c6",
+                  "c2c3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f3e3",
+                "score_cp": 7,
+                "uci": [
+                  "f3e3",
+                  "c7c6",
+                  "b3b4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "current": {
+            "case": "before_Ra1",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 11108,
+            "wall_seconds": 0.7185853000264615,
+            "search_seconds": 0.719,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 10809,
+              "cutoffs": 2727,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "d1a1",
+                "score_cp": 13,
+                "uci": [
+                  "d1a1",
+                  "c7c5",
+                  "f1d1"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b3b4",
+                "score_cp": 12,
+                "uci": [
+                  "b3b4",
+                  "c7c6",
+                  "c2c3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f3e3",
+                "score_cp": 7,
+                "uci": [
+                  "f3e3",
+                  "c7c6",
+                  "b3b4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        },
+        {
+          "current": {
+            "case": "before_Ra1",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 11108,
+            "wall_seconds": 0.7204656000249088,
+            "search_seconds": 0.719,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 10809,
+              "cutoffs": 2727,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "d1a1",
+                "score_cp": 13,
+                "uci": [
+                  "d1a1",
+                  "c7c5",
+                  "f1d1"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b3b4",
+                "score_cp": 12,
+                "uci": [
+                  "b3b4",
+                  "c7c6",
+                  "c2c3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f3e3",
+                "score_cp": 7,
+                "uci": [
+                  "f3e3",
+                  "c7c6",
+                  "b3b4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "baseline": {
+            "case": "before_Ra1",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 11108,
+            "wall_seconds": 1.7820753999985754,
+            "search_seconds": 1.781,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 10809,
+              "cutoffs": 2727
+            },
+            "candidates": [
+              {
+                "root_move": "d1a1",
+                "score_cp": 13,
+                "uci": [
+                  "d1a1",
+                  "c7c5",
+                  "f1d1"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b3b4",
+                "score_cp": 12,
+                "uci": [
+                  "b3b4",
+                  "c7c6",
+                  "c2c3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f3e3",
+                "score_cp": 7,
+                "uci": [
+                  "f3e3",
+                  "c7c6",
+                  "b3b4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        },
+        {
+          "baseline": {
+            "case": "before_Ra1",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 11108,
+            "wall_seconds": 1.7725500999949872,
+            "search_seconds": 1.766,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 10809,
+              "cutoffs": 2727
+            },
+            "candidates": [
+              {
+                "root_move": "d1a1",
+                "score_cp": 13,
+                "uci": [
+                  "d1a1",
+                  "c7c5",
+                  "f1d1"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b3b4",
+                "score_cp": 12,
+                "uci": [
+                  "b3b4",
+                  "c7c6",
+                  "c2c3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f3e3",
+                "score_cp": 7,
+                "uci": [
+                  "f3e3",
+                  "c7c6",
+                  "b3b4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "current": {
+            "case": "before_Ra1",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 11108,
+            "wall_seconds": 0.7107919999398291,
+            "search_seconds": 0.719,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 10809,
+              "cutoffs": 2727,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "d1a1",
+                "score_cp": 13,
+                "uci": [
+                  "d1a1",
+                  "c7c5",
+                  "f1d1"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b3b4",
+                "score_cp": 12,
+                "uci": [
+                  "b3b4",
+                  "c7c6",
+                  "c2c3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f3e3",
+                "score_cp": 7,
+                "uci": [
+                  "f3e3",
+                  "c7c6",
+                  "b3b4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        }
+      ],
+      "median_speedup": 2.4756001828588063
+    },
+    {
+      "case": "before_Rfd1",
+      "measurements": [
+        {
+          "baseline": {
+            "case": "before_Rfd1",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 13040,
+            "wall_seconds": 2.2405522000044584,
+            "search_seconds": 2.235,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 12726,
+              "cutoffs": 3093
+            },
+            "candidates": [
+              {
+                "root_move": "f1b1",
+                "score_cp": -7,
+                "uci": [
+                  "f1b1",
+                  "c5c4",
+                  "b3c4",
+                  "b5c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f1d1",
+                "score_cp": -7,
+                "uci": [
+                  "f1d1",
+                  "c5c4",
+                  "b3c4",
+                  "b5c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "c2c4",
+                "score_cp": -10,
+                "uci": [
+                  "c2c4",
+                  "b5c4",
+                  "b3c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "current": {
+            "case": "before_Rfd1",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 13040,
+            "wall_seconds": 0.8821845001075417,
+            "search_seconds": 0.875,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 12726,
+              "cutoffs": 3093,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "f1b1",
+                "score_cp": -7,
+                "uci": [
+                  "f1b1",
+                  "c5c4",
+                  "b3c4",
+                  "b5c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f1d1",
+                "score_cp": -7,
+                "uci": [
+                  "f1d1",
+                  "c5c4",
+                  "b3c4",
+                  "b5c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "c2c4",
+                "score_cp": -10,
+                "uci": [
+                  "c2c4",
+                  "b5c4",
+                  "b3c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        },
+        {
+          "current": {
+            "case": "before_Rfd1",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 13040,
+            "wall_seconds": 0.8687136999797076,
+            "search_seconds": 0.875,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 12726,
+              "cutoffs": 3093,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "f1b1",
+                "score_cp": -7,
+                "uci": [
+                  "f1b1",
+                  "c5c4",
+                  "b3c4",
+                  "b5c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f1d1",
+                "score_cp": -7,
+                "uci": [
+                  "f1d1",
+                  "c5c4",
+                  "b3c4",
+                  "b5c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "c2c4",
+                "score_cp": -10,
+                "uci": [
+                  "c2c4",
+                  "b5c4",
+                  "b3c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "baseline": {
+            "case": "before_Rfd1",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 13040,
+            "wall_seconds": 2.2109228000044823,
+            "search_seconds": 2.204,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 12726,
+              "cutoffs": 3093
+            },
+            "candidates": [
+              {
+                "root_move": "f1b1",
+                "score_cp": -7,
+                "uci": [
+                  "f1b1",
+                  "c5c4",
+                  "b3c4",
+                  "b5c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f1d1",
+                "score_cp": -7,
+                "uci": [
+                  "f1d1",
+                  "c5c4",
+                  "b3c4",
+                  "b5c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "c2c4",
+                "score_cp": -10,
+                "uci": [
+                  "c2c4",
+                  "b5c4",
+                  "b3c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        },
+        {
+          "baseline": {
+            "case": "before_Rfd1",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 13040,
+            "wall_seconds": 2.2162274001166224,
+            "search_seconds": 2.219,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 12726,
+              "cutoffs": 3093
+            },
+            "candidates": [
+              {
+                "root_move": "f1b1",
+                "score_cp": -7,
+                "uci": [
+                  "f1b1",
+                  "c5c4",
+                  "b3c4",
+                  "b5c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f1d1",
+                "score_cp": -7,
+                "uci": [
+                  "f1d1",
+                  "c5c4",
+                  "b3c4",
+                  "b5c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "c2c4",
+                "score_cp": -10,
+                "uci": [
+                  "c2c4",
+                  "b5c4",
+                  "b3c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "current": {
+            "case": "before_Rfd1",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 13040,
+            "wall_seconds": 0.8677264000289142,
+            "search_seconds": 0.875,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 12726,
+              "cutoffs": 3093,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "f1b1",
+                "score_cp": -7,
+                "uci": [
+                  "f1b1",
+                  "c5c4",
+                  "b3c4",
+                  "b5c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f1d1",
+                "score_cp": -7,
+                "uci": [
+                  "f1d1",
+                  "c5c4",
+                  "b3c4",
+                  "b5c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "c2c4",
+                "score_cp": -10,
+                "uci": [
+                  "c2c4",
+                  "b5c4",
+                  "b3c4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        }
+      ],
+      "median_speedup": 2.5511597205942436
+    },
+    {
+      "case": "after_c4",
+      "measurements": [
+        {
+          "baseline": {
+            "case": "after_c4",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 10556,
+            "wall_seconds": 1.7421494000591338,
+            "search_seconds": 1.735,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 10246,
+              "cutoffs": 2210
+            },
+            "candidates": [
+              {
+                "root_move": "a1a7",
+                "score_cp": -190,
+                "uci": [
+                  "a1a7",
+                  "c4d3",
+                  "d1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "e2c1",
+                "score_cp": -197,
+                "uci": [
+                  "e2c1",
+                  "c4d3",
+                  "c1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b3b4",
+                "score_cp": -201,
+                "uci": [
+                  "b3b4",
+                  "c4d3",
+                  "d1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "current": {
+            "case": "after_c4",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 10556,
+            "wall_seconds": 0.7118667999748141,
+            "search_seconds": 0.719,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 10246,
+              "cutoffs": 2210,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "a1a7",
+                "score_cp": -190,
+                "uci": [
+                  "a1a7",
+                  "c4d3",
+                  "d1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "e2c1",
+                "score_cp": -197,
+                "uci": [
+                  "e2c1",
+                  "c4d3",
+                  "c1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b3b4",
+                "score_cp": -201,
+                "uci": [
+                  "b3b4",
+                  "c4d3",
+                  "d1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        },
+        {
+          "current": {
+            "case": "after_c4",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 10556,
+            "wall_seconds": 0.665986199863255,
+            "search_seconds": 0.672,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 10246,
+              "cutoffs": 2210,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "a1a7",
+                "score_cp": -190,
+                "uci": [
+                  "a1a7",
+                  "c4d3",
+                  "d1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "e2c1",
+                "score_cp": -197,
+                "uci": [
+                  "e2c1",
+                  "c4d3",
+                  "c1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b3b4",
+                "score_cp": -201,
+                "uci": [
+                  "b3b4",
+                  "c4d3",
+                  "d1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "baseline": {
+            "case": "after_c4",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 10556,
+            "wall_seconds": 1.6341524999588728,
+            "search_seconds": 1.625,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 10246,
+              "cutoffs": 2210
+            },
+            "candidates": [
+              {
+                "root_move": "a1a7",
+                "score_cp": -190,
+                "uci": [
+                  "a1a7",
+                  "c4d3",
+                  "d1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "e2c1",
+                "score_cp": -197,
+                "uci": [
+                  "e2c1",
+                  "c4d3",
+                  "c1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b3b4",
+                "score_cp": -201,
+                "uci": [
+                  "b3b4",
+                  "c4d3",
+                  "d1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        },
+        {
+          "baseline": {
+            "case": "after_c4",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 10556,
+            "wall_seconds": 1.7617438999004662,
+            "search_seconds": 1.766,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 10246,
+              "cutoffs": 2210
+            },
+            "candidates": [
+              {
+                "root_move": "a1a7",
+                "score_cp": -190,
+                "uci": [
+                  "a1a7",
+                  "c4d3",
+                  "d1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "e2c1",
+                "score_cp": -197,
+                "uci": [
+                  "e2c1",
+                  "c4d3",
+                  "c1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b3b4",
+                "score_cp": -201,
+                "uci": [
+                  "b3b4",
+                  "c4d3",
+                  "d1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "current": {
+            "case": "after_c4",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 10556,
+            "wall_seconds": 0.7131948000751436,
+            "search_seconds": 0.718,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 10246,
+              "cutoffs": 2210,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "a1a7",
+                "score_cp": -190,
+                "uci": [
+                  "a1a7",
+                  "c4d3",
+                  "d1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "e2c1",
+                "score_cp": -197,
+                "uci": [
+                  "e2c1",
+                  "c4d3",
+                  "c1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b3b4",
+                "score_cp": -201,
+                "uci": [
+                  "b3b4",
+                  "c4d3",
+                  "d1d3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        }
+      ],
+      "median_speedup": 2.4472968821144225
+    },
+    {
+      "case": "final_attack",
+      "measurements": [
+        {
+          "baseline": {
+            "case": "final_attack",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 2260,
+            "wall_seconds": 0.3307245001196861,
+            "search_seconds": 0.328,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 2085,
+              "cutoffs": 656
+            },
+            "candidates": [
+              {
+                "root_move": "a7f7",
+                "score_cp": -456,
+                "uci": [
+                  "a7f7",
+                  "g7f7",
+                  "b4b5"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "d3e2",
+                "score_cp": -988,
+                "uci": [
+                  "d3e2",
+                  "h3g4",
+                  "f3g2",
+                  "e1e2"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "a7c7",
+                "score_cp": -29998,
+                "uci": [
+                  "a7c7",
+                  "e4g5"
+                ],
+                "ending": "checkmate",
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "current": {
+            "case": "final_attack",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 2260,
+            "wall_seconds": 0.17716720001772046,
+            "search_seconds": 0.172,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 2085,
+              "cutoffs": 656,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "a7f7",
+                "score_cp": -456,
+                "uci": [
+                  "a7f7",
+                  "g7f7",
+                  "b4b5"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "d3e2",
+                "score_cp": -988,
+                "uci": [
+                  "d3e2",
+                  "h3g4",
+                  "f3g2",
+                  "e1e2"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "a7c7",
+                "score_cp": -29998,
+                "uci": [
+                  "a7c7",
+                  "e4g5"
+                ],
+                "ending": "checkmate",
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        },
+        {
+          "current": {
+            "case": "final_attack",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 2260,
+            "wall_seconds": 0.1733125001192093,
+            "search_seconds": 0.156,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 2085,
+              "cutoffs": 656,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "a7f7",
+                "score_cp": -456,
+                "uci": [
+                  "a7f7",
+                  "g7f7",
+                  "b4b5"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "d3e2",
+                "score_cp": -988,
+                "uci": [
+                  "d3e2",
+                  "h3g4",
+                  "f3g2",
+                  "e1e2"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "a7c7",
+                "score_cp": -29998,
+                "uci": [
+                  "a7c7",
+                  "e4g5"
+                ],
+                "ending": "checkmate",
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "baseline": {
+            "case": "final_attack",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 2260,
+            "wall_seconds": 0.3287833998911083,
+            "search_seconds": 0.328,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 2085,
+              "cutoffs": 656
+            },
+            "candidates": [
+              {
+                "root_move": "a7f7",
+                "score_cp": -456,
+                "uci": [
+                  "a7f7",
+                  "g7f7",
+                  "b4b5"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "d3e2",
+                "score_cp": -988,
+                "uci": [
+                  "d3e2",
+                  "h3g4",
+                  "f3g2",
+                  "e1e2"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "a7c7",
+                "score_cp": -29998,
+                "uci": [
+                  "a7c7",
+                  "e4g5"
+                ],
+                "ending": "checkmate",
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        },
+        {
+          "baseline": {
+            "case": "final_attack",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 2260,
+            "wall_seconds": 0.3340185000561178,
+            "search_seconds": 0.328,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 2085,
+              "cutoffs": 656
+            },
+            "candidates": [
+              {
+                "root_move": "a7f7",
+                "score_cp": -456,
+                "uci": [
+                  "a7f7",
+                  "g7f7",
+                  "b4b5"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "d3e2",
+                "score_cp": -988,
+                "uci": [
+                  "d3e2",
+                  "h3g4",
+                  "f3g2",
+                  "e1e2"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "a7c7",
+                "score_cp": -29998,
+                "uci": [
+                  "a7c7",
+                  "e4g5"
+                ],
+                "ending": "checkmate",
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "current": {
+            "case": "final_attack",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 2260,
+            "wall_seconds": 0.1773099999409169,
+            "search_seconds": 0.188,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 2085,
+              "cutoffs": 656,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "a7f7",
+                "score_cp": -456,
+                "uci": [
+                  "a7f7",
+                  "g7f7",
+                  "b4b5"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "d3e2",
+                "score_cp": -988,
+                "uci": [
+                  "d3e2",
+                  "h3g4",
+                  "f3g2",
+                  "e1e2"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "a7c7",
+                "score_cp": -29998,
+                "uci": [
+                  "a7c7",
+                  "e4g5"
+                ],
+                "ending": "checkmate",
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        }
+      ],
+      "median_speedup": 1.8667366199082376
+    },
+    {
+      "case": "initial",
+      "measurements": [
+        {
+          "baseline": {
+            "case": "initial",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 789,
+            "wall_seconds": 0.1021044000517577,
+            "search_seconds": 0.094,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 672,
+              "cutoffs": 110
+            },
+            "candidates": [
+              {
+                "root_move": "b1c3",
+                "score_cp": 41,
+                "uci": [
+                  "b1c3",
+                  "b8c6",
+                  "g1f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "g1f3",
+                "score_cp": 41,
+                "uci": [
+                  "g1f3",
+                  "b8c6",
+                  "b1c3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b1a3",
+                "score_cp": 19,
+                "uci": [
+                  "b1a3",
+                  "b8c6",
+                  "g1f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "current": {
+            "case": "initial",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 789,
+            "wall_seconds": 0.048929099924862385,
+            "search_seconds": 0.047,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 672,
+              "cutoffs": 110,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "b1c3",
+                "score_cp": 41,
+                "uci": [
+                  "b1c3",
+                  "b8c6",
+                  "g1f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "g1f3",
+                "score_cp": 41,
+                "uci": [
+                  "g1f3",
+                  "b8c6",
+                  "b1c3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b1a3",
+                "score_cp": 19,
+                "uci": [
+                  "b1a3",
+                  "b8c6",
+                  "g1f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        },
+        {
+          "current": {
+            "case": "initial",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 789,
+            "wall_seconds": 0.05119029991328716,
+            "search_seconds": 0.063,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 672,
+              "cutoffs": 110,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "b1c3",
+                "score_cp": 41,
+                "uci": [
+                  "b1c3",
+                  "b8c6",
+                  "g1f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "g1f3",
+                "score_cp": 41,
+                "uci": [
+                  "g1f3",
+                  "b8c6",
+                  "b1c3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b1a3",
+                "score_cp": 19,
+                "uci": [
+                  "b1a3",
+                  "b8c6",
+                  "g1f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "baseline": {
+            "case": "initial",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 789,
+            "wall_seconds": 0.0983857000246644,
+            "search_seconds": 0.094,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 672,
+              "cutoffs": 110
+            },
+            "candidates": [
+              {
+                "root_move": "b1c3",
+                "score_cp": 41,
+                "uci": [
+                  "b1c3",
+                  "b8c6",
+                  "g1f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "g1f3",
+                "score_cp": 41,
+                "uci": [
+                  "g1f3",
+                  "b8c6",
+                  "b1c3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b1a3",
+                "score_cp": 19,
+                "uci": [
+                  "b1a3",
+                  "b8c6",
+                  "g1f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        },
+        {
+          "baseline": {
+            "case": "initial",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 789,
+            "wall_seconds": 0.0973668999504298,
+            "search_seconds": 0.109,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 672,
+              "cutoffs": 110
+            },
+            "candidates": [
+              {
+                "root_move": "b1c3",
+                "score_cp": 41,
+                "uci": [
+                  "b1c3",
+                  "b8c6",
+                  "g1f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "g1f3",
+                "score_cp": 41,
+                "uci": [
+                  "g1f3",
+                  "b8c6",
+                  "b1c3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b1a3",
+                "score_cp": 19,
+                "uci": [
+                  "b1a3",
+                  "b8c6",
+                  "g1f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "current": {
+            "case": "initial",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 789,
+            "wall_seconds": 0.05030160001479089,
+            "search_seconds": 0.047,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 672,
+              "cutoffs": 110,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "b1c3",
+                "score_cp": 41,
+                "uci": [
+                  "b1c3",
+                  "b8c6",
+                  "g1f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "g1f3",
+                "score_cp": 41,
+                "uci": [
+                  "g1f3",
+                  "b8c6",
+                  "b1c3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "b1a3",
+                "score_cp": 19,
+                "uci": [
+                  "b1a3",
+                  "b8c6",
+                  "g1f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        }
+      ],
+      "median_speedup": 1.9559159151147212
+    },
+    {
+      "case": "rook_endgame",
+      "measurements": [
+        {
+          "baseline": {
+            "case": "rook_endgame",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 982,
+            "wall_seconds": 0.09867199999280274,
+            "search_seconds": 0.094,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 850,
+              "cutoffs": 187
+            },
+            "candidates": [
+              {
+                "root_move": "d4d7",
+                "score_cp": 168,
+                "uci": [
+                  "d4d7",
+                  "g7f6",
+                  "f2f4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f2f4",
+                "score_cp": 162,
+                "uci": [
+                  "f2f4",
+                  "a1a2",
+                  "g2f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "d4d2",
+                "score_cp": 150,
+                "uci": [
+                  "d4d2",
+                  "g7f6",
+                  "f2f4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "current": {
+            "case": "rook_endgame",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 982,
+            "wall_seconds": 0.0477354999165982,
+            "search_seconds": 0.047,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 850,
+              "cutoffs": 187,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "d4d7",
+                "score_cp": 168,
+                "uci": [
+                  "d4d7",
+                  "g7f6",
+                  "f2f4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f2f4",
+                "score_cp": 162,
+                "uci": [
+                  "f2f4",
+                  "a1a2",
+                  "g2f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "d4d2",
+                "score_cp": 150,
+                "uci": [
+                  "d4d2",
+                  "g7f6",
+                  "f2f4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        },
+        {
+          "current": {
+            "case": "rook_endgame",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 982,
+            "wall_seconds": 0.04868220002390444,
+            "search_seconds": 0.046,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 850,
+              "cutoffs": 187,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "d4d7",
+                "score_cp": 168,
+                "uci": [
+                  "d4d7",
+                  "g7f6",
+                  "f2f4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f2f4",
+                "score_cp": 162,
+                "uci": [
+                  "f2f4",
+                  "a1a2",
+                  "g2f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "d4d2",
+                "score_cp": 150,
+                "uci": [
+                  "d4d2",
+                  "g7f6",
+                  "f2f4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "baseline": {
+            "case": "rook_endgame",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 982,
+            "wall_seconds": 0.1010713002178818,
+            "search_seconds": 0.094,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 850,
+              "cutoffs": 187
+            },
+            "candidates": [
+              {
+                "root_move": "d4d7",
+                "score_cp": 168,
+                "uci": [
+                  "d4d7",
+                  "g7f6",
+                  "f2f4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f2f4",
+                "score_cp": 162,
+                "uci": [
+                  "f2f4",
+                  "a1a2",
+                  "g2f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "d4d2",
+                "score_cp": 150,
+                "uci": [
+                  "d4d2",
+                  "g7f6",
+                  "f2f4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        },
+        {
+          "baseline": {
+            "case": "rook_endgame",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 982,
+            "wall_seconds": 0.09465180011466146,
+            "search_seconds": 0.109,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 850,
+              "cutoffs": 187
+            },
+            "candidates": [
+              {
+                "root_move": "d4d7",
+                "score_cp": 168,
+                "uci": [
+                  "d4d7",
+                  "g7f6",
+                  "f2f4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f2f4",
+                "score_cp": 162,
+                "uci": [
+                  "f2f4",
+                  "a1a2",
+                  "g2f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "d4d2",
+                "score_cp": 150,
+                "uci": [
+                  "d4d2",
+                  "g7f6",
+                  "f2f4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "current": {
+            "case": "rook_endgame",
+            "requested_depth": 3,
+            "seconds": 60.0,
+            "completed_depth": 3,
+            "nodes": 982,
+            "wall_seconds": 0.0493149000685662,
+            "search_seconds": 0.047,
+            "overrun_seconds": 0,
+            "options": {},
+            "diagnostics": {
+              "score_view": "root side",
+              "depth_unit": "plies",
+              "history_note": "Earlier repetition is unknown without supplied history.",
+              "quiescence_capture_depth": 8,
+              "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+              "transposition_reuse": "move ordering only; no cached evaluation bounds",
+              "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+              "stop_reason": "depth_limit",
+              "qnodes": 850,
+              "cutoffs": 187,
+              "extended_frontiers": 0,
+              "capped_threat_frontiers": 0,
+              "threat_frontier_unresolved": false,
+              "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+            },
+            "candidates": [
+              {
+                "root_move": "d4d7",
+                "score_cp": 168,
+                "uci": [
+                  "d4d7",
+                  "g7f6",
+                  "f2f4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "f2f4",
+                "score_cp": 162,
+                "uci": [
+                  "f2f4",
+                  "a1a2",
+                  "g2f3"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              },
+              {
+                "root_move": "d4d2",
+                "score_cp": 150,
+                "uci": [
+                  "d4d2",
+                  "g7f6",
+                  "f2f4"
+                ],
+                "ending": null,
+                "claim_by_intended_move": null
+              }
+            ]
+          },
+          "same_candidates": true,
+          "same_nodes": true
+        }
+      ],
+      "median_speedup": 2.026859918909823
+    }
+  ],
+  "fixed_time": [],
+  "experimental": [],
+  "current_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174"
+}

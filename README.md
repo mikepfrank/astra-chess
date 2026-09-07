@@ -6,6 +6,9 @@
 engine, goal queries, visual evidence reports, and shared turn-budget workflow.
 Run `python astra_chess.py --help` for the command interface. Engine output lives
 in `engine-output/`; it is separate from the published game replays below.
+Version 0.2 adds faster search, a cumulative game clock, and optional threat
+inspection. [ENGINE-CHANGES.md](ENGINE-CHANGES.md) records the selected defaults,
+benchmarks, and verification against the preserved baseline.
 
 ## Replay collection
 
@@ -107,5 +110,6 @@ python serve_replay.py --page wally-engine-replay.html --port 8772
 
 The game journal, all engine queries, experiment observations, and audit are in
 `engine-games/wally-2026-09-07/`. The repository baseline preserves the current
-engine behavior and historical experiment artifacts. Runtime clocks, server
-logs, Python caches, and the locally installed replay dependency are excluded.
+engine behavior and historical experiment artifacts. Legacy mutable turn clocks,
+server logs, Python caches, and the locally installed replay dependency are
+excluded. New append-only game-clock ledgers are retained as experiment evidence.

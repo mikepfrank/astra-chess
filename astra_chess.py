@@ -6,7 +6,7 @@ See ENGINE.md for request examples and the distinction between a witness and pro
 from __future__ import annotations
 
 import argparse
-from contextlib import contextmanager
+from contextlib import contextmanager, ExitStack
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -24,7 +24,7 @@ def write_json(path, value):
     temporary.replace(path)
 
 
-def positive_number(value, name, maximum=120):
+def positive_number(value, name, maximum=180):
     if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 < value <= maximum:
         raise ValueError(f"{name} must be a finite number greater than 0 and at most {maximum}")
     return float(value)
@@ -77,7 +77,8 @@ def prepare(request):
 
     if not isinstance(request, dict):
         raise ValueError("The query must be a JSON object")
-    allowed = {"label", "mode", "fen", "after", "history_fens", "depth", "seconds", "candidates", "root_moves", "goal"}
+    allowed = {"label", "mode", "fen", "after", "history_fens", "depth", "seconds", "candidates", "root_moves", "goal",
+               "diagnostics", "evaluation", "threat_extensions", "proof_only"}
     unknown = set(request) - allowed
     if unknown:
         raise ValueError("Unknown query fields: " + ", ".join(sorted(unknown)))
@@ -98,7 +99,7 @@ def prepare(request):
     for uci in after:
         history_positions.append(position)
         position = position.play(position.parse_uci(uci))
-    depth = integer(request.get("depth", 5 if mode == "analyze" else 4), "depth", 1, 12)
+    depth = integer(request.get("depth", 5 if mode == "analyze" else 4), "depth", 1, 32)
     seconds = positive_number(request.get("seconds", 3.0), "seconds")
     candidates = integer(request.get("candidates", 3), "candidates", 1, 10)
     root_moves = request.get("root_moves")
@@ -112,38 +113,108 @@ def prepare(request):
         raise ValueError("probe mode requires a goal object")
     if mode == "analyze" and "goal" in request:
         raise ValueError("Use mode probe for a goal; analyze never silently filters defensive replies")
+    for name in ("diagnostics", "proof_only"):
+        if name in request and not isinstance(request[name], bool):
+            raise ValueError(f"{name} must be a boolean")
+    if mode != "probe" and "proof_only" in request:
+        raise ValueError("proof_only applies only to probe mode")
+    evaluation = request.get("evaluation", {})
+    if not isinstance(evaluation, dict) or set(evaluation) - {"mobility", "restricted_piece", "king_exposure"}:
+        raise ValueError("evaluation accepts only mobility, restricted_piece, and king_exposure")
+    if not all(isinstance(value, bool) for value in evaluation.values()):
+        raise ValueError("evaluation options must be booleans")
+    integer(request.get("threat_extensions", 0), "threat_extensions", 0, 2)
+    if mode != "analyze" and ("evaluation" in request or "threat_extensions" in request):
+        raise ValueError("evaluation and threat_extensions apply only to analyze mode")
     label = request.get("label", "Candidate search" if mode == "analyze" else "Goal question")
     if not isinstance(label, str):
         raise ValueError("label must be a string")
     return position, history_positions, mode, depth, seconds, candidates, root_moves, label
 
 
+def attach_diagnostics(result, deadline):
+    """Inspect returned boards outside search; incomplete coverage stays explicit."""
+    from astra_engine.diagnostics import diagnose
+    from astra_engine.rules import Position
+
+    started = time.monotonic()
+    side = 0 if result["start_fen"].split()[1] == "w" else 1
+    cache = {}
+    skipped = 0
+
+    def inspect(fen, previous=None):
+        nonlocal skipped
+        key = (fen, previous)
+        if key in cache:
+            return cache[key]
+        if time.monotonic() >= deadline:
+            skipped += 1
+            return None
+        board = Position.from_fen(fen)
+        answer = diagnose(board, side=side, previous=Position.from_fen(previous) if previous else None)
+        cache[key] = answer
+        return answer
+
+    root = inspect(result["start_fen"])
+    for line in result.get("candidates", result.get("lines", [])):
+        line["position_diagnostics"] = [inspect(fen, line["fens"][i-1] if i else None)
+                                        for i, fen in enumerate(line["fens"])]
+    result["position_diagnostics"] = root
+    result["diagnostic_coverage"] = {"positions_inspected": len(cache), "positions_skipped": skipped,
+                                     "complete": skipped == 0, "elapsed_seconds": round(time.monotonic()-started, 6),
+                                     "scope": "Query player's pieces and king; heuristic, not a proof of safety."}
+
+
 def run_query(args):
     from astra_engine.search import analyze, probe
 
     started = time.monotonic()
-    request = json.loads(args.request.read_text(encoding="utf-8"))
-    position, history_positions, mode, depth, seconds, candidates, root_moves, label = prepare(request)
+    game_clock = getattr(args, "game_clock", None)
+    if game_clock and args.session:
+        raise ValueError("Use either --game-clock or legacy --session, not both")
+    try:
+        request = json.loads(args.request.read_text(encoding="utf-8"))
+        position, history_positions, mode, depth, seconds, candidates, root_moves, label = prepare(request)
+    except (OSError, ValueError, TypeError) as error:
+        if game_clock:
+            from astra_engine.clock import record_event
+            record_event(game_clock, "query_rejected", reason=str(error), request=str(args.request))
+        raise
     if args.output.resolve() == args.request.resolve():
         raise ValueError("The result path must differ from the query path")
-    with locked_session(args.session) as session:
+    clock_paths = {Path(path).resolve() for path in (args.session, game_clock) if path}
+    if args.output.resolve() in clock_paths:
+        raise ValueError("The result path must differ from the clock path")
+    if args.html and args.html.resolve() in clock_paths | {args.request.resolve(), args.output.resolve()}:
+        raise ValueError("The HTML path must differ from request, result, and clock paths")
+    with ExitStack() as stack:
+        session = stack.enter_context(locked_session(args.session))
         before = session_status(session) if session else None
         allotted = min(seconds, before["query_available_seconds"]) if before else seconds
+        if game_clock:
+            from astra_engine.clock import query_clock, clock_status
+            clock_query = stack.enter_context(query_clock(game_clock, seconds, metadata={"request": str(args.request), "label": label}))
+            allotted = clock_query["allotted_seconds"]
         if allotted <= 0.01:
             raise ValueError("Turn search budget exhausted; preserve the remaining time for review and moving")
         search_started = time.monotonic()
         try:
-            options = dict(max_depth=depth, time_limit=allotted,
+            diagnostic_reserve = min(0.5, allotted * 0.1) if request.get("diagnostics", False) else 0
+            options = dict(max_depth=depth, time_limit=allotted-diagnostic_reserve,
                            history=[p.repetition_key() for p in history_positions])
             if mode == "analyze":
-                result = analyze(position, multipv=candidates, root_moves=root_moves, **options)
+                result = analyze(position, multipv=candidates, root_moves=root_moves,
+                                 evaluation=request.get("evaluation"), threat_extensions=request.get("threat_extensions", 0), **options)
             else:
-                result = probe(position, request["goal"], max_lines=candidates, **options)
+                result = probe(position, request["goal"], max_lines=candidates,
+                               proof_only=request.get("proof_only", False), **options)
         finally:
             if session:
                 session["engine_seconds_used"] += time.monotonic() - search_started
                 session["calls"] += 1
                 write_json(args.session, session)
+        if request.get("diagnostics", False):
+            attach_diagnostics(result, min(search_started + allotted, time.monotonic() + 1.0))
         result["label"] = label
         result["query"] = request
         result["position_history_fens"] = [p.fen() for p in history_positions]
@@ -151,19 +222,29 @@ def run_query(args):
         result["created_utc"] = datetime.now(timezone.utc).isoformat()
         source_dir = Path(__file__).resolve().parent / "astra_engine"
         source_hash = hashlib.sha256()
-        for name in ("rules.py", "search.py"):
+        for name in ("rules.py", "search.py", "diagnostics.py"):
             source_hash.update(name.encode("ascii") + b"\0" + (source_dir / name).read_bytes())
-        result["engine"] = {"name": "Astra Search Lab", "version": "0.1", "source_sha256": source_hash.hexdigest()}
-        result["turn_budget"] = session_status(session) if session else None
+        result["engine"] = {"name": "Astra Search Lab", "version": "0.2", "source_sha256": source_hash.hexdigest()}
+        result["turn_budget"] = clock_status(game_clock) if game_clock else session_status(session) if session else None
         result["interface_elapsed_seconds"] = round(time.monotonic() - started, 3)
         write_json(args.output, result)
         if args.html:
             from astra_engine.report import render_report
             render_report(result, args.html)
-        if session:
-            result["turn_budget"] = session_status(session)
+        if session or game_clock:
+            result["turn_budget"] = clock_status(game_clock) if game_clock else session_status(session)
             result["interface_elapsed_seconds"] = round(time.monotonic() - started, 3)
             write_json(args.output, result)
+    if game_clock:
+        # The ledger now includes this completed query, including its first
+        # report render. Refresh the artifacts with that final accounting.
+        # These final small writes remain charged by the active own-turn clock.
+        result["turn_budget"] = clock_query["after"]
+        result["budget_snapshot"] = "After query completion, before final artifact refresh"
+        result["interface_elapsed_seconds"] = round(time.monotonic() - started, 3)
+        write_json(args.output, result)
+        if args.html:
+            render_report(result, args.html)
     summary = {key: result.get(key) for key in ("kind", "label", "completed_depth", "status", "proof_status", "witness_status", "nodes", "elapsed_seconds", "timed_out", "fallback") if key in result}
     summary["result_file"] = str(args.output.resolve())
     if args.html:
@@ -185,6 +266,7 @@ def main():
     query.add_argument("--output", type=Path, default=Path("engine-result.json"))
     query.add_argument("--html", type=Path, help="Optional standalone visual report")
     query.add_argument("--session", type=Path, help="Charge search against a shared turn clock")
+    query.add_argument("--game-clock", type=Path, help="Charge the complete query against the game's append-only clock ledger")
     start = commands.add_parser("turn-start", help="Start the clock when the opponent's move is observed")
     start.add_argument("--session", type=Path, default=Path("engine-turn.json"))
     start.add_argument("--seconds", type=float, default=60)
