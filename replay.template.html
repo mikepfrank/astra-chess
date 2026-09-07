@@ -28,6 +28,13 @@
     .board-column { min-width:0; }
     .player { display:flex; justify-content:space-between; align-items:center; min-height:39px; gap:8px; padding:0 0 9px 18px; }
     .player.bottom { padding:10px 0 0 18px; }
+    .engine-score { margin:16px 0 0 18px; padding:12px 14px; border:1px solid var(--line); border-radius:9px; background:var(--surface); }
+    .engine-score[hidden] { display:none; }
+    .engine-score .label { margin:0 0 3px; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; }
+    .engine-score strong { display:block; color:var(--accent); font-size:19px; font-weight:500; font-variant-numeric:tabular-nums; }
+    .engine-score p { margin:4px 0 0; font-size:11px; color:var(--muted); }
+    .engine-score details { margin-top:6px; font-size:11px; color:var(--muted); }
+    .engine-score summary { cursor:pointer; }
     .player-name { display:flex; align-items:center; gap:8px; font-weight:500; }
     .color-dot { width:10px; height:10px; border:1px solid #879584; border-radius:50%; flex-shrink:0; }
     .color-dot.white { background:#f9faee; }
@@ -116,6 +123,12 @@
       </div>
       <p id="board-description" class="sr-only"></p>
       <div class="player bottom" id="bottom-player"></div>
+      <section class="engine-score" id="engine-score" aria-label="Recorded engine evaluation" hidden>
+        <p class="label">Recorded engine evaluation</p>
+        <strong id="engine-score-value" aria-live="polite"></strong>
+        <p id="engine-score-detail"></p>
+        <details><summary>How to read this</summary><p id="engine-score-note"></p></details>
+      </section>
       <div class="transport">
         <div class="position-line"><span id="position-title" class="position-title" aria-live="polite">Starting position</span><span id="position-count" class="position-count">0 / __PLIES__</span></div>
         <label class="sr-only" for="timeline">Replay position</label><input id="timeline" class="timeline" type="range" min="0" max="__PLIES__" value="0" step="1" aria-valuetext="Starting position">
@@ -255,6 +268,21 @@
     if (rowBox.top < listBox.top + 5) list.scrollTop -= listBox.top + 5 - rowBox.top;
     else if (rowBox.bottom > listBox.bottom - 5) list.scrollTop += rowBox.bottom - listBox.bottom + 5;
   }
+  function showEvaluation(frame) {
+    $('engine-score').hidden = !data.evaluations;
+    if (!data.evaluations) return;
+    const value = frame.evaluation;
+    if (value) {
+      $('engine-score-value').textContent = value.label;
+      $('engine-score-detail').textContent = value.detail;
+      $('engine-score-note').textContent = value.note;
+    } else {
+      $('engine-score-value').textContent = 'No recorded evaluation';
+      $('engine-score-detail').textContent = !frame.move ? 'Starting position' : frame.move.color === 'black'
+        ? 'No score was logged after this Black reply.' : 'No search result was recorded for this choice.';
+      $('engine-score-note').textContent = data.evaluations.description;
+    }
+  }
   function show(target, animate) {
     const next = Math.max(0, Math.min(end, target));
     const doAnimate = animate && Math.abs(next - index) <= 1 && !reducedMotion.matches;
@@ -291,6 +319,7 @@
     $('ranks').innerHTML = (flipped ? [1,2,3,4,5,6,7,8] : [8,7,6,5,4,3,2,1]).map(r => `<span>${r}</span>`).join('');
     player($('top-player'), flipped ? 'white' : 'black', frame);
     player($('bottom-player'), flipped ? 'black' : 'white', frame);
+    showEvaluation(frame);
     const moveLabel = m ? `${m.number}${m.color === 'white' ? '.' : '…'} ${m.san}` : 'Starting position';
     const positionLabel = index === end ? `${moveLabel} · ${data.outcome.label}` : moveLabel;
     $('position-title').textContent = positionLabel;

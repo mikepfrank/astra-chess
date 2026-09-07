@@ -1,0 +1,4 @@
+interface:
+  display_name: "Astra Chess Archive"
+  short_description: "Build chess replays with recorded engine evidence"
+  default_prompt: "Use $astra-chess-archive to create a replay of the completed game with its recorded evaluations and update the index."

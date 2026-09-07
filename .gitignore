@@ -1,4 +1,6 @@
 .replay-deps/
+.skill-deps/
+engine-output/skill-recovery-check/
 __pycache__/
 *.log
 *.pyc

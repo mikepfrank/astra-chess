@@ -1,0 +1,1342 @@
+{
+  "title": "Astra (Ultra) vs. Wally \u2014 game 9 evaluation history",
+  "game_source": "engine-games/wally-engine-v02/game.json",
+  "white": "Astra (Ultra)",
+  "black": "Wally",
+  "date": "2026.09.07",
+  "result": "1-0",
+  "semantics": {
+    "primary_series": "The most recent completed in-game search that returned the move actually chosen, from the exact actual position before that move. The score estimates the continuation beginning with the chosen move; it is not a fresh search performed after the move.",
+    "perspective": "White (Astra); positive favors Astra.",
+    "units": "100 centipawns = one pawn equivalent. These are this simple engine's heuristic values, not win probabilities or an external engine's assessments.",
+    "depth": "Completed nominal search depth in plies, including the chosen root move. Quiescence can extend the line. Depth and time limits varied across moves.",
+    "mate_scores": "When mate_in_plies is non-null, score_cp is an internal mate encoding, not a material advantage; score_pawns is null. Mate distance is measured from the pre-move search root, including the chosen move.",
+    "missing_numeric_values": "Move 30 has only a forced-mate goal proof, not a numeric score. Move 31 was the actual checkmate and had no search. Neither is filled using a later score or a new search.",
+    "proof": "Move 30's goal probe proves checkmate within two plies after Qf8, with Black to move: mate on Astra's next turn against every legal defense.",
+    "interpretation": "Changes combine the effect of intervening Black moves with search horizon and evaluation effects; they are not isolated measures of the quality of Astra's moves.",
+    "new_searches_run": false
+  },
+  "rows": [
+    {
+      "move": 1,
+      "ply": 0,
+      "san": "Nc3",
+      "uci": "b1c3",
+      "preceding_black_san": null,
+      "following_black_san": "Nf6",
+      "pre_move_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "post_move_fen": "rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b KQkq - 1 1",
+      "score_cp": 0,
+      "score_pawns": 0.0,
+      "mate_in_plies": null,
+      "completed_depth": 6,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-01-query-1.json",
+      "query_seconds": 14.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Nc3",
+        "uci": "b1c3",
+        "score_cp": 0,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Initial d4 was reasonable; depth-six search offered equally scored development moves. Nc3 develops without a concrete tactical commitment. No new vulnerability exposed at this opening position.",
+      "initial_candidate": "d2d4",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-01-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Nc3",
+        "Nc6",
+        "Nf3",
+        "Nf6",
+        "a4",
+        "a5"
+      ]
+    },
+    {
+      "move": 2,
+      "ply": 2,
+      "san": "Nf3",
+      "uci": "g1f3",
+      "preceding_black_san": "Nf6",
+      "following_black_san": "d5",
+      "pre_move_fen": "rnbqkb1r/pppppppp/5n2/8/8/2N5/PPPPPPPP/R1BQKBNR w KQkq - 2 2",
+      "post_move_fen": "rnbqkb1r/pppppppp/5n2/8/8/2N2N2/PPPPPPPP/R1BQKB1R b KQkq - 3 2",
+      "score_cp": 0,
+      "score_pawns": 0.0,
+      "mate_in_plies": null,
+      "completed_depth": 6,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-02-query-1.json",
+      "query_seconds": 14.0,
+      "query_timed_out": true,
+      "chosen_rank": 2,
+      "top_recommendation": {
+        "san": "a4",
+        "uci": "a2a4",
+        "score_cp": 0,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Equal engine scores; prefer ordinary knight development over its flank-pawn alternatives. No concrete tactical warning yet.",
+      "initial_candidate": "d2d4",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-02-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Nf3",
+        "Nc6",
+        "a4",
+        "a5",
+        "h4",
+        "h5"
+      ]
+    },
+    {
+      "move": 3,
+      "ply": 4,
+      "san": "d4",
+      "uci": "d2d4",
+      "preceding_black_san": "d5",
+      "following_black_san": "Bf5",
+      "pre_move_fen": "rnbqkb1r/ppp1pppp/5n2/3p4/8/2N2N2/PPPPPPPP/R1BQKB1R w KQkq d6 0 3",
+      "post_move_fen": "rnbqkb1r/ppp1pppp/5n2/3p4/3P4/2N2N2/PPP1PPPP/R1BQKB1R b KQkq d3 0 3",
+      "score_cp": 14,
+      "score_pawns": 0.14,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-03-query-1.json",
+      "query_seconds": 14.0,
+      "query_timed_out": true,
+      "chosen_rank": 3,
+      "top_recommendation": {
+        "san": "e3",
+        "uci": "e2e3",
+        "score_cp": 15,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Keep initial d4. Its score is effectively tied with e3; it directly prevents a pawn chase of Nc3 and opens the c1 bishop. No forced tactical correction.",
+      "initial_candidate": "d2d4",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-03-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "d4",
+        "Nc6",
+        "a4",
+        "Be6",
+        "Be3"
+      ]
+    },
+    {
+      "move": 4,
+      "ply": 6,
+      "san": "Bf4",
+      "uci": "c1f4",
+      "preceding_black_san": "Bf5",
+      "following_black_san": "Nc6",
+      "pre_move_fen": "rn1qkb1r/ppp1pppp/5n2/3p1b2/3P4/2N2N2/PPP1PPPP/R1BQKB1R w KQkq - 1 4",
+      "post_move_fen": "rn1qkb1r/ppp1pppp/5n2/3p1b2/3P1B2/2N2N2/PPP1PPPP/R2QKB1R b KQkq - 2 4",
+      "score_cp": 14,
+      "score_pawns": 0.14,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-04-query-1.json",
+      "query_seconds": 14.0,
+      "query_timed_out": true,
+      "chosen_rank": 3,
+      "top_recommendation": {
+        "san": "h3",
+        "uci": "h2h3",
+        "score_cp": 17,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Keep Bf4: ordinary development is effectively tied with the engine flank-pawn pushes. Avoid spending tempi on h3/g4 without a concrete need; retain kingside shelter.",
+      "initial_candidate": "c1f4",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-04-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Bf4",
+        "Nc6",
+        "a4",
+        "a5",
+        "h4"
+      ]
+    },
+    {
+      "move": 5,
+      "ply": 8,
+      "san": "e3",
+      "uci": "e2e3",
+      "preceding_black_san": "Nc6",
+      "following_black_san": "e6",
+      "pre_move_fen": "r2qkb1r/ppp1pppp/2n2n2/3p1b2/3P1B2/2N2N2/PPP1PPPP/R2QKB1R w KQkq - 3 5",
+      "post_move_fen": "r2qkb1r/ppp1pppp/2n2n2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2QKB1R b KQkq - 0 5",
+      "score_cp": -6,
+      "score_pawns": -0.06,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-05-query-3.json",
+      "query_seconds": 9.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "e3",
+        "uci": "e2e3",
+        "score_cp": -6,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Keep initial e3 after focused depth-five check. Engine reveals ...Nh5 chasing Bf4; Nh4 can counterattack the other bishop. Small score difference does not outweigh development. Also inspected ...Nb4 pressure on c2.",
+      "initial_candidate": "e2e3",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-05-query-1.json",
+          "excluded": "chosen move absent from returned candidates"
+        },
+        {
+          "source": "engine-games/wally-engine-v02/turn-05-query-2.json",
+          "excluded": "chosen move absent from returned candidates"
+        },
+        {
+          "source": "engine-games/wally-engine-v02/turn-05-query-3.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "e3",
+        "Nh5",
+        "Nh4",
+        "Nxf4",
+        "Nxf5"
+      ]
+    },
+    {
+      "move": 6,
+      "ply": 10,
+      "san": "Bb5",
+      "uci": "f1b5",
+      "preceding_black_san": "e6",
+      "following_black_san": "a6",
+      "pre_move_fen": "r2qkb1r/ppp2ppp/2n1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2QKB1R w KQkq - 0 6",
+      "post_move_fen": "r2qkb1r/ppp2ppp/2n1pn2/1B1p1b2/3P1B2/2N1PN2/PPP2PPP/R2QK2R b KQkq - 1 6",
+      "score_cp": 42,
+      "score_pawns": 0.42,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-06-query-1.json",
+      "query_seconds": 14.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Bb5",
+        "uci": "f1b5",
+        "score_cp": 42,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Change Bd3 to engine-proposed Bb5. Pinning Nc6 gives a concrete response to ...Nh5: Bxc6+ can interpose a forcing exchange before recapturing on f4. Bishop retains a4/c4/d3/e2 retreats; no pawn trap.",
+      "initial_candidate": "f1d3",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-06-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Bb5",
+        "Nh5",
+        "O-O",
+        "Nxf4",
+        "Bxc6+",
+        "bxc6",
+        "exf4"
+      ]
+    },
+    {
+      "move": 7,
+      "ply": 12,
+      "san": "Bxc6+",
+      "uci": "b5c6",
+      "preceding_black_san": "a6",
+      "following_black_san": "bxc6",
+      "pre_move_fen": "r2qkb1r/1pp2ppp/p1n1pn2/1B1p1b2/3P1B2/2N1PN2/PPP2PPP/R2QK2R w KQkq - 0 7",
+      "post_move_fen": "r2qkb1r/1pp2ppp/p1B1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2QK2R b KQkq - 0 7",
+      "score_cp": 47,
+      "score_pawns": 0.47,
+      "mate_in_plies": null,
+      "completed_depth": 4,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-07-query-1.json",
+      "query_seconds": 14.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Bxc6+",
+        "uci": "b5c6",
+        "score_cp": 47,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Engine confirms Bxc6+ as best among completed candidates. Avoid retreating toward a possible ...b5/...Na5 restriction; force doubled c-pawns and prepare castling.",
+      "initial_candidate": "b5c6",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-07-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Bxc6+",
+        "bxc6",
+        "O-O",
+        "Bb4"
+      ]
+    },
+    {
+      "move": 8,
+      "ply": 14,
+      "san": "O-O",
+      "uci": "e1g1",
+      "preceding_black_san": "bxc6",
+      "following_black_san": "Rb8",
+      "pre_move_fen": "r2qkb1r/2p2ppp/p1p1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2QK2R w KQkq - 0 8",
+      "post_move_fen": "r2qkb1r/2p2ppp/p1p1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2Q1RK1 b kq - 1 8",
+      "score_cp": 41,
+      "score_pawns": 0.41,
+      "mate_in_plies": null,
+      "completed_depth": 4,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-08-query-1.json",
+      "query_seconds": 14.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "O-O",
+        "uci": "e1g1",
+        "score_cp": 41,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Engine confirms castling. Diagnostics flag ...e5 and ...g5 attacks on Bf4, which retains retreat squares; no immediate trap. Anticipate ...Rb8 against b2.",
+      "initial_candidate": "e1g1",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-08-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "O-O",
+        "Rb8",
+        "b3",
+        "Bb4"
+      ]
+    },
+    {
+      "move": 9,
+      "ply": 16,
+      "san": "Rb1",
+      "uci": "a1b1",
+      "preceding_black_san": "Rb8",
+      "following_black_san": "Bd6",
+      "pre_move_fen": "1r1qkb1r/2p2ppp/p1p1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/R2Q1RK1 w k - 2 9",
+      "post_move_fen": "1r1qkb1r/2p2ppp/p1p1pn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/1R1Q1RK1 b k - 3 9",
+      "score_cp": 46,
+      "score_pawns": 0.46,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-09-query-1.json",
+      "query_seconds": 14.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Rb1",
+        "uci": "a1b1",
+        "score_cp": 46,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Replace initial b3 with Rb1. Defends b2 while keeping its protection of Nc3 and avoiding a new pawn weakness; search shows ...c5 as Black central counterplay. Diagnostics show no new trapped minor piece.",
+      "initial_candidate": "b2b3",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-09-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Rb1",
+        "c5",
+        "a4",
+        "Be7",
+        "Ne5",
+        "cxd4",
+        "exd4"
+      ]
+    },
+    {
+      "move": 10,
+      "ply": 18,
+      "san": "Ne5",
+      "uci": "f3e5",
+      "preceding_black_san": "Bd6",
+      "following_black_san": "Rb6",
+      "pre_move_fen": "1r1qk2r/2p2ppp/p1pbpn2/3p1b2/3P1B2/2N1PN2/PPP2PPP/1R1Q1RK1 w k - 4 10",
+      "post_move_fen": "1r1qk2r/2p2ppp/p1pbpn2/3pNb2/3P1B2/2N1P3/PPP2PPP/1R1Q1RK1 b k - 5 10",
+      "score_cp": 46,
+      "score_pawns": 0.46,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-10-query-1.json",
+      "query_seconds": 14.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Ne5",
+        "uci": "f3e5",
+        "score_cp": 46,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Choose engine Ne5 over immediate Bxd6. It interrupts the bishop diagonal and gives a supported central e5 pawn after Bxe5 dxe5. Inspected all exchanges in the PV; capture warnings concern ordinary exchanges, not trapped pieces.",
+      "initial_candidate": "f4d6",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-10-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Ne5",
+        "Bxe5",
+        "dxe5",
+        "Ne4",
+        "Nxe4",
+        "Bxe4"
+      ]
+    },
+    {
+      "move": 11,
+      "ply": 20,
+      "san": "Na4",
+      "uci": "c3a4",
+      "preceding_black_san": "Rb6",
+      "following_black_san": "Rb4",
+      "pre_move_fen": "3qk2r/2p2ppp/prpbpn2/3pNb2/3P1B2/2N1P3/PPP2PPP/1R1Q1RK1 w k - 6 11",
+      "post_move_fen": "3qk2r/2p2ppp/prpbpn2/3pNb2/N2P1B2/4P3/PPP2PPP/1R1Q1RK1 b k - 7 11",
+      "score_cp": 84,
+      "score_pawns": 0.84,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-11-query-1.json",
+      "query_seconds": 14.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Na4",
+        "uci": "c3a4",
+        "score_cp": 84,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Engine confirms initial Na4, attacking Rb6. Its main reply first exchanges on e5, then Nc5 becomes available. Checked a4 knight mobility and central recaptures; keep g-pawn shelter intact.",
+      "initial_candidate": "c3a4",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-11-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Na4",
+        "Bxe5",
+        "Bxe5",
+        "Rb4",
+        "Nc5"
+      ]
+    },
+    {
+      "move": 12,
+      "ply": 22,
+      "san": "Nxc6",
+      "uci": "e5c6",
+      "preceding_black_san": "Rb4",
+      "following_black_san": "Bg4",
+      "pre_move_fen": "3qk2r/2p2ppp/p1pbpn2/3pNb2/Nr1P1B2/4P3/PPP2PPP/1R1Q1RK1 w k - 8 12",
+      "post_move_fen": "3qk2r/2p2ppp/p1Nbpn2/3p1b2/Nr1P1B2/4P3/PPP2PPP/1R1Q1RK1 b k - 0 12",
+      "score_cp": 297,
+      "score_pawns": 2.97,
+      "mate_in_plies": null,
+      "completed_depth": 6,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-12-query-2.json",
+      "query_seconds": 24.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Nxc6",
+        "uci": "e5c6",
+        "score_cp": 297,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Engine discovered queen-rook fork missed in my initial c3 plan. Focused 25-second depth-six search retains about +3 pawns after strongest shown defenses. Nxc6 attacks Qd8 and Rb4; Na4 can be recouped but Black cannot save both major pieces in the displayed material search.",
+      "initial_candidate": "c2c3",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-12-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        },
+        {
+          "source": "engine-games/wally-engine-v02/turn-12-query-2.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Nxc6",
+        "Qc8",
+        "Nxb4",
+        "Bxb4",
+        "a3",
+        "Be7"
+      ]
+    },
+    {
+      "move": 13,
+      "ply": 24,
+      "san": "Qd3",
+      "uci": "d1d3",
+      "preceding_black_san": "Bg4",
+      "following_black_san": "Bf5",
+      "pre_move_fen": "3qk2r/2p2ppp/p1Nbpn2/3p4/Nr1P1Bb1/4P3/PPP2PPP/1R1Q1RK1 w k - 1 13",
+      "post_move_fen": "3qk2r/2p2ppp/p1Nbpn2/3p4/Nr1P1Bb1/3QP3/PPP2PPP/1R3RK1 b k - 2 13",
+      "score_cp": 321,
+      "score_pawns": 3.21,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-13-query-1.json",
+      "query_seconds": 24.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Qd3",
+        "uci": "d1d3",
+        "score_cp": 321,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Keep independently chosen Qd3, avoiding ...Bxd1 while preserving Nc6 fork. Engine confirms it as best completed candidate (+3.21). Inspected ...Qc8 Nxb4 Bxb4 Nc5: net exchange and pawn, not a free rook.",
+      "initial_candidate": "d1d3",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-13-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Qd3",
+        "Qc8",
+        "Nxb4",
+        "Bxb4",
+        "Nc5"
+      ]
+    },
+    {
+      "move": 14,
+      "ply": 26,
+      "san": "Qxa6",
+      "uci": "d3a6",
+      "preceding_black_san": "Bf5",
+      "following_black_san": "Rxa4",
+      "pre_move_fen": "3qk2r/2p2ppp/p1Nbpn2/3p1b2/Nr1P1B2/3QP3/PPP2PPP/1R3RK1 w k - 3 14",
+      "post_move_fen": "3qk2r/2p2ppp/Q1Nbpn2/3p1b2/Nr1P1B2/4P3/PPP2PPP/1R3RK1 b k - 0 14",
+      "score_cp": 434,
+      "score_pawns": 4.34,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-14-query-1.json",
+      "query_seconds": 14.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Qxa6",
+        "uci": "d3a6",
+        "score_cp": 434,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Engine confirms initial Qxa6. It evades ...Bf5, gains a second pawn, and protects Na4 so ...Rxa4 permits Qxa4. Checked ...Qa8: Qa8 is itself capturable with check along the open a-file.",
+      "initial_candidate": "d3a6",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-14-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Qxa6",
+        "Rxa4",
+        "Qxa4",
+        "Qc8",
+        "Bxd6",
+        "cxd6"
+      ]
+    },
+    {
+      "move": 15,
+      "ply": 28,
+      "san": "Qxa4",
+      "uci": "a6a4",
+      "preceding_black_san": "Rxa4",
+      "following_black_san": "Qc8",
+      "pre_move_fen": "3qk2r/2p2ppp/Q1Nbpn2/3p1b2/r2P1B2/4P3/PPP2PPP/1R3RK1 w k - 0 15",
+      "post_move_fen": "3qk2r/2p2ppp/2Nbpn2/3p1b2/Q2P1B2/4P3/PPP2PPP/1R3RK1 b k - 0 15",
+      "score_cp": 434,
+      "score_pawns": 4.34,
+      "mate_in_plies": null,
+      "completed_depth": 4,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-15-query-1.json",
+      "query_seconds": 6.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Qxa4",
+        "uci": "a6a4",
+        "score_cp": 434,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Obvious rook recapture confirmed in a shorter search. Qxa4 preserves queen and material advantage; inspect remaining queen escape and bishop-exchange defenses next.",
+      "initial_candidate": "a6a4",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-15-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Qxa4",
+        "Qc8",
+        "Bxd6",
+        "cxd6"
+      ]
+    },
+    {
+      "move": 16,
+      "ply": 30,
+      "san": "Bxd6",
+      "uci": "f4d6",
+      "preceding_black_san": "Qc8",
+      "following_black_san": "cxd6",
+      "pre_move_fen": "2q1k2r/2p2ppp/2Nbpn2/3p1b2/Q2P1B2/4P3/PPP2PPP/1R3RK1 w k - 1 16",
+      "post_move_fen": "2q1k2r/2p2ppp/2NBpn2/3p1b2/Q2P4/4P3/PPP2PPP/1R3RK1 b k - 0 16",
+      "score_cp": 477,
+      "score_pawns": 4.77,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-16-query-1.json",
+      "query_seconds": 14.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Bxd6",
+        "uci": "f4d6",
+        "score_cp": 477,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Engine confirms Bxd6 to trade a dangerous bishop. After cxd6 the queen on c8 attacks Nc6, but Qa4 already defends it; b4-b5 can support the outpost and create passed-pawn play.",
+      "initial_candidate": "f4d6",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-16-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Bxd6",
+        "cxd6",
+        "b4",
+        "Ne4",
+        "b5"
+      ]
+    },
+    {
+      "move": 17,
+      "ply": 32,
+      "san": "b4",
+      "uci": "b2b4",
+      "preceding_black_san": "cxd6",
+      "following_black_san": "h6",
+      "pre_move_fen": "2q1k2r/5ppp/2Nppn2/3p1b2/Q2P4/4P3/PPP2PPP/1R3RK1 w k - 0 17",
+      "post_move_fen": "2q1k2r/5ppp/2Nppn2/3p1b2/QP1P4/4P3/P1P2PPP/1R3RK1 b k b3 0 17",
+      "score_cp": 436,
+      "score_pawns": 4.36,
+      "mate_in_plies": null,
+      "completed_depth": 4,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-17-query-1.json",
+      "query_seconds": 11.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "b4",
+        "uci": "b2b4",
+        "score_cp": 436,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Engine confirms b4. Verified Nc6 is defended by Qa4 despite capture warning; b5 will replace queen support with a pawn. Avoid f-pawn moves that would open king lines without necessity.",
+      "initial_candidate": "b2b4",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-17-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "b4",
+        "Kf8",
+        "b5",
+        "Kg8"
+      ]
+    },
+    {
+      "move": 18,
+      "ply": 34,
+      "san": "b5",
+      "uci": "b4b5",
+      "preceding_black_san": "h6",
+      "following_black_san": "Nd7",
+      "pre_move_fen": "2q1k2r/5pp1/2Nppn1p/3p1b2/QP1P4/4P3/P1P2PPP/1R3RK1 w k - 0 18",
+      "post_move_fen": "2q1k2r/5pp1/2Nppn1p/1P1p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 b k - 0 18",
+      "score_cp": 451,
+      "score_pawns": 4.51,
+      "mate_in_plies": null,
+      "completed_depth": 4,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-18-query-1.json",
+      "query_seconds": 11.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "b5",
+        "uci": "b4b5",
+        "score_cp": 451,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Keep b5, supported by search. Pawn now defends Nc6 as it blocks Qa4 diagonal; Black queen can attack but cannot freely take the knight. Maintain king shelter and monitor ...e5/...Ne4.",
+      "initial_candidate": "b4b5",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-18-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "b5",
+        "Qb7",
+        "Na5",
+        "Qb6"
+      ]
+    },
+    {
+      "move": 19,
+      "ply": 36,
+      "san": "b6",
+      "uci": "b5b6",
+      "preceding_black_san": "Nd7",
+      "following_black_san": "Qb7",
+      "pre_move_fen": "2q1k2r/3n1pp1/2Npp2p/1P1p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 1 19",
+      "post_move_fen": "2q1k2r/3n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 b k - 0 19",
+      "score_cp": 535,
+      "score_pawns": 5.35,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-19-query-1.json",
+      "query_seconds": 14.0,
+      "query_timed_out": true,
+      "chosen_rank": 2,
+      "top_recommendation": {
+        "san": "Qa3",
+        "uci": "a4a3",
+        "score_cp": 543,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Keep initial b6, nearly tied with Qa3. Verified Rb1 supports pawn against ...Nxb6 and Qa4 resumes defense of Nc6. Inspect ...Qb7 Na5, preserving threats without opening our king.",
+      "initial_candidate": "b5b6",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-19-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "b6",
+        "Qb7",
+        "Na5",
+        "Qb8",
+        "b7"
+      ]
+    },
+    {
+      "move": 20,
+      "ply": 38,
+      "san": "Na5",
+      "uci": "c6a5",
+      "preceding_black_san": "Qb7",
+      "following_black_san": "Qb8",
+      "pre_move_fen": "4k2r/1q1n1pp1/1PNpp2p/3p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 1 20",
+      "post_move_fen": "4k2r/1q1n1pp1/1P1pp2p/N2p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 b k - 2 20",
+      "score_cp": 532,
+      "score_pawns": 5.32,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-20-query-1.json",
+      "query_seconds": 11.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Na5",
+        "uci": "c6a5",
+        "score_cp": 532,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Search confirms Na5 with tempo on Qb7 and support of b7. Diagnostic inspection finds no restricted knight warning; knight retains c6/b3/c4 and eventual b7 paths.",
+      "initial_candidate": "c6a5",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-20-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Na5",
+        "Qb8",
+        "b7",
+        "g5",
+        "Nc6"
+      ]
+    },
+    {
+      "move": 21,
+      "ply": 40,
+      "san": "b7",
+      "uci": "b6b7",
+      "preceding_black_san": "Qb8",
+      "following_black_san": "e5",
+      "pre_move_fen": "1q2k2r/3n1pp1/1P1pp2p/N2p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 3 21",
+      "post_move_fen": "1q2k2r/1P1n1pp1/3pp2p/N2p1b2/Q2P4/4P3/P1P2PPP/1R3RK1 b k - 0 21",
+      "score_cp": 756,
+      "score_pawns": 7.56,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-21-query-1.json",
+      "query_seconds": 11.016,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "b7",
+        "uci": "b6b7",
+        "score_cp": 756,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Confirm b7. Search reveals additional Qa8+ tactics after Nc6 drives the queen; Black knight controls b8, so promotion must be prepared. Own king remains sheltered and knight has safe returns.",
+      "initial_candidate": "b6b7",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-21-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "b7",
+        "Rh7",
+        "Nc6",
+        "Qc7",
+        "Qa8+",
+        "Nb8",
+        "Qxb8+",
+        "Qxb8",
+        "Nxb8",
+        "Bxc2"
+      ]
+    },
+    {
+      "move": 22,
+      "ply": 42,
+      "san": "Nc6",
+      "uci": "a5c6",
+      "preceding_black_san": "e5",
+      "following_black_san": "Nc5",
+      "pre_move_fen": "1q2k2r/1P1n1pp1/3p3p/N2ppb2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 0 22",
+      "post_move_fen": "1q2k2r/1P1n1pp1/2Np3p/3ppb2/Q2P4/4P3/P1P2PPP/1R3RK1 b k - 1 22",
+      "score_cp": 825,
+      "score_pawns": 8.25,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-22-query-1.json",
+      "query_seconds": 14.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Nc6",
+        "uci": "a5c6",
+        "score_cp": 825,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Engine confirms Nc6, attacking Qb8. It now sees a concrete promotion sacrifice b8=Q+ Nxb8 Rxb8+ and discovered checks after knight moves clear Qa4-e8. Inspected central ...e5 counterplay; no forcing attack on Kg1 shown.",
+      "initial_candidate": "a5c6",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-22-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Nc6",
+        "Qc7",
+        "b8=Q+",
+        "Nxb8",
+        "Rxb8+",
+        "Bc8",
+        "Nxe5+",
+        "Kf8"
+      ]
+    },
+    {
+      "move": 23,
+      "ply": 44,
+      "san": "dxc5",
+      "uci": "d4c5",
+      "preceding_black_san": "Nc5",
+      "following_black_san": "Bd7",
+      "pre_move_fen": "1q2k2r/1P3pp1/2Np3p/2nppb2/Q2P4/4P3/P1P2PPP/1R3RK1 w k - 2 23",
+      "post_move_fen": "1q2k2r/1P3pp1/2Np3p/2Pppb2/Q7/4P3/P1P2PPP/1R3RK1 b k - 0 23",
+      "score_cp": 1613,
+      "score_pawns": 16.13,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-23-query-1.json",
+      "query_seconds": 24.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "dxc5",
+        "uci": "d4c5",
+        "score_cp": 1613,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Engine finds simple capture of attacking knight that my initial queen-retreat plan missed. Depth-five material search gives large advantage. Goal probe requested from hypothetical dxc5 was rejected by remaining turn budget, so no claim of a proved queen trap. Inspected own king lines and forcing captures manually.",
+      "initial_candidate": "a4a7",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-23-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "dxc5",
+        "O-O",
+        "Nxb8",
+        "Rxb8",
+        "cxd6"
+      ]
+    },
+    {
+      "move": 24,
+      "ply": 46,
+      "san": "Qa8",
+      "uci": "a4a8",
+      "preceding_black_san": "Bd7",
+      "following_black_san": "O-O",
+      "pre_move_fen": "1q2k2r/1P1b1pp1/2Np3p/2Ppp3/Q7/4P3/P1P2PPP/1R3RK1 w k - 1 24",
+      "post_move_fen": "Qq2k2r/1P1b1pp1/2Np3p/2Ppp3/8/4P3/P1P2PPP/1R3RK1 b k - 2 24",
+      "score_cp": 1819,
+      "score_pawns": 18.19,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-24-query-1.json",
+      "query_seconds": 14.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Qa8",
+        "uci": "a4a8",
+        "score_cp": 1819,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Keep initial Qa8. It avoids the discovered ...Bxa4 queen counterattack after a knight move and is protected by b7; ...Qxa8 permits bxa8=Q+. Search strongly confirms the move and shows castling cannot save Black queen.",
+      "initial_candidate": "a4a8",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-24-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Qa8",
+        "O-O",
+        "Nxb8",
+        "Bf5",
+        "cxd6",
+        "Bxc2"
+      ]
+    },
+    {
+      "move": 25,
+      "ply": 48,
+      "san": "Nxb8",
+      "uci": "c6b8",
+      "preceding_black_san": "O-O",
+      "following_black_san": "Bf5",
+      "pre_move_fen": "Qq3rk1/1P1b1pp1/2Np3p/2Ppp3/8/4P3/P1P2PPP/1R3RK1 w - - 3 25",
+      "post_move_fen": "QN3rk1/1P1b1pp1/3p3p/2Ppp3/8/4P3/P1P2PPP/1R3RK1 b - - 0 25",
+      "score_cp": 2015,
+      "score_pawns": 20.15,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-25-query-1.json",
+      "query_seconds": 7.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Nxb8",
+        "uci": "c6b8",
+        "score_cp": 2015,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Knight captures queen; Qa8 protects b8 against rook recapture. Engine confirms this keeps substantially more material than Qxb8 Rxb8 Nxb8. Avoid rushing promotion while our own knight occupies b8.",
+      "initial_candidate": "c6b8",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-25-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Nxb8",
+        "Ba4",
+        "Na6",
+        "dxc5",
+        "Qxf8+",
+        "Kxf8",
+        "b8=Q+",
+        "Be8",
+        "Nxc5"
+      ]
+    },
+    {
+      "move": 26,
+      "ply": 50,
+      "san": "Nc6",
+      "uci": "b8c6",
+      "preceding_black_san": "Bf5",
+      "following_black_san": "g6",
+      "pre_move_fen": "QN3rk1/1P3pp1/3p3p/2Pppb2/8/4P3/P1P2PPP/1R3RK1 w - - 1 26",
+      "post_move_fen": "Q4rk1/1P3pp1/2Np3p/2Pppb2/8/4P3/P1P2PPP/1R3RK1 b - - 2 26",
+      "score_cp": 2144,
+      "score_pawns": 21.44,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-26-query-1.json",
+      "query_seconds": 9.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Nc6",
+        "uci": "b8c6",
+        "score_cp": 2144,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Use Nc6 rather than initial Na6; both vacate and defend b8, but central knight is more useful. Engine verifies ...Rxa8 bxa8=Q+ replaces the queen while removing Black last rook.",
+      "initial_candidate": "b8a6",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-26-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Nc6",
+        "Rxa8",
+        "bxa8=Q+",
+        "Kh7",
+        "cxd6",
+        "Bxc2"
+      ]
+    },
+    {
+      "move": 27,
+      "ply": 52,
+      "san": "b8=Q",
+      "uci": "b7b8q",
+      "preceding_black_san": "g6",
+      "following_black_san": "Rxb8",
+      "pre_move_fen": "Q4rk1/1P3p2/2Np2pp/2Pppb2/8/4P3/P1P2PPP/1R3RK1 w - - 0 27",
+      "post_move_fen": "QQ3rk1/5p2/2Np2pp/2Pppb2/8/4P3/P1P2PPP/1R3RK1 b - - 0 27",
+      "score_cp": 2225,
+      "score_pawns": 22.25,
+      "mate_in_plies": null,
+      "completed_depth": 4,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-27-query-1.json",
+      "query_seconds": 9.0,
+      "query_timed_out": true,
+      "chosen_rank": 3,
+      "top_recommendation": {
+        "san": "cxd6",
+        "uci": "c5d6",
+        "score_cp": 2284,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Promote rather than chase marginally higher material scores. Completed search verifies b8=Q Rxb8 Rxb8+ removes the last rook and activates ours. Overwhelming material is enough; prioritize a simple safe finish.",
+      "initial_candidate": "b7b8q",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-27-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "b8=Q",
+        "Rxb8",
+        "Rxb8+",
+        "Kg7",
+        "cxd6"
+      ]
+    },
+    {
+      "move": 28,
+      "ply": 54,
+      "san": "Rxb8+",
+      "uci": "b1b8",
+      "preceding_black_san": "Rxb8",
+      "following_black_san": "Kg7",
+      "pre_move_fen": "Qr4k1/5p2/2Np2pp/2Pppb2/8/4P3/P1P2PPP/1R3RK1 w - - 0 28",
+      "post_move_fen": "QR4k1/5p2/2Np2pp/2Pppb2/8/4P3/P1P2PPP/5RK1 b - - 0 28",
+      "score_cp": 2237,
+      "score_pawns": 22.37,
+      "mate_in_plies": null,
+      "completed_depth": 5,
+      "score_kind": "search_estimate",
+      "source": "engine-games/wally-engine-v02/turn-28-query-1.json",
+      "query_seconds": 7.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Rxb8+",
+        "uci": "b1b8",
+        "score_cp": 2237,
+        "mate_in_plies": null
+      },
+      "proof": null,
+      "assessment": "Recapture with the rook and check. Engine confirms this is the strongest simple recapture; inspect king escape after it before choosing a mating approach.",
+      "initial_candidate": "b1b8",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-28-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Rxb8+",
+        "Kg7",
+        "cxd6",
+        "Kf6",
+        "f4"
+      ]
+    },
+    {
+      "move": 29,
+      "ply": 56,
+      "san": "Rg8+",
+      "uci": "b8g8",
+      "preceding_black_san": "Kg7",
+      "following_black_san": "Kh7",
+      "pre_move_fen": "QR6/5pk1/2Np2pp/2Pppb2/8/4P3/P1P2PPP/5RK1 w - - 1 29",
+      "post_move_fen": "Q5R1/5pk1/2Np2pp/2Pppb2/8/4P3/P1P2PPP/5RK1 b - - 2 29",
+      "score_cp": 29995,
+      "score_pawns": null,
+      "mate_in_plies": 5,
+      "completed_depth": 5,
+      "score_kind": "search_mate",
+      "source": "engine-games/wally-engine-v02/turn-29-query-1.json",
+      "query_seconds": 11.0,
+      "query_timed_out": true,
+      "chosen_rank": 1,
+      "top_recommendation": {
+        "san": "Rg8+",
+        "uci": "b8g8",
+        "score_cp": 29995,
+        "mate_in_plies": 5
+      },
+      "proof": null,
+      "assessment": "Engine finds a forced mate score for Rg8+, replacing my initial seventh-rank queen plan. Vacating b8 opens Qa8-f8; main defense Kh7 allows Qf8 then Qf7 mate. Inspect actual king response before continuation.",
+      "initial_candidate": "a8a7",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-29-query-1.json",
+          "matched": "exact actual pre-move FEN, selected root move, and actual post-move FEN"
+        }
+      ],
+      "principal_variation_san": [
+        "Rg8+",
+        "Kh7",
+        "Qf8",
+        "f6",
+        "Qf7#"
+      ]
+    },
+    {
+      "move": 30,
+      "ply": 58,
+      "san": "Qf8",
+      "uci": "a8f8",
+      "preceding_black_san": "Kh7",
+      "following_black_san": "dxc5",
+      "pre_move_fen": "Q5R1/5p1k/2Np2pp/2Pppb2/8/4P3/P1P2PPP/5RK1 w - - 3 30",
+      "post_move_fen": "5QR1/5p1k/2Np2pp/2Pppb2/8/4P3/P1P2PPP/5RK1 b - - 4 30",
+      "score_cp": null,
+      "score_pawns": null,
+      "mate_in_plies": null,
+      "completed_depth": null,
+      "score_kind": "forced_mate_proof",
+      "source": "engine-games/wally-engine-v02/turn-30-query-1.json",
+      "query_seconds": null,
+      "query_timed_out": null,
+      "chosen_rank": null,
+      "top_recommendation": null,
+      "proof": {
+        "source": "engine-games/wally-engine-v02/turn-30-query-1.json",
+        "request_source": "engine-games/wally-engine-v02/turn-30-query-1.request.json",
+        "status": "forced",
+        "horizon_plies_from_post_move_position": 2,
+        "completed_depth": 2,
+        "side_to_move": "black"
+      },
+      "assessment": "The explicit goal probe after Qf8 returned forced checkmate within two plies, checking every Black reply with 70 proof nodes. Quiet Qf8 leaves legal Black pawn/bishop moves and threatens Qxf7 or Qg7; this is adversarial proof rather than a cooperative line.",
+      "initial_candidate": "a8f8",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/turn-30-query-1.json",
+          "matched": "goal proof starts at exact actual post-move FEN; request starts at exact pre-move FEN and applies only the chosen move"
+        }
+      ]
+    },
+    {
+      "move": 31,
+      "ply": 60,
+      "san": "Qxf7#",
+      "uci": "f8f7",
+      "preceding_black_san": "dxc5",
+      "following_black_san": null,
+      "pre_move_fen": "5QR1/5p1k/2N3pp/2pppb2/8/4P3/P1P2PPP/5RK1 w - - 0 31",
+      "post_move_fen": "6R1/5Q1k/2N3pp/2pppb2/8/4P3/P1P2PPP/5RK1 b - - 0 31",
+      "score_cp": null,
+      "score_pawns": null,
+      "mate_in_plies": null,
+      "completed_depth": null,
+      "score_kind": "actual_checkmate",
+      "source": "engine-games/wally-engine-v02/game.json",
+      "query_seconds": null,
+      "query_timed_out": null,
+      "chosen_rank": null,
+      "top_recommendation": null,
+      "proof": null,
+      "assessment": "Actual defense dxc5 leaves Qxf7 mate. Rules engine confirms Qxf7# and zero legal replies; manually inspected rook coverage and blocked king escape squares.",
+      "initial_candidate": "f8f7",
+      "audit": [
+        {
+          "source": "engine-games/wally-engine-v02/game.json",
+          "matched": "last verified move and recorded checkmate termination"
+        }
+      ]
+    }
+  ],
+  "source_sha256": {
+    "engine-games/wally-engine-v02/game.json": "aee855c5be2c91b5e44eb98ce3fda4e561e6ce2ec300c985cae34342212fe5c7",
+    "engine-games/wally-engine-v02/turn-01-query-1.json": "ee8860f20fe8a17519ca5c4a8ae31c5909413ef003aab953c694b777ece5f51b",
+    "engine-games/wally-engine-v02/turn-02-query-1.json": "0e6ac92d0b1ea6e545c95c294dca5be609d8fa606999de236bacc148c481cea7",
+    "engine-games/wally-engine-v02/turn-03-query-1.json": "9cc0cd7a92cfbe17581f9e81d4402ba33291578c3e28dceb2a25931ff03c9107",
+    "engine-games/wally-engine-v02/turn-04-query-1.json": "9fab4bedc29106c1b442acf1c3c171d82e55dcc332e384f6180e9db07fea2374",
+    "engine-games/wally-engine-v02/turn-05-query-1.json": "6cf04ebef0677ccb473a19a207adaaa47e893c8bc3d58cec9bcd8dbba39c626f",
+    "engine-games/wally-engine-v02/turn-05-query-2.json": "f0655250156bf5dda98f6ad6ca50b9029f378b0b9b72a6b03501a7971142dbca",
+    "engine-games/wally-engine-v02/turn-05-query-3.json": "39be6303242a556c7a0c120c79f1de6fc3852acb94af1ffc153cc4a399d85462",
+    "engine-games/wally-engine-v02/turn-06-query-1.json": "a2d31a16418a696acc9cadeddf0489f0432fc66bcfae3a521b552c9f6ed0c5b1",
+    "engine-games/wally-engine-v02/turn-07-query-1.json": "e0487ee413ea67b20ff0395769f65a8b7daa0cd369f74ff6c7f6386958ea969d",
+    "engine-games/wally-engine-v02/turn-08-query-1.json": "88d60a25f4c14a1926253450af887cee7c629304f27b6385cbf1bc07de4b2688",
+    "engine-games/wally-engine-v02/turn-09-query-1.json": "4034cf63059f4a1f92b6d5f498bf07e2c385914c582e30e032f9d6a9d1d85a8f",
+    "engine-games/wally-engine-v02/turn-10-query-1.json": "6c44bbaec891d86b109b818e6754a561502ad2487b3c719b12cddc9dfe4776fc",
+    "engine-games/wally-engine-v02/turn-11-query-1.json": "e6afc75e44d89813bedcea55ada73dc387b1303c63467376046d352646a741e5",
+    "engine-games/wally-engine-v02/turn-12-query-1.json": "e573afb61d3f8255198c3f796112c4a15a9ae39022fbf0c6708cc8ae0344e725",
+    "engine-games/wally-engine-v02/turn-12-query-2.json": "e7a963395b5e20f202333b2f73b4951e3d2177aef820b071f29185b968d62cb4",
+    "engine-games/wally-engine-v02/turn-13-query-1.json": "9ee96cd4253f86a5488e74fc2af42d72d1d3b502b63ffa9544f885751f0214fc",
+    "engine-games/wally-engine-v02/turn-14-query-1.json": "ab329eb1f9837a99da6316213bf7c0b7204432f4739b2ff52b8f51dfc8865891",
+    "engine-games/wally-engine-v02/turn-15-query-1.json": "9922b0e5da5571fc7837ef77c94b7d9f84d39cd7571f6ceccf556a827e61deb6",
+    "engine-games/wally-engine-v02/turn-16-query-1.json": "60a2d2ee961fcdc0bbbe514819b5035240eb0f50bf474cc78b5bd13b8755cb43",
+    "engine-games/wally-engine-v02/turn-17-query-1.json": "65cf71c8d12d72211af49a224175aa57c837b447b4813a25999580a5be7115ff",
+    "engine-games/wally-engine-v02/turn-18-query-1.json": "0b1cf07d157f16feeb4203c0c76e5cee7fb27b709e6cb089937368e2efb0e986",
+    "engine-games/wally-engine-v02/turn-19-query-1.json": "f72c3b10d127a431453f00259c26eef94a0aec8033db071dae0a11a809718ce4",
+    "engine-games/wally-engine-v02/turn-20-query-1.json": "c63245bb669f10280d044ab50e3cd741f2bc22e92c2a72fdb6c5841de07e3680",
+    "engine-games/wally-engine-v02/turn-21-query-1.json": "e72a42c064bbb6385033e6d997ca7abb84de4793f03c49e8ce068981e9135dfc",
+    "engine-games/wally-engine-v02/turn-22-query-1.json": "bb2f65c5fdad6bdb25f5beebfd8a9238f4d02bb5dc401d3764f1e21100dabaa9",
+    "engine-games/wally-engine-v02/turn-23-query-1.json": "976073d3d3cc4b3e10029db56d8b79de27dfbe4e040773a247cda12201a2713e",
+    "engine-games/wally-engine-v02/turn-24-query-1.json": "48395c7f67b598223706914a792cb916d17d085214c1c3fc8d341d44bd6d8ca5",
+    "engine-games/wally-engine-v02/turn-25-query-1.json": "c6ae18a61c034d47fe1fe4db29e022f6c7b4da859d73edc6701130c84c4899a1",
+    "engine-games/wally-engine-v02/turn-26-query-1.json": "1ea0c087440c5077ca87aa70f22cf88654cc98936c511620b434543f17bd98a2",
+    "engine-games/wally-engine-v02/turn-27-query-1.json": "7d0ca257adefb02e4bcfb5fff06b03a9b27d4fb1365ecfb369f5a37607b14c52",
+    "engine-games/wally-engine-v02/turn-28-query-1.json": "6b12618f8fe5f206d1ccddb6d5a05f507efadbfa664904d96d4721fa720932e9",
+    "engine-games/wally-engine-v02/turn-29-query-1.json": "760af353e0fcb0b853a705088a278f0af662c261d30fdb00332ae491c8ebfbf4",
+    "engine-games/wally-engine-v02/turn-30-query-1.json": "057f4f474d03cf4d647ce1b2296e1826913546bbfe55ca45311e2db78dff7093",
+    "engine-games/wally-engine-v02/turn-30-query-1.request.json": "4b1ea40e60611edfc5435e01f1bd71e3561de5d0d07540a27bc718da90c37939"
+  }
+}

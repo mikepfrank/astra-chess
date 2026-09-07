@@ -1,0 +1,4 @@
+interface:
+  display_name: "Astra Chess Play"
+  short_description: "Resume engine-assisted chess with an audited clock"
+  default_prompt: "Use $astra-chess-play to resume the authorized chess game from its journal and the embedded browser."

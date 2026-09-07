@@ -1,0 +1,116 @@
+<div id="wally-evaluation-history">
+  <h3>Astra’s evaluation of its chosen moves</h3>
+  <div class="text-small">Astra (White) vs. Wally · Game 9 · Positive scores favor Astra</div>
+  <div class="plot-host">
+    <svg class="evaluation-plot" role="img" aria-labelledby="wally-eval-title wally-eval-desc"></svg>
+  </div>
+  <div class="text-small">29–31: forced mate → checkmate</div>
+  <label class="form-label" for="wally-eval-move">Move <output id="wally-eval-selection" class="tabular-nums" aria-live="polite"></output></label>
+  <input id="wally-eval-move" class="form-range" type="range" min="1" max="31" value="12" step="1">
+  <div class="tooltip" role="tooltip" hidden></div>
+  <script id="wally-eval-data" type="application/json">{"rows": [{"move": 1, "san": "Nc3", "preceding_black_san": null, "numeric_pawns": 0.0, "depth": 6}, {"move": 2, "san": "Nf3", "preceding_black_san": "Nf6", "numeric_pawns": 0.0, "depth": 6}, {"move": 3, "san": "d4", "preceding_black_san": "d5", "numeric_pawns": 0.14, "depth": 5}, {"move": 4, "san": "Bf4", "preceding_black_san": "Bf5", "numeric_pawns": 0.14, "depth": 5}, {"move": 5, "san": "e3", "preceding_black_san": "Nc6", "numeric_pawns": -0.06, "depth": 5}, {"move": 6, "san": "Bb5", "preceding_black_san": "e6", "numeric_pawns": 0.42, "depth": 5}, {"move": 7, "san": "Bxc6+", "preceding_black_san": "a6", "numeric_pawns": 0.47, "depth": 4}, {"move": 8, "san": "O-O", "preceding_black_san": "bxc6", "numeric_pawns": 0.41, "depth": 4}, {"move": 9, "san": "Rb1", "preceding_black_san": "Rb8", "numeric_pawns": 0.46, "depth": 5}, {"move": 10, "san": "Ne5", "preceding_black_san": "Bd6", "numeric_pawns": 0.46, "depth": 5}, {"move": 11, "san": "Na4", "preceding_black_san": "Rb6", "numeric_pawns": 0.84, "depth": 5}, {"move": 12, "san": "Nxc6", "preceding_black_san": "Rb4", "numeric_pawns": 2.97, "depth": 6}, {"move": 13, "san": "Qd3", "preceding_black_san": "Bg4", "numeric_pawns": 3.21, "depth": 5}, {"move": 14, "san": "Qxa6", "preceding_black_san": "Bf5", "numeric_pawns": 4.34, "depth": 5}, {"move": 15, "san": "Qxa4", "preceding_black_san": "Rxa4", "numeric_pawns": 4.34, "depth": 4}, {"move": 16, "san": "Bxd6", "preceding_black_san": "Qc8", "numeric_pawns": 4.77, "depth": 5}, {"move": 17, "san": "b4", "preceding_black_san": "cxd6", "numeric_pawns": 4.36, "depth": 4}, {"move": 18, "san": "b5", "preceding_black_san": "h6", "numeric_pawns": 4.51, "depth": 4}, {"move": 19, "san": "b6", "preceding_black_san": "Nd7", "numeric_pawns": 5.35, "depth": 5}, {"move": 20, "san": "Na5", "preceding_black_san": "Qb7", "numeric_pawns": 5.32, "depth": 5}, {"move": 21, "san": "b7", "preceding_black_san": "Qb8", "numeric_pawns": 7.56, "depth": 5}, {"move": 22, "san": "Nc6", "preceding_black_san": "e5", "numeric_pawns": 8.25, "depth": 5}, {"move": 23, "san": "dxc5", "preceding_black_san": "Nc5", "numeric_pawns": 16.13, "depth": 5}, {"move": 24, "san": "Qa8", "preceding_black_san": "Bd7", "numeric_pawns": 18.19, "depth": 5}, {"move": 25, "san": "Nxb8", "preceding_black_san": "O-O", "numeric_pawns": 20.15, "depth": 5}, {"move": 26, "san": "Nc6", "preceding_black_san": "Bf5", "numeric_pawns": 21.44, "depth": 5}, {"move": 27, "san": "b8=Q", "preceding_black_san": "g6", "numeric_pawns": 22.25, "depth": 4}, {"move": 28, "san": "Rxb8+", "preceding_black_san": "Rxb8", "numeric_pawns": 22.37, "depth": 5}, {"move": 29, "san": "Rg8+", "preceding_black_san": "Kg7", "numeric_pawns": null, "depth": 5}, {"move": 30, "san": "Qf8", "preceding_black_san": "Kh7", "numeric_pawns": null, "depth": null}, {"move": 31, "san": "Qxf7#", "preceding_black_san": "dxc5", "numeric_pawns": null, "depth": null}]}</script>
+</div>
+<style>
+  #wally-evaluation-history { position: relative; color: var(--foreground); }
+  #wally-evaluation-history .plot-host { width: 100%; margin-top: 12px; }
+  #wally-evaluation-history .evaluation-plot { display: block; width: 100%; overflow: visible; }
+  #wally-evaluation-history .evaluation-plot text { fill: var(--foreground); font-size: 12px; }
+  #wally-evaluation-history .evaluation-plot .domain,
+  #wally-evaluation-history .evaluation-plot .tick line { stroke: var(--border); }
+  #wally-evaluation-history label { display: block; margin-top: 12px; }
+  #wally-evaluation-history .tooltip { position: absolute; pointer-events: none; background: var(--popover); color: var(--popover-foreground); padding: 8px 10px; border: 1px solid var(--border); max-width: 260px; z-index: 2; }
+  #wally-evaluation-history .tooltip[hidden] { display: none; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script>
+(() => {
+  const root = document.getElementById('wally-evaluation-history');
+  const raw = JSON.parse(root.querySelector('#wally-eval-data').textContent);
+  const data = raw.rows;
+  const svg = d3.select(root.querySelector('svg'));
+  const host = root.querySelector('.plot-host');
+  const slider = root.querySelector('#wally-eval-move');
+  const selection = root.querySelector('#wally-eval-selection');
+  const tip = root.querySelector('.tooltip');
+  let selected = 12, scales = null;
+  const valueText = d => d.numeric_pawns !== null
+    ? `${d.numeric_pawns >= 0 ? '+' : ''}${d.numeric_pawns.toFixed(2)} pawns · depth ${d.depth} plies`
+    : d.move === 29 ? 'forced mate in 3 moves'
+    : d.move === 30 ? 'mate on Astra’s next move (proven)'
+    : 'checkmate · 1–0';
+  function updateSelection() {
+    const d = data.find(d => d.move === selected);
+    selection.textContent = `${d.move}. ${d.san} · ${valueText(d)}`;
+    slider.value = selected;
+    if (!scales) return;
+    const {x,y} = scales;
+    svg.select('[data-selection-guide]').attr('x1',x(selected)).attr('x2',x(selected));
+    svg.select('[data-selected-mark]').attr('cx',x(selected)).attr('cy',d.numeric_pawns === null ? 328 : y(d.numeric_pawns));
+  }
+  function draw() {
+    const width = Math.floor(host.getBoundingClientRect().width);
+    if (width < 200) return;
+    const height = 401, left = 68, right = width - 12, top = 28, bottom = 270;
+    const bounds = d3.extent(data, d=>d.move);
+    const values = data.filter(d=>d.numeric_pawns !== null).map(d=>d.numeric_pawns);
+    const extent = d3.extent([...values,0]);
+    const pad = Math.max(.2,(extent[1]-extent[0])*.07);
+    const x = d3.scaleLinear().domain([bounds[0]-.35,bounds[1]+.35]).range([left+5,right-5]);
+    const y = d3.scaleLinear().domain([extent[0]-pad,extent[1]+pad]).nice().range([bottom-6,top+6]);
+    scales = {x,y};
+    svg.attr('viewBox',`0 0 ${width} ${height}`).attr('height',height).selectAll('*').remove();
+    svg.append('title').attr('id','wally-eval-title').text('Historical engine evaluations, White moves 1–31');
+    svg.append('desc').attr('id','wally-eval-desc').text('The chosen-move score stays near zero through move 10, rises to nearly three pawns on move 12, exceeds sixteen on move 23, and reaches over twenty-two on move 28. The separate mate row marks forced mate on moves 29 and 30 and checkmate on move 31. Scores come from searches performed during the game.');
+    svg.append('rect').attr('data-chart-frame','numeric').attr('x',left).attr('y',top).attr('width',right-left).attr('height',bottom-top).attr('fill','none').attr('stroke','var(--border)');
+    const yticks = y.ticks(5);
+    svg.append('g').selectAll('line').data(yticks).join('line').attr('x1',left).attr('x2',right).attr('y1',d=>y(d)).attr('y2',d=>y(d)).attr('stroke','var(--border)');
+    svg.append('line').attr('x1',left).attr('x2',right).attr('y1',y(0)).attr('y2',y(0)).attr('stroke','var(--foreground)').attr('opacity',.45);
+    const ya = svg.append('g').attr('transform',`translate(${left},0)`).call(d3.axisLeft(y).tickValues(yticks).tickFormat(d=>d>0?`+${d}`:d).tickSize(0).tickPadding(9));
+    ya.select('.domain').remove();
+    svg.append('text').attr('class','axis-title').attr('data-axis','y').attr('text-anchor','middle').attr('transform',`translate(16 ${(top+bottom)/2}) rotate(-90)`).text('Evaluation (pawns)');
+    svg.append('path').datum(data).attr('data-series','chosen').attr('fill','none').attr('stroke','var(--viz-series-1)').attr('stroke-width',2.4).attr('d',d3.line().defined(d=>d.numeric_pawns!==null).x(d=>x(d.move)).y(d=>y(d.numeric_pawns)));
+    svg.append('g').selectAll('circle').data(data.filter(d=>d.numeric_pawns!==null)).join('circle').attr('data-point',d=>d.move).attr('cx',d=>x(d.move)).attr('cy',d=>y(d.numeric_pawns)).attr('r',3).attr('fill','var(--viz-series-1)');
+    svg.append('rect').attr('data-chart-frame','mate').attr('x',left).attr('y',310).attr('width',right-left).attr('height',36).attr('fill','none').attr('stroke','var(--border)');
+    svg.append('text').attr('x',left-9).attr('y',332).attr('text-anchor','end').text('Mate');
+    const mates = data.filter(d=>d.numeric_pawns===null);
+    svg.append('g').selectAll('path').data(mates).join('path').attr('data-mate',d=>d.move).attr('d',d3.symbol().type(d3.symbolDiamond).size(45)).attr('transform',d=>`translate(${x(d.move)},328)`).attr('fill','var(--viz-series-1)');
+    const xticks = width < 500 ? [1,10,20,31] : [1,5,10,15,20,25,31];
+    svg.append('g').attr('transform','translate(0,358)').call(d3.axisBottom(x).tickValues(xticks).tickFormat(d3.format('d')).tickSize(0).tickPadding(7)).select('.domain').remove();
+    svg.append('text').attr('class','axis-title').attr('data-axis','x').attr('x',(left+right)/2).attr('y',393).attr('text-anchor','middle').text('White move number');
+    if(width>=560) {
+      const annotations = [{move:12,label:'12. Nxc6 · +2.97',dy:-21},{move:23,label:'23. dxc5 · +16.13',dy:-20}];
+      svg.append('g').selectAll('text').data(annotations).join('text').attr('data-optional-label','').attr('text-anchor',d=>d.move===23?'end':'start').attr('x',d=>x(d.move)+(d.move===23?-8:6)).attr('y',d=>y(data[d.move-1].numeric_pawns)+d.dy).text(d=>d.label);
+    }
+    svg.append('line').attr('data-selection-guide','').attr('y1',top).attr('y2',bottom).attr('stroke','var(--foreground)').attr('opacity',.25);
+    svg.append('circle').attr('data-selected-mark','').attr('r',5).attr('fill','none').attr('stroke','var(--foreground)').attr('stroke-width',1.5);
+    const hit = svg.append('rect').attr('data-chart-hit','').attr('x',left).attr('y',top).attr('width',right-left).attr('height',346-top).attr('fill','transparent');
+    function datumAt(event) {
+      const px = d3.pointer(event,svg.node())[0];
+      return data[d3.bisector(d=>d.move).center(data,x.invert(px))];
+    }
+    function showTip(event,d) {
+      const preceding = d.preceding_black_san ? `After ${d.move-1}…${d.preceding_black_san}` : 'Starting position';
+      tip.textContent = `${d.move}. ${d.san} — ${valueText(d)}. ${preceding}.`;
+      tip.hidden = false;
+      const r=root.getBoundingClientRect(), b=tip.getBoundingClientRect();
+      tip.style.left = `${Math.max(0,Math.min(event.clientX-r.left+12,r.width-b.width))}px`;
+      tip.style.top = `${Math.max(0,event.clientY-r.top-b.height-12)}px`;
+    }
+    hit.on('pointermove',event=>{if(event.pointerType==='mouse')showTip(event,datumAt(event));})
+      .on('pointerleave',()=>{tip.hidden=true;})
+      .on('click',event=>{const d=datumAt(event);selected=d.move;updateSelection();showTip(event,d);});
+    updateSelection();
+    // Remove optional annotations if their measured text collides or exceeds the frame.
+    const boxes = [];
+    svg.selectAll('.tick text,.axis-title,[data-optional-label]').each(function(){
+      const b=this.getBoundingClientRect();
+      if(this.hasAttribute('data-optional-label') && (b.right>svg.node().getBoundingClientRect().right-12 || boxes.some(a=>b.left<a.right+4&&b.right>a.left-4&&b.top<a.bottom+4&&b.bottom>a.top-4))) this.remove();
+      else boxes.push(b);
+    });
+    root.dataset.ready='true';
+  }
+  slider.addEventListener('input',()=>{selected=Number(slider.value);tip.hidden=true;updateSelection();});
+  new ResizeObserver(draw).observe(host);
+  draw();
+})();
+</script>
