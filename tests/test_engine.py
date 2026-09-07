@@ -456,7 +456,7 @@ class SearchTests(unittest.TestCase):
         self.assertNotIn(result["status"], {"forced", "unreachable"})
 
     def test_invalid_queries_rejected(self):
-        for kwargs in [{"max_depth": 0}, {"max_depth": 13}, {"time_limit": 0},
+        for kwargs in [{"max_depth": 0}, {"max_depth": 33}, {"time_limit": 0},
                        {"time_limit": float("nan")}, {"time_limit": float("inf")}]:
             with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
                 analyze(position(), **kwargs)

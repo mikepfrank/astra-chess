@@ -215,8 +215,12 @@ class Position:
         king_square = self.board.index("K" if color == WHITE else "k")
         return self.is_attacked(king_square, 1 - color)
 
-    def _pseudo_moves(self) -> list[Move]:
-        moves: list[Move] = []
+    def _iter_pseudo_moves(self, tactical_only: bool = False):
+        """Yield in the historical deterministic order, without quiet allocation.
+
+        ``tactical_only`` includes captures, en passant, and every promotion.
+        It is not an evasion generator; callers in check must request all moves.
+        """
         board, turn = self.board, self.turn
         enemy_king = "k" if turn == WHITE else "K"
         own_upper = turn == WHITE
@@ -231,12 +235,13 @@ class Position:
                 forward = origin + step
                 if 0 <= forward < 64 and board[forward] == ".":
                     if forward // 8 == promotion_rank:
-                        moves.extend(Move(origin, forward, promotion) for promotion in "qrbn")
-                    else:
-                        moves.append(Move(origin, forward))
+                        for promotion in "qrbn":
+                            yield Move(origin, forward, promotion)
+                    elif not tactical_only:
+                        yield Move(origin, forward)
                         double = forward + step
                         if origin // 8 == start_rank and board[double] == ".":
-                            moves.append(Move(origin, double))
+                            yield Move(origin, double)
                 for df in (-1, 1):
                     if not 0 <= origin % 8 + df < 8:
                         continue
@@ -249,25 +254,30 @@ class Position:
                                   and board[target - step] == ("p" if own_upper else "P"))
                     if capture or ep_capture:
                         if target // 8 == promotion_rank:
-                            moves.extend(Move(origin, target, promotion) for promotion in "qrbn")
+                            for promotion in "qrbn":
+                                yield Move(origin, target, promotion)
                         else:
-                            moves.append(Move(origin, target))
+                            yield Move(origin, target)
             elif kind in ("n", "k"):
                 for target in (_KNIGHTS if kind == "n" else _KINGS)[origin]:
                     victim = board[target]
-                    if victim == "." or (victim.isupper() != own_upper and victim != enemy_king):
-                        moves.append(Move(origin, target))
+                    if ((victim == "." and not tactical_only)
+                            or (victim != "." and victim.isupper() != own_upper and victim != enemy_king)):
+                        yield Move(origin, target)
             else:
                 direction_indices = range(4) if kind == "r" else range(4, 8) if kind == "b" else range(8)
                 for direction_index in direction_indices:
                     for target in _RAYS[origin][direction_index]:
                         victim = board[target]
                         if victim == ".":
-                            moves.append(Move(origin, target))
+                            if not tactical_only:
+                                yield Move(origin, target)
                         else:
                             if victim.isupper() != own_upper and victim != enemy_king:
-                                moves.append(Move(origin, target))
+                                yield Move(origin, target)
                             break
+        if tactical_only:
+            return
         base = 0 if turn == WHITE else 56
         king, rook = ("K", "R") if turn == WHITE else ("k", "r")
         kingside, queenside = ("K", "Q") if turn == WHITE else ("k", "q")
@@ -276,17 +286,33 @@ class Position:
                     and board[base + 5] == board[base + 6] == "."
                     and not self.is_attacked(base + 5, 1 - turn)
                     and not self.is_attacked(base + 6, 1 - turn)):
-                moves.append(Move(base + 4, base + 6))
+                yield Move(base + 4, base + 6)
             if (queenside in self.castling and board[base] == rook
                     and board[base + 1] == board[base + 2] == board[base + 3] == "."
                     and not self.is_attacked(base + 3, 1 - turn)
                     and not self.is_attacked(base + 2, 1 - turn)):
-                moves.append(Move(base + 4, base + 2))
-        return moves
+                yield Move(base + 4, base + 2)
+
+    def _pseudo_moves(self) -> list[Move]:
+        return list(self._iter_pseudo_moves())
+
+    def iter_legal_children(self, tactical_only: bool = False):
+        """Yield legal moves together with the already constructed child board."""
+        turn = self.turn
+        for move in self._iter_pseudo_moves(tactical_only):
+            child = self.play(move)
+            if not child.in_check(turn):
+                yield move, child
+
+    def legal_children(self, tactical_only: bool = False) -> dict[Move, Position]:
+        return dict(self.iter_legal_children(tactical_only))
+
+    def has_legal_move(self) -> bool:
+        """Stop on the first legal move; used to exclude a quiet stalemate."""
+        return next(self.iter_legal_children(), None) is not None
 
     def legal_moves(self) -> list[Move]:
-        turn = self.turn
-        return [move for move in self._pseudo_moves() if not self.play(move).in_check(turn)]
+        return [move for move, _ in self.iter_legal_children()]
 
     def play(self, move: Move) -> Position:
         """Apply an already legal move. Use parse_uci at untrusted boundaries."""

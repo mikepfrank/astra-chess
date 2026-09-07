@@ -35,6 +35,16 @@ VALUES = {"p": 100, "n": 320, "b": 335, "r": 500, "q": 900, "k": 0}
 _SIDE_NAMES = {WHITE: "white", BLACK: "black"}
 _GOAL_TYPES = frozenset(("capture", "avoid_capture", "castle", "check", "avoid_check",
                          "checkmate", "avoid_checkmate", "stalemate", "avoid_stalemate"))
+# Rule-derived board geometry only; these are not learned piece-square values.
+_GEOMETRY = tuple((square % 8, square // 8,
+                   7 - abs(square % 8 - 3.5) - abs(square // 8 - 3.5))
+                  for square in range(64))
+_SHIELD = tuple(tuple(tuple(rank * 8 + file
+                            for file in range(max(0, square % 8 - 1), min(7, square % 8 + 1) + 1))
+                       if 0 <= rank < 8 else ()
+                       for square in range(64)
+                       for rank in [square // 8 + (1 if side == WHITE else -1)])
+                for side in (WHITE, BLACK))
 
 
 class _Stopped(Exception):
@@ -59,13 +69,13 @@ class _Witness:
 
 
 def _limits(max_depth: int, time_limit: float, count: int) -> tuple[int, float, int]:
-    if isinstance(max_depth, bool) or not isinstance(max_depth, int) or not 1 <= max_depth <= 12:
-        raise ValueError("max_depth must be an integer from 1 to 12 plies")
+    if isinstance(max_depth, bool) or not isinstance(max_depth, int) or not 1 <= max_depth <= 32:
+        raise ValueError("max_depth must be an integer from 1 to 32 plies")
     if isinstance(time_limit, bool) or not isinstance(time_limit, (int, float)):
         raise ValueError("time_limit must be a finite positive number of seconds")
     seconds = float(time_limit)
-    if not math.isfinite(seconds) or not 0 < seconds <= 120:
-        raise ValueError("time_limit must be greater than zero and at most 120 seconds")
+    if not math.isfinite(seconds) or not 0 < seconds <= 180:
+        raise ValueError("time_limit must be greater than zero and at most 180 seconds")
     if isinstance(count, bool) or not isinstance(count, int) or not 1 <= count <= 20:
         raise ValueError("multipv/max_lines must be an integer from 1 to 20")
     return max_depth, seconds, count
@@ -82,7 +92,7 @@ def _counts(position: Position, history: Any) -> Counter:
     return counts
 
 
-def _terminal(position: Position, legal: list[Move], counts: Counter) -> dict | None:
+def _terminal(position: Position, legal: list[Move] | bool, counts: Counter) -> dict | None:
     if not legal:
         if position.in_check():
             winner = 1 - position.turn
@@ -114,11 +124,13 @@ def _prospective_claim(child: Position, counts: Counter) -> bool:
     return child.halfmove >= 100 or counts[child.repetition_key()] >= 2
 
 
-def _claim_candidates(position: Position, legal: list[Move], counts: Counter) -> list[Move]:
+def _claim_candidates(position: Position, legal: list[Move], counts: Counter,
+                      children: dict[Move, Position] | None = None) -> list[Move]:
     """All legal declarations, including quiet moves at a quiescent frontier."""
     if position.halfmove < 99 and not any(count >= 2 for count in counts.values()):
         return []
-    return [move for move in legal if _prospective_claim(position.play(move), counts)]
+    return [move for move in legal
+            if _prospective_claim(children[move] if children is not None else position.play(move), counts)]
 
 
 def evaluate(position: Position) -> int:
@@ -134,11 +146,13 @@ def evaluate(position: Position) -> int:
     bishops = [0, 0]
     kings = [board.index("K"), board.index("k")]
     non_pawn_material = 0
+    occupied = []
     for square, piece in enumerate(board):
         if piece == ".":
             continue
         side = color_of(piece)
         kind = piece.lower()
+        occupied.append((square, side, kind))
         if kind == "p":
             pawn_files[side][square % 8] += 1
             pawn_squares[side].append(square)
@@ -148,14 +162,9 @@ def evaluate(position: Position) -> int:
             bishops[side] += 1
     endgame = max(0.0, min(1.0, (4400 - non_pawn_material) / 4400))
     score = 0.0
-    for square, piece in enumerate(board):
-        if piece == ".":
-            continue
-        side = color_of(piece)
-        kind = piece.lower()
-        file, rank = square % 8, square // 8
+    for square, side, kind in occupied:
+        file, rank, center = _GEOMETRY[square]
         advance = rank if side == WHITE else 7 - rank
-        center = 7 - abs(file - 3.5) - abs(rank - 3.5)
         value = float(VALUES[kind])
         if kind == "p":
             value += 5 * max(0, advance - 1) + 2 * center
@@ -189,11 +198,8 @@ def evaluate(position: Position) -> int:
             value += 2 * center
         else:
             end_value = 13 * center
-            shield_rank = rank + (1 if side == WHITE else -1)
             own_pawn = "P" if side == WHITE else "p"
-            shield = sum(board[shield_rank * 8 + f] == own_pawn
-                         for f in range(max(0, file - 1), min(7, file + 1) + 1)) \
-                if 0 <= shield_rank < 8 else 0
+            shield = sum(board[square] == own_pawn for square in _SHIELD[side][square])
             middle_value = 13 * shield - 8 * center
             if advance == 0 and file in (2, 6):
                 middle_value += 24
@@ -240,12 +246,17 @@ def _order(position: Position, moves: list[Move], preferred: Move | None = None,
 
 
 class _Search:
-    def __init__(self, deadline: float, counts: Counter) -> None:
+    def __init__(self, deadline: float, counts: Counter, evaluation: dict | None = None,
+                 threat_extensions: int = 0) -> None:
         self.deadline = deadline
         self.counts = counts
         self.nodes = 0
         self.qnodes = 0
         self.cutoffs = 0
+        self.evaluation = evaluation or {}
+        self.threat_extensions = threat_extensions
+        self.extended_frontiers = 0
+        self.capped_threat_frontiers = 0
         # Only moves, never scores, are reused across transpositions. This avoids
         # incorrect TT values when the same board has different draw histories.
         self.preferred: dict[Any, Move] = {}
@@ -261,15 +272,16 @@ class _Search:
         self.nodes += 1
 
     def child(self, position: Position, move: Move, depth: int, alpha: int,
-              beta: int, ply: int, qdepth: int | None = None) -> _Value:
-        child = position.play(move)
+              beta: int, ply: int, qdepth: int | None = None,
+              child_position: Position | None = None, extensions_left: int = 0) -> _Value:
+        child = child_position if child_position is not None else position.play(move)
         intended_claim = _prospective_claim(child, self.counts)
         key = child.repetition_key()
         self.counts[key] += 1
         try:
-            answer = (self.negamax(child, depth, -beta, -alpha, ply + 1)
+            answer = (self.negamax(child, depth, -beta, -alpha, ply + 1, extensions_left)
                       if qdepth is None
-                      else self.quiescence(child, -beta, -alpha, ply + 1, qdepth + 1))
+                      else self.quiescence(child, -beta, -alpha, ply + 1, qdepth + 1, extensions_left))
         finally:
             self.counts[key] -= 1
             if not self.counts[key]:
@@ -281,11 +293,13 @@ class _Search:
             return _Value(0, (), "intended_move_draw_claim", move.uci())
         return _Value(score, (move,) + answer.pv, answer.ending, answer.claim_move)
 
-    def negamax(self, position: Position, depth: int, alpha: int, beta: int, ply: int) -> _Value:
+    def negamax(self, position: Position, depth: int, alpha: int, beta: int, ply: int,
+                extensions_left: int = 0) -> _Value:
         if depth <= 0:
-            return self.quiescence(position, alpha, beta, ply, 0)
+            return self.quiescence(position, alpha, beta, ply, 0, extensions_left)
         self.visit()
-        legal = position.legal_moves()
+        children = position.legal_children()
+        legal = list(children)
         terminal = _terminal(position, legal, self.counts)
         if terminal:
             return _Value(-MATE + ply if terminal["reason"] == "checkmate" else 0,
@@ -300,7 +314,8 @@ class _Search:
                        self.killers.get(ply, ()), self.history_scores)
         best_move = None
         for move in moves:
-            answer = self.child(position, move, depth - 1, alpha, beta, ply)
+            answer = self.child(position, move, depth - 1, alpha, beta, ply,
+                                child_position=children[move], extensions_left=extensions_left)
             if answer.score > best.score:
                 best, best_move = answer, move
             alpha = max(alpha, answer.score)
@@ -316,28 +331,49 @@ class _Search:
             self.preferred[key] = best_move
         return best
 
-    def quiescence(self, position: Position, alpha: int, beta: int, ply: int, qdepth: int) -> _Value:
+    def quiescence(self, position: Position, alpha: int, beta: int, ply: int, qdepth: int,
+                   extensions_left: int = 0) -> _Value:
         self.visit()
         self.qnodes += 1
         # Even at the cap, determine mate/stalemate before evaluating material.
-        legal = position.legal_moves()
-        terminal = _terminal(position, legal, self.counts)
+        checked = position.in_check()
+        children = position.legal_children(tactical_only=not checked)
+        has_legal = bool(children) or (not checked and position.has_legal_move())
+        terminal = _terminal(position, has_legal, self.counts)
         if terminal:
             return _Value(-MATE + ply if terminal["reason"] == "checkmate" else 0,
                           ending=terminal["reason"])
-        checked = position.in_check()
         if checked and ply >= 96:
             # Never substitute stand-pat for a compulsory check evasion. Abandon
             # this iteration and retain the last completed one in this rare case.
             raise _Stopped("check_extension_limit")
         claimable = bool(_claim_reasons(position, self.counts))
         best = _Value(0, ending="draw_claim") if claimable else _Value(-INF)
-        if not claimable:
-            declarations = _claim_candidates(position, legal, self.counts)
+        if (not claimable and (position.halfmove >= 99
+                               or any(count >= 2 for count in self.counts.values()))):
+            # Quiet intended-move declarations remain legal draw choices even
+            # though ordinary quiescence generates only captures/promotions.
+            full_children = children if checked else position.legal_children()
+            declarations = _claim_candidates(position, list(full_children), self.counts, full_children)
             if declarations:
                 best = _Value(0, ending="intended_move_draw_claim", claim_move=declarations[0].uci())
-        if not checked:
+        extend = False
+        if not checked and self.threat_extensions:
+            from .diagnostics import threat_frontier
+            if threat_frontier(position):
+                self.check()
+                if extensions_left:
+                    extend = True
+                    self.extended_frontiers += 1
+                    children = position.legal_children()
+                else:
+                    self.capped_threat_frontiers += 1
+        if not checked and not extend:
             stand = evaluate(position)
+            if self.evaluation:
+                from .diagnostics import extra_evaluate
+                extra = extra_evaluate(position, self.evaluation)
+                stand += extra if position.turn == WHITE else -extra
             if stand > best.score:
                 best = _Value(stand)
             if qdepth >= 8:
@@ -345,9 +381,10 @@ class _Search:
         if best.score >= beta:
             return best
         alpha = max(alpha, best.score)
-        tactical = legal if checked else [m for m in legal if m.promotion or _is_capture(position, m)]
-        for move in _order(position, tactical):
-            answer = self.child(position, move, 0, alpha, beta, ply, qdepth=qdepth)
+        for move in _order(position, list(children)):
+            answer = self.child(position, move, 0, alpha, beta, ply, qdepth=qdepth,
+                                child_position=children[move],
+                                extensions_left=extensions_left - int(extend))
             if answer.score > best.score:
                 best = answer
             alpha = max(alpha, answer.score)
@@ -380,7 +417,8 @@ def _mate_plies(score: int | None) -> int | None:
 
 
 def analyze(position: Position, max_depth: int = 5, time_limit: float = 3.0,
-            multipv: int = 3, root_moves: Any = None, history: Any = None) -> dict:
+            multipv: int = 3, root_moves: Any = None, history: Any = None,
+            evaluation: dict | None = None, threat_extensions: int = 0) -> dict:
     """Rank legal root moves; preserve only fully completed top-N iterations.
 
     ``root_moves`` optionally restricts the root to legal UCI strings/Move values.
@@ -392,10 +430,23 @@ def analyze(position: Position, max_depth: int = 5, time_limit: float = 3.0,
     max_depth, seconds, multipv = _limits(max_depth, time_limit, multipv)
     if not isinstance(position, Position):
         raise ValueError("position must be a Position")
+    if evaluation is None:
+        evaluation = {}
+    if (not isinstance(evaluation, dict)
+            or set(evaluation) - {"mobility", "restricted_piece", "king_exposure"}
+            or any(not isinstance(value, bool) for value in evaluation.values())):
+        raise ValueError("evaluation must contain only boolean mobility, restricted_piece, and king_exposure options")
+    evaluation = {name: bool(evaluation.get(name, False))
+                  for name in ("mobility", "restricted_piece", "king_exposure")}
+    if (isinstance(threat_extensions, bool) or not isinstance(threat_extensions, int)
+            or not 0 <= threat_extensions <= 2):
+        raise ValueError("threat_extensions must be an integer from 0 to 2")
     counts = _counts(position, history)
     reserve = min(0.5, seconds * 0.08)
-    search = _Search(started + seconds - reserve, counts)
-    legal = position.legal_moves()
+    search = _Search(started + seconds - reserve, counts,
+                     {name: True for name, enabled in evaluation.items() if enabled}, threat_extensions)
+    root_children = position.legal_children()
+    legal = list(root_children)
     all_legal = legal
     if root_moves is not None:
         if isinstance(root_moves, (str, bytes, dict)):
@@ -413,7 +464,7 @@ def analyze(position: Position, max_depth: int = 5, time_limit: float = 3.0,
         legal = selected
     terminal = _terminal(position, all_legal, counts)
     claim_reasons = [] if terminal else _claim_reasons(position, counts)
-    declarations = [] if terminal else _claim_candidates(position, legal, counts)
+    declarations = [] if terminal else _claim_candidates(position, legal, counts, root_children)
     output = {"kind": "analysis", "start_fen": position.fen(),
               "turn": _SIDE_NAMES[position.turn], "requested_depth": max_depth,
               "completed_depth": 0, "nodes": 0, "elapsed_seconds": 0.0,
@@ -426,6 +477,7 @@ def analyze(position: Position, max_depth: int = 5, time_limit: float = 3.0,
               "intended_move": None,
               "root_score_cp": None, "recommended_action": "game_over" if terminal else "move",
               "history_supplied": history is not None,
+              "settings": {"evaluation": evaluation, "threat_extensions": threat_extensions},
               "diagnostics": {"score_view": "root side", "depth_unit": "plies",
                               "history_note": "Earlier repetition is unknown without supplied history.",
                               "quiescence_capture_depth": 8,
@@ -449,7 +501,8 @@ def analyze(position: Position, max_depth: int = 5, time_limit: float = 3.0,
                 # Once top-N is full, fail-low roots can only rank below its
                 # weakest member. They are excluded, never reported as exact.
                 threshold = iteration[-1][1].score if len(iteration) >= multipv else -INF
-                answer = search.child(position, move, depth - 1, threshold, INF, 0)
+                answer = search.child(position, move, depth - 1, threshold, INF, 0,
+                                      child_position=root_children[move], extensions_left=threat_extensions)
                 if len(iteration) < multipv or answer.score > threshold:
                     iteration.append((move, answer))
                     iteration.sort(key=lambda item: (-item[1].score, item[0].uci()))
@@ -484,6 +537,13 @@ def analyze(position: Position, max_depth: int = 5, time_limit: float = 3.0,
             output["intended_move"] = declarations[0].uci()
     output["nodes"] = search.nodes
     output["diagnostics"].update(qnodes=search.qnodes, cutoffs=search.cutoffs, stop_reason=stop_reason)
+    output["diagnostics"].update(
+        extended_frontiers=search.extended_frontiers,
+        capped_threat_frontiers=search.capped_threat_frontiers,
+        threat_frontier_unresolved=bool(threat_extensions and
+                                        (search.capped_threat_frontiers or stop_reason == "time_limit")),
+        threat_frontier_note=("Restricted-piece threats trigger a full-width extra ply, bounded per branch. "
+                              "Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."))
     output["elapsed_seconds"] = round(time.monotonic() - started, 6)
     output["budget_overrun_seconds"] = round(max(0.0, output["elapsed_seconds"] - seconds), 6)
     return output
@@ -589,17 +649,17 @@ class _Probe:
             self.witness_nodes += 1
 
     def base(self, position: Position, remaining: int, target: int | None,
-             castled: bool) -> tuple[bool | None, str | None, list[Move], dict | None]:
+             castled: bool) -> tuple[bool | None, str | None, dict[Move, Position], dict | None]:
         goal = self.goal
         # Identity-based goals can resolve without generating an unnecessary
         # reply. A captured original target cannot later be replaced on its square.
         if goal.type == "capture" and target is None:
-            return True, "goal_reached", [], None
+            return True, "goal_reached", {}, None
         if goal.type == "avoid_capture" and target is None:
-            return False, "target_captured", [], None
+            return False, "target_captured", {}, None
         if goal.type == "castle" and castled:
-            return True, "goal_reached", [], None
-        legal = position.legal_moves()
+            return True, "goal_reached", {}, None
+        legal = position.legal_children()
         terminal = _terminal(position, legal, self.counts)
         kind = goal.type
         reached = False
@@ -630,12 +690,12 @@ class _Probe:
         return None, None, legal, None
 
     def next_state(self, position: Position, move: Move, target: int | None,
-                   castled: bool) -> tuple[Position, int | None, bool]:
+                   castled: bool, child: Position) -> tuple[Position, int | None, bool]:
         new_target = _target_after(position, move, target)
         new_castled = castled or (position.turn == self.goal.side
                                  and position.board[move.from_sq].lower() == "k"
                                  and abs(move.to_sq - move.from_sq) == 2)
-        return position.play(move), new_target, new_castled
+        return child, new_target, new_castled
 
     def prove(self, position: Position, remaining: int, target: int | None,
               castled: bool = False) -> tuple[bool, _Witness | None]:
@@ -654,7 +714,7 @@ class _Probe:
         representative = None
         for move in _goal_order(position, legal, self.goal, target):
             self.check(True)
-            child, new_target, new_castled = self.next_state(position, move, target, castled)
+            child, new_target, new_castled = self.next_state(position, move, target, castled, legal[move])
             if _prospective_claim(child, self.counts):
                 if own_turn and claim_value:
                     return True, _Witness(ending="intended_move_draw_claim", claim_move=move.uci())
@@ -693,7 +753,7 @@ class _Probe:
                 return
         for move in _goal_order(position, legal, self.goal, target):
             self.check(False)
-            child, new_target, new_castled = self.next_state(position, move, target, castled)
+            child, new_target, new_castled = self.next_state(position, move, target, castled, legal[move])
             if self.goal.avoidance and _prospective_claim(child, self.counts):
                 yield _Witness(prefix, "intended_move_draw_claim", move.uci())
                 limit -= 1
@@ -715,7 +775,7 @@ class _Probe:
 
 
 def probe(position: Position, goal: dict, max_depth: int = 4, time_limit: float = 2.0,
-          max_lines: int = 3, history: Any = None) -> dict:
+          max_lines: int = 3, history: Any = None, proof_only: bool = False) -> dict:
     """Search one goal from an arbitrary position without quiet-move pruning.
 
     Achievement goals hold at least once within <= max_depth plies. Avoidance
@@ -735,15 +795,17 @@ def probe(position: Position, goal: dict, max_depth: int = 4, time_limit: float 
     max_depth, seconds, max_lines = _limits(max_depth, time_limit, max_lines)
     if not isinstance(position, Position):
         raise ValueError("position must be a Position")
+    if not isinstance(proof_only, bool):
+        raise ValueError("proof_only must be boolean")
     specification = _goal(position, goal)
     counts = _counts(position, history)
     reserve = min(0.5, seconds * 0.08)
     finish_search = started + seconds - reserve
-    proof_deadline = started + (seconds - reserve) * 0.68
+    proof_deadline = finish_search if proof_only else started + (seconds - reserve) * 0.68
     worker = _Probe(specification, counts, proof_deadline)
     proof_status = "unknown"
     proof_depth = 0
-    witness_status = "unknown"
+    witness_status = "not_searched" if proof_only else "unknown"
     found: list[_Witness] = []
     seen = set()
     timed_out = False
@@ -770,12 +832,14 @@ def probe(position: Position, goal: dict, max_depth: int = 4, time_limit: float 
                 proof_status = "refuted"
     except _Stopped:
         proof_interrupted = True
+        if proof_only:
+            timed_out = True
     worker.deadline = finish_search
     witness_depth = 0
     if found:
         witness_status = "found"
     try:
-        for depth in horizons:
+        for depth in (() if proof_only else horizons):
             # Fully consume or explicitly close each generator, so timeout or a
             # max_lines stop always unwinds its repetition-count bookkeeping.
             generator = worker.witnesses(position, depth, specification.target, max_lines)
@@ -822,11 +886,13 @@ def probe(position: Position, goal: dict, max_depth: int = 4, time_limit: float 
               "witness_exhausted_depth": witness_depth, "lines": lines,
               "nodes": worker.nodes, "time_limit_seconds": seconds, "timed_out": timed_out,
               "history_supplied": history is not None,
+              "settings": {"proof_only": proof_only},
               "semantics": {
                   "forced": "Goal-side strategy covers every legal opponent reply within the stated horizon; not beyond it.",
                   "possible": "A cooperative witness exists, but no forcing strategy exists within this horizon.",
                   "unreachable": "Exhaustive cooperative search found no successful line within this horizon.",
                   "unknown": "The available search did not establish the full result; a listed witness may still exist.",
+                  "proof_only": "All search time goes to adversarial proof/refutation. A refutation alone does not establish cooperative reachability; consult proof_status.",
                   "line_warning": "Lines are witnesses, not a complete strategy tree. Opponent choices may cooperate.",
                   "achievement": "At least once within the horizon; an already satisfied initial check/mate/stalemate counts.",
                   "avoidance": "Every position through the full horizon or earlier game termination; no immediate vacuous success.",
