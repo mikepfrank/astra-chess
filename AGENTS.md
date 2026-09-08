@@ -19,9 +19,9 @@ have been played, or may still be in a promotion selector. The read-only helper
 does not inspect the browser, reset time, or authorize a new game.
 
 The experiment uses this repository's from-scratch engine, without external
-engines, opening books, or endgame databases. Current live-game defaults are
-Astra as White and one hour of cumulative own-turn time, excluding the bot's
-thinking. User instructions can change the experiment. Preserve timestamped
+engines, opening books, or endgame databases. The live journal supports either
+color with `init --side white|black`; White is the default. Use one hour of
+cumulative own-turn time, excluding the bot's thinking. User instructions can change the experiment. Preserve timestamped
 records and only refund time under explicit user authorization.
 
 `ENGINE.md` is the maintained interface reference. `game.json`, `clock.jsonl`,

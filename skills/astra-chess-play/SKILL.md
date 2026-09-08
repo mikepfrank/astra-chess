@@ -58,9 +58,10 @@ override newer journal/UI evidence. An interrupted active turn remains active.
   source fingerprint with saved query fingerprints on recovery; explain any
   mismatch before relying on a mixed-version experiment. Persist request/result
   files, including failures, and disclose effective options.
-- The current journal helper supports Astra as White from the standard start.
-  Arbitrary FENs are supported for analysis. Inspect/adapt the helper deliberately
-  for other live-game setups instead of pretending its defaults support them.
+- The journal supports either color from the standard start. Initialize with
+  `--side white` (default) or `--side black`, matching the observed browser setup.
+  The saved `player_side` controls own-turn accounting; old journals default to
+  White. Arbitrary FENs are supported for analysis, not live initialization.
 
 ## Clock and each turn
 
@@ -84,6 +85,11 @@ correct original-session round number:
 ```text
 python play_engine_game.py init --game GAME-SLUG --round ROUND --opponent-name Wally --opponent-elo 1800 --game-seconds 3600 --own-time-only
 ```
+
+Add `--side black` to play Black. Wait for and record the first White move with
+`turn --opponent SAN --observed-utc UTC`; initialization does not start the clock.
+Check board orientation visually before entering moves. Query scores favor the
+query root's side, so a positive score on a Black turn favors Black.
 
 For each newly observed own turn:
 
@@ -117,10 +123,10 @@ For each newly observed own turn:
    `--submitted-utc`: use `verify --verified-utc UTC --note "Human completed
    the move; exact submission time unavailable"`. Do not call `submit` with
    its default current timestamp to stand in for the missing human action.
-   If that same observation also reveals Black's reply, retain the same UTC
+   If that same observation also reveals the opponent's reply, retain the same UTC
    for the next `turn --opponent SAN --observed-utc UTC` after verification.
 7. Observe the actual bot reply before choosing the next move. Verify a final
-   own move before `finish --result 1-0 --termination checkmate`; a final Black
+   own move before `finish --result RESULT --termination checkmate`; a final opponent
    move can be passed to `finish --opponent SAN`. Use the observed result.
 
 Every command above also takes `--game GAME-SLUG`. Keep UI timestamps and

@@ -36,6 +36,7 @@ def list_games(root=ROOT):
             game = read(path)
             games.append(dict(game=path.parent.name, round=game.get("round"),
                               white=game.get("white"), black=game.get("black"),
+                              player_side=game.get("player_side", "white"),
                               result=game.get("result"), verified_plies=len(game.get("uci", [])),
                               pending=bool(game.get("pending")),
                               clock_available=(path.parent / "clock.jsonl").is_file()))
@@ -46,6 +47,10 @@ def list_games(root=ROOT):
 
 def snapshot(directory, root=ROOT):
     game = read(directory / "game.json")
+    side = game.get("player_side", "white")
+    if side not in ("white", "black"):
+        raise ValueError("Journal player_side must be white or black")
+    own_side = 0 if side == "white" else 1
     plies = len(game["uci"])
     if len(game["san"]) != plies or len(game["fens"]) != plies + 1:
         raise ValueError("Journal move/SAN/FEN lengths disagree; inspect original records")
@@ -66,8 +71,8 @@ def snapshot(directory, root=ROOT):
         issues.append("Unfinished legacy journal has no append-only clock; review recovery before migrating or continuing")
     if clock_available and finished != status["finished"]:
         issues.append("Game result and clock completion disagree")
-    if status["active_ply"] is not None and (status["active_ply"] != plies or pos.turn != 0):
-        issues.append("Active clock ply disagrees with the verified White-to-move position")
+    if status["active_ply"] is not None and (status["active_ply"] != plies or pos.turn != own_side):
+        issues.append("Active clock ply disagrees with the verified own-side-to-move position")
     if pending and (finished or status["active_ply"] != plies):
         issues.append("Pending choice has no matching active own turn")
     turn = game.get("turns", [])[-1] if game.get("turns") else None
@@ -87,7 +92,7 @@ def snapshot(directory, root=ROOT):
     elif status["active_ply"] is not None:
         phase = "own_turn_active"
         next_action = "Reconcile the live position, then continue this same turn and clock; do not call turn again."
-    elif pos.turn == 1:
+    elif pos.turn != own_side:
         phase = "awaiting_opponent_observation"
         next_action = "Read the live opponent reply. Start the next own turn using its first observation timestamp."
     else:
@@ -109,7 +114,7 @@ def snapshot(directory, root=ROOT):
             raise ValueError("Query path leaves the repository")
         query = read(path)
         latest_query = dict(path=path.relative_to(root.resolve()).as_posix(), kind=query.get("kind"),
-                            recorded_on_white_move=query_turn["move"],
+                            recorded_on_move=query_turn["move"], recorded_for_side=side,
                             start_fen=query.get("start_fen"),
                             starts_at_verified_position=query.get("start_fen") == pos.fen(),
                             completed_depth=query.get("completed_depth"), proof_status=query.get("proof_status"),
@@ -117,9 +122,13 @@ def snapshot(directory, root=ROOT):
                             candidates=[dict(move=c["root_move"], score_cp=c["score_cp"],
                                              mate_in_plies=c.get("mate_in_plies"), san=c["san"])
                                         for c in query.get("candidates", [])[:3]])
+        # Retain the original White-journal field without mislabeling Black searches.
+        if side == "white":
+            latest_query["recorded_on_white_move"] = query_turn["move"]
     fingerprint = engine_fingerprint(root)
     recorded_hash = latest_query["source_sha256"] if latest_query else None
     return dict(game=directory.name, result=game["result"], phase=phase, issues=issues,
+                player_side=side, side_to_move="white" if pos.turn == 0 else "black",
                 as_of_utc=datetime.now(timezone.utc).isoformat(),
                 consistency_scope="Journal lengths, last verified move, pending legality and clock phase; not a full-game replay or live-board observation.",
                 verified_plies=plies, last_verified_move=game["san"][-1] if plies else None,

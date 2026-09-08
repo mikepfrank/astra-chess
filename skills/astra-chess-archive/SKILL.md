@@ -50,6 +50,9 @@ Extract it from a verified journal with
 `python export_evaluations.py --game GAME-SLUG --output DATA.json`.
 This reads original searches and leaves missing values explicit. The archived
 game-9 wrapper in `engine-output/wally-v02-evaluation/` reproduces its dataset.
+The exporter and score overlay currently require White-player trials. For a
+Black trial, first adapt and validate player identity, frame parity, result and
+score perspective; do not feed Black-root scores into White-only assumptions.
 
 ## Evaluation meaning
 

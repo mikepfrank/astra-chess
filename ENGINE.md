@@ -231,6 +231,16 @@ after that turn is verified. Original charges and timestamps remain intact;
 status reports raw usage, refunded seconds, and adjusted usage separately.
 Credits require a unique ID and cannot exceed the recorded charge for that turn.
 
+Initialize a standard-start game with `--side white` (default) or `--side black`.
+The journal saves `player_side` and puts names and the opponent's rating in the
+corresponding PGN headers. Old journals without this field remain White games.
+For Black, initialization leaves the clock idle; observe White's first move and
+use `turn --opponent SAN --observed-utc UTC` to begin the first own turn.
+Recovery and move verification use the saved color. Search scores always favor
+the query root's side, including Black-root queries. The historical evaluation
+exporter and replay score overlay currently support White trials only; adapt
+and validate their perspective handling before archiving a Black trial's scores.
+
 The general query interface attaches to that same ledger:
 
 ```text

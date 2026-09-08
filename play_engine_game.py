@@ -42,6 +42,14 @@ def position(journal):
     return Position.from_fen(journal["fens"][-1])
 
 
+def own_side(journal):
+    """Legacy journals were all played as White; new journals state the side."""
+    side = journal.get("player_side", "white")
+    if side not in ("white", "black"):
+        raise ValueError("Journal player_side must be white or black")
+    return 0 if side == "white" else 1
+
+
 def add(journal, uci):
     pos = position(journal)
     move = pos.parse_uci(uci)
@@ -52,6 +60,8 @@ def add(journal, uci):
 
 def active_turn(game, journal):
     status = clock_status(game / "clock.jsonl")
+    if position(journal).turn != own_side(journal):
+        raise ValueError("Journal does not show an own turn")
     if status["active_ply"] != len(journal["uci"]):
         raise ValueError("Observe this own turn before recording decisions or queries")
     if not journal["turns"] or journal["turns"][-1]["ply"] != status["active_ply"]:
@@ -66,8 +76,9 @@ def make_query(game, journal, args):
     number = turn["move"]
     # Keep failed requests as evidence too, without reusing their filenames.
     n = len(list(game.glob(f"turn-{number:02d}-query-*.request.json"))) + 1
+    opponent = journal["black" if own_side(journal) == 0 else "white"]
     query = {
-        "label": f'{journal["black"]} game {journal["round"]}, move {number}: ' + (args.label or turn["concern"]),
+        "label": f'{opponent} game {journal["round"]}, move {number}: ' + (args.label or turn["concern"]),
         "mode": "probe" if args.goal else "analyze", "fen": position(journal).fen(),
         "history_fens": journal["fens"][:-1], "depth": args.depth,
         "seconds": args.seconds, "candidates": args.candidates, "diagnostics": args.diagnostics,
@@ -118,9 +129,11 @@ def verify_move(game, journal, args):
 def pgn(journal):
     header = {"Event": journal["event"], "Site": "https://www.chess.com/",
               "Date": journal["date"], "Round": str(journal["round"]),
-              "White": journal["white"], "Black": journal["black"],
-              "BlackElo": str(journal["black_elo"]), "Result": journal["result"],
-              "Termination": journal["termination"], "TimeControl": "-"}
+              "White": journal["white"], "Black": journal["black"]}
+    for side in ("white", "black"):
+        if journal.get(side + "_elo") is not None:
+            header[side.title() + "Elo"] = str(journal[side + "_elo"])
+    header.update(Result=journal["result"], Termination=journal["termination"], TimeControl="-")
     def escaped(value):
         return str(value).replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ")
     text = "\n".join(f'[{key} "{escaped(value)}"]' for key, value in header.items()) + "\n\n"
@@ -137,6 +150,8 @@ def parser():
     ap.add_argument("--opponent", help="Observed opponent move in SAN")
     ap.add_argument("--opponent-name", default="Wally")
     ap.add_argument("--opponent-elo", type=int, default=1800)
+    ap.add_argument("--side", choices=["white", "black"], default="white",
+                    help="Astra's color for init; stored in the journal (default white)")
     ap.add_argument("--round", type=int, help="Required for init; original experiment game number")
     ap.add_argument("--initial")
     ap.add_argument("--concern", default="")
@@ -184,8 +199,11 @@ def main(argv=None):
         status = create_game_clock(clock, mode=args.clock_mode, total_seconds=args.game_seconds,
                                    move_seconds=args.move_seconds, reserve_seconds=args.reserve,
                                    charge_to_submission=args.own_time_only)
+        players = dict(white="Astra (Ultra)", black=args.opponent_name, black_elo=args.opponent_elo)
+        if args.side == "black":
+            players = dict(white=args.opponent_name, white_elo=args.opponent_elo, black="Astra (Ultra)")
         save(game, dict(event="Astra Search Lab trial", date=datetime.now(timezone.utc).strftime("%Y.%m.%d"),
-             round=args.round, white="Astra (Ultra)", black=args.opponent_name, black_elo=args.opponent_elo,
+             round=args.round, player_side=args.side, **players,
              result="*", uci=[], san=[], fens=[START_FEN], turns=[], pending=None,
              clock_file="clock.jsonl", clock_policy=status))
         print(json.dumps(status, indent=2))
@@ -202,15 +220,15 @@ def main(argv=None):
             raise ValueError("An own turn is active; use candidate/query/critical without resetting it")
         if args.opponent:
             pos = position(journal)
-            if pos.turn != 1:
+            if pos.turn == own_side(journal):
                 raise ValueError("Journal does not expect an opponent move")
             matches = [m for m in pos.legal_moves() if pos.san(m).rstrip("+#") == args.opponent.rstrip("+#")]
             if len(matches) != 1:
                 raise ValueError("Observed SAN must identify exactly one legal move: " + args.opponent)
             add(journal, matches[0].uci())
         pos = position(journal)
-        if pos.turn != 0:
-            raise ValueError("Expected White to move; provide the observed opponent SAN")
+        if pos.turn != own_side(journal):
+            raise ValueError("Expected Astra's side to move; provide the observed opponent SAN")
         if args.initial:
             pos.parse_uci(args.initial)
         observed = args.observed_utc or now()
@@ -250,8 +268,9 @@ def main(argv=None):
         print(json.dumps(status, indent=2))
         if args.png:
             from board_scratchpad import render
+            number = f"{pos.fullmove}." if pos.turn == 0 else f"{pos.fullmove}..."
             render({"board": {square_name(i): pc for i, pc in enumerate(child.board) if pc != "."},
-                    "last_edits": [move.uci()]}, game / "candidate.png", f"{pos.fullmove}. {pos.san(move)} — candidate")
+                    "last_edits": [move.uci()]}, game / "candidate.png", f"{number} {pos.san(move)} — candidate")
     elif args.command in ("submit", "reject"):
         active_turn(game, journal)
         pending = journal.get("pending")
@@ -281,7 +300,7 @@ def main(argv=None):
             raise ValueError("Pending chosen move is unverified; verify it or reject it before finishing")
         if args.opponent:
             pos = position(journal)
-            if pos.turn != 1 or clock_status(clock)["active_ply"] is not None:
+            if pos.turn == own_side(journal) or clock_status(clock)["active_ply"] is not None:
                 raise ValueError("Final opponent move requires a verified own move and no active own clock")
             matches = [m for m in pos.legal_moves() if pos.san(m).rstrip("+#") == args.opponent.rstrip("+#")]
             if len(matches) != 1:
