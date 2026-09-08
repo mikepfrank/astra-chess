@@ -95,6 +95,8 @@ python build_replay.py --pgn codex-vs-wally-rematch-2026-09-06.pgn --output wall
 python build_replay.py --pgn engine-games/wally-2026-09-07/astra-vs-wally-engine-2026-09-07.pgn --output wally-engine-replay.html --subtitle "Engine-assisted trial" --ending resignation
 python export_evaluations.py --game wally-engine-v02 --output engine-output/wally-v02-evaluation/data.json
 python build_replay.py --pgn engine-games/wally-engine-v02/game.pgn --output wally-engine-v02-replay.html --subtitle "Engine v0.2 trial" --evaluations engine-output/wally-v02-evaluation/data.json
+python export_evaluations.py --game wally-v02-black --output engine-output/wally-v02-black-evaluation/data.json
+python build_replay.py --pgn engine-games/wally-v02-black/game.pgn --output wally-engine-v02-black-replay.html --subtitle "Engine v0.2 trial / Astra as Black" --evaluations engine-output/wally-v02-black-evaluation/data.json
 ```
 
 The Python dependency is only needed to rebuild. It is not bundled into the page
@@ -105,10 +107,11 @@ it does not run new searches. It selects the latest completed search that
 evaluated the actual chosen move from the exact actual starting position.
 Pending choices are excluded, missing scores stay missing, and mate encodings
 are not converted to pawn scores. `--evaluations` adds these records to a replay.
-White frames identify the original pre-move search; Black frames say no new
-evaluation was recorded. Mate labels count the mating side's moves remaining
-from the displayed board: move 29 shows **Mate in 2**, move 30 **Mate in 1**,
-and move 31 **Checkmate**. The original chart's root distance for move 29 included
+Astra-move frames identify the original pre-move search; opponent frames say no
+new evaluation was recorded. Positive scores favor the recorded player's color,
+explicitly labeled in the replay. Mate labels count the mating side's moves
+remaining from the displayed board: in game 9, move 29 shows **Mate in 2**,
+move 30 **Mate in 1**, and move 31 **Checkmate**. The original chart's root distance for move 29 included
 the move itself, so its "mate in 3" described the same line from one ply earlier.
 
 The chart dataset, reproducible extraction wrapper, inline source
@@ -171,9 +174,35 @@ to `astra-plays-chess`. If you choose a different project name, change that one
 index link. The local build does not create or publish the Netlify project.
 Game-9 PGN, search evidence and clock are in `engine-games/wally-engine-v02/`.
 
-The current archive/recovery changes pass **110 Python tests** with
+Game 10's replay is `wally-engine-v02-black-replay.html`. Astra plays Black;
+the board initially puts Black at the bottom and keeps the recorded White/Black
+identities, ratings, 0-1 result and PGN intact. Round 10's `playerSide: "black"`
+in `replay-metadata.json` drives presentation. The exporter uses the journal's
+`player_side` and retains Black-root scores without reversing their sign.
+Flipping the board does not change those scores. Black moves 42-44 have no
+recorded evaluation; 46/47 show **Mate in 2/Mate in 1**, and 48 shows **Checkmate**.
+
+Its index link uses the **proposed** Netlify project
+`astra-vs-wally-engine-v02-black`. Upload the replay HTML as that project's
+root `index.html`, then redeploy the collection's separate `index.html` to
+`astra-plays-chess`. Change the new collection link if choosing another name.
+No deployment is performed by the local build. For the embedded preview:
+
+```text
+python serve_replay.py --page wally-engine-v02-black-replay.html --port 8774
+```
+
+Black-specific offline browser checks are in `tests/test_replay_black.cjs`;
+the exported scores and desktop/mobile checks are preserved in
+`engine-output/wally-v02-black-evaluation/`. Neither the exporter nor the
+archive build runs a new engine search.
+
+The current archive/recovery changes pass **139 Python tests** with
 `python -m unittest discover -s tests`. Offline headless-browser checks in
 `tests/test_replay_scores.cjs` cover navigation, scores, mate labels, promotion,
 mobile layout, PGN download and compatibility with an older replay. Both
+the legacy browser suite and `tests/test_replay_black.cjs` pass offline.
+The Black suite additionally checks color-aware player rows and score semantics.
+Both
 skills pass Codex's official skill validator. An independent read-only recovery
 exercise checked the interrupted-promotion case without changing the real game.

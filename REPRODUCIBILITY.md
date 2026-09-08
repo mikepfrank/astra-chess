@@ -18,7 +18,7 @@ visualization directory. Commit them at completion checkpoints.
 | Design rationale and measured improvements | `IMPROVEMENT-PROPOSAL.md`, `ENGINE-CHANGES.md`, benchmark scripts and `engine-benchmarks/` |
 | Game evidence and observations | `engine-games/`, source PGNs, saved board journals, and the `*-visualization-trial.md` notes |
 | Replay build and collection | `build_replay.py`, `replay.template.html`, `replay-metadata.json`, `index.html`, replay HTML files |
-| Historical evaluation extraction and graph | `export_evaluations.py`, `engine-output/wally-v02-evaluation/` |
+| Historical evaluation extraction and graph | `export_evaluations.py`, `engine-output/wally-v02-evaluation/`, `engine-output/wally-v02-black-evaluation/` |
 | Validation | `tests/`, retained browser-check images and experiment audits |
 
 The installed copies of the two chess skills under the user's Codex skills

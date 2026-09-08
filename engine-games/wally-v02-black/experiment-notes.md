@@ -17,8 +17,8 @@ Wally's thinking and ends at accepted submissions. No refunds authorized for
 this game. Setup/development occurred before Play and before the own clock.
 
 This is a repeat trial with a changed color, not a controlled same-color repeat.
-Archive/export score code currently assumes White and must be adapted before
-generating this game's scored replay. Preserve queries and journal meanwhile.
+The archive/export score code was subsequently adapted for Black while building
+this game's requested scored replay; original queries and journal are retained.
 
 ## Evidence from play
 

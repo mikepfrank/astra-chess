@@ -30,9 +30,15 @@ def normalized_fen(fen):
     return board.fen()
 
 
-def attach_evaluations(frames, path):
-    """Attach audited historical White choices, never a new post-move search."""
+def attach_evaluations(frames, path, *, player_side=None):
+    """Attach audited choices in the recorded player's score perspective."""
     source = json.loads(path.read_text(encoding="utf-8"))
+    side = source.get("player_side", "white")
+    if (side not in ("white", "black")
+            or source.get("score_perspective", side) != side
+            or player_side is not None and side != player_side):
+        raise ValueError("Evaluation player side or score perspective disagrees with the replay")
+    own, opponent = side.title(), "Black" if side == "white" else "White"
     rows = source.get("rows")
     if not isinstance(rows, list):
         raise ValueError("Evaluation data must contain a rows list")
@@ -46,7 +52,7 @@ def attach_evaluations(frames, path):
         seen.add(ply)
         before, after = frames[ply], frames[ply + 1]
         move = after["move"]
-        if (move["color"] != "white" or row.get("move") != move["number"]
+        if (move["color"] != side or row.get("move") != move["number"]
                 or row.get("uci") != move["uci"] or row.get("san") != move["san"]):
             raise ValueError(f"Evaluation move does not match the replay at ply {ply + 1}")
         for field, frame in (("pre_move_fen", before), ("post_move_fen", after)):
@@ -55,7 +61,7 @@ def attach_evaluations(frames, path):
         kind = row.get("score_kind")
         cp, pawns, mate = (row.get(k) for k in ("score_cp", "score_pawns", "mate_in_plies"))
         depth = row.get("completed_depth")
-        move_label = f"{move['number']}. {move['san']}"
+        move_label = f"{move['number']}{'.' if side == 'white' else '…'} {move['san']}"
         record = {"kind": kind, "forMove": move_label, "source": row.get("source"),
                   "scoreCp": None, "depth": depth, "mateMovesRemaining": None}
         if depth is not None and (type(depth) is not int or depth < 0):
@@ -67,22 +73,23 @@ def attach_evaluations(frames, path):
                     or mate is not None or not depth):
                 raise ValueError(f"Invalid numeric search estimate for {move_label}")
             record.update(scoreCp=cp, label=f"{cp / 100:+.2f} pawns",
-                          detail=f"For {move_label} · Pre-move search · Depth {depth} plies · Positive favors White",
+                          detail=f"For {move_label} · Pre-move search · Depth {depth} plies · Positive favors {own}",
                           note="Calculated before this move to assess its continuation; not a fresh evaluation of the displayed board.")
         elif kind == "search_mate":
             if (type(mate) is not int or mate == 0 or not depth or pawns is not None
                     or type(cp) is not int or abs(cp) < 29000 or (cp > 0) != (mate > 0)
                     or (mate > 0 and mate % 2 != 1) or (mate < 0 and mate % 2 != 0)):
                 raise ValueError(f"Invalid mate search result for {move_label}")
-            # Root distance includes the White move now on the board. Count the
+            # Root distance includes the player's move now on the board. Count the
             # mating side's remaining turns, rather than displaying 299.95 pawns.
             remaining = (abs(mate) - 1 + (mate < 0)) // 2
             if remaining == 0 and not after["mate"]:
                 raise ValueError(f"Mate-in-one search disagrees with the board for {move_label}")
+            mating_side = opponent if mate < 0 else own
             record.update(mateMovesRemaining=remaining,
-                          label="Checkmate" if after["mate"] else f"{'Black mates' if mate < 0 else 'Mate'} in {remaining}",
-                          detail=f"For {move_label} · {'Black' if mate < 0 else 'White'} moves remaining · Search depth {depth} plies",
-                          note=f"{'Black' if mate < 0 else 'White'} moves remaining from this displayed position. The search counted {abs(mate)} plies from before {move_label}, including that move.")
+                          label="Checkmate" if after["mate"] else f"{mating_side + ' mates' if mate < 0 else 'Mate'} in {remaining}",
+                          detail=f"For {move_label} · {mating_side} moves remaining · Search depth {depth} plies",
+                          note=f"{mating_side} moves remaining from this displayed position. The search counted {abs(mate)} plies from before {move_label}, including that move.")
         elif kind == "forced_mate_proof":
             proof = row.get("proof") or {}
             horizon = proof.get("horizon_plies_from_post_move_position")
@@ -93,27 +100,27 @@ def attach_evaluations(frames, path):
                     or type(proof_depth) is not int or not 2 <= proof_depth <= horizon):
                 raise ValueError(f"Invalid forced mate proof for {move_label}")
             # Iterative proof may finish before the requested horizon. With
-            # Black to move, White can mate only on an even-numbered ply.
+            # The opponent moves first; the player can mate only on an even ply.
             record.update(mateMovesRemaining=proof_depth // 2, label=f"Mate in {proof_depth // 2}",
-                          detail=f"For {move_label} · White moves remaining, at most · Goal proof, {proof_depth} plies after this move",
-                          note=f"White moves remaining, at most. The saved goal probe checked every legal Black defense from this displayed position. No numeric score was recorded.")
+                          detail=f"For {move_label} · {own} moves remaining, at most · Goal proof, {proof_depth} plies after this move",
+                          note=f"{own} moves remaining, at most. The saved goal probe checked every legal {opponent} defense from this displayed position. No numeric score was recorded.")
         elif kind == "not_recorded":
             if any(value is not None for value in (cp, pawns, mate, depth, row.get("proof"))):
                 raise ValueError(f"Missing evaluation contains a score or proof for {move_label}")
             record.update(label="No recorded evaluation",
                           detail=f"For {move_label} · No qualifying saved search result",
-                          note="This White move was verified in the game, but no saved search returned an evaluation for this choice from its actual starting position. No score has been filled in.")
+                          note=f"This {own} move was verified in the game, but no saved search returned an evaluation for this choice from its actual starting position. No score has been filled in.")
         elif kind == "actual_checkmate":
             if not after["mate"] or any(value is not None for value in (cp, pawns, mate, depth)):
                 raise ValueError(f"Actual checkmate entry disagrees with the board for {move_label}")
-            record.update(label="Checkmate", detail=f"{move_label} · White wins",
+            record.update(label="Checkmate", detail=f"{move_label} · {own} wins",
                           note="The recorded game ended here. No engine search score was needed for the final move.")
         else:
             raise ValueError(f"Unknown evaluation kind for {move_label}: {kind}")
         after["evaluation"] = record
-    return {"perspective": "white", "recordedChoices": len(rows),
-            "description": "Historical engine results for Astra's chosen moves. Scores were calculated before each White move; Black replies have no recorded evaluation.",
-            "mateConvention": "Mate labels count the mating side's moves remaining from the displayed board. Search-root mate distances include the chosen White move."}
+    return {"perspective": side, "recordedChoices": len(rows),
+            "description": f"Historical engine results for Astra's chosen moves. Positive favors {own}. Scores were calculated before each {own} move; {opponent} moves have no recorded evaluation.",
+            "mateConvention": f"Mate labels count the mating side's moves remaining from the displayed board. Search-root mate distances include the chosen {own} move."}
 
 
 def build(pgn_path, output_path, subtitle=None, ending=None, evaluations=None):
@@ -188,11 +195,15 @@ def build(pgn_path, output_path, subtitle=None, ending=None, evaluations=None):
                      for color in ("white", "black")}
     metadata = json.loads((ROOT / "replay-metadata.json").read_text(encoding="utf-8"))
     player_metadata = metadata.get(game.headers["Round"])
-    title_player = display_names["white"]
+    player_side = player_metadata.get("playerSide", "white") if player_metadata else "white"
+    if player_side not in ("white", "black"):
+        raise ValueError("Replay metadata playerSide must be white or black")
+    opponent_side = "black" if player_side == "white" else "white"
+    title_player = display_names[player_side]
     if player_metadata:
-        display_names["white"] = player_metadata["model"]
+        display_names[player_side] = player_metadata["model"]
         title_player = f"{player_metadata['model']} ({player_metadata['thinkingLevel']})"
-    title = f"{title_player} vs. {display_names['black']}"
+    title = f"{title_player} vs. {display_names[opponent_side]}"
     date = datetime.strptime(game.headers["Date"], "%Y.%m.%d")
     date_label = f"{date.strftime('%B')} {date.day}, {date.year}"
     winner = "White" if result == "1-0" else "Black"
@@ -205,9 +216,9 @@ def build(pgn_path, output_path, subtitle=None, ending=None, evaluations=None):
     }
 
     data = {"headers": dict(game.headers), "pgn": pgn, "frames": frames,
-            "displayNames": display_names, "outcome": outcome}
+            "displayNames": display_names, "outcome": outcome, "playerSide": player_side}
     if evaluations is not None:
-        data["evaluations"] = attach_evaluations(frames, evaluations)
+        data["evaluations"] = attach_evaluations(frames, evaluations, player_side=player_side)
     embedded = json.dumps(data, separators=(",", ":"), ensure_ascii=True).replace("<", "\\u003c")
     template = (ROOT / "replay.template.html").read_text(encoding="utf-8")
     assert template.count("__REPLAY_DATA__") == 1
@@ -239,7 +250,7 @@ if __name__ == "__main__":
     parser.add_argument("--ending", choices=("checkmate", "resignation"),
                         help="Required for a resignation; checkmate is detected from the board")
     parser.add_argument("--evaluations", type=Path,
-                        help="Audited evaluation-history JSON; shows recorded White-move scores")
+                        help="Audited evaluation-history JSON; shows recorded player-move scores")
     args = parser.parse_args()
     output_path = args.output or ROOT / ("replay.html" if args.pgn.name == "codex-vs-sven-rematch-2026-09-05.pgn" else f"{args.pgn.stem}-replay.html")
     build(args.pgn, output_path, args.subtitle, args.ending, args.evaluations)

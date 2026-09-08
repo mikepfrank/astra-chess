@@ -171,7 +171,7 @@
   const squareNodes = new Map();
   const moveButtons = new Map();
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let index = 0, flipped = false, playing = false, timer = null, generation = 0;
+  let index = 0, flipped = data.playerSide === 'black', playing = false, timer = null, generation = 0;
 
   for (let rank = 1; rank <= 8; rank++) {
     for (const file of 'abcdefgh') {
@@ -278,8 +278,11 @@
       $('engine-score-note').textContent = value.note;
     } else {
       $('engine-score-value').textContent = 'No recorded evaluation';
-      $('engine-score-detail').textContent = !frame.move ? 'Starting position' : frame.move.color === 'black'
-        ? 'No score was logged after this Black reply.' : 'No search result was recorded for this choice.';
+      const opponent = data.evaluations.perspective === 'black' ? 'White' : 'Black';
+      $('engine-score-detail').textContent = !frame.move ? 'Starting position'
+        : frame.move.color !== data.evaluations.perspective
+          ? `No score was logged after this ${opponent} move.`
+          : 'No search result was recorded for this choice.';
       $('engine-score-note').textContent = data.evaluations.description;
     }
   }

@@ -28,5 +28,6 @@ Clock accounting changed only to represent the explicit authorized extension.
 The future staged/increment policy is recorded in `TIME-CONTROL-NEXT.md`;
 it was not applied retrospectively to this game.
 
-No new game is authorized by this completion note. For a requested replay,
-adapt the existing White-oriented score export and board/player labels to Black.
+No new game is authorized by this completion note. The requested archive is now
+`wally-engine-v02-black-replay.html`, with color-aware score export and labels.
+Build instructions are in `README.md`; replay metadata explicitly selects Black.

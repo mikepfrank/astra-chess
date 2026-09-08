@@ -1,4 +1,4 @@
-"""Export historical evaluations for verified White moves; never run search.
+"""Export historical evaluations for verified player moves; never run search.
 
 Use --game SLUG --output PATH from any directory. Input is the saved journal
 and its recorded query results under this repository. Requires only Python's
@@ -40,6 +40,11 @@ def extract(game_slug, *, root=ROOT):
 
     game_path = root / "engine-games" / game_slug / "game.json"
     game = read(game_path)
+    player_side = game.get("player_side", "white")
+    require(player_side in ("white", "black"), "Journal player_side must be white or black")
+    opponent_side = "black" if player_side == "white" else "white"
+    own_parity = 0 if player_side == "white" else 1
+    winning_result = "1-0" if player_side == "white" else "0-1"
     require(len(game["san"]) == len(game["uci"]) and len(game["fens"]) == len(game["uci"]) + 1,
             "Journal UCI, SAN and FEN sequence lengths disagree")
     rows = []
@@ -47,8 +52,8 @@ def extract(game_slug, *, root=ROOT):
     seen = set()
     for turn in game["turns"]:
         ply = turn["ply"]
-        require(type(ply) is int and ply >= 0 and ply % 2 == 0,
-                "Only nonnegative White-turn journal plies are supported")
+        require(type(ply) is int and ply >= 0 and ply % 2 == own_parity,
+                f"Expected nonnegative {player_side.title()}-turn journal plies")
         # Choices and even submission attempts do not establish an accepted move.
         if ply >= len(game["uci"]) or not turn.get("verified_utc"):
             continue
@@ -58,9 +63,9 @@ def extract(game_slug, *, root=ROOT):
         require(chosen == game["uci"][ply] and turn["selected_san"] == game["san"][ply],
                 f"Selected move disagrees with verified journal at ply {ply}")
         before, after = game["fens"][ply:ply + 2]
-        require(len(before.split()) == 6 and before.split()[1] == "w"
-                and len(after.split()) == 6 and after.split()[1] == "b",
-                f"Expected White pre-move and Black post-move FEN at ply {ply}")
+        require(len(before.split()) == 6 and before.split()[1] == player_side[0]
+                and len(after.split()) == 6 and after.split()[1] == opponent_side[0],
+                f"Expected {player_side.title()} pre-move and {opponent_side.title()} post-move FEN at ply {ply}")
         require(turn["move"] == int(before.split()[5]),
                 f"Turn number disagrees with pre-move FEN at ply {ply}")
         row = {
@@ -68,8 +73,9 @@ def extract(game_slug, *, root=ROOT):
             "ply": ply,
             "san": turn["selected_san"],
             "uci": chosen,
-            "preceding_black_san": game["san"][ply - 1] if ply else None,
-            "following_black_san": game["san"][ply + 1] if ply + 1 < len(game["san"]) else None,
+            # Preserve the existing White-game row schema and chart evidence.
+            "preceding_black_san" if player_side == "white" else "preceding_opponent_san": game["san"][ply - 1] if ply else None,
+            "following_black_san" if player_side == "white" else "following_opponent_san": game["san"][ply + 1] if ply + 1 < len(game["san"]) else None,
             "pre_move_fen": before,
             "post_move_fen": after,
             "score_cp": None,
@@ -96,7 +102,7 @@ def extract(game_slug, *, root=ROOT):
             used.add(query_path)
             if query.get("kind") != "analysis":
                 continue
-            if query.get("start_fen") != before or query.get("turn") != "white":
+            if query.get("start_fen") != before or query.get("turn") != player_side:
                 row["audit"].append({"source": relative(query_path), "excluded": "different starting position or side"})
                 continue
             if query.get("completed_depth", 0) < 1 or query.get("fallback", False):
@@ -148,7 +154,7 @@ def extract(game_slug, *, root=ROOT):
             if (query.get("start_fen") == after
                     and request.get("fen") == before
                     and request.get("after") == [chosen]
-                    and query.get("goal") == {"type": "checkmate", "side": "white"}
+                    and query.get("goal") == {"type": "checkmate", "side": player_side}
                     and query.get("proof_status") == "forced"):
                 row["proof"] = {
                     "source": relative(query_path),
@@ -156,7 +162,7 @@ def extract(game_slug, *, root=ROOT):
                     "status": "forced",
                     "horizon_plies_from_post_move_position": query["horizon_plies"],
                     "completed_depth": query["proof_completed_depth"],
-                    "side_to_move": "black",
+                    "side_to_move": opponent_side,
                 }
                 if row["source"] is None:
                     row["source"] = relative(query_path)
@@ -164,8 +170,8 @@ def extract(game_slug, *, root=ROOT):
                 row["audit"].append({"source": relative(query_path), "matched": "goal proof starts at exact actual post-move FEN; request starts at exact pre-move FEN and applies only the chosen move"})
 
         if ply == len(game["uci"]) - 1 and game.get("termination") == "checkmate":
-            require(row["san"].endswith("#") and game["result"] == "1-0",
-                    "Final White move conflicts with recorded checkmate result")
+            require(row["san"].endswith("#") and game["result"] == winning_result,
+                    f"Final {player_side.title()} move conflicts with recorded checkmate result")
             # Keep any contemporaneous search as evidence. With no numeric
             # search, the observed terminal result supplies the label directly.
             if row["score_cp"] is None:
@@ -178,16 +184,18 @@ def extract(game_slug, *, root=ROOT):
         "title": f"{game['white']} vs. {game['black']} — game {game['round']} evaluation history",
         "game_source": relative(game_path),
         "white": game["white"], "black": game["black"],
+        "player_side": player_side,
+        "score_perspective": player_side,
         "date": game["date"], "result": game["result"],
         "semantics": {
             "primary_series": "The most recent completed in-game search that returned the move actually chosen, from the exact actual position before that move. The score estimates the continuation beginning with the chosen move; it is not a fresh search performed after the move.",
-            "perspective": f"White ({game['white']}); positive favors White.",
+            "perspective": f"{player_side.title()} ({game[player_side]}); positive favors {player_side.title()}.",
             "units": "100 centipawns = one pawn equivalent. These are this simple engine's heuristic values, not win probabilities or an external engine's assessments.",
             "depth": "Completed nominal search depth in plies, including the chosen root move. Quiescence can extend the line. Depth and time limits varied across moves.",
             "mate_scores": "When mate_in_plies is non-null, score_cp is an internal mate encoding, not a material advantage; score_pawns is null. Mate distance is measured from the pre-move search root, including the chosen move.",
             "missing_numeric_values": "A verified move with no qualifying completed search has no numeric evaluation. A goal proof or observed checkmate does not invent a numeric value. Pending moves are omitted; missing values are never filled using later scores or new searches.",
-            "proof": "A recorded forced checkmate goal proof starts at the actual post-move position with Black to move. Its horizon counts further plies from that board and covers every legal defense; it is separate from a numeric search evaluation.",
-            "interpretation": "Changes combine the effect of intervening Black moves with search horizon and evaluation effects; they are not isolated measures of the quality of White's moves.",
+            "proof": f"A recorded forced checkmate goal proof starts at the actual post-move position with {opponent_side.title()} to move. Its horizon counts further plies from that board and covers every legal defense; it is separate from a numeric search evaluation.",
+            "interpretation": f"Changes combine the effect of intervening {opponent_side.title()} moves with search horizon and evaluation effects; they are not isolated measures of the quality of {player_side.title()}'s moves.",
             "new_searches_run": False,
         },
         "rows": rows,
@@ -201,7 +209,7 @@ def write_export(game_slug, output_path):
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
-    print(f"Exported {len(result['rows'])} verified White moves to {output_path}")
+    print(f"Exported {len(result['rows'])} verified {result['player_side'].title()} moves to {output_path}")
     return result
 
 

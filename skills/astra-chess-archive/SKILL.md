@@ -33,6 +33,9 @@ merely to build an archive.
    actually used. Titles follow `Astra (Ultra) vs. Wally` for that configuration;
    the board name is `Astra`. Do not infer all prior games used Ultra. Identify
    engine-assisted trials/version in the subtitle and index where relevant.
+   Set `playerSide` to `black` for Black trials (legacy entries default to
+   `white`). This selects Astra's display identity and initial board orientation;
+   PGN White/Black headers, ratings, move-list columns and results remain intact.
 3. Reuse `build_replay.py` and `replay.template.html`, preserving the animation,
    clickable move list, keyboard/slider controls, board flip, and PGN download.
    The builder uses an existing rules-only dependency; the generated HTML has
@@ -50,9 +53,11 @@ Extract it from a verified journal with
 `python export_evaluations.py --game GAME-SLUG --output DATA.json`.
 This reads original searches and leaves missing values explicit. The archived
 game-9 wrapper in `engine-output/wally-v02-evaluation/` reproduces its dataset.
-The exporter and score overlay currently require White-player trials. For a
-Black trial, first adapt and validate player identity, frame parity, result and
-score perspective; do not feed Black-root scores into White-only assumptions.
+The exporter uses the journal's `player_side` (legacy default `white`). Its
+`player_side` and `score_perspective` fields must match the replay metadata.
+Scores retain the recorded root player's perspective: positive favors Astra's
+color, including Black. Black rows have odd zero-based pre-move `ply` indices;
+their displayed post-move frames are `ply + 1`. The builder validates alignment.
 
 ## Evaluation meaning
 
@@ -63,13 +68,13 @@ source paths/hashes, achieved depth, UCI/SAN, and score perspective. Missing or
 fallback-only evidence stays explicitly missing; do not run new analysis and
 present it as the original assessment.
 
-- The label shown after White's move reports the historical search score for
+- The label shown after Astra's move reports the historical search score for
   that chosen move, calculated before play. It is not a fresh post-move search.
-  Positive pawn scores favor White in these White-root game records; other
-  query roots require explicit perspective conversion.
-- A Black-reply frame has no new evaluation unless one was actually recorded.
-  Either show that absence or identify a carried value as the **previous
-  White-move evaluation**, naming the move; never silently relabel it current.
+  Explicitly label which color positive pawn scores favor; flipping the board
+  does not change the score perspective.
+- An opponent-move frame has no new evaluation unless one was actually recorded.
+  The current replay shows that absence. Never silently carry an earlier score
+  onto a new position or relabel it current.
 - Mate encodings are not large pawn advantages. `mate_in_plies` measures from
   the pre-move query root, including the chosen move. A user-facing “mate in N”
   label must state that origin, or correctly adjust to the displayed board.
@@ -77,6 +82,8 @@ present it as the original assessment.
   move 30 has a post-Qf8 checkmate proof within two plies with Black to move:
   mate on White's next turn against every defense. Move 31 is actual checkmate
   without a search score. Do not manufacture numeric values for either.
+  In game 10, Black moves 46/47 show Mate in 2/Mate in 1 from their displayed
+  boards, and 48...Rcxd2# shows actual Checkmate. Moves 42-44 remain unscored.
 - Score changes include the intervening opponent reply and different search
   horizons. They are not isolated move-quality grades or win probabilities.
 
@@ -94,7 +101,9 @@ user which files to upload when index and replay are hosted separately.
 Build and inspect the replay in the embedded sidebar browser. Check opening,
 capture/castling/promotion frames present in this game, final board and result,
 move navigation/playback, and narrow layout. With evaluations, check an ordinary
-White move, the following Black frame, a mate/proof frame, and missing data.
+Astra move, the following opponent frame, a mate/proof frame, and missing data.
+For Black trials, check default Black-at-bottom orientation, both player labels
+and ratings, a 0-1 Black win, and unchanged score meaning after a board flip.
 Validate embedded move/FEN/evaluation alignment and run relevant repository
 checks after builder/template changes. A generated page alone is not UI QA.
 
