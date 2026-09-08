@@ -28,3 +28,12 @@ records and only refund time under explicit user authorization.
 saved query requests/results, and any unresolved `continuation.md` are recovery
 evidence; a conversation summary is not a substitute. Archive or development
 requests do not start another game or publish a site.
+
+## Repository coverage
+
+Keep new authored chess tools, skills, reusable visualization sources, game
+evidence and substantive notes in this repository and commit them at completion
+checkpoints. Preserve the dependency/cache/runtime exclusions in `.gitignore`.
+Check task-owned assets outside the repo before assuming a clean `git status`
+means coverage is complete. [REPRODUCIBILITY.md](REPRODUCIBILITY.md) records the
+equipment inventory and the user's intention to prepare a public package later.

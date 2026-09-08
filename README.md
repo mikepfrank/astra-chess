@@ -10,6 +10,10 @@ Version 0.2 adds faster search, a cumulative game clock, and optional threat
 inspection. [ENGINE-CHANGES.md](ENGINE-CHANGES.md) records the selected defaults,
 benchmarks, and verification against the preserved baseline.
 
+[REPRODUCIBILITY.md](REPRODUCIBILITY.md) inventories the equipment, notes and
+environment requirements retained locally, and the remaining work for a future
+public package of this method.
+
 ## Persistent playing and archive procedures
 
 The versioned skills [astra-chess-play](skills/astra-chess-play/SKILL.md) and
