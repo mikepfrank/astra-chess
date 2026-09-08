@@ -1,0 +1,2 @@
+# Optional PNG rendering only; ASCII diagrams and the engine need no packages.
+Pillow==12.3.0

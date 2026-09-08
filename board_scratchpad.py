@@ -11,9 +11,6 @@ import copy
 import json
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
-
-
 ROOT = Path(__file__).resolve().parent
 FILES = "abcdefgh"
 SQUARES = {f + r for f in FILES for r in "12345678"}
@@ -61,6 +58,8 @@ def save(state, path):
 
 
 def font(size, bold=False):
+    from PIL import ImageFont
+
     candidates = [Path("C:/Windows/Fonts") / ("arialbd.ttf" if bold else "arial.ttf"),
                   Path("/usr/share/fonts/truetype/dejavu") /
                   ("DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf")]
@@ -71,6 +70,15 @@ def font(size, bold=False):
 
 
 def render(state, output, title):
+    try:
+        from PIL import Image, ImageDraw
+    except ModuleNotFoundError as error:
+        if error.name != "PIL":
+            raise
+        raise ValueError(
+            "PNG rendering requires Pillow; install it with python -m pip install Pillow==12.3.0"
+        ) from error
+
     cell, left, top = 70, 42, 48
     image = Image.new("RGB", (644, 666), "#f1f3f5")
     draw = ImageDraw.Draw(image)

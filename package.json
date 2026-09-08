@@ -1,0 +1,13 @@
+{
+  "name": "astra-chess-experiment",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Optional browser checks for Astra Search Lab and chess replays",
+  "scripts": {
+    "test:replays": "node tests/test_replay_scores.cjs && node tests/test_replay_black.cjs",
+    "test:reports": "node tests/test_report.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

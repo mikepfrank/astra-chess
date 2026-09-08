@@ -8,3 +8,7 @@ __pycache__/
 engine-games/*/clock.json
 engine-turn.json
 *.lock
+.venv/
+node_modules/
+dist/
+scratch/

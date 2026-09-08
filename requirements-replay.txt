@@ -1,0 +1,2 @@
+# Rules/notation for replay building and independent tests, never move assistance.
+chess==1.11.2

@@ -1,9 +1,10 @@
 # Equipment and reproducibility inventory
 
 Mike intends to package this method for others to try in their own Astra
-sessions, potentially through GitHub. That is a future packaging task. For now,
-keep all authored chess equipment, source data and substantive experiment notes
-in this local repository, including sources initially created in a thread's
+sessions through GitHub. The local package is prepared with [SETUP.md](SETUP.md),
+[PACKAGING.md](PACKAGING.md), pinned optional dependencies and `package_repo.py`.
+Keep all authored chess equipment, source data and substantive experiment notes
+in this repository, including sources initially created in a thread's
 visualization directory. Commit them at completion checkpoints.
 
 ## What is preserved
@@ -20,6 +21,7 @@ visualization directory. Commit them at completion checkpoints.
 | Replay build and collection | `build_replay.py`, `replay.template.html`, `replay-metadata.json`, `index.html`, replay HTML files |
 | Historical evaluation extraction and graph | `export_evaluations.py`, `engine-output/wally-v02-evaluation/`, `engine-output/wally-v02-black-evaluation/` |
 | Validation | `tests/`, retained browser-check images and experiment audits |
+| Portable source/history packaging | `package_repo.py`, `SETUP.md`, `PACKAGING.md`, requirements files, `package.json`, `.gitattributes` |
 
 The installed copies of the two chess skills under the user's Codex skills
 directory match their versioned sources. The thread's
@@ -65,15 +67,25 @@ evaluation sources remained unchanged throughout that trial.
   not repository code. Reacquire the browser's supported API instead of relying
   on saved element IDs or coordinates.
 
-## What a later public package still needs
+## Publication and remaining environment work
 
-Provide clean-checkout setup and skill-install instructions, explain how to
-select the model/thinking level and browser integration, and test the documented
-workflow in a separate session. Review machine-specific fallback paths and
-report portability limits explicitly; the historical chart's browser check
-currently selects Edge directly. Package the authored code, procedures,
-examples and evidence without bundling installed dependencies or treating saved
-games as opening/endgame knowledge.
+Setup and skill-use instructions are now in `SETUP.md`; the source archive and
+Git-history bundle are generated from a clean commit and exclude dependencies.
+The optional chart checker now accepts a browser channel instead of requiring
+Edge. Fresh-source validation is recorded in `PACKAGING-VALIDATION.md`.
+
+Mike will create the GitHub repository and choose its visibility/license; no
+remote or license is silently selected here. An actual live game in another
+assistant session/OS remains a separate experiment. Historical machine paths
+are retained in notes and old ledgers; relocated workflows use the actual
+checkout and rediscover the embedded browser API. Saved games are evidence,
+not opening/endgame knowledge. The future staged clock must be implemented
+before the next trial.
+
+Git previously normalized Windows line endings in saved records on archive,
+changing their SHA-256 hashes. `.gitattributes` now preserves exact engine and
+evidence bytes. This changes how Git stores those files, not the recorded
+positions, timestamps, original hash claims or engine behavior.
 
 The current starting point is commit `c1ac0eb`: the complete scored game-9
 archive and recovery machinery passed 110 Python tests, plus offline replay UI

@@ -1,2 +1,6 @@
-* text=auto eol=lf
-*.png binary
+# Historical hashes refer to exact recorded bytes, including line endings.
+# Never transform these files on add, checkout, or archive.
+astra_engine/*.py -text
+engine-games/** -text
+engine-output/** -text
+engine-benchmarks/** -text

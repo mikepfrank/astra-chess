@@ -1,4 +1,9 @@
-# Chess game replays
+# Astra Search Lab and chess replays
+
+A from-scratch chess engine, inspectable search reports, a deliberative playing
+workflow, and the complete archived experiment. Start with [SETUP.md](SETUP.md)
+for a fresh checkout, or [PACKAGING.md](PACKAGING.md) for the local source/history
+package and GitHub handoff. Core analysis needs only Python's standard library.
 
 ## Chess engine experiment
 
@@ -35,15 +40,17 @@ reconcile a fresh embedded-browser view before any click; a pending promotion
 or move may already have been completed by the user. Preserve unresolved UI
 timestamps in the game's `continuation.md` until the journal has caught up.
 
-One hour means cumulative own-turn time, excluding the opponent's thinking.
+The historical one-hour allowance means cumulative own-turn time, excluding the opponent's thinking.
 Compaction does not silently reset it. The ledger supports explicit user credits
 without deleting original charges. See `ENGINE.md` for the accounting boundary.
+The selected future staged/increment control is recorded in
+`TIME-CONTROL-NEXT.md` and still needs implementation before the next game.
 
 ## Replay collection
 
-**index.html** is the collection's standalone home page. It links to seven
+**index.html** is the collection's standalone home page. It links to eight
 replays at their `astra-vs-*.netlify.app` addresses, including the proposed
-game-9 deployment below. Upload just this
+game-10 deployment below. Upload just this
 file to the new master Netlify project; no other files or build step are needed.
 
 Open any HTML file in a browser:
@@ -55,8 +62,9 @@ Open any HTML file in a browser:
 - **wally-rematch-replay.html** — the 47-move rematch against Wally (1800) on 2026-09-06, won by Wally after White resigned following 47...Kg6 (0-1).
 - **wally-engine-replay.html** — the 40-move engine-assisted trial against Wally (1800) on 2026-09-07, won by Wally after White resigned following 40...Re1 (0-1).
 - **wally-engine-v02-replay.html** — the 31-move engine-v0.2 win against Wally (1800) on 2026-09-07, ending 31. Qxf7# (1-0), with recorded engine scores below the board.
+- **wally-engine-v02-black-replay.html** — the 48-move win as Black against Wally (1800), ending 48...Rcxd2# (0-1), with Black-relative recorded engine scores.
 
-All seven replay files are self-contained and work offline. No login, network connection,
+All eight replay files are self-contained and work offline. No login, network connection,
 external fonts, or chess engine is required. Each includes its complete PGN.
 
 - Click a move, use Previous / Next, or scrub the position slider.
@@ -73,7 +81,8 @@ external fonts, or chess engine is required. Each includes its complete PGN.
 PGN, validates every legal move with `chess==1.11.2`, and embeds all positions
 (including the starting position): 82 for Sven, 90 for Nelson, 72 for Wendy
 (71 plies), 67 for Wally (66 plies), 95 for the Wally rematch (94 plies), and
-81 for the first engine-assisted Wally trial (80 plies), and 62 for the v0.2 win (61 plies).
+81 for the first engine-assisted Wally trial (80 plies), 62 for the v0.2 White win
+(61 plies), and 97 for the v0.2 Black win (96 plies).
 The opponent, rating, date, move count, result, and download filename come
 from the record. Non-checkmate endings are specified explicitly when rebuilding.
 
@@ -81,8 +90,8 @@ from the record. Non-checkmate endings are specified explicitly when rebuilding.
 `Round` number. Replay titles use **Astra (thinking level) vs. opponent**, while
 the board's player label is simply **Astra**. The recorded levels are High for
 game 1 (Sven loss), Extra High for games 2–3 (Sven rematch and Nelson loss), and
-Ultra for games 4–9 (Nelson rematch, Wendy, and the four Wally games). The seven
-HTML archives cover games 2 and 4–9. Source PGNs and filenames remain
+Ultra for games 4–10 (Nelson rematch, Wendy, and the five Wally games). The eight
+HTML archives cover games 2 and 4–10. Source PGNs and filenames remain
 unchanged.
 
 ```text
@@ -197,12 +206,11 @@ the exported scores and desktop/mobile checks are preserved in
 `engine-output/wally-v02-black-evaluation/`. Neither the exporter nor the
 archive build runs a new engine search.
 
-The current archive/recovery changes pass **139 Python tests** with
+The current tools pass **140 Python tests** with
 `python -m unittest discover -s tests`. Offline headless-browser checks in
 `tests/test_replay_scores.cjs` cover navigation, scores, mate labels, promotion,
 mobile layout, PGN download and compatibility with an older replay. Both
 the legacy browser suite and `tests/test_replay_black.cjs` pass offline.
 The Black suite additionally checks color-aware player rows and score semantics.
-Both
-skills pass Codex's official skill validator. An independent read-only recovery
+Both skills pass Codex's official skill validator. An independent read-only recovery
 exercise checked the interrupted-promotion case without changing the real game.

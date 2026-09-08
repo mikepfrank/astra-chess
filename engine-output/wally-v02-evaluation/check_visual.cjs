@@ -1,9 +1,10 @@
 const assert = require('node:assert/strict');
 const {pathToFileURL} = require('node:url');
 const path = require('node:path');
-const {chromium} = require(process.argv[2]);
+// Optional arguments: Playwright package path, then an installed browser channel.
+const {chromium} = require(process.argv[2] || 'playwright');
 (async()=>{
-  const browser=await chromium.launch({headless:true,channel:'msedge'});
+  const browser=await chromium.launch({headless:true,channel:process.argv[3] || undefined});
   try {
     for(const width of [736,360]) for(const theme of ['light','dark']) {
       const page=await browser.newPage({viewport:{width,height:720},colorScheme:theme});
