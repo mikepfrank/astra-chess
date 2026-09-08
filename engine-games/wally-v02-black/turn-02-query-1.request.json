@@ -1,0 +1,14 @@
+{
+  "label": "Wally game 10, move 2: Develop and control d4/e5; watch d4 and Bb5 pressure",
+  "mode": "analyze",
+  "fen": "rnbqkbnr/pp1ppppp/8/2p5/4P3/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 2",
+  "history_fens": [
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+    "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2"
+  ],
+  "depth": 8,
+  "seconds": 15.0,
+  "candidates": 3,
+  "diagnostics": true
+}

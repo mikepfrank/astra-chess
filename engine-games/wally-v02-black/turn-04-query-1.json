@@ -1,0 +1,2300 @@
+{
+  "kind": "analysis",
+  "start_fen": "r1bqkb1r/pp1ppppp/2n2n2/2p5/4P3/2N3P1/PPPP1PBP/R1BQK1NR b KQkq - 2 4",
+  "turn": "black",
+  "requested_depth": 8,
+  "completed_depth": 5,
+  "nodes": 188588,
+  "elapsed_seconds": 14.0,
+  "time_limit_seconds": 14.5,
+  "timed_out": true,
+  "fallback": false,
+  "candidates": [
+    {
+      "uci": [
+        "e7e5",
+        "g1e2",
+        "f8e7",
+        "e1g1",
+        "e8g8"
+      ],
+      "san": [
+        "e5",
+        "Nge2",
+        "Be7",
+        "O-O",
+        "O-O"
+      ],
+      "fens": [
+        "r1bqkb1r/pp1ppppp/2n2n2/2p5/4P3/2N3P1/PPPP1PBP/R1BQK1NR b KQkq - 2 4",
+        "r1bqkb1r/pp1p1ppp/2n2n2/2p1p3/4P3/2N3P1/PPPP1PBP/R1BQK1NR w KQkq e6 0 5",
+        "r1bqkb1r/pp1p1ppp/2n2n2/2p1p3/4P3/2N3P1/PPPPNPBP/R1BQK2R b KQkq - 1 5",
+        "r1bqk2r/pp1pbppp/2n2n2/2p1p3/4P3/2N3P1/PPPPNPBP/R1BQK2R w KQkq - 2 6",
+        "r1bqk2r/pp1pbppp/2n2n2/2p1p3/4P3/2N3P1/PPPPNPBP/R1BQ1RK1 b kq - 3 6",
+        "r1bq1rk1/pp1pbppp/2n2n2/2p1p3/4P3/2N3P1/PPPPNPBP/R1BQ1RK1 w - - 4 7"
+      ],
+      "ending": null,
+      "claim_by_intended_move": null,
+      "rank": 1,
+      "root_move": "e7e5",
+      "score_cp": 30,
+      "mate_in_plies": null,
+      "depth": 5,
+      "score_is_exact_for_search": true,
+      "position_diagnostics": [
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqkb1r/pp1ppppp/2n2n2/2p5/4P3/2N3P1/PPPP1PBP/R1BQK1NR b KQkq - 2 4",
+          "side": "black",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "n",
+              "own_blockers": [
+                "d8",
+                "e7",
+                "a7"
+              ],
+              "geometric_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": [
+                "e4e5"
+              ]
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f8",
+              "piece": "b",
+              "own_blockers": [
+                "g7",
+                "e7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Pawn advances can attack f6: e4e5.",
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control.",
+            "Restricted mobility at f8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqkb1r/pp1p1ppp/2n2n2/2p1p3/4P3/2N3P1/PPPP1PBP/R1BQK1NR w KQkq e6 0 5",
+          "side": "black",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "n",
+              "own_blockers": [
+                "d8",
+                "e5",
+                "a7"
+              ],
+              "geometric_destinations": [
+                "e7",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "e7",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f8",
+              "piece": "b",
+              "own_blockers": [
+                "g7",
+                "c5"
+              ],
+              "geometric_destinations": [
+                "e7",
+                "d6"
+              ],
+              "pawn_safe_destinations": [
+                "e7",
+                "d6"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqkb1r/pp1p1ppp/2n2n2/2p1p3/4P3/2N3P1/PPPPNPBP/R1BQK2R b KQkq - 1 5",
+          "side": "black",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "n",
+              "own_blockers": [
+                "d8",
+                "e5",
+                "a7"
+              ],
+              "geometric_destinations": [
+                "e7",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "e7",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f8",
+              "piece": "b",
+              "own_blockers": [
+                "g7",
+                "c5"
+              ],
+              "geometric_destinations": [
+                "e7",
+                "d6"
+              ],
+              "pawn_safe_destinations": [
+                "e7",
+                "d6"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqk2r/pp1pbppp/2n2n2/2p1p3/4P3/2N3P1/PPPPNPBP/R1BQK2R w KQkq - 2 6",
+          "side": "black",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "n",
+              "own_blockers": [
+                "d8",
+                "e7",
+                "e5",
+                "a7"
+              ],
+              "geometric_destinations": [
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "e7",
+              "piece": "b",
+              "own_blockers": [
+                "f6",
+                "d8",
+                "c5"
+              ],
+              "geometric_destinations": [
+                "f8",
+                "d6"
+              ],
+              "pawn_safe_destinations": [
+                "f8",
+                "d6"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqk2r/pp1pbppp/2n2n2/2p1p3/4P3/2N3P1/PPPPNPBP/R1BQ1RK1 b kq - 3 6",
+          "side": "black",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "n",
+              "own_blockers": [
+                "d8",
+                "e7",
+                "e5",
+                "a7"
+              ],
+              "geometric_destinations": [
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "e7",
+              "piece": "b",
+              "own_blockers": [
+                "f6",
+                "d8",
+                "c5"
+              ],
+              "geometric_destinations": [
+                "f8",
+                "d6"
+              ],
+              "pawn_safe_destinations": [
+                "f8",
+                "d6"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bq1rk1/pp1pbppp/2n2n2/2p1p3/4P3/2N3P1/PPPPNPBP/R1BQ1RK1 w - - 4 7",
+          "side": "black",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "n",
+              "own_blockers": [
+                "d8",
+                "e7",
+                "e5",
+                "a7"
+              ],
+              "geometric_destinations": [
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "g8",
+                "h7",
+                "d7"
+              ],
+              "geometric_destinations": [
+                "h5",
+                "g4",
+                "e4",
+                "d5",
+                "e8"
+              ],
+              "pawn_safe_destinations": [
+                "h5",
+                "g4",
+                "e4",
+                "e8"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "e7",
+              "piece": "b",
+              "own_blockers": [
+                "f8",
+                "f6",
+                "d8",
+                "c5"
+              ],
+              "geometric_destinations": [
+                "d6"
+              ],
+              "pawn_safe_destinations": [
+                "d6"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Restricted mobility at e7: 1 destination(s) outside enemy pawn control.",
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        }
+      ]
+    },
+    {
+      "uci": [
+        "e7e6",
+        "g1e2",
+        "f8e7",
+        "e1g1",
+        "e8g8"
+      ],
+      "san": [
+        "e6",
+        "Nge2",
+        "Be7",
+        "O-O",
+        "O-O"
+      ],
+      "fens": [
+        "r1bqkb1r/pp1ppppp/2n2n2/2p5/4P3/2N3P1/PPPP1PBP/R1BQK1NR b KQkq - 2 4",
+        "r1bqkb1r/pp1p1ppp/2n1pn2/2p5/4P3/2N3P1/PPPP1PBP/R1BQK1NR w KQkq - 0 5",
+        "r1bqkb1r/pp1p1ppp/2n1pn2/2p5/4P3/2N3P1/PPPPNPBP/R1BQK2R b KQkq - 1 5",
+        "r1bqk2r/pp1pbppp/2n1pn2/2p5/4P3/2N3P1/PPPPNPBP/R1BQK2R w KQkq - 2 6",
+        "r1bqk2r/pp1pbppp/2n1pn2/2p5/4P3/2N3P1/PPPPNPBP/R1BQ1RK1 b kq - 3 6",
+        "r1bq1rk1/pp1pbppp/2n1pn2/2p5/4P3/2N3P1/PPPPNPBP/R1BQ1RK1 w - - 4 7"
+      ],
+      "ending": null,
+      "claim_by_intended_move": null,
+      "rank": 2,
+      "root_move": "e7e6",
+      "score_cp": 23,
+      "mate_in_plies": null,
+      "depth": 5,
+      "score_is_exact_for_search": true,
+      "position_diagnostics": [
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqkb1r/pp1ppppp/2n2n2/2p5/4P3/2N3P1/PPPP1PBP/R1BQK1NR b KQkq - 2 4",
+          "side": "black",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "n",
+              "own_blockers": [
+                "d8",
+                "e7",
+                "a7"
+              ],
+              "geometric_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": [
+                "e4e5"
+              ]
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f8",
+              "piece": "b",
+              "own_blockers": [
+                "g7",
+                "e7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Pawn advances can attack f6: e4e5.",
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control.",
+            "Restricted mobility at f8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqkb1r/pp1p1ppp/2n1pn2/2p5/4P3/2N3P1/PPPP1PBP/R1BQK1NR w KQkq - 0 5",
+          "side": "black",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "n",
+              "own_blockers": [
+                "d8",
+                "a7"
+              ],
+              "geometric_destinations": [
+                "e7",
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "e7",
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": [
+                "e4e5"
+              ]
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f8",
+              "piece": "b",
+              "own_blockers": [
+                "g7",
+                "c5"
+              ],
+              "geometric_destinations": [
+                "e7",
+                "d6"
+              ],
+              "pawn_safe_destinations": [
+                "e7",
+                "d6"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Pawn advances can attack f6: e4e5.",
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqkb1r/pp1p1ppp/2n1pn2/2p5/4P3/2N3P1/PPPPNPBP/R1BQK2R b KQkq - 1 5",
+          "side": "black",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "n",
+              "own_blockers": [
+                "d8",
+                "a7"
+              ],
+              "geometric_destinations": [
+                "e7",
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "e7",
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": [
+                "e4e5"
+              ]
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f8",
+              "piece": "b",
+              "own_blockers": [
+                "g7",
+                "c5"
+              ],
+              "geometric_destinations": [
+                "e7",
+                "d6"
+              ],
+              "pawn_safe_destinations": [
+                "e7",
+                "d6"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Pawn advances can attack f6: e4e5.",
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqk2r/pp1pbppp/2n1pn2/2p5/4P3/2N3P1/PPPPNPBP/R1BQK2R w KQkq - 2 6",
+          "side": "black",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "n",
+              "own_blockers": [
+                "d8",
+                "e7",
+                "a7"
+              ],
+              "geometric_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": [
+                "e4e5"
+              ]
+            },
+            {
+              "square": "e7",
+              "piece": "b",
+              "own_blockers": [
+                "f6",
+                "d8",
+                "c5"
+              ],
+              "geometric_destinations": [
+                "f8",
+                "d6"
+              ],
+              "pawn_safe_destinations": [
+                "f8",
+                "d6"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Pawn advances can attack f6: e4e5.",
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqk2r/pp1pbppp/2n1pn2/2p5/4P3/2N3P1/PPPPNPBP/R1BQ1RK1 b kq - 3 6",
+          "side": "black",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "n",
+              "own_blockers": [
+                "d8",
+                "e7",
+                "a7"
+              ],
+              "geometric_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": [
+                "e4e5"
+              ]
+            },
+            {
+              "square": "e7",
+              "piece": "b",
+              "own_blockers": [
+                "f6",
+                "d8",
+                "c5"
+              ],
+              "geometric_destinations": [
+                "f8",
+                "d6"
+              ],
+              "pawn_safe_destinations": [
+                "f8",
+                "d6"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Pawn advances can attack f6: e4e5.",
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bq1rk1/pp1pbppp/2n1pn2/2p5/4P3/2N3P1/PPPPNPBP/R1BQ1RK1 w - - 4 7",
+          "side": "black",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "n",
+              "own_blockers": [
+                "d8",
+                "e7",
+                "a7"
+              ],
+              "geometric_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "g8",
+                "h7",
+                "d7"
+              ],
+              "geometric_destinations": [
+                "h5",
+                "g4",
+                "e4",
+                "d5",
+                "e8"
+              ],
+              "pawn_safe_destinations": [
+                "h5",
+                "g4",
+                "e4",
+                "e8"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": [
+                "e4e5"
+              ]
+            },
+            {
+              "square": "e7",
+              "piece": "b",
+              "own_blockers": [
+                "f8",
+                "f6",
+                "d8",
+                "c5"
+              ],
+              "geometric_destinations": [
+                "d6"
+              ],
+              "pawn_safe_destinations": [
+                "d6"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Pawn advances can attack f6: e4e5.",
+            "Restricted mobility at e7: 1 destination(s) outside enemy pawn control.",
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        }
+      ]
+    },
+    {
+      "uci": [
+        "a7a5",
+        "g1e2",
+        "c6e5",
+        "e1g1",
+        "g7g5"
+      ],
+      "san": [
+        "a5",
+        "Nge2",
+        "Ne5",
+        "O-O",
+        "g5"
+      ],
+      "fens": [
+        "r1bqkb1r/pp1ppppp/2n2n2/2p5/4P3/2N3P1/PPPP1PBP/R1BQK1NR b KQkq - 2 4",
+        "r1bqkb1r/1p1ppppp/2n2n2/p1p5/4P3/2N3P1/PPPP1PBP/R1BQK1NR w KQkq a6 0 5",
+        "r1bqkb1r/1p1ppppp/2n2n2/p1p5/4P3/2N3P1/PPPPNPBP/R1BQK2R b KQkq - 1 5",
+        "r1bqkb1r/1p1ppppp/5n2/p1p1n3/4P3/2N3P1/PPPPNPBP/R1BQK2R w KQkq - 2 6",
+        "r1bqkb1r/1p1ppppp/5n2/p1p1n3/4P3/2N3P1/PPPPNPBP/R1BQ1RK1 b kq - 3 6",
+        "r1bqkb1r/1p1ppp1p/5n2/p1p1n1p1/4P3/2N3P1/PPPPNPBP/R1BQ1RK1 w kq g6 0 7"
+      ],
+      "ending": null,
+      "claim_by_intended_move": null,
+      "rank": 3,
+      "root_move": "a7a5",
+      "score_cp": 10,
+      "mate_in_plies": null,
+      "depth": 5,
+      "score_is_exact_for_search": true,
+      "position_diagnostics": [
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqkb1r/pp1ppppp/2n2n2/2p5/4P3/2N3P1/PPPP1PBP/R1BQK1NR b KQkq - 2 4",
+          "side": "black",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "n",
+              "own_blockers": [
+                "d8",
+                "e7",
+                "a7"
+              ],
+              "geometric_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a5",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": [
+                "e4e5"
+              ]
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f8",
+              "piece": "b",
+              "own_blockers": [
+                "g7",
+                "e7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Pawn advances can attack f6: e4e5.",
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control.",
+            "Restricted mobility at f8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqkb1r/1p1ppppp/2n2n2/p1p5/4P3/2N3P1/PPPP1PBP/R1BQK1NR w KQkq a6 0 5",
+          "side": "black",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "n",
+              "own_blockers": [
+                "d8",
+                "e7",
+                "a5"
+              ],
+              "geometric_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": [
+                "e4e5"
+              ]
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f8",
+              "piece": "b",
+              "own_blockers": [
+                "g7",
+                "e7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Pawn advances can attack f6: e4e5.",
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control.",
+            "Restricted mobility at f8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqkb1r/1p1ppppp/2n2n2/p1p5/4P3/2N3P1/PPPPNPBP/R1BQK2R b KQkq - 1 5",
+          "side": "black",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "c6",
+              "piece": "n",
+              "own_blockers": [
+                "d8",
+                "e7",
+                "a5"
+              ],
+              "geometric_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a7",
+                "b8"
+              ],
+              "pawn_safe_destinations": [
+                "e5",
+                "d4",
+                "b4",
+                "a7",
+                "b8"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": [
+                "e4e5"
+              ]
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f8",
+              "piece": "b",
+              "own_blockers": [
+                "g7",
+                "e7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Pawn advances can attack f6: e4e5.",
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control.",
+            "Restricted mobility at f8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqkb1r/1p1ppppp/5n2/p1p1n3/4P3/2N3P1/PPPPNPBP/R1BQK2R w KQkq - 2 6",
+          "side": "black",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "e5",
+              "piece": "n",
+              "own_blockers": [
+                "f7",
+                "d7"
+              ],
+              "geometric_destinations": [
+                "g6",
+                "g4",
+                "f3",
+                "d3",
+                "c4",
+                "c6"
+              ],
+              "pawn_safe_destinations": [
+                "g6",
+                "g4",
+                "f3",
+                "c4",
+                "c6"
+              ],
+              "pawn_controlled_destinations": [
+                "d3"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": [
+                "d2d4",
+                "f2f4"
+              ]
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f8",
+              "piece": "b",
+              "own_blockers": [
+                "g7",
+                "e7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Pawn advances can attack e5: d2d4, f2f4.",
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control.",
+            "Restricted mobility at f8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqkb1r/1p1ppppp/5n2/p1p1n3/4P3/2N3P1/PPPPNPBP/R1BQ1RK1 b kq - 3 6",
+          "side": "black",
+          "turn_context": "enemy_next_turn_hypothesis",
+          "minor_pieces": [
+            {
+              "square": "e5",
+              "piece": "n",
+              "own_blockers": [
+                "f7",
+                "d7"
+              ],
+              "geometric_destinations": [
+                "g6",
+                "g4",
+                "f3",
+                "d3",
+                "c4",
+                "c6"
+              ],
+              "pawn_safe_destinations": [
+                "g6",
+                "g4",
+                "f3",
+                "c4",
+                "c6"
+              ],
+              "pawn_controlled_destinations": [
+                "d3"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": [
+                "d2d4",
+                "f2f4"
+              ]
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f8",
+              "piece": "b",
+              "own_blockers": [
+                "g7",
+                "e7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Pawn advances can attack e5: d2d4, f2f4.",
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control.",
+            "Restricted mobility at f8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        },
+        {
+          "kind": "heuristic_threat_diagnostics",
+          "fen": "r1bqkb1r/1p1ppp1p/5n2/p1p1n1p1/4P3/2N3P1/PPPPNPBP/R1BQ1RK1 w kq g6 0 7",
+          "side": "black",
+          "turn_context": "enemy_to_move",
+          "minor_pieces": [
+            {
+              "square": "e5",
+              "piece": "n",
+              "own_blockers": [
+                "f7",
+                "d7"
+              ],
+              "geometric_destinations": [
+                "g6",
+                "g4",
+                "f3",
+                "d3",
+                "c4",
+                "c6"
+              ],
+              "pawn_safe_destinations": [
+                "g6",
+                "g4",
+                "f3",
+                "c4",
+                "c6"
+              ],
+              "pawn_controlled_destinations": [
+                "d3"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": [
+                "d2d4",
+                "f2f4"
+              ]
+            },
+            {
+              "square": "f6",
+              "piece": "n",
+              "own_blockers": [
+                "h7",
+                "d7",
+                "e8"
+              ],
+              "geometric_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4",
+                "d5"
+              ],
+              "pawn_safe_destinations": [
+                "g8",
+                "h5",
+                "g4",
+                "e4"
+              ],
+              "pawn_controlled_destinations": [
+                "d5"
+              ],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "c8",
+              "piece": "b",
+              "own_blockers": [
+                "d7",
+                "b7"
+              ],
+              "geometric_destinations": [],
+              "pawn_safe_destinations": [],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": true,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            },
+            {
+              "square": "f8",
+              "piece": "b",
+              "own_blockers": [
+                "e7"
+              ],
+              "geometric_destinations": [
+                "g7",
+                "h6"
+              ],
+              "pawn_safe_destinations": [
+                "g7",
+                "h6"
+              ],
+              "pawn_controlled_destinations": [],
+              "restricted_mobility": false,
+              "legal_capture_threats": [],
+              "pawn_push_threats": []
+            }
+          ],
+          "king_lines": [],
+          "new_king_lines": [],
+          "warnings": [
+            "Pawn advances can attack e5: d2d4, f2f4.",
+            "Restricted mobility at c8: 0 destination(s) outside enemy pawn control."
+          ],
+          "limitations": [
+            "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+            "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+            "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+            "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+          ]
+        }
+      ]
+    }
+  ],
+  "terminal": null,
+  "draw_claim_available": false,
+  "current_draw_claim_available": false,
+  "draw_claim_reasons": [],
+  "draw_claim_by_intended_moves": [],
+  "intended_move": null,
+  "root_score_cp": 30,
+  "recommended_action": "move",
+  "history_supplied": true,
+  "settings": {
+    "evaluation": {
+      "mobility": false,
+      "restricted_piece": false,
+      "king_exposure": false
+    },
+    "threat_extensions": 0
+  },
+  "diagnostics": {
+    "score_view": "root side",
+    "depth_unit": "plies",
+    "history_note": "Earlier repetition is unknown without supplied history.",
+    "quiescence_capture_depth": 8,
+    "score_scope": "Completed bounded search with heuristic evaluation; not an exact game value.",
+    "transposition_reuse": "move ordering only; no cached evaluation bounds",
+    "dead_positions": "Conservative insufficient-material recognition, not an exhaustive dead-position solver.",
+    "stop_reason": "time_limit",
+    "qnodes": 170611,
+    "cutoffs": 36415,
+    "extended_frontiers": 0,
+    "capped_threat_frontiers": 0,
+    "threat_frontier_unresolved": false,
+    "threat_frontier_note": "Restricted-piece threats trigger a full-width extra ply, bounded per branch. Cap/timeout and unrecognized threats remain unresolved; this is not a proof of safety."
+  },
+  "budget_overrun_seconds": 0.0,
+  "position_diagnostics": {
+    "kind": "heuristic_threat_diagnostics",
+    "fen": "r1bqkb1r/pp1ppppp/2n2n2/2p5/4P3/2N3P1/PPPP1PBP/R1BQK1NR b KQkq - 2 4",
+    "side": "black",
+    "turn_context": "enemy_next_turn_hypothesis",
+    "minor_pieces": [
+      {
+        "square": "c6",
+        "piece": "n",
+        "own_blockers": [
+          "d8",
+          "e7",
+          "a7"
+        ],
+        "geometric_destinations": [
+          "e5",
+          "d4",
+          "b4",
+          "a5",
+          "b8"
+        ],
+        "pawn_safe_destinations": [
+          "e5",
+          "d4",
+          "b4",
+          "a5",
+          "b8"
+        ],
+        "pawn_controlled_destinations": [],
+        "restricted_mobility": false,
+        "legal_capture_threats": [],
+        "pawn_push_threats": []
+      },
+      {
+        "square": "f6",
+        "piece": "n",
+        "own_blockers": [
+          "h7",
+          "d7",
+          "e8"
+        ],
+        "geometric_destinations": [
+          "g8",
+          "h5",
+          "g4",
+          "e4",
+          "d5"
+        ],
+        "pawn_safe_destinations": [
+          "g8",
+          "h5",
+          "g4",
+          "e4"
+        ],
+        "pawn_controlled_destinations": [
+          "d5"
+        ],
+        "restricted_mobility": false,
+        "legal_capture_threats": [],
+        "pawn_push_threats": [
+          "e4e5"
+        ]
+      },
+      {
+        "square": "c8",
+        "piece": "b",
+        "own_blockers": [
+          "d7",
+          "b7"
+        ],
+        "geometric_destinations": [],
+        "pawn_safe_destinations": [],
+        "pawn_controlled_destinations": [],
+        "restricted_mobility": true,
+        "legal_capture_threats": [],
+        "pawn_push_threats": []
+      },
+      {
+        "square": "f8",
+        "piece": "b",
+        "own_blockers": [
+          "g7",
+          "e7"
+        ],
+        "geometric_destinations": [],
+        "pawn_safe_destinations": [],
+        "pawn_controlled_destinations": [],
+        "restricted_mobility": true,
+        "legal_capture_threats": [],
+        "pawn_push_threats": []
+      }
+    ],
+    "king_lines": [],
+    "new_king_lines": [],
+    "warnings": [
+      "Pawn advances can attack f6: e4e5.",
+      "Restricted mobility at c8: 0 destination(s) outside enemy pawn control.",
+      "Restricted mobility at f8: 0 destination(s) outside enemy pawn control."
+    ],
+    "limitations": [
+      "Pawn-safe mobility is geometric; other attackers and king pins can restrict it further.",
+      "A capture threat or restricted piece does not prove forced loss or lack of compensation.",
+      "When the enemy is not to move, threat moves assume that enemy could move next on this unchanged board.",
+      "Moving a blocker, capturing the attacker, exchanges, and counterchecks require adversarial search."
+    ]
+  },
+  "diagnostic_coverage": {
+    "positions_inspected": 16,
+    "positions_skipped": 0,
+    "complete": true,
+    "elapsed_seconds": 0.0,
+    "scope": "Query player's pieces and king; heuristic, not a proof of safety."
+  },
+  "label": "Wally game 10, move 4: Develop f8 bishop; beware opening g2-d5 diagonal when considering d5 central break",
+  "query": {
+    "label": "Wally game 10, move 4: Develop f8 bishop; beware opening g2-d5 diagonal when considering d5 central break",
+    "mode": "analyze",
+    "fen": "r1bqkb1r/pp1ppppp/2n2n2/2p5/4P3/2N3P1/PPPP1PBP/R1BQK1NR b KQkq - 2 4",
+    "history_fens": [
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+      "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2",
+      "rnbqkbnr/pp1ppppp/8/2p5/4P3/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 2",
+      "r1bqkbnr/pp1ppppp/2n5/2p5/4P3/2N5/PPPP1PPP/R1BQKBNR w KQkq - 2 3",
+      "r1bqkbnr/pp1ppppp/2n5/2p5/4P3/2N3P1/PPPP1P1P/R1BQKBNR b KQkq - 0 3",
+      "r1bqkb1r/pp1ppppp/2n2n2/2p5/4P3/2N3P1/PPPP1P1P/R1BQKBNR w KQkq - 1 4"
+    ],
+    "depth": 8,
+    "seconds": 15.0,
+    "candidates": 3,
+    "diagnostics": true
+  },
+  "position_history_fens": [
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+    "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2",
+    "rnbqkbnr/pp1ppppp/8/2p5/4P3/2N5/PPPP1PPP/R1BQKBNR b KQkq - 1 2",
+    "r1bqkbnr/pp1ppppp/2n5/2p5/4P3/2N5/PPPP1PPP/R1BQKBNR w KQkq - 2 3",
+    "r1bqkbnr/pp1ppppp/2n5/2p5/4P3/2N3P1/PPPP1P1P/R1BQKBNR b KQkq - 0 3",
+    "r1bqkb1r/pp1ppppp/2n2n2/2p5/4P3/2N3P1/PPPP1P1P/R1BQKBNR w KQkq - 1 4"
+  ],
+  "query_time_limit_seconds": 15.0,
+  "created_utc": "2026-09-08T00:33:21.734469+00:00",
+  "engine": {
+    "name": "Astra Search Lab",
+    "version": "0.2",
+    "source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174"
+  },
+  "turn_budget": {
+    "clock_kind": "game_ledger",
+    "mode": "game",
+    "active_ply": 7,
+    "finished": false,
+    "critical": false,
+    "allocation_seconds": 88.575,
+    "elapsed_seconds": 34.796,
+    "remaining_seconds": 53.779,
+    "reserve_seconds": 40.0,
+    "query_available_seconds": 13.779,
+    "game_seconds_used": 357.534,
+    "game_remaining_seconds": 3242.466,
+    "raw_game_seconds_used": 357.534,
+    "refunded_seconds": 0.0,
+    "time_refunds": [],
+    "turn_overrun_seconds": 0.0,
+    "game_overrun_seconds": 0.0,
+    "expired": false,
+    "calls": 1,
+    "query_seconds_used": 14.031,
+    "verified_turn_overruns": [
+      {
+        "ply": 1,
+        "seconds": 75.239
+      }
+    ],
+    "timing_uncertainty": [
+      "Observation timestamp entered 13.058s later; interval is charged from the supplied observation",
+      "Verification entered later using the supplied observation timestamp",
+      "Observation timestamp entered 12.288s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 25.789s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 20.483s later; interval is charged from the supplied observation"
+    ],
+    "submission_pending_verification": false,
+    "charge_to_submission": true,
+    "excluded_verification_seconds": 33.53,
+    "cooperative_clock": true
+  },
+  "interface_elapsed_seconds": 14.047,
+  "budget_snapshot": "After query completion, before final artifact refresh"
+}
