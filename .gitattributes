@@ -1,6 +1,9 @@
+* text=auto eol=lf
+*.png binary
+
 # Historical hashes refer to exact recorded bytes, including line endings.
 # Never transform these files on add, checkout, or archive.
-astra_engine/*.py -text
-engine-games/** -text
-engine-output/** -text
-engine-benchmarks/** -text
+astra_engine/*.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+engine-games/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+engine-output/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+engine-benchmarks/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
