@@ -65,22 +65,32 @@ override newer journal/UI evidence. An interrupted active turn remains active.
 
 ## Clock and each turn
 
-Before a new trial, read `TIME-CONTROL-NEXT.md`: Mike selected 90 minutes for the
-first 40 own moves, 30 more after move 40, and a 30-second increment from move 1.
-Implement and test this staged policy before using it; the fixed-total helper
-does not yet implement stages/increments. Do not retrofit it onto game 10.
+New trials use `--time-control classical --own-time-only`: **5,400 seconds
+initially**, **30 seconds after each verified own move** starting with move 1,
+and **1,800 seconds once, after the 40th verified own move**. Read
+`TIME-CONTROL-NEXT.md` for accounting details. The CLI's `fixed` default retains
+the legacy one-hour setup; select `classical` explicitly. Existing journals
+keep their recorded policy, including game 10's original 3,600 seconds plus its
+separately authorized extension. Do not retrofit the preset onto an old game.
 
-Game 10's original allowance is **3,600 seconds of Astra's own time**, excluding the bot's
-thinking. It includes deliberation, queries, commentary, UI entry, and retries.
+The clock counts only Astra's own time, excluding the bot's thinking. It
+includes deliberation, queries, commentary, UI entry, and retries.
 Start from the **first observation** of an own turn, retaining that timestamp
 even if reconciliation or journal entry takes time. A verified move settles
 at its accepted submission timestamp; missing timestamps incur conservative
 charging with recorded uncertainty. A pending promotion is not yet submitted.
 
-Aim for 60–90 seconds ordinarily, 120–180 for a concrete critical position,
-with 40 seconds for review and entry. These are adjustable allocation targets;
-the shared clock is the total budget. Compaction, rejected clicks, and marking
-a position critical do not restart it. Only an explicit user-authorized credit
+Target **120 seconds ordinarily**, or **240 seconds for a concrete critical
+position**, including **40 seconds reserved for review and entry**. The helper
+shrinks allocations according to the current balance and moves to the stage;
+use its `remaining_seconds` and `query_available_seconds`, not the nominal
+targets. Future increments and stage time are not spendable in advance. The
+180-second limit per engine query is unchanged; a larger turn allocation can
+support focused follow-ups. Verification earns time once per completed own
+move; a choice, submission attempt, rejection, or bot move earns nothing.
+An overrun before those credits remains recorded even if the new balance is
+positive. Compaction, rejected clicks, and marking a position critical do not
+restart the turn. Only an explicit user-authorized credit
 justifies a refund; use `refund_turn_time` as documented in `ENGINE.md`, with
 a reason and unique ID, preserving all original charges and timestamps.
 
@@ -88,7 +98,7 @@ Initialize once, only for a new authorized trial with an unused slug and the
 correct original-session round number:
 
 ```text
-python play_engine_game.py init --game GAME-SLUG --round ROUND --opponent-name Wally --opponent-elo 1800 --game-seconds 3600 --own-time-only
+python play_engine_game.py init --game GAME-SLUG --round ROUND --opponent-name BOT-NAME --opponent-elo RATING --time-control classical --own-time-only
 ```
 
 Add `--side black` to play Black. Wait for and record the first White move with

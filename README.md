@@ -244,7 +244,7 @@ the exported scores and desktop/mobile checks are preserved in
 `engine-output/wally-v02-black-evaluation/`. Neither the exporter nor the
 archive build runs a new engine search.
 
-The current tools pass **146 Python tests** with
+The current tools pass **157 Python tests** with
 `python -m unittest discover -s tests`. Offline headless-browser checks in
 `tests/test_replay_scores.cjs` cover navigation, scores, mate labels, promotion,
 mobile layout, PGN download and compatibility with an older replay. Both

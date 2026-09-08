@@ -54,7 +54,7 @@ def _locked(path):
 
 def _read(path):
     events = [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines() if line.strip()]
-    if not events or events[0].get("kind") != "game_started" or events[0].get("data", {}).get("schema") != 1:
+    if not events or events[0].get("kind") != "game_started" or events[0].get("data", {}).get("schema") not in (1, 2):
         raise ValueError("Not an Astra game clock ledger")
     if any(event.get("seq") != i for i, event in enumerate(events)):
         raise ValueError("Clock ledger sequence is incomplete or out of order")
@@ -86,6 +86,11 @@ def _state(events):
     refunds = []
     extensions = []
     excluded_pause = 0.0
+    verified_plies = set()
+    earned_increment = 0.0
+    earned_stage = 0.0
+    stage_grants = []
+    game_overruns = []
     for event in events[1:]:
         data = event["data"]
         if event["kind"] == "turn_observed":
@@ -113,6 +118,26 @@ def _state(events):
             uncertainty.extend(data.get("uncertainty", []))
             if data["overrun_seconds"] > 0:
                 overruns.append({"ply": data["ply"], "seconds": data["overrun_seconds"]})
+            # Check the charged balance before this move earns anything. A later
+            # increment, stage, or user refund must not erase a recorded overrun.
+            game_overrun = max(0.0, used-refunded-config["total_seconds"])
+            if config["mode"] == "game" and game_overrun > 0:
+                game_overruns.append({"ply": data["ply"], "seconds": game_overrun})
+            if (event["kind"] == "verification" and active is not None
+                    and data["ply"] == active["ply"] and data["ply"] not in verified_plies):
+                verified_plies.add(data["ply"])
+                # Replay derives credits from verified own turns, not mutable
+                # totals or the caller's submission/query/decision events.
+                if config["schema"] >= 2:
+                    increment = config["increment_seconds"]
+                    earned_increment += increment
+                    config["total_seconds"] += increment
+                    if config["stage_moves"] == len(verified_plies):
+                        grant = config["stage_seconds"]
+                        earned_stage += grant
+                        config["total_seconds"] += grant
+                        stage_grants.append({"own_move": len(verified_plies), "ply": data["ply"],
+                                             "seconds": grant, "event_seq": event["seq"]})
             active = None
         elif event["kind"] == "game_finished":
             finished = True
@@ -132,7 +157,10 @@ def _state(events):
                 refunded=refunded, refunds=refunds, finished=finished, turns=turns,
                 prior_plies=prior_plies, uncertainty=uncertainty, overruns=overruns,
                 excluded_verification=excluded_verification, config=config,
-                extensions=extensions, excluded_pause=excluded_pause)
+                extensions=extensions, excluded_pause=excluded_pause,
+                completed_own_moves=len(verified_plies), earned_increment=earned_increment,
+                earned_stage=earned_stage, stage_grants=stage_grants,
+                game_overruns=game_overruns)
 
 
 def _elapsed(active, sample):
@@ -160,12 +188,24 @@ def _elapsed_at_utc(active, stamp):
     return (stamp - _utc(active["observed_utc"])).total_seconds()
 
 
-def _allocation(config, used, turns, critical):
+def _allocation(config, used, turns, critical, completed_moves=None):
     if config["mode"] == "move":
         return config["move_seconds"]
     remaining = max(0.0, config["total_seconds"] - used)
     if "extended_turn_seconds" in config:
         return min(remaining, config["extended_turn_seconds"])
+    if config.get("schema", 1) >= 2:
+        completed = turns if completed_moves is None else completed_moves
+        stage = config["stage_moves"]
+        # Before the stage, spread only already credited time across the moves
+        # still required to earn it. Afterward plan toward twenty further moves,
+        # with a rolling twelve-move horizon for a long ending. Future increments
+        # and the future stage grant never enter this available balance.
+        expected_turns_left = (stage-completed if stage and completed < stage
+                               else max(12, (stage+20 if stage else 40)-completed))
+        forecast = remaining / expected_turns_left
+        target = config["critical_seconds"] if critical else config["ordinary_seconds"]
+        return min(remaining, target, forecast * (2 if critical else 1))
     expected_turns_left = max(12, 40 - turns)
     ordinary = min(90.0, remaining / expected_turns_left)
     return min(remaining, ordinary * 2 if critical else ordinary, 180.0 if critical else 90.0)
@@ -183,16 +223,29 @@ def _status(events, sample=None):
     if game_remaining is not None:
         remaining = min(remaining, game_remaining)
     query_available = max(0.0, remaining - config["reserve_seconds"]) if active and not state["finished"] else 0.0
+    stage_moves = config.get("stage_moves")
+    next_stage = stage_moves if stage_moves and state["completed_own_moves"] < stage_moves else None
     status = {
         "clock_kind": "game_ledger", "mode": config["mode"], "active_ply": active["ply"] if active else None,
         "finished": state["finished"], "critical": bool(active and active["critical"]),
         "allocation_seconds": allocation, "elapsed_seconds": elapsed, "remaining_seconds": remaining,
         "reserve_seconds": config["reserve_seconds"], "query_available_seconds": query_available,
         "game_seconds_used": total_used, "game_remaining_seconds": game_remaining,
+        "game_balance_seconds": config["total_seconds"]-total_used if config["mode"] == "game" else None,
         "raw_game_seconds_used": state["raw_used"] + elapsed,
         "refunded_seconds": state["refunded"], "time_refunds": state["refunds"],
         "total_seconds": config["total_seconds"],
         "original_total_seconds": events[0]["data"]["total_seconds"],
+        "clock_schema": config["schema"],
+        "completed_own_moves": state["completed_own_moves"],
+        "increment_seconds": config.get("increment_seconds", 0.0),
+        "earned_increment_seconds": state["earned_increment"],
+        "stage_moves": stage_moves, "stage_seconds": config.get("stage_seconds", 0.0),
+        "earned_stage_seconds": state["earned_stage"], "stage_grants": state["stage_grants"],
+        "next_stage_own_move": next_stage,
+        "own_moves_to_next_stage": next_stage-state["completed_own_moves"] if next_stage else None,
+        "ordinary_seconds": config.get("ordinary_seconds", 90.0),
+        "critical_seconds": config.get("critical_seconds", 180.0),
         "extension_seconds": sum(item["extra_seconds"] for item in state["extensions"]),
         "time_extensions": state["extensions"], "excluded_pause_seconds": state["excluded_pause"],
         "extended_turn_seconds": config.get("extended_turn_seconds"),
@@ -201,6 +254,7 @@ def _status(events, sample=None):
         "expired": bool(active and remaining <= 0), "calls": active["queries"] if active else 0,
         "query_seconds_used": active["query_seconds"] if active else 0.0,
         "verified_turn_overruns": state["overruns"],
+        "verified_game_overruns": state["game_overruns"],
         "timing_uncertainty": list(dict.fromkeys(state["uncertainty"] + extra_warnings)),
         "submission_pending_verification": bool(active and active["submission"]),
         "charge_to_submission": config.get("charge_to_submission", False),
@@ -211,12 +265,15 @@ def _status(events, sample=None):
 
 
 def create_game_clock(path, *, mode="game", total_seconds=3600, move_seconds=120, reserve_seconds=40,
-                      charge_to_submission=False):
+                      charge_to_submission=False, increment_seconds=0, stage_moves=None,
+                      stage_seconds=0, ordinary_seconds=90, critical_seconds=180):
     """Create once. Optionally settle verified moves at their recorded submission.
 
     Until verified, attempted moves keep the clock running. Legacy ledgers charge
     through verification; charge_to_submission excludes waiting for the opponent
     and browser confirmation when a valid submission timestamp is available.
+    Staged/increment clocks award time only on verified own moves. The defaults
+    retain the schema-1 fixed-total policy; custom controls use schema 2.
     """
     if mode not in ("game", "move"):
         raise ValueError("Clock mode must be game or move")
@@ -225,7 +282,25 @@ def create_game_clock(path, *, mode="game", total_seconds=3600, move_seconds=120
     total_seconds = _number(total_seconds, "total_seconds", 1)
     move_seconds = _number(move_seconds, "move_seconds", 1)
     reserve_seconds = _number(reserve_seconds, "reserve_seconds")
-    if reserve_seconds >= (min(90, total_seconds / 40) if mode == "game" else move_seconds):
+    increment_seconds = _number(increment_seconds, "increment_seconds")
+    stage_seconds = _number(stage_seconds, "stage_seconds")
+    ordinary_seconds = _number(ordinary_seconds, "ordinary_seconds", 0.001)
+    critical_seconds = _number(critical_seconds, "critical_seconds", ordinary_seconds)
+    if stage_moves is not None and (isinstance(stage_moves, bool) or not isinstance(stage_moves, int) or stage_moves < 1):
+        raise ValueError("stage_moves must be a positive integer or None")
+    if (stage_moves is None) != (stage_seconds == 0):
+        raise ValueError("A stage requires both stage_moves and positive stage_seconds")
+    if mode != "game" and (increment_seconds or stage_moves is not None):
+        raise ValueError("Increments and stages require cumulative game mode")
+    custom = bool(increment_seconds or stage_moves is not None or ordinary_seconds != 90 or critical_seconds != 180)
+    config = dict(schema=2 if custom else 1, mode=mode, total_seconds=total_seconds,
+                  move_seconds=move_seconds, reserve_seconds=reserve_seconds,
+                  charge_to_submission=charge_to_submission)
+    if custom:
+        config.update(increment_seconds=increment_seconds, stage_moves=stage_moves,
+                      stage_seconds=stage_seconds, ordinary_seconds=ordinary_seconds,
+                      critical_seconds=critical_seconds)
+    if reserve_seconds >= _allocation(config, 0, 0, False, 0):
         raise ValueError("The initial turn allocation must leave time beyond the move-entry reserve")
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -234,9 +309,7 @@ def create_game_clock(path, *, mode="game", total_seconds=3600, move_seconds=120
         with path.open("x", encoding="utf-8"):
             pass
         events = []
-        _append(path, events, "game_started", dict(schema=1, mode=mode, total_seconds=total_seconds,
-                move_seconds=move_seconds, reserve_seconds=reserve_seconds,
-                charge_to_submission=charge_to_submission))
+        _append(path, events, "game_started", config)
     return _status(events)
 
 
@@ -374,7 +447,7 @@ def observe_turn(path, ply, *, observed_utc=None, initial_candidate=None, concer
         if last_verified and observed < _utc(last_verified):
             raise ValueError("Next turn observation cannot precede the previous verified move")
         config = state["config"]
-        allocation = _allocation(config, state["used"], state["turns"], critical)
+        allocation = _allocation(config, state["used"], state["turns"], critical, state["completed_own_moves"])
         warnings = []
         if age > 1:
             warnings.append(f"Observation timestamp entered {age:.3f}s later; interval is charged from the supplied observation")
@@ -397,7 +470,8 @@ def mark_critical(path, reason):
         if state["active"] is None or state["finished"]:
             raise ValueError("No active own turn")
         active = state["active"]
-        allocation = max(active["allocation_seconds"], _allocation(state["config"], state["used"], state["turns"]-1, True))
+        allocation = max(active["allocation_seconds"], _allocation(state["config"], state["used"], state["turns"]-1,
+                                                                  True, state["completed_own_moves"]))
         _append(path, events, "critical_position", dict(ply=active["ply"], reason=reason, allocation_seconds=allocation))
         return _status(events)
 
@@ -514,11 +588,22 @@ def verify_submission(path, ply, move, *, submitted_utc=None, verified_utc=None,
                     inferred_from_verification=submitted is None), (stamp, mono))
         if uncertainty:
             warnings.append(uncertainty)
+        award_evidence = {}
+        if state["config"]["schema"] >= 2:
+            completed = state["completed_own_moves"] + 1
+            increment = state["config"]["increment_seconds"]
+            stage = state["config"]["stage_seconds"] if completed == state["config"]["stage_moves"] else 0.0
+            balance = state["config"]["total_seconds"] - state["used"] - elapsed
+            award_evidence = dict(completed_own_moves=completed,
+                    game_balance_before_award_seconds=balance,
+                    game_overrun_before_award_seconds=max(0.0, -balance),
+                    increment_awarded_seconds=increment, stage_awarded_seconds=stage,
+                    game_balance_after_award_seconds=balance+increment+stage)
         _append(path, events, "verification", dict(ply=ply, move=move, verified_utc=verified.isoformat(),
                 charged_through_utc=charged_through.isoformat(),
                 excluded_verification_seconds=excluded_verification,
                 charged_seconds=elapsed, overrun_seconds=max(0.0, elapsed-active["allocation_seconds"]),
-                uncertainty=warnings), (stamp, mono))
+                uncertainty=warnings, **award_evidence), (stamp, mono))
         return _status(events, (stamp, mono))
 
 

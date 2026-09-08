@@ -7,6 +7,18 @@ Keep all authored chess equipment, source data and substantive experiment notes
 in this repository, including sources initially created in a thread's
 visualization directory. Commit them at completion checkpoints.
 
+## Classical clock implementation (September 8, 2026)
+
+New trials can select `play_engine_game.py init --time-control classical`:
+5,400 seconds initially, a 30-second increment after each verified own move,
+and 1,800 seconds after the 40th verified own move. Ordinary/critical targets
+are 120/240 seconds with a 40-second review and entry reserve. The ledger
+records any pre-credit overrun and never spends future credits in advance.
+Legacy clock defaults and saved game 9/10 ledgers remain unchanged. All 157
+Python tests passed, including staged-clock and White/Black journal integration
+checks. Both play-skill copies match and pass validation. The rules, search and
+evaluation are unchanged for the next trial against Li (2000).
+
 ## What is preserved
 
 | Component | Repository sources |

@@ -179,6 +179,8 @@ def parser():
     ap.add_argument("--png", action="store_true")
     ap.add_argument("--critical", action="store_true")
     ap.add_argument("--clock-mode", choices=["game", "move"], default="game")
+    ap.add_argument("--time-control", choices=["fixed", "classical"], default="fixed",
+                    help="New-game clock: fixed legacy allowance, or 90min/40 +30min with 30s per verified own move")
     ap.add_argument("--game-seconds", type=float, default=3600)
     ap.add_argument("--move-seconds", type=float, default=120)
     ap.add_argument("--reserve", type=float, default=40)
@@ -196,9 +198,15 @@ def main(argv=None):
             raise ValueError("init requires a positive --round")
         if game.exists():
             raise ValueError("Game directory already exists; choose a new --game to preserve earlier evidence")
-        status = create_game_clock(clock, mode=args.clock_mode, total_seconds=args.game_seconds,
-                                   move_seconds=args.move_seconds, reserve_seconds=args.reserve,
-                                   charge_to_submission=args.own_time_only)
+        policy = dict(mode=args.clock_mode, total_seconds=args.game_seconds,
+                      move_seconds=args.move_seconds, reserve_seconds=args.reserve,
+                      charge_to_submission=args.own_time_only)
+        if args.time_control == "classical":
+            if args.clock_mode != "game":
+                raise ValueError("The classical time control requires --clock-mode game")
+            policy.update(total_seconds=5400, increment_seconds=30, stage_moves=40,
+                          stage_seconds=1800, ordinary_seconds=120, critical_seconds=240)
+        status = create_game_clock(clock, **policy)
         players = dict(white="Astra (Ultra)", black=args.opponent_name, black_elo=args.opponent_elo)
         if args.side == "black":
             players = dict(white=args.opponent_name, white_elo=args.opponent_elo, black="Astra (Ultra)")

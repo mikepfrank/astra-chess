@@ -20,15 +20,18 @@ does not inspect the browser, reset time, or authorize a new game.
 
 The experiment uses this repository's from-scratch engine, without external
 engines, opening books, or endgame databases. The live journal supports either
-color with `init --side white|black`; White is the default. Use one hour of
-cumulative own-turn time, excluding the bot's thinking. User instructions can change the experiment. Preserve timestamped
-records and only refund time under explicit user authorization.
-
-Mike subsequently selected 90 minutes for the first 40 own moves, 30 more after
-move 40, and a 30-second increment per own move for future games. Before the
-next trial, implement/test that policy as described in
-[TIME-CONTROL-NEXT.md](TIME-CONTROL-NEXT.md); the existing fixed-total initializer
-does not yet implement it. Do not apply it retrospectively to game 10.
+color with `init --side white|black`; White is the default. New trials use
+`--time-control classical --own-time-only`: 90 minutes initially, 30 more after
+the 40th verified own move, and a 30-second increment after each verified own
+move starting with move 1. Exclude the bot's thinking. Use ordinary/critical
+turn targets of 120/240 seconds, including a 40-second review and entry reserve;
+the ledger reduces allocations as the available balance requires. No future
+increments or stage time are available in advance. See
+[TIME-CONTROL-NEXT.md](TIME-CONTROL-NEXT.md) for the selected policy and accounting.
+The initializer's `fixed` default preserves the older one-hour setup; select
+`classical` explicitly for new trials. Do not change old journals or apply this
+policy retrospectively to game 10. Preserve timestamped records and only refund
+time under explicit user authorization.
 
 `ENGINE.md` is the maintained interface reference; `docs/engine-design.md`
 documents evaluation formulas, search semantics, goal criteria and options.

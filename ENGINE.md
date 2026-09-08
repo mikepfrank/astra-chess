@@ -210,24 +210,47 @@ source fingerprint covering rules, search, and optional diagnostic/evaluation co
 
 ## Clock and live-game procedure
 
-Before starting the next game, read [TIME-CONTROL-NEXT.md](TIME-CONTROL-NEXT.md).
-Mike selected 90 minutes for the first 40 own moves, 30 additional minutes after
-move 40, and a 30-second increment from move 1. That staged control must still be
-implemented and tested; the fixed-total clock described below does not provide
-stages or increments. Do not apply the future policy retrospectively to game 10.
+For a new trial, explicitly select Mike's staged preset:
 
-The current implementation defaults to **one hour of cumulative own-turn time**, including deliberation,
-queries, commentary, browser interaction, and retries. A verified move is charged
-through its accepted submission timestamp, excluding Wally's thinking and the
-subsequent confirmation interval. Without a separate submission timestamp, the
-clock conservatively charges through verification and records that uncertainty.
-Aim for
-**60–90 seconds on ordinary moves**, with up to **120–180 seconds for a concrete
-critical position** and **40 seconds reserved for review and move entry**.
-Allocations shrink as the balance runs down. Alternatively initialize with
-`--clock-mode move --move-seconds 120` for a fixed two-minute per-move allowance.
-Both modes are cooperative: they report overruns rather than forcing a browser
-move or concealing excess time.
+```text
+python play_engine_game.py init --game GAME-SLUG --round ROUND --opponent-name BOT-NAME --opponent-elo RATING --time-control classical --own-time-only
+```
+
+`--time-control classical` requires cumulative `--clock-mode game` and starts
+with **5,400 seconds (90 minutes)**. It credits **30 seconds after each verified
+own move**, beginning with move 1, and **1,800 seconds (30 minutes) once after the
+40th verified own move**. No future increment or stage grant is included in the
+available balance. A choice, attempted submission, rejection, query, or opponent
+move does not earn time. Verification replay derives each credit from a distinct
+completed own turn, so re-reading the ledger cannot award it twice. The charged
+balance is checked before a move earns time: a later credit does not erase an
+overrun. See [TIME-CONTROL-NEXT.md](TIME-CONTROL-NEXT.md) for the policy and its
+historical boundary.
+
+The staged preset targets **120 seconds on ordinary moves**, or **240 seconds
+for a concrete critical position**, including **40 seconds reserved for review
+and move entry**. Before move 40, allocation divides the current credited
+balance over the own moves still needed to reach the stage, then caps it at
+the ordinary target (twice that forecast for a critical position, capped at its
+target). Afterward the forecast looks toward 20 further own moves, with a
+rolling minimum horizon of 12. All allocations remain bounded by available
+game time. These are turn targets, not mandatory thinking times. The initial
+15-second/depth-8/three-candidate query and the 180-second cap per query remain
+unchanged. Spend additional time only on a concrete unresolved question.
+
+The clock includes deliberation, queries, commentary, browser interaction, and
+retries. With `--own-time-only`, a verified move is charged through its accepted
+submission timestamp, excluding the bot's thinking and the subsequent
+confirmation interval. Without a separate submission timestamp, it conservatively
+charges through verification and records that uncertainty.
+
+For compatibility, `--time-control fixed` remains the CLI default: one hour of
+cumulative own-turn time, no increments or stage, and the prior ordinary/critical
+90/180-second targets. `--game-seconds` selects its fixed total. Alternatively,
+`--clock-mode move --move-seconds 120` uses a fixed two-minute per-move allowance;
+it cannot be combined with `classical`. Existing journals retain their saved
+policy. All modes are cooperative: they report overruns rather than forcing a
+browser move or concealing excess time.
 
 `play_engine_game.py` requires an explicit new game directory name. Initialization
 never overwrites a saved game. It does not control the browser or choose moves.
@@ -244,6 +267,19 @@ interruption credit can be appended with
 after that turn is verified. Original charges and timestamps remain intact;
 status reports raw usage, refunded seconds, and adjusted usage separately.
 Credits require a unique ID and cannot exceed the recorded charge for that turn.
+
+For staged clocks, `clock_status` additionally exposes `completed_own_moves`,
+`increment_seconds`, `earned_increment_seconds`, `stage_moves`, `stage_seconds`,
+`earned_stage_seconds`, `stage_grants`, `next_stage_own_move`, and
+`own_moves_to_next_stage`. `original_total_seconds` is the initial allowance;
+`total_seconds` includes only earned increments, earned stage time, and explicit
+extensions. `game_balance_seconds` can be negative, while the spendable
+`game_remaining_seconds` is clamped at zero. `verified_game_overruns` retains
+settled overruns measured before move credits. Check `remaining_seconds` and
+`query_available_seconds` on the active turn before choosing a search budget.
+Each staged verification event also records its completed-own-move count,
+balance and overrun before awards, separate increment/stage awards, and balance
+after awards. The append-only events supply the per-move accounting evidence.
 
 ### Explicitly authorized resumption with extra time
 

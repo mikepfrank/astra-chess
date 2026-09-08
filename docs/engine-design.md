@@ -516,13 +516,22 @@ the recommended move. JSON outputs record the request, effective settings,
 timing, engine version and a source hash covering rules, search and diagnostics.
 
 `--game-clock` attaches a query to the append-only own-turn ledger used by the
-live helper. The fixed cumulative mode, optional per-move clock, review reserve,
-critical-position allocation, explicit credits/extensions, color-aware journal
-and compaction recovery are documented in [ENGINE.md](../ENGINE.md) and
-[the play skill](../skills/astra-chess-play/SKILL.md). The selected future staged
-90/40 + 30 minute control with 30-second increments is still **planned**, not
-implemented; see [TIME-CONTROL-NEXT.md](../TIME-CONTROL-NEXT.md). Legacy `--session`
-turn clocks remain available and cannot be combined with `--game-clock`.
+live helper. New trials select `init --time-control classical --own-time-only`:
+5,400 initial seconds, a 30-second increment after each verified own move from
+move 1, and a single 1,800-second grant after the 40th verified own move. Future
+credits do not enter the available balance, and a pre-credit overrun remains
+recorded. The staged policy uses ordinary/critical turn targets of 120/240
+seconds, including a 40-second review and entry reserve; allocations shrink
+with the available balance. It changes time allocation, not evaluation weights,
+query defaults, or the 180-second limit on an individual engine request.
+
+The fixed cumulative mode remains the CLI default for compatibility. The
+staged preset, optional per-move clock, explicit credits/extensions, color-aware
+journal and compaction recovery are documented in [ENGINE.md](../ENGINE.md),
+[TIME-CONTROL-NEXT.md](../TIME-CONTROL-NEXT.md), and
+[the play skill](../skills/astra-chess-play/SKILL.md). Existing game ledgers keep
+their original policy. Legacy `--session` turn clocks remain available and
+cannot be combined with `--game-clock`.
 
 The report hints, positional weights and frontier extensions are intentionally
 simple. They can miss quiet traps, long-term compensation, king attacks and
