@@ -6,7 +6,7 @@
   "white": "Wally",
   "white_elo": 1800,
   "black": "Astra (Ultra)",
-  "result": "*",
+  "result": "0-1",
   "uci": [
     "e2e4",
     "c7c5",
@@ -96,7 +96,14 @@
     "c4c2",
     "f2e1",
     "c2c1",
-    "e1f2"
+    "e1f2",
+    "c1d1",
+    "d2g5",
+    "e6g4",
+    "g5d2",
+    "c8c2",
+    "f2g2",
+    "c2d2"
   ],
   "san": [
     "e4",
@@ -187,7 +194,14 @@
     "Rc2",
     "Ke1",
     "Rc1+",
-    "Kf2"
+    "Kf2",
+    "Rd1",
+    "Bg5",
+    "Bg4",
+    "Bd2",
+    "Rc2",
+    "Kg2",
+    "Rcxd2#"
   ],
   "fens": [
     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -279,7 +293,14 @@
     "2r3k1/1p4pp/4b3/P2n4/7P/6P1/2rB1K2/8 w - - 1 44",
     "2r3k1/1p4pp/4b3/P2n4/7P/6P1/2rB4/4K3 b - - 2 44",
     "2r3k1/1p4pp/4b3/P2n4/7P/6P1/3B4/2r1K3 w - - 3 45",
-    "2r3k1/1p4pp/4b3/P2n4/7P/6P1/3B1K2/2r5 b - - 4 45"
+    "2r3k1/1p4pp/4b3/P2n4/7P/6P1/3B1K2/2r5 b - - 4 45",
+    "2r3k1/1p4pp/4b3/P2n4/7P/6P1/3B1K2/3r4 w - - 5 46",
+    "2r3k1/1p4pp/4b3/P2n2B1/7P/6P1/5K2/3r4 b - - 6 46",
+    "2r3k1/1p4pp/8/P2n2B1/6bP/6P1/5K2/3r4 w - - 7 47",
+    "2r3k1/1p4pp/8/P2n4/6bP/6P1/3B1K2/3r4 b - - 8 47",
+    "6k1/1p4pp/8/P2n4/6bP/6P1/2rB1K2/3r4 w - - 9 48",
+    "6k1/1p4pp/8/P2n4/6bP/6P1/2rB2K1/3r4 b - - 10 48",
+    "6k1/1p4pp/8/P2n4/6bP/6P1/3r2K1/3r4 w - - 0 49"
   ],
   "turns": [
     {
@@ -6738,7 +6759,1185 @@
       "observed_utc": "2026-09-08T01:39:41.674Z",
       "initial_candidate": "c1d1",
       "concern": "Attack Bd2 with rook; clock nearly exhausted, await user policy on overrun",
-      "queries": []
+      "queries": [
+        "engine-games\\wally-v02-black\\turn-45-query-1.json"
+      ],
+      "selected_move": "c1d1",
+      "selected_san": "Rd1",
+      "assessment": "Initial Rd1 confirmed at depth5 +17.05. Attack Bd2; inspect Be3 Bg4 pin then Nxe3. White pawn pushes do not threaten rooks or king immediately.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "clock_kind": "game_ledger",
+        "mode": "game",
+        "active_ply": 89,
+        "finished": false,
+        "critical": true,
+        "allocation_seconds": 233.447,
+        "elapsed_seconds": 188.435,
+        "remaining_seconds": 45.012,
+        "reserve_seconds": 40.0,
+        "query_available_seconds": 5.012,
+        "game_seconds_used": 3765.843,
+        "game_remaining_seconds": 734.157,
+        "raw_game_seconds_used": 3765.843,
+        "refunded_seconds": 0.0,
+        "time_refunds": [],
+        "total_seconds": 4500.0,
+        "original_total_seconds": 3600.0,
+        "extension_seconds": 900.0,
+        "time_extensions": [
+          {
+            "ply": 89,
+            "paused_utc": "2026-09-08T01:41:35.130231+00:00",
+            "resumed_utc": "2026-09-08T01:56:30.503000+00:00",
+            "resumed_monotonic": 1260379.4654640001,
+            "excluded_pause_seconds": 895.372769,
+            "elapsed_before_pause_seconds": 113.44700000000012,
+            "extra_seconds": 900.0,
+            "turn_seconds": 120.0,
+            "allocation_seconds": 233.44700000000012,
+            "previous_allocation_seconds": 3.76533333333335,
+            "original_total_seconds": 3600.0,
+            "boundary_note_seq": 312,
+            "boundary_sample_difference_seconds": -0.009231000134604983,
+            "reason": "User authorized playing out with reasonable extra time; adding 15 minutes and excluding documented pause and setup",
+            "adjustment_id": "wally-black-extension-1",
+            "authorization": "express_user_request",
+            "uncertainty": [],
+            "recorded_utc": "2026-09-08T01:56:43.833536+00:00"
+          }
+        ],
+        "excluded_pause_seconds": 895.373,
+        "extended_turn_seconds": 120.0,
+        "turn_overrun_seconds": 0.0,
+        "game_overrun_seconds": 0.0,
+        "expired": false,
+        "calls": 1,
+        "query_seconds_used": 29.089,
+        "verified_turn_overruns": [
+          {
+            "ply": 1,
+            "seconds": 75.239
+          },
+          {
+            "ply": 29,
+            "seconds": 17.683000000000007
+          },
+          {
+            "ply": 43,
+            "seconds": 4.6200000000000045
+          },
+          {
+            "ply": 59,
+            "seconds": 11.334000000000003
+          },
+          {
+            "ply": 63,
+            "seconds": 1.5497499999999746
+          },
+          {
+            "ply": 81,
+            "seconds": 22.847499999999954
+          },
+          {
+            "ply": 83,
+            "seconds": 34.68149999999995
+          },
+          {
+            "ply": 85,
+            "seconds": 2.9508333333332715
+          },
+          {
+            "ply": 87,
+            "seconds": 134.34549999999996
+          }
+        ],
+        "timing_uncertainty": [
+          "Observation timestamp entered 13.058s later; interval is charged from the supplied observation",
+          "Verification entered later using the supplied observation timestamp",
+          "Observation timestamp entered 12.288s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.789s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 20.483s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.757s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.939s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.385s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.944s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.537s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.738s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.754s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.672s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.493s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.037s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.000s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.633s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.396s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.662s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.113s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 30.092s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 29.919s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.623s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.622s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.447s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.776s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.141s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.897s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 43.171s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.787s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 44.579s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 28.641s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.069s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.584s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.239s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 27.316s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.112s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.764s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.212s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 22.329s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.925s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 17.015s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.026s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.506s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 143.189s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 70.428s later; interval is charged from the supplied observation"
+        ],
+        "submission_pending_verification": false,
+        "charge_to_submission": true,
+        "excluded_verification_seconds": 793.565,
+        "cooperative_clock": true
+      },
+      "submitted_utc": "2026-09-08T01:58:05.572Z",
+      "verified_utc": "2026-09-08T01:58:25.131Z",
+      "verification_clock": {
+        "clock_kind": "game_ledger",
+        "mode": "game",
+        "active_ply": null,
+        "finished": false,
+        "critical": false,
+        "allocation_seconds": 0.0,
+        "elapsed_seconds": 0.0,
+        "remaining_seconds": 0.0,
+        "reserve_seconds": 40.0,
+        "query_available_seconds": 0.0,
+        "game_seconds_used": 3785.924,
+        "game_remaining_seconds": 714.076,
+        "raw_game_seconds_used": 3785.924,
+        "refunded_seconds": 0.0,
+        "time_refunds": [],
+        "total_seconds": 4500.0,
+        "original_total_seconds": 3600.0,
+        "extension_seconds": 900.0,
+        "time_extensions": [
+          {
+            "ply": 89,
+            "paused_utc": "2026-09-08T01:41:35.130231+00:00",
+            "resumed_utc": "2026-09-08T01:56:30.503000+00:00",
+            "resumed_monotonic": 1260379.4654640001,
+            "excluded_pause_seconds": 895.372769,
+            "elapsed_before_pause_seconds": 113.44700000000012,
+            "extra_seconds": 900.0,
+            "turn_seconds": 120.0,
+            "allocation_seconds": 233.44700000000012,
+            "previous_allocation_seconds": 3.76533333333335,
+            "original_total_seconds": 3600.0,
+            "boundary_note_seq": 312,
+            "boundary_sample_difference_seconds": -0.009231000134604983,
+            "reason": "User authorized playing out with reasonable extra time; adding 15 minutes and excluding documented pause and setup",
+            "adjustment_id": "wally-black-extension-1",
+            "authorization": "express_user_request",
+            "uncertainty": [],
+            "recorded_utc": "2026-09-08T01:56:43.833536+00:00"
+          }
+        ],
+        "excluded_pause_seconds": 895.373,
+        "extended_turn_seconds": 120.0,
+        "turn_overrun_seconds": 0.0,
+        "game_overrun_seconds": 0.0,
+        "expired": false,
+        "calls": 0,
+        "query_seconds_used": 0.0,
+        "verified_turn_overruns": [
+          {
+            "ply": 1,
+            "seconds": 75.239
+          },
+          {
+            "ply": 29,
+            "seconds": 17.683000000000007
+          },
+          {
+            "ply": 43,
+            "seconds": 4.6200000000000045
+          },
+          {
+            "ply": 59,
+            "seconds": 11.334000000000003
+          },
+          {
+            "ply": 63,
+            "seconds": 1.5497499999999746
+          },
+          {
+            "ply": 81,
+            "seconds": 22.847499999999954
+          },
+          {
+            "ply": 83,
+            "seconds": 34.68149999999995
+          },
+          {
+            "ply": 85,
+            "seconds": 2.9508333333332715
+          },
+          {
+            "ply": 87,
+            "seconds": 134.34549999999996
+          }
+        ],
+        "timing_uncertainty": [
+          "Observation timestamp entered 13.058s later; interval is charged from the supplied observation",
+          "Verification entered later using the supplied observation timestamp",
+          "Observation timestamp entered 12.288s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.789s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 20.483s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.757s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.939s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.385s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.944s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.537s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.738s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.754s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.672s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.493s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.037s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.000s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.633s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.396s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.662s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.113s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 30.092s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 29.919s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.623s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.622s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.447s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.776s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.141s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.897s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 43.171s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.787s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 44.579s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 28.641s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.069s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.584s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.239s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 27.316s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.112s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.764s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.212s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 22.329s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.925s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 17.015s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.026s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.506s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 143.189s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 70.428s later; interval is charged from the supplied observation"
+        ],
+        "submission_pending_verification": false,
+        "charge_to_submission": true,
+        "excluded_verification_seconds": 813.124,
+        "cooperative_clock": true
+      }
+    },
+    {
+      "move": 46,
+      "ply": 91,
+      "observed_utc": "2026-09-08T01:58:25.131Z",
+      "initial_candidate": "c8c2",
+      "concern": "Cut king off with Rc2; bishop g5 may interpose or attack d8, inspect rook coordination",
+      "queries": [
+        "engine-games\\wally-v02-black\\turn-46-query-1.json"
+      ],
+      "selected_move": "e6g4",
+      "selected_san": "Bg4",
+      "assessment": "Engine changed my Rc2+ candidate to Bg4, mate score in5plies at completeddepth4. Bishop closes f3/e2 and protects Rd1. White bishop cannot capture Bg4; g/h pawns cannot attack our king. Recheck actual defense.",
+      "changed_candidate": true,
+      "decision_clock": {
+        "clock_kind": "game_ledger",
+        "mode": "game",
+        "active_ply": 91,
+        "finished": false,
+        "critical": false,
+        "allocation_seconds": 120.0,
+        "elapsed_seconds": 60.221,
+        "remaining_seconds": 59.779,
+        "reserve_seconds": 40.0,
+        "query_available_seconds": 19.779,
+        "game_seconds_used": 3846.145,
+        "game_remaining_seconds": 653.855,
+        "raw_game_seconds_used": 3846.145,
+        "refunded_seconds": 0.0,
+        "time_refunds": [],
+        "total_seconds": 4500.0,
+        "original_total_seconds": 3600.0,
+        "extension_seconds": 900.0,
+        "time_extensions": [
+          {
+            "ply": 89,
+            "paused_utc": "2026-09-08T01:41:35.130231+00:00",
+            "resumed_utc": "2026-09-08T01:56:30.503000+00:00",
+            "resumed_monotonic": 1260379.4654640001,
+            "excluded_pause_seconds": 895.372769,
+            "elapsed_before_pause_seconds": 113.44700000000012,
+            "extra_seconds": 900.0,
+            "turn_seconds": 120.0,
+            "allocation_seconds": 233.44700000000012,
+            "previous_allocation_seconds": 3.76533333333335,
+            "original_total_seconds": 3600.0,
+            "boundary_note_seq": 312,
+            "boundary_sample_difference_seconds": -0.009231000134604983,
+            "reason": "User authorized playing out with reasonable extra time; adding 15 minutes and excluding documented pause and setup",
+            "adjustment_id": "wally-black-extension-1",
+            "authorization": "express_user_request",
+            "uncertainty": [],
+            "recorded_utc": "2026-09-08T01:56:43.833536+00:00"
+          }
+        ],
+        "excluded_pause_seconds": 895.373,
+        "extended_turn_seconds": 120.0,
+        "turn_overrun_seconds": 0.0,
+        "game_overrun_seconds": 0.0,
+        "expired": false,
+        "calls": 1,
+        "query_seconds_used": 19.023,
+        "verified_turn_overruns": [
+          {
+            "ply": 1,
+            "seconds": 75.239
+          },
+          {
+            "ply": 29,
+            "seconds": 17.683000000000007
+          },
+          {
+            "ply": 43,
+            "seconds": 4.6200000000000045
+          },
+          {
+            "ply": 59,
+            "seconds": 11.334000000000003
+          },
+          {
+            "ply": 63,
+            "seconds": 1.5497499999999746
+          },
+          {
+            "ply": 81,
+            "seconds": 22.847499999999954
+          },
+          {
+            "ply": 83,
+            "seconds": 34.68149999999995
+          },
+          {
+            "ply": 85,
+            "seconds": 2.9508333333332715
+          },
+          {
+            "ply": 87,
+            "seconds": 134.34549999999996
+          }
+        ],
+        "timing_uncertainty": [
+          "Observation timestamp entered 13.058s later; interval is charged from the supplied observation",
+          "Verification entered later using the supplied observation timestamp",
+          "Observation timestamp entered 12.288s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.789s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 20.483s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.757s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.939s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.385s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.944s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.537s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.738s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.754s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.672s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.493s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.037s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.000s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.633s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.396s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.662s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.113s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 30.092s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 29.919s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.623s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.622s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.447s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.776s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.141s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.897s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 43.171s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.787s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 44.579s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 28.641s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.069s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.584s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.239s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 27.316s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.112s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.764s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.212s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 22.329s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.925s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 17.015s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.026s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.506s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 143.189s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 70.428s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.687s later; interval is charged from the supplied observation"
+        ],
+        "submission_pending_verification": false,
+        "charge_to_submission": true,
+        "excluded_verification_seconds": 813.124,
+        "cooperative_clock": true
+      },
+      "submitted_utc": "2026-09-08T01:59:40.856Z",
+      "verified_utc": "2026-09-08T01:59:58.649Z",
+      "verification_clock": {
+        "clock_kind": "game_ledger",
+        "mode": "game",
+        "active_ply": null,
+        "finished": false,
+        "critical": false,
+        "allocation_seconds": 0.0,
+        "elapsed_seconds": 0.0,
+        "remaining_seconds": 0.0,
+        "reserve_seconds": 40.0,
+        "query_available_seconds": 0.0,
+        "game_seconds_used": 3861.649,
+        "game_remaining_seconds": 638.351,
+        "raw_game_seconds_used": 3861.649,
+        "refunded_seconds": 0.0,
+        "time_refunds": [],
+        "total_seconds": 4500.0,
+        "original_total_seconds": 3600.0,
+        "extension_seconds": 900.0,
+        "time_extensions": [
+          {
+            "ply": 89,
+            "paused_utc": "2026-09-08T01:41:35.130231+00:00",
+            "resumed_utc": "2026-09-08T01:56:30.503000+00:00",
+            "resumed_monotonic": 1260379.4654640001,
+            "excluded_pause_seconds": 895.372769,
+            "elapsed_before_pause_seconds": 113.44700000000012,
+            "extra_seconds": 900.0,
+            "turn_seconds": 120.0,
+            "allocation_seconds": 233.44700000000012,
+            "previous_allocation_seconds": 3.76533333333335,
+            "original_total_seconds": 3600.0,
+            "boundary_note_seq": 312,
+            "boundary_sample_difference_seconds": -0.009231000134604983,
+            "reason": "User authorized playing out with reasonable extra time; adding 15 minutes and excluding documented pause and setup",
+            "adjustment_id": "wally-black-extension-1",
+            "authorization": "express_user_request",
+            "uncertainty": [],
+            "recorded_utc": "2026-09-08T01:56:43.833536+00:00"
+          }
+        ],
+        "excluded_pause_seconds": 895.373,
+        "extended_turn_seconds": 120.0,
+        "turn_overrun_seconds": 0.0,
+        "game_overrun_seconds": 0.0,
+        "expired": false,
+        "calls": 0,
+        "query_seconds_used": 0.0,
+        "verified_turn_overruns": [
+          {
+            "ply": 1,
+            "seconds": 75.239
+          },
+          {
+            "ply": 29,
+            "seconds": 17.683000000000007
+          },
+          {
+            "ply": 43,
+            "seconds": 4.6200000000000045
+          },
+          {
+            "ply": 59,
+            "seconds": 11.334000000000003
+          },
+          {
+            "ply": 63,
+            "seconds": 1.5497499999999746
+          },
+          {
+            "ply": 81,
+            "seconds": 22.847499999999954
+          },
+          {
+            "ply": 83,
+            "seconds": 34.68149999999995
+          },
+          {
+            "ply": 85,
+            "seconds": 2.9508333333332715
+          },
+          {
+            "ply": 87,
+            "seconds": 134.34549999999996
+          }
+        ],
+        "timing_uncertainty": [
+          "Observation timestamp entered 13.058s later; interval is charged from the supplied observation",
+          "Verification entered later using the supplied observation timestamp",
+          "Observation timestamp entered 12.288s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.789s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 20.483s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.757s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.939s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.385s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.944s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.537s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.738s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.754s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.672s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.493s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.037s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.000s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.633s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.396s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.662s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.113s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 30.092s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 29.919s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.623s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.622s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.447s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.776s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.141s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.897s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 43.171s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.787s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 44.579s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 28.641s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.069s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.584s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.239s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 27.316s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.112s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.764s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.212s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 22.329s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.925s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 17.015s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.026s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.506s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 143.189s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 70.428s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.687s later; interval is charged from the supplied observation"
+        ],
+        "submission_pending_verification": false,
+        "charge_to_submission": true,
+        "excluded_verification_seconds": 830.917,
+        "cooperative_clock": true
+      }
+    },
+    {
+      "move": 47,
+      "ply": 93,
+      "observed_utc": "2026-09-08T01:59:58.649Z",
+      "initial_candidate": "c8c2",
+      "concern": "Continue mating line Rc2; inspect B interpositions and king g2 escape",
+      "queries": [
+        "engine-games\\wally-v02-black\\turn-47-query-1.json"
+      ],
+      "selected_move": "c8c2",
+      "selected_san": "Rc2",
+      "assessment": "Rc2 confirmed mating continuation. Bd2 shields Kf2 from rook along rank2, so bishop cannot leave; Kg2 permits Rxc2-d2 mate with Rd1 controlling first rank and Bg4 controlling f3/h3.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "clock_kind": "game_ledger",
+        "mode": "game",
+        "active_ply": 93,
+        "finished": false,
+        "critical": false,
+        "allocation_seconds": 120.0,
+        "elapsed_seconds": 48.616,
+        "remaining_seconds": 71.384,
+        "reserve_seconds": 40.0,
+        "query_available_seconds": 31.384,
+        "game_seconds_used": 3910.265,
+        "game_remaining_seconds": 589.735,
+        "raw_game_seconds_used": 3910.265,
+        "refunded_seconds": 0.0,
+        "time_refunds": [],
+        "total_seconds": 4500.0,
+        "original_total_seconds": 3600.0,
+        "extension_seconds": 900.0,
+        "time_extensions": [
+          {
+            "ply": 89,
+            "paused_utc": "2026-09-08T01:41:35.130231+00:00",
+            "resumed_utc": "2026-09-08T01:56:30.503000+00:00",
+            "resumed_monotonic": 1260379.4654640001,
+            "excluded_pause_seconds": 895.372769,
+            "elapsed_before_pause_seconds": 113.44700000000012,
+            "extra_seconds": 900.0,
+            "turn_seconds": 120.0,
+            "allocation_seconds": 233.44700000000012,
+            "previous_allocation_seconds": 3.76533333333335,
+            "original_total_seconds": 3600.0,
+            "boundary_note_seq": 312,
+            "boundary_sample_difference_seconds": -0.009231000134604983,
+            "reason": "User authorized playing out with reasonable extra time; adding 15 minutes and excluding documented pause and setup",
+            "adjustment_id": "wally-black-extension-1",
+            "authorization": "express_user_request",
+            "uncertainty": [],
+            "recorded_utc": "2026-09-08T01:56:43.833536+00:00"
+          }
+        ],
+        "excluded_pause_seconds": 895.373,
+        "extended_turn_seconds": 120.0,
+        "turn_overrun_seconds": 0.0,
+        "game_overrun_seconds": 0.0,
+        "expired": false,
+        "calls": 1,
+        "query_seconds_used": 14.047,
+        "verified_turn_overruns": [
+          {
+            "ply": 1,
+            "seconds": 75.239
+          },
+          {
+            "ply": 29,
+            "seconds": 17.683000000000007
+          },
+          {
+            "ply": 43,
+            "seconds": 4.6200000000000045
+          },
+          {
+            "ply": 59,
+            "seconds": 11.334000000000003
+          },
+          {
+            "ply": 63,
+            "seconds": 1.5497499999999746
+          },
+          {
+            "ply": 81,
+            "seconds": 22.847499999999954
+          },
+          {
+            "ply": 83,
+            "seconds": 34.68149999999995
+          },
+          {
+            "ply": 85,
+            "seconds": 2.9508333333332715
+          },
+          {
+            "ply": 87,
+            "seconds": 134.34549999999996
+          }
+        ],
+        "timing_uncertainty": [
+          "Observation timestamp entered 13.058s later; interval is charged from the supplied observation",
+          "Verification entered later using the supplied observation timestamp",
+          "Observation timestamp entered 12.288s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.789s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 20.483s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.757s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.939s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.385s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.944s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.537s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.738s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.754s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.672s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.493s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.037s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.000s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.633s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.396s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.662s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.113s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 30.092s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 29.919s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.623s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.622s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.447s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.776s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.141s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.897s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 43.171s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.787s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 44.579s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 28.641s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.069s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.584s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.239s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 27.316s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.112s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.764s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.212s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 22.329s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.925s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 17.015s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.026s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.506s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 143.189s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 70.428s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.687s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.661s later; interval is charged from the supplied observation"
+        ],
+        "submission_pending_verification": false,
+        "charge_to_submission": true,
+        "excluded_verification_seconds": 830.917,
+        "cooperative_clock": true
+      },
+      "submitted_utc": "2026-09-08T02:01:01.370Z",
+      "verified_utc": "2026-09-08T02:01:42.006Z",
+      "verification_clock": {
+        "clock_kind": "game_ledger",
+        "mode": "game",
+        "active_ply": null,
+        "finished": false,
+        "critical": false,
+        "allocation_seconds": 0.0,
+        "elapsed_seconds": 0.0,
+        "remaining_seconds": 0.0,
+        "reserve_seconds": 40.0,
+        "query_available_seconds": 0.0,
+        "game_seconds_used": 3924.37,
+        "game_remaining_seconds": 575.63,
+        "raw_game_seconds_used": 3924.37,
+        "refunded_seconds": 0.0,
+        "time_refunds": [],
+        "total_seconds": 4500.0,
+        "original_total_seconds": 3600.0,
+        "extension_seconds": 900.0,
+        "time_extensions": [
+          {
+            "ply": 89,
+            "paused_utc": "2026-09-08T01:41:35.130231+00:00",
+            "resumed_utc": "2026-09-08T01:56:30.503000+00:00",
+            "resumed_monotonic": 1260379.4654640001,
+            "excluded_pause_seconds": 895.372769,
+            "elapsed_before_pause_seconds": 113.44700000000012,
+            "extra_seconds": 900.0,
+            "turn_seconds": 120.0,
+            "allocation_seconds": 233.44700000000012,
+            "previous_allocation_seconds": 3.76533333333335,
+            "original_total_seconds": 3600.0,
+            "boundary_note_seq": 312,
+            "boundary_sample_difference_seconds": -0.009231000134604983,
+            "reason": "User authorized playing out with reasonable extra time; adding 15 minutes and excluding documented pause and setup",
+            "adjustment_id": "wally-black-extension-1",
+            "authorization": "express_user_request",
+            "uncertainty": [],
+            "recorded_utc": "2026-09-08T01:56:43.833536+00:00"
+          }
+        ],
+        "excluded_pause_seconds": 895.373,
+        "extended_turn_seconds": 120.0,
+        "turn_overrun_seconds": 0.0,
+        "game_overrun_seconds": 0.0,
+        "expired": false,
+        "calls": 0,
+        "query_seconds_used": 0.0,
+        "verified_turn_overruns": [
+          {
+            "ply": 1,
+            "seconds": 75.239
+          },
+          {
+            "ply": 29,
+            "seconds": 17.683000000000007
+          },
+          {
+            "ply": 43,
+            "seconds": 4.6200000000000045
+          },
+          {
+            "ply": 59,
+            "seconds": 11.334000000000003
+          },
+          {
+            "ply": 63,
+            "seconds": 1.5497499999999746
+          },
+          {
+            "ply": 81,
+            "seconds": 22.847499999999954
+          },
+          {
+            "ply": 83,
+            "seconds": 34.68149999999995
+          },
+          {
+            "ply": 85,
+            "seconds": 2.9508333333332715
+          },
+          {
+            "ply": 87,
+            "seconds": 134.34549999999996
+          }
+        ],
+        "timing_uncertainty": [
+          "Observation timestamp entered 13.058s later; interval is charged from the supplied observation",
+          "Verification entered later using the supplied observation timestamp",
+          "Observation timestamp entered 12.288s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.789s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 20.483s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.757s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.939s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.385s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.944s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.537s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.738s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.754s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.672s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.493s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.037s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.000s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.633s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.396s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.662s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.113s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 30.092s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 29.919s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.623s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.622s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.447s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.776s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.141s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.897s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 43.171s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.787s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 44.579s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 28.641s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.069s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.584s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.239s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 27.316s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.112s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.764s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.212s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 22.329s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.925s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 17.015s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.026s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.506s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 143.189s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 70.428s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.687s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.661s later; interval is charged from the supplied observation"
+        ],
+        "submission_pending_verification": false,
+        "charge_to_submission": true,
+        "excluded_verification_seconds": 871.553,
+        "cooperative_clock": true
+      }
+    },
+    {
+      "move": 48,
+      "ply": 95,
+      "observed_utc": "2026-09-08T02:01:42.006Z",
+      "initial_candidate": "c2d2",
+      "concern": "Rcxd2 mate: rook rank2 and Rd1 rank1, Bg4 covers f3/h3, g3 occupied by own pawn",
+      "queries": [],
+      "selected_move": "c2d2",
+      "selected_san": "Rcxd2#",
+      "assessment": "Actual Kg2 defense: manually verified Rcxd2 checkmate; rook d2 covers rank2, rook d1 rank1, Bg4 f3/h3, g3 White own pawn; no interposition or capture remains.",
+      "changed_candidate": false,
+      "decision_clock": {
+        "clock_kind": "game_ledger",
+        "mode": "game",
+        "active_ply": 95,
+        "finished": false,
+        "critical": false,
+        "allocation_seconds": 120.0,
+        "elapsed_seconds": 14.811,
+        "remaining_seconds": 105.189,
+        "reserve_seconds": 40.0,
+        "query_available_seconds": 65.189,
+        "game_seconds_used": 3939.181,
+        "game_remaining_seconds": 560.819,
+        "raw_game_seconds_used": 3939.181,
+        "refunded_seconds": 0.0,
+        "time_refunds": [],
+        "total_seconds": 4500.0,
+        "original_total_seconds": 3600.0,
+        "extension_seconds": 900.0,
+        "time_extensions": [
+          {
+            "ply": 89,
+            "paused_utc": "2026-09-08T01:41:35.130231+00:00",
+            "resumed_utc": "2026-09-08T01:56:30.503000+00:00",
+            "resumed_monotonic": 1260379.4654640001,
+            "excluded_pause_seconds": 895.372769,
+            "elapsed_before_pause_seconds": 113.44700000000012,
+            "extra_seconds": 900.0,
+            "turn_seconds": 120.0,
+            "allocation_seconds": 233.44700000000012,
+            "previous_allocation_seconds": 3.76533333333335,
+            "original_total_seconds": 3600.0,
+            "boundary_note_seq": 312,
+            "boundary_sample_difference_seconds": -0.009231000134604983,
+            "reason": "User authorized playing out with reasonable extra time; adding 15 minutes and excluding documented pause and setup",
+            "adjustment_id": "wally-black-extension-1",
+            "authorization": "express_user_request",
+            "uncertainty": [],
+            "recorded_utc": "2026-09-08T01:56:43.833536+00:00"
+          }
+        ],
+        "excluded_pause_seconds": 895.373,
+        "extended_turn_seconds": 120.0,
+        "turn_overrun_seconds": 0.0,
+        "game_overrun_seconds": 0.0,
+        "expired": false,
+        "calls": 0,
+        "query_seconds_used": 0.0,
+        "verified_turn_overruns": [
+          {
+            "ply": 1,
+            "seconds": 75.239
+          },
+          {
+            "ply": 29,
+            "seconds": 17.683000000000007
+          },
+          {
+            "ply": 43,
+            "seconds": 4.6200000000000045
+          },
+          {
+            "ply": 59,
+            "seconds": 11.334000000000003
+          },
+          {
+            "ply": 63,
+            "seconds": 1.5497499999999746
+          },
+          {
+            "ply": 81,
+            "seconds": 22.847499999999954
+          },
+          {
+            "ply": 83,
+            "seconds": 34.68149999999995
+          },
+          {
+            "ply": 85,
+            "seconds": 2.9508333333332715
+          },
+          {
+            "ply": 87,
+            "seconds": 134.34549999999996
+          }
+        ],
+        "timing_uncertainty": [
+          "Observation timestamp entered 13.058s later; interval is charged from the supplied observation",
+          "Verification entered later using the supplied observation timestamp",
+          "Observation timestamp entered 12.288s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.789s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 20.483s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.757s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.939s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.385s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.944s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.537s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.738s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.754s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.672s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.493s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.037s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.000s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.633s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.396s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.662s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.113s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 30.092s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 29.919s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.623s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.622s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.447s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.776s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.141s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.897s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 43.171s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.787s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 44.579s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 28.641s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.069s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.584s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.239s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 27.316s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.112s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.764s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.212s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 22.329s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.925s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 17.015s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.026s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.506s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 143.189s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 70.428s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.687s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.661s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.506s later; interval is charged from the supplied observation"
+        ],
+        "submission_pending_verification": false,
+        "charge_to_submission": true,
+        "excluded_verification_seconds": 871.553,
+        "cooperative_clock": true
+      },
+      "submitted_utc": "2026-09-08T02:02:08.819Z",
+      "verified_utc": "2026-09-08T02:02:18.969Z",
+      "verification_clock": {
+        "clock_kind": "game_ledger",
+        "mode": "game",
+        "active_ply": null,
+        "finished": false,
+        "critical": false,
+        "allocation_seconds": 0.0,
+        "elapsed_seconds": 0.0,
+        "remaining_seconds": 0.0,
+        "reserve_seconds": 40.0,
+        "query_available_seconds": 0.0,
+        "game_seconds_used": 3951.183,
+        "game_remaining_seconds": 548.817,
+        "raw_game_seconds_used": 3951.183,
+        "refunded_seconds": 0.0,
+        "time_refunds": [],
+        "total_seconds": 4500.0,
+        "original_total_seconds": 3600.0,
+        "extension_seconds": 900.0,
+        "time_extensions": [
+          {
+            "ply": 89,
+            "paused_utc": "2026-09-08T01:41:35.130231+00:00",
+            "resumed_utc": "2026-09-08T01:56:30.503000+00:00",
+            "resumed_monotonic": 1260379.4654640001,
+            "excluded_pause_seconds": 895.372769,
+            "elapsed_before_pause_seconds": 113.44700000000012,
+            "extra_seconds": 900.0,
+            "turn_seconds": 120.0,
+            "allocation_seconds": 233.44700000000012,
+            "previous_allocation_seconds": 3.76533333333335,
+            "original_total_seconds": 3600.0,
+            "boundary_note_seq": 312,
+            "boundary_sample_difference_seconds": -0.009231000134604983,
+            "reason": "User authorized playing out with reasonable extra time; adding 15 minutes and excluding documented pause and setup",
+            "adjustment_id": "wally-black-extension-1",
+            "authorization": "express_user_request",
+            "uncertainty": [],
+            "recorded_utc": "2026-09-08T01:56:43.833536+00:00"
+          }
+        ],
+        "excluded_pause_seconds": 895.373,
+        "extended_turn_seconds": 120.0,
+        "turn_overrun_seconds": 0.0,
+        "game_overrun_seconds": 0.0,
+        "expired": false,
+        "calls": 0,
+        "query_seconds_used": 0.0,
+        "verified_turn_overruns": [
+          {
+            "ply": 1,
+            "seconds": 75.239
+          },
+          {
+            "ply": 29,
+            "seconds": 17.683000000000007
+          },
+          {
+            "ply": 43,
+            "seconds": 4.6200000000000045
+          },
+          {
+            "ply": 59,
+            "seconds": 11.334000000000003
+          },
+          {
+            "ply": 63,
+            "seconds": 1.5497499999999746
+          },
+          {
+            "ply": 81,
+            "seconds": 22.847499999999954
+          },
+          {
+            "ply": 83,
+            "seconds": 34.68149999999995
+          },
+          {
+            "ply": 85,
+            "seconds": 2.9508333333332715
+          },
+          {
+            "ply": 87,
+            "seconds": 134.34549999999996
+          }
+        ],
+        "timing_uncertainty": [
+          "Observation timestamp entered 13.058s later; interval is charged from the supplied observation",
+          "Verification entered later using the supplied observation timestamp",
+          "Observation timestamp entered 12.288s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.789s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 20.483s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.757s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.939s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.385s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.944s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.537s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.738s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.754s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.672s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.493s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.037s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.000s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.633s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.396s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.662s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.113s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 30.092s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 29.919s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.623s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.622s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.447s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.776s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 31.141s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.897s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 43.171s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.787s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 44.579s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 28.641s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 38.069s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 16.584s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 24.239s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 27.316s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 18.112s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 25.764s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 26.212s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 22.329s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.925s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 17.015s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 13.026s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 19.506s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 143.189s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 70.428s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.687s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 15.661s later; interval is charged from the supplied observation",
+          "Observation timestamp entered 14.506s later; interval is charged from the supplied observation"
+        ],
+        "submission_pending_verification": false,
+        "charge_to_submission": true,
+        "excluded_verification_seconds": 881.703,
+        "cooperative_clock": true
+      }
     }
   ],
   "pending": null,
@@ -6769,6 +7968,149 @@
     "submission_pending_verification": false,
     "charge_to_submission": true,
     "excluded_verification_seconds": 0.0,
+    "cooperative_clock": true
+  },
+  "termination": "checkmate",
+  "final_clock": {
+    "clock_kind": "game_ledger",
+    "mode": "game",
+    "active_ply": null,
+    "finished": true,
+    "critical": false,
+    "allocation_seconds": 0.0,
+    "elapsed_seconds": 0.0,
+    "remaining_seconds": 0.0,
+    "reserve_seconds": 40.0,
+    "query_available_seconds": 0.0,
+    "game_seconds_used": 3951.183,
+    "game_remaining_seconds": 548.817,
+    "raw_game_seconds_used": 3951.183,
+    "refunded_seconds": 0.0,
+    "time_refunds": [],
+    "total_seconds": 4500.0,
+    "original_total_seconds": 3600.0,
+    "extension_seconds": 900.0,
+    "time_extensions": [
+      {
+        "ply": 89,
+        "paused_utc": "2026-09-08T01:41:35.130231+00:00",
+        "resumed_utc": "2026-09-08T01:56:30.503000+00:00",
+        "resumed_monotonic": 1260379.4654640001,
+        "excluded_pause_seconds": 895.372769,
+        "elapsed_before_pause_seconds": 113.44700000000012,
+        "extra_seconds": 900.0,
+        "turn_seconds": 120.0,
+        "allocation_seconds": 233.44700000000012,
+        "previous_allocation_seconds": 3.76533333333335,
+        "original_total_seconds": 3600.0,
+        "boundary_note_seq": 312,
+        "boundary_sample_difference_seconds": -0.009231000134604983,
+        "reason": "User authorized playing out with reasonable extra time; adding 15 minutes and excluding documented pause and setup",
+        "adjustment_id": "wally-black-extension-1",
+        "authorization": "express_user_request",
+        "uncertainty": [],
+        "recorded_utc": "2026-09-08T01:56:43.833536+00:00"
+      }
+    ],
+    "excluded_pause_seconds": 895.373,
+    "extended_turn_seconds": 120.0,
+    "turn_overrun_seconds": 0.0,
+    "game_overrun_seconds": 0.0,
+    "expired": false,
+    "calls": 0,
+    "query_seconds_used": 0.0,
+    "verified_turn_overruns": [
+      {
+        "ply": 1,
+        "seconds": 75.239
+      },
+      {
+        "ply": 29,
+        "seconds": 17.683000000000007
+      },
+      {
+        "ply": 43,
+        "seconds": 4.6200000000000045
+      },
+      {
+        "ply": 59,
+        "seconds": 11.334000000000003
+      },
+      {
+        "ply": 63,
+        "seconds": 1.5497499999999746
+      },
+      {
+        "ply": 81,
+        "seconds": 22.847499999999954
+      },
+      {
+        "ply": 83,
+        "seconds": 34.68149999999995
+      },
+      {
+        "ply": 85,
+        "seconds": 2.9508333333332715
+      },
+      {
+        "ply": 87,
+        "seconds": 134.34549999999996
+      }
+    ],
+    "timing_uncertainty": [
+      "Observation timestamp entered 13.058s later; interval is charged from the supplied observation",
+      "Verification entered later using the supplied observation timestamp",
+      "Observation timestamp entered 12.288s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 25.789s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 20.483s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 16.757s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 13.939s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 13.385s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 16.944s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 16.537s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 18.738s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 18.754s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 19.672s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 15.493s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 14.037s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 31.000s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 16.633s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 18.396s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 24.662s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 18.113s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 30.092s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 29.919s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 38.623s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 14.622s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 19.447s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 24.776s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 31.141s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 26.897s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 43.171s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 38.787s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 44.579s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 28.641s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 38.069s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 16.584s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 24.239s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 27.316s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 18.112s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 25.764s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 26.212s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 22.329s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 13.925s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 17.015s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 13.026s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 19.506s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 143.189s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 70.428s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 15.687s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 15.661s later; interval is charged from the supplied observation",
+      "Observation timestamp entered 14.506s later; interval is charged from the supplied observation"
+    ],
+    "submission_pending_verification": false,
+    "charge_to_submission": true,
+    "excluded_verification_seconds": 881.703,
     "cooperative_clock": true
   }
 }

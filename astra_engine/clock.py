@@ -73,6 +73,7 @@ def _append(path, events, kind, data, sample=None):
 
 
 def _state(events):
+    config = dict(events[0]["data"])
     active = None
     used = 0.0
     finished = False
@@ -83,6 +84,8 @@ def _state(events):
     excluded_verification = 0.0
     refunded = 0.0
     refunds = []
+    extensions = []
+    excluded_pause = 0.0
     for event in events[1:]:
         data = event["data"]
         if event["kind"] == "turn_observed":
@@ -116,27 +119,53 @@ def _state(events):
         elif event["kind"] == "user_time_refund":
             refunded += data["seconds"]
             refunds.append(dict(data, recorded_utc=event["utc"]))
+        elif event["kind"] == "user_time_extension":
+            config["total_seconds"] += data["extra_seconds"]
+            config["extended_turn_seconds"] = data["turn_seconds"]
+            extensions.append(dict(data, recorded_utc=event["utc"]))
+            excluded_pause += data["excluded_pause_seconds"]
+            uncertainty.extend(data.get("uncertainty", []))
+            if active is not None:
+                active["resumption"] = data
+                active["allocation_seconds"] = data["allocation_seconds"]
     return dict(active=active, used=max(0.0, used-refunded), raw_used=used,
                 refunded=refunded, refunds=refunds, finished=finished, turns=turns,
                 prior_plies=prior_plies, uncertainty=uncertainty, overruns=overruns,
-                excluded_verification=excluded_verification)
+                excluded_verification=excluded_verification, config=config,
+                extensions=extensions, excluded_pause=excluded_pause)
 
 
 def _elapsed(active, sample):
     stamp, mono = sample
-    wall = max(0.0, (stamp - _utc(active["observed_utc"])).total_seconds())
-    monotonic = mono - active["started_monotonic"]
+    resume = active.get("resumption")
+    start = resume["resumed_utc"] if resume else active["observed_utc"]
+    started_mono = resume["resumed_monotonic"] if resume else active["started_monotonic"]
+    prior = resume["elapsed_before_pause_seconds"] if resume else 0.0
+    wall = max(0.0, (stamp - _utc(start)).total_seconds())
+    monotonic = mono - started_mono
     warning = []
     if monotonic < 0 or abs(monotonic - wall) > 5:
         warning.append("System clock or uptime changed; elapsed time uses the larger nonnegative wall/monotonic interval")
     # Never erase elapsed time because of a wall-clock correction or a reboot.
-    return max(0.0, monotonic, wall), warning
+    return prior + max(0.0, monotonic, wall), warning
+
+
+def _elapsed_at_utc(active, stamp):
+    """Settle authoritative UI timestamps without charging an approved pause."""
+    resume = active.get("resumption")
+    if resume:
+        if stamp < _utc(resume["resumed_utc"]):
+            raise ValueError("Submission or verification cannot precede the recorded resumption")
+        return resume["elapsed_before_pause_seconds"] + (stamp - _utc(resume["resumed_utc"])).total_seconds()
+    return (stamp - _utc(active["observed_utc"])).total_seconds()
 
 
 def _allocation(config, used, turns, critical):
     if config["mode"] == "move":
         return config["move_seconds"]
     remaining = max(0.0, config["total_seconds"] - used)
+    if "extended_turn_seconds" in config:
+        return min(remaining, config["extended_turn_seconds"])
     expected_turns_left = max(12, 40 - turns)
     ordinary = min(90.0, remaining / expected_turns_left)
     return min(remaining, ordinary * 2 if critical else ordinary, 180.0 if critical else 90.0)
@@ -144,7 +173,7 @@ def _allocation(config, used, turns, critical):
 
 def _status(events, sample=None):
     state = _state(events)
-    config = events[0]["data"]
+    config = state["config"]
     active = state["active"]
     elapsed, extra_warnings = _elapsed(active, sample or _sample()) if active else (0.0, [])
     total_used = state["used"] + elapsed
@@ -162,6 +191,11 @@ def _status(events, sample=None):
         "game_seconds_used": total_used, "game_remaining_seconds": game_remaining,
         "raw_game_seconds_used": state["raw_used"] + elapsed,
         "refunded_seconds": state["refunded"], "time_refunds": state["refunds"],
+        "total_seconds": config["total_seconds"],
+        "original_total_seconds": events[0]["data"]["total_seconds"],
+        "extension_seconds": sum(item["extra_seconds"] for item in state["extensions"]),
+        "time_extensions": state["extensions"], "excluded_pause_seconds": state["excluded_pause"],
+        "extended_turn_seconds": config.get("extended_turn_seconds"),
         "turn_overrun_seconds": max(0.0, elapsed - allocation),
         "game_overrun_seconds": max(0.0, total_used - config["total_seconds"]) if config["mode"] == "game" else 0.0,
         "expired": bool(active and remaining <= 0), "calls": active["queries"] if active else 0,
@@ -208,6 +242,76 @@ def create_game_clock(path, *, mode="game", total_seconds=3600, move_seconds=120
 
 def clock_status(path):
     return _status(_read(path))
+
+
+def resume_with_extension(path, *, paused_utc, resumed_utc, extra_seconds,
+                          reason, adjustment_id, turn_seconds=120):
+    """Append a user-authorized pause/resumption and added cumulative budget.
+
+    This is not a refund: all thinking before paused_utc stays charged. Only the
+    expressly approved waiting/setup interval is excluded. The resumed turn gets
+    turn_seconds of fresh allocation, and later turns use the same fixed target,
+    always bounded by the remaining total and existing move-entry reserve.
+    Call only after the user authorizes resumption with extra time.
+    """
+    extra_seconds = _number(extra_seconds, "extra_seconds", 0.001)
+    turn_seconds = _number(turn_seconds, "turn_seconds", 0.001)
+    if not isinstance(reason, str) or not reason.strip():
+        raise ValueError("Record the user's reason for the extension")
+    if not isinstance(adjustment_id, str) or not adjustment_id.strip():
+        raise ValueError("A unique adjustment_id is required")
+    paused, resumed = _utc(paused_utc), _utc(resumed_utc)
+    with _locked(path) as path:
+        events = _read(path)
+        state = _state(events)
+        active = state["active"]
+        config = state["config"]
+        if active is None or state["finished"] or config["mode"] != "game":
+            raise ValueError("Extension requires an active own turn in an unfinished cumulative game clock")
+        if active["submission"] is not None:
+            raise ValueError("Reconcile the pending submission before resuming")
+        if any(item["adjustment_id"] == adjustment_id.strip() for item in state["extensions"]):
+            raise ValueError("This adjustment_id has already been applied")
+        if turn_seconds <= config["reserve_seconds"]:
+            raise ValueError("Turn allocation must exceed the move-entry reserve")
+        stamp, mono = _sample()
+        prior_resume = active.get("resumption")
+        earliest = _utc(prior_resume["resumed_utc"] if prior_resume else active["observed_utc"])
+        if not earliest <= paused <= resumed <= stamp:
+            raise ValueError("Require active observation/resumption <= pause <= resumption <= now")
+        activities = {"initial_candidate", "critical_position", "query_started", "query_completed",
+                      "decision", "submission", "submission_rejected", "verification", "turn_ended"}
+        if any(event["kind"] in activities and _utc(event["utc"]) > paused for event in events):
+            raise ValueError("Pause cannot exclude recorded analysis or move activity")
+        # Reconstruct the boundary from the closest recorded sample rather than
+        # projecting today's uptime backwards across a possibly long suspension.
+        anchor = min(events, key=lambda event: abs((_utc(event["utc"]) - paused).total_seconds()))
+        pause_mono = anchor["monotonic"] + (paused - _utc(anchor["utc"])).total_seconds()
+        prior_elapsed, warnings = _elapsed(active, (paused, pause_mono))
+        boundary_note = next((event for event in reversed(events) if event["kind"] == "note"
+                              and event["data"].get("paused_utc") == paused.isoformat()
+                              and "own_seconds_at_pause" in event["data"]), None)
+        boundary_sample_difference = 0.0
+        if boundary_note:
+            saved_used = _number(boundary_note["data"]["own_seconds_at_pause"], "own_seconds_at_pause")
+            saved_elapsed = saved_used-state["used"]
+            boundary_sample_difference = saved_elapsed-prior_elapsed
+            if saved_elapsed < 0 or abs(boundary_sample_difference) > 1:
+                raise ValueError("Documented pause balance disagrees with reconstructed elapsed time")
+            prior_elapsed = saved_elapsed
+        data = dict(ply=active["ply"], paused_utc=paused.isoformat(), resumed_utc=resumed.isoformat(),
+                    resumed_monotonic=mono-(stamp-resumed).total_seconds(),
+                    excluded_pause_seconds=(resumed-paused).total_seconds(),
+                    elapsed_before_pause_seconds=prior_elapsed, extra_seconds=extra_seconds,
+                    turn_seconds=turn_seconds, allocation_seconds=prior_elapsed+turn_seconds,
+                    previous_allocation_seconds=active["allocation_seconds"],
+                    original_total_seconds=config["total_seconds"],
+                    boundary_note_seq=boundary_note["seq"] if boundary_note else None,
+                    boundary_sample_difference_seconds=boundary_sample_difference,
+                    reason=reason.strip(), adjustment_id=adjustment_id.strip(),
+                    authorization="express_user_request", uncertainty=warnings)
+        _append(path, events, "user_time_extension", data, (stamp, mono))
+        return _status(events, (stamp, mono))
 
 
 def refund_turn_time(path, ply, seconds, *, reason, adjustment_id):
@@ -269,7 +373,7 @@ def observe_turn(path, ply, *, observed_utc=None, initial_candidate=None, concer
                               if event["kind"] == "verification"), None)
         if last_verified and observed < _utc(last_verified):
             raise ValueError("Next turn observation cannot precede the previous verified move")
-        config = events[0]["data"]
+        config = state["config"]
         allocation = _allocation(config, state["used"], state["turns"], critical)
         warnings = []
         if age > 1:
@@ -293,7 +397,7 @@ def mark_critical(path, reason):
         if state["active"] is None or state["finished"]:
             raise ValueError("No active own turn")
         active = state["active"]
-        allocation = max(active["allocation_seconds"], _allocation(events[0]["data"], state["used"], state["turns"]-1, True))
+        allocation = max(active["allocation_seconds"], _allocation(state["config"], state["used"], state["turns"]-1, True))
         _append(path, events, "critical_position", dict(ply=active["ply"], reason=reason, allocation_seconds=allocation))
         return _status(events)
 
@@ -317,6 +421,7 @@ def record_event(path, kind, **data):
             submitted = _utc(data.get("submitted_utc", stamp))
             if not _utc(active["observed_utc"]) <= submitted <= stamp:
                 raise ValueError("Submission must fall between observation and now")
+            _elapsed_at_utc(active, submitted)
             data["submitted_utc"] = submitted.isoformat()
         _append(path, events, kind, dict(data, ply=active["ply"]))
         return _status(events)
@@ -392,13 +497,13 @@ def verify_submission(path, ply, move, *, submitted_utc=None, verified_utc=None,
         elapsed, warnings = _elapsed(active, (stamp, mono))
         if verified_utc:
             # Caller-provided actual verification is authoritative; retain uncertainty.
-            elapsed = (verified-observation).total_seconds()
+            elapsed = _elapsed_at_utc(active, verified)
             if (stamp-verified).total_seconds() > 1:
                 warnings.append("Verification entered later using the supplied observation timestamp")
         excluded_verification = 0.0
         charged_through = verified
         if charge_to_submission and submitted is not None:
-            elapsed = (submitted-observation).total_seconds()
+            elapsed = _elapsed_at_utc(active, submitted)
             excluded_verification = (verified-submitted).total_seconds()
             charged_through = submitted
         if submission is None:

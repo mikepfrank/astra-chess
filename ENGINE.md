@@ -200,9 +200,15 @@ The HTML follow-up exporter preserves these settings and the selected board's
 history. Every JSON result records effective search settings, version, and a
 source fingerprint covering rules, search, and optional diagnostic/evaluation code.
 
-## Clock and procedure for the next live game
+## Clock and live-game procedure
 
-Default: **one hour of cumulative own-turn time**, including deliberation,
+Before starting the next game, read [TIME-CONTROL-NEXT.md](TIME-CONTROL-NEXT.md).
+Mike selected 90 minutes for the first 40 own moves, 30 additional minutes after
+move 40, and a 30-second increment from move 1. That staged control must still be
+implemented and tested; the fixed-total clock described below does not provide
+stages or increments. Do not apply the future policy retrospectively to game 10.
+
+The current implementation defaults to **one hour of cumulative own-turn time**, including deliberation,
 queries, commentary, browser interaction, and retries. A verified move is charged
 through its accepted submission timestamp, excluding Wally's thinking and the
 subsequent confirmation interval. Without a separate submission timestamp, the
@@ -230,6 +236,55 @@ interruption credit can be appended with
 after that turn is verified. Original charges and timestamps remain intact;
 status reports raw usage, refunded seconds, and adjusted usage separately.
 Credits require a unique ID and cannot exceed the recorded charge for that turn.
+
+### Explicitly authorized resumption with extra time
+
+For a paused, unfinished cumulative-clock turn, use the Python API:
+
+```python
+from astra_engine import clock
+
+clock.resume_with_extension(
+    "engine-games/GAME-SLUG/clock.jsonl",
+    paused_utc="2026-09-08T01:41:35.130231+00:00",
+    resumed_utc=first_fresh_observation_utc,
+    extra_seconds=900,
+    reason="User authorized finishing with reasonable extra time",
+    adjustment_id="GAME-SLUG-extension-1",
+    turn_seconds=120,
+)
+```
+
+The timestamps above illustrate game 10's recorded pause; use the actual
+boundaries for the intended game. Call only following the user's authorization
+for extra time. This appends a `user_time_extension` event without rewriting
+earlier bytes. It adds `extra_seconds` to the cumulative total and excludes only
+the specified waiting/setup interval. All prior thinking and the initial
+budget overrun remain charged. A documentary pause note alone does not stop the
+active counter; the explicit resumption event establishes the excluded interval.
+
+The active turn retains its pre-pause elapsed time and gets `turn_seconds` of
+additional allocation. Later own turns use that same fixed allocation target,
+instead of the shrinking remaining-turn forecast. Both remain bounded by the
+remaining cumulative budget, and the existing move-entry reserve is unchanged.
+For game 10 this means a total of 4,500 seconds, a 120-second target, and a
+40-second reserve. It does not create a per-move increment or a staged control.
+
+`clock_status` exposes `total_seconds`, `original_total_seconds`,
+`extension_seconds`, `time_extensions`, `excluded_pause_seconds`, and
+`extended_turn_seconds`. Query budgets and verified-submission settlement use
+the same accounting. The extension is separate from `time_refunds`: original
+thinking is not credited back. The ledger records the old allocation, pause and
+resumption timestamps, prior elapsed time, reason, and unique adjustment ID.
+If a matching documentary note saved the pause balance, it is retained when it
+agrees with reconstructed time within one second; the note sequence and sampling
+difference are recorded. Larger inconsistencies are rejected.
+
+The API requires an active own turn with no pending submission. It rejects
+duplicate adjustment IDs, invalid timestamp order, allocations no larger than
+the reserve, and pause intervals that would exclude recorded analysis or move
+activity. Reconcile the browser and any pending action before calling it;
+resumption does not itself inspect the board, choose a move, or verify a click.
 
 Initialize a standard-start game with `--side white` (default) or `--side black`.
 The journal saves `player_side` and puts names and the opponent's rating in the

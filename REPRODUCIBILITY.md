@@ -12,6 +12,7 @@ visualization directory. Commit them at completion checkpoints.
 | --- | --- |
 | From-scratch rules, evaluation, search and optional diagnostics | `astra_engine/`, `astra_chess.py`, `engine_examples/` |
 | Manual game journal, cumulative own-turn clock and recovery | `play_engine_game.py`, `astra_engine/clock.py`, `resume_chess.py` |
+| Per-turn timing audit and future time-control policy | `audit_game_time.py`, `TIME-CONTROL-NEXT.md`, saved game timing reports |
 | Prospective board visualization and query reports | `board_scratchpad.py`, `astra_engine/report.py`, `astra_engine/report.template.html` |
 | Playing and archive procedures | `AGENTS.md`, `skills/astra-chess-play/`, `skills/astra-chess-archive/`, `ENGINE.md` |
 | Design rationale and measured improvements | `IMPROVEMENT-PROPOSAL.md`, `ENGINE-CHANGES.md`, benchmark scripts and `engine-benchmarks/` |
@@ -38,6 +39,12 @@ The verified development environment on September 7, 2026 used Python 3.12.14,
 Node.js 24.19.0 and Playwright 1.62.1 with an existing Edge installation for
 headless checks. These are observed versions, not an asserted minimum support
 matrix.
+
+Game 10 added an explicit pause/resumption extension to the clock and a
+read-only timing audit. The complete Python suite passed **128 tests** after
+these additions. The installed play skill was synchronized and both its
+canonical and installed copies passed the official validator. Search/rules/
+evaluation sources remained unchanged throughout that trial.
 
 - The engine, query interface, clock, recovery helper and evaluation exporter
   run with Python's standard library. No external chess engine, opening book

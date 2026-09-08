@@ -65,7 +65,12 @@ override newer journal/UI evidence. An interrupted active turn remains active.
 
 ## Clock and each turn
 
-Default allowance is **3,600 seconds of Astra's own time**, excluding the bot's
+Before a new trial, read `TIME-CONTROL-NEXT.md`: Mike selected 90 minutes for the
+first 40 own moves, 30 more after move 40, and a 30-second increment from move 1.
+Implement and test this staged policy before using it; the fixed-total helper
+does not yet implement stages/increments. Do not retrofit it onto game 10.
+
+Game 10's original allowance is **3,600 seconds of Astra's own time**, excluding the bot's
 thinking. It includes deliberation, queries, commentary, UI entry, and retries.
 Start from the **first observation** of an own turn, retaining that timestamp
 even if reconciliation or journal entry takes time. A verified move settles

@@ -24,6 +24,12 @@ color with `init --side white|black`; White is the default. Use one hour of
 cumulative own-turn time, excluding the bot's thinking. User instructions can change the experiment. Preserve timestamped
 records and only refund time under explicit user authorization.
 
+Mike subsequently selected 90 minutes for the first 40 own moves, 30 more after
+move 40, and a 30-second increment per own move for future games. Before the
+next trial, implement/test that policy as described in
+[TIME-CONTROL-NEXT.md](TIME-CONTROL-NEXT.md); the existing fixed-total initializer
+does not yet implement it. Do not apply it retrospectively to game 10.
+
 `ENGINE.md` is the maintained interface reference. `game.json`, `clock.jsonl`,
 saved query requests/results, and any unresolved `continuation.md` are recovery
 evidence; a conversation summary is not a substitute. Archive or development
