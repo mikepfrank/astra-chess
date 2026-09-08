@@ -14,6 +14,8 @@ import sys
 
 ROOT = Path(__file__).resolve().parent
 REPLAY_DIR = ROOT / "replays"
+REPLAY_METADATA = REPLAY_DIR / "replay-metadata.json"
+DEFAULT_PGN = ROOT / "early-games/sven-rematch-2026-09-05/codex-vs-sven-rematch-2026-09-05.pgn"
 sys.path.insert(0, str(ROOT / ".replay-deps"))
 import chess
 import chess.pgn
@@ -201,7 +203,7 @@ def build(pgn_path, output_path, subtitle=None, ending=None, evaluations=None):
 
     display_names = {color: game.headers[color.title()].removesuffix(" (Guest)")
                      for color in ("white", "black")}
-    metadata = json.loads((ROOT / "replay-metadata.json").read_text(encoding="utf-8"))
+    metadata = json.loads(REPLAY_METADATA.read_text(encoding="utf-8"))
     player_metadata = metadata.get(game.headers["Round"])
     player_side = player_metadata.get("playerSide", "white") if player_metadata else "white"
     if player_side not in ("white", "black"):
@@ -253,7 +255,7 @@ def build(pgn_path, output_path, subtitle=None, ending=None, evaluations=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--pgn", type=Path, default=ROOT / "codex-vs-sven-rematch-2026-09-05.pgn")
+    parser.add_argument("--pgn", type=Path, default=DEFAULT_PGN)
     parser.add_argument("--output", type=Path, help="Output page; bare filenames go under replays/")
     parser.add_argument("--subtitle", help="Label before the game date")
     parser.add_argument("--ending", choices=("checkmate", "resignation"),

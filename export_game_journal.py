@@ -1,7 +1,7 @@
 """Export manually recorded SAN labels to PGN without chess analysis.
 
 Example:
-  python export_game_journal.py game-board.json game.pgn --opponent Nelson \
+  python export_game_journal.py early-games/TRIAL/game-board.json early-games/TRIAL/game.pgn --opponent Nelson \
       --rating 1300 --result 1-0 --header Date=2026.09.05 --header Round=4
 
 SAN labels are copied literally, including their move numbers. Supply labels

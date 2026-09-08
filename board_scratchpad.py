@@ -1,6 +1,7 @@
 """Diagram-only chess scratchpad. No rules, legality checks, or move analysis.
 
 Commands: init, commit e2e4 [g1f3 ...], preview e2e4 [...], show.
+State defaults to scratch/board.json; bare --state names also go under scratch/.
 Use --state PATH for another JSON file, --png PATH for a diagram, and
 commit --san TEXT to record a manually supplied journal label. Castling is
 two explicit edits; any special capture must be represented by explicit edits.
@@ -12,12 +13,19 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+SCRATCH_DIR = ROOT / "scratch"
 POSITION_IMAGES = ROOT / "images" / "positions"
 FILES = "abcdefgh"
 SQUARES = {f + r for f in FILES for r in "12345678"}
 START = {f + r: p for r, pieces in (("1", "RNBQKBNR"), ("2", "PPPPPPPP"),
                                    ("7", "pppppppp"), ("8", "rnbqkbnr"))
          for f, p in zip(FILES, pieces)}
+
+
+def state_file_path(path):
+    """Use disposable scratch state unless an explicit directory is supplied."""
+    path = Path(path)
+    return SCRATCH_DIR / path if not path.is_absolute() and path.parent == Path(".") else path
 
 
 def position_image_path(path):
@@ -134,12 +142,13 @@ def main():
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("command", choices=("init", "commit", "preview", "show"))
     parser.add_argument("edits", nargs="*")
-    parser.add_argument("--state", type=Path, default=ROOT / "nelson-rematch-board.json")
+    parser.add_argument("--state", type=Path, default=Path("board.json"),
+                        help="State path; defaults to scratch/board.json, bare filenames go under scratch/")
     parser.add_argument("--png", type=Path, help="Diagram path; bare filenames go under images/positions/")
     parser.add_argument("--san", help="Manually supplied journal text; never parsed")
     parser.add_argument("--force", action="store_true", help="Allow init to replace state")
     args = parser.parse_args()
-    state_path = args.state.resolve()
+    state_path = state_file_path(args.state).resolve()
     try:
         if args.command == "init":
             if state_path.exists() and not args.force:

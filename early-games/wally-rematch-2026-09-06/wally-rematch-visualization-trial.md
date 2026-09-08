@@ -7,7 +7,7 @@ Wally won by resignation after **47...Kg6** on September 6, 2026. Chess.com conf
 - Played White as a guest, with no timer, entirely through the embedded sidebar browser. No native desktop browser controls were used during this rematch.
 - Evaluation bar, threat arrows, suggestion arrows, move feedback, and engine lines were off. No hints or takebacks were used.
 - Move choices came from the assistant's own deliberation. No chess engine, automated move generation, search, or other agent's chess advice was used during play.
-- The existing diagram-only `board_scratchpad.py` applied explicitly supplied square edits. It has no legality checks, attack detection, or evaluation.
+- The existing diagram-only [board_scratchpad.py](../../board_scratchpad.py) applied explicitly supplied square edits. It has no legality checks, attack detection, or evaluation.
 - Each of the 47 White moves had an inspected image before execution. Extra images show the hypothetical continuation after 22.Nf5 and a rejected 45.Ra8 candidate. Only committed edits belong to the actual game.
 - The added discipline was to inspect opponent checks, captures, exposed lines, and loose pieces in candidate positions before moving. This remained a manual review, and was imperfect.
 
@@ -27,15 +27,15 @@ These are descriptions of the moves and the observed failure, not engine assessm
 
 The Chess.com move list showed 47 complete move pairs, ending in `47. Rh7+ Kg6`. The PGN records resignation with result `0-1`; the standard `Termination "normal"` category includes resignation.
 
-Rules-only python-chess 1.11.2 validation passed after resignation: all 94 plies are legal and use canonical SAN; all 47 journal entries, all 96 explicit edits (including castling rook edits), every intermediate position, and the final board match. The report is `wally-rematch-validation.json`. No engine analysis was used.
+Rules-only python-chess 1.11.2 validation passed after resignation: all 94 plies are legal and use canonical SAN; all 47 journal entries, all 96 explicit edits (including castling rook edits), every intermediate position, and the final board match. The report is [wally-rematch-validation.json](wally-rematch-validation.json). No engine analysis was used.
 
 Final FEN: `8/7R/6k1/1p3p2/2p2P1P/3b3K/1P1p2P1/8 w - - 4 48`.
 
 ## Artifacts
 
-- `codex-vs-wally-rematch-2026-09-06.pgn`: complete game record.
-- `wally-rematch-board.json`: committed square edits and exact SAN journal.
-- `images/positions/wally-rematch-candidate-01.png` through `images/positions/wally-rematch-candidate-47.png`: candidate diagrams; number 45 is the rejected a8 candidate.
-- `images/positions/wally-rematch-candidate-45b.png`: inspected a7 candidate that was actually played.
-- `images/positions/wally-rematch-candidate-22-line.png`: hypothetical capture continuation, not an extra part of the game.
-- `images/positions/wally-rematch-final.png`: board at resignation.
+- [codex-vs-wally-rematch-2026-09-06.pgn](codex-vs-wally-rematch-2026-09-06.pgn): complete game record.
+- [wally-rematch-board.json](wally-rematch-board.json): committed square edits and exact SAN journal.
+- [wally-rematch-candidate-01.png](../../images/positions/wally-rematch-candidate-01.png) through [wally-rematch-candidate-47.png](../../images/positions/wally-rematch-candidate-47.png): candidate diagrams; number 45 is the rejected a8 candidate.
+- [wally-rematch-candidate-45b.png](../../images/positions/wally-rematch-candidate-45b.png): inspected a7 candidate that was actually played.
+- [wally-rematch-candidate-22-line.png](../../images/positions/wally-rematch-candidate-22-line.png): hypothetical capture continuation, not an extra part of the game.
+- [wally-rematch-final.png](../../images/positions/wally-rematch-final.png): board at resignation.

@@ -17,8 +17,8 @@ visualization directory. Commit them at completion checkpoints.
 | Prospective board visualization and query reports | `board_scratchpad.py`, `images/positions/`, `astra_engine/report.py`, `astra_engine/report.template.html` |
 | Playing and archive procedures | `AGENTS.md`, `skills/astra-chess-play/`, `skills/astra-chess-archive/`, `ENGINE.md` |
 | Design rationale and measured improvements | `IMPROVEMENT-PROPOSAL.md`, `ENGINE-CHANGES.md`, benchmark scripts and `engine-benchmarks/` |
-| Game evidence and observations | `engine-games/`, source PGNs, saved board journals, and the `*-visualization-trial.md` notes |
-| Replay build and collection | `build_replay.py`, `templates/replay.template.html`, `replay-metadata.json`, `replays/index.html`, `replays/*-replay.html`, `replays/replay.html` |
+| Game evidence and observations | `early-games/GAME-DATE/` for early PGNs, saved board journals, validation and trial notes; `engine-games/` for engine-assisted trials |
+| Replay build and collection | `build_replay.py`, `templates/replay.template.html`, `replays/replay-metadata.json`, `replays/index.html`, `replays/*-replay.html`, `replays/replay.html` |
 | Historical evaluation extraction and graph | `export_evaluations.py`, `engine-output/wally-v02-evaluation/`, `engine-output/wally-v02-black-evaluation/` |
 | Validation | `tests/`, `images/replays/`, retained browser-check images under `engine-output/`, and experiment audits |
 | Portable source/history packaging | `package_repo.py`, `SETUP.md`, `PACKAGING.md`, requirements files, `package.json`, `.gitattributes` |
@@ -43,6 +43,20 @@ changing their bytes: nine pages to `replays/`, one template to `templates/`,
 `images/replays/`. Builder, preview, future-image defaults, documentation and
 installed skills use the new paths. All 145 Python tests and both offline replay
 browser suites passed afterward. Published Netlify URLs are unchanged.
+
+The follow-up cleanup grouped six early PGNs, four board journals, one validation
+JSON and four visualization-trial notes into six `early-games/GAME-DATE/`
+directories. The records retain their original filenames; note references use
+the relocated paths. Shared display metadata now lives at
+`replays/replay-metadata.json`. New scratchpad work defaults to the ignored
+`scratch/board.json`, and bare `--state` filenames go under `scratch/` as well;
+explicit paths remain available. This keeps ordinary experiments from changing
+an archived game's board journal. Preserve substantive new evidence in a tracked
+game directory when the experiment is complete.
+
+All 146 Python tests passed after this follow-up, including the relocated PGN
+rules checks and scratch-state isolation test. Both canonical and installed
+skills passed the official validator and their hashes match.
 
 The verified development environment on September 7, 2026 used Python 3.12.14,
 Node.js 24.19.0 and Playwright 1.62.1 with an existing Edge installation for

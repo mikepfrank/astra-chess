@@ -38,7 +38,13 @@ requests do not start another game or publish a site.
 ## Repository coverage
 
 Keep standalone replay pages and the collection index in `replays/`; the shared
-interface source is `templates/replay.template.html`. Save position/candidate
+display metadata is `replays/replay-metadata.json` and the interface source is
+`templates/replay.template.html`. Keep early trial PGNs, saved board journals,
+validation and trial notes in `early-games/GAME-DATE/`, retaining their original
+filenames. The scratchpad defaults to `scratch/board.json`; bare `--state`
+filenames go under `scratch/`, while explicit paths are honored. Move substantive
+new evidence into a tracked game directory instead of leaving it only in
+ignored scratch output. Save position/candidate
 PNGs in `images/positions/` and replay screenshots in `images/replays/`.
 The live helper keeps its candidate PNG in `engine-games/GAME-SLUG/images/`.
 Existing analysis reports and associated artifacts remain in `engine-output/`.

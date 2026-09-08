@@ -12,15 +12,17 @@ Archiving does not authorize starting another game or publishing a deployment.
 ## Sources and recovery
 
 Locate the repository containing `ENGINE.md`, `build_replay.py`,
-`templates/replay.template.html`, `replay-metadata.json`, and `replays/index.html`. The current
+`templates/replay.template.html`, `replays/replay-metadata.json`, and `replays/index.html`. The current
 checkout is `C:/Users/MikeFrank/Documents/ChatGPT/Chess`; use the user-selected
 checkout if relocated. Run commands there with a working Python executable.
 
-Use `python resume_chess.py` to locate the intended trial, then
+For engine-assisted trials, use `python resume_chess.py` to locate the game, then
 `python resume_chess.py --game GAME-SLUG` to read its durable state. For engine
 games, `engine-games/GAME-SLUG/game.pgn`, `game.json`, `clock.jsonl`, query
-request/results, and `experiment-notes.md` supply the evidence. Earlier replays
-may have only a standalone PGN. Inspect the actual records rather than relying
+request/results, and `experiment-notes.md` supply the evidence. Earlier trial
+PGNs, saved board journals, validation and notes are grouped under
+`early-games/GAME-DATE/`, retaining their original filenames; some trials have
+only a PGN. Inspect the actual records rather than relying
 on a remembered title, move count, or result. Do not finish a still-live journal
 merely to build an archive.
 
@@ -29,7 +31,7 @@ merely to build an archive.
 1. Verify the PGN's SAN, result, termination, date, players, rating, and original
    session round. Where a journal exists, match its UCI/SAN/FEN sequence. Keep
    historical PGN identities intact; presentation names belong in metadata.
-2. Add the round to `replay-metadata.json` with the model and thinking level
+2. Add the round to `replays/replay-metadata.json` with the model and thinking level
    actually used. Titles follow `Astra (Ultra) vs. Wally` for that configuration;
    the board name is `Astra`. Do not infer all prior games used Ultra. Identify
    engine-assisted trials/version in the subtitle and index where relevant.
@@ -47,6 +49,10 @@ merely to build an archive.
 ```text
 python build_replay.py --pgn engine-games/GAME-SLUG/game.pgn --output replays/GAME-replay.html --subtitle "Engine-assisted trial"
 ```
+
+For an early replay, pass its `early-games/GAME-DATE/FILENAME.pgn` explicitly.
+With no arguments the builder reads the Sven rematch PGN under
+`early-games/sven-rematch-2026-09-05/` and writes `replays/replay.html`.
 
 When historical evaluation data is available, pass `--evaluations DATA.json`.
 Extract it from a verified journal with

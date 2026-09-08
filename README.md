@@ -10,19 +10,24 @@ package and GitHub handoff. Core analysis needs only Python's standard library.
 | Directory | Contents |
 | --- | --- |
 | `astra_engine/` | From-scratch chess rules, evaluation, search, clocks and reports |
+| [early-games/](early-games/README.md) | Early trial PGNs, saved board journals, validation evidence and notes, grouped by game/date |
 | `engine-games/` | Game journals, PGNs, clock ledgers and saved queries |
 | `engine-output/` | Analysis reports, evaluation graphs and their supporting artifacts |
-| `replays/` | Standalone replay pages and the collection `index.html` |
+| `replays/` | Standalone replay pages, collection `index.html` and display metadata |
 | `templates/` | Shared replay HTML template |
 | `images/positions/` | Saved board positions and candidate-move diagrams |
 | `images/replays/` | Replay screenshots |
 | `skills/` | Canonical assistant play and archive procedures |
 | `tests/` | Rules, tooling and browser checks |
+| `scratch/` | Ignored temporary analysis, including the default scratchpad state |
 
 Keep future replay builds and collection edits in `replays/`. The builder defaults
-to `replays/replay.html`; specify an output there for other games. Bare scratchpad
-`--png` filenames go to `images/positions/`, while paths with an explicit directory
-are honored. The live helper's `choose --png` stores its candidate under
+to `replays/replay.html`; specify an output there for other games. The scratchpad
+defaults to `scratch/board.json`; bare `--state` names also go under `scratch/`.
+Bare `--png` filenames go to `images/positions/`, while paths with an explicit
+directory are honored. Completed early trial records belong under
+`early-games/GAME-DATE/`, retaining their original filenames. The live helper's
+`choose --png` stores its candidate under
 `engine-games/GAME-SLUG/images/`. The documented analysis/report subdirectories
 stay in place.
 
@@ -107,21 +112,23 @@ PGN, validates every legal move with `chess==1.11.2`, and embeds all positions
 The opponent, rating, date, move count, result, and download filename come
 from the record. Non-checkmate endings are specified explicitly when rebuilding.
 
-`replay-metadata.json` supplies display names and thinking levels by the PGN's
+`replays/replay-metadata.json` supplies display names and thinking levels by the PGN's
 `Round` number. Replay titles use **Astra (thinking level) vs. opponent**, while
 the board's player label is simply **Astra**. The recorded levels are High for
 game 1 (Sven loss), Extra High for games 2–3 (Sven rematch and Nelson loss), and
 Ultra for games 4–10 (Nelson rematch, Wendy, and the five Wally games). The eight
-HTML archives cover games 2 and 4–10. Source PGNs and filenames remain
-unchanged.
+HTML archives cover games 2 and 4–10. Early source PGNs, board journals and trial
+notes are grouped under `early-games/` by game/date. Original PGN contents and
+filenames remain unchanged. With no arguments, the builder reads
+`early-games/sven-rematch-2026-09-05/codex-vs-sven-rematch-2026-09-05.pgn`.
 
 ```text
 python -m pip install --target .replay-deps chess==1.11.2
 python build_replay.py
-python build_replay.py --pgn codex-vs-nelson-rematch-2026-09-05.pgn --output replays/nelson-replay.html --subtitle "Rematch / Visualization trial"
-python build_replay.py --pgn codex-vs-wendy-2026-09-05.pgn --output replays/wendy-replay.html --subtitle "Visualization trial"
-python build_replay.py --pgn codex-vs-wally-2026-09-05.pgn --output replays/wally-replay.html --subtitle "Visualization trial"
-python build_replay.py --pgn codex-vs-wally-rematch-2026-09-06.pgn --output replays/wally-rematch-replay.html --subtitle "Rematch / Visualization trial" --ending resignation
+python build_replay.py --pgn early-games/nelson-rematch-2026-09-05/codex-vs-nelson-rematch-2026-09-05.pgn --output replays/nelson-replay.html --subtitle "Rematch / Visualization trial"
+python build_replay.py --pgn early-games/wendy-2026-09-05/codex-vs-wendy-2026-09-05.pgn --output replays/wendy-replay.html --subtitle "Visualization trial"
+python build_replay.py --pgn early-games/wally-2026-09-05/codex-vs-wally-2026-09-05.pgn --output replays/wally-replay.html --subtitle "Visualization trial"
+python build_replay.py --pgn early-games/wally-rematch-2026-09-06/codex-vs-wally-rematch-2026-09-06.pgn --output replays/wally-rematch-replay.html --subtitle "Rematch / Visualization trial" --ending resignation
 python build_replay.py --pgn engine-games/wally-2026-09-07/astra-vs-wally-engine-2026-09-07.pgn --output replays/wally-engine-replay.html --subtitle "Engine-assisted trial" --ending resignation
 python export_evaluations.py --game wally-engine-v02 --output engine-output/wally-v02-evaluation/data.json
 python build_replay.py --pgn engine-games/wally-engine-v02/game.pgn --output replays/wally-engine-v02-replay.html --subtitle "Engine v0.2 trial" --evaluations engine-output/wally-v02-evaluation/data.json
@@ -208,7 +215,7 @@ Game-9 PGN, search evidence and clock are in `engine-games/wally-engine-v02/`.
 Game 10's replay is `replays/wally-engine-v02-black-replay.html`. Astra plays Black;
 the board initially puts Black at the bottom and keeps the recorded White/Black
 identities, ratings, 0-1 result and PGN intact. Round 10's `playerSide: "black"`
-in `replay-metadata.json` drives presentation. The exporter uses the journal's
+in `replays/replay-metadata.json` drives presentation. The exporter uses the journal's
 `player_side` and retains Black-root scores without reversing their sign.
 Flipping the board does not change those scores. Black moves 42-44 have no
 recorded evaluation; 46/47 show **Mate in 2/Mate in 1**, and 48 shows **Checkmate**.
@@ -228,7 +235,7 @@ the exported scores and desktop/mobile checks are preserved in
 `engine-output/wally-v02-black-evaluation/`. Neither the exporter nor the
 archive build runs a new engine search.
 
-The current tools pass **145 Python tests** with
+The current tools pass **146 Python tests** with
 `python -m unittest discover -s tests`. Offline headless-browser checks in
 `tests/test_replay_scores.cjs` cover navigation, scores, mate labels, promotion,
 mobile layout, PGN download and compatibility with an older replay. Both

@@ -1,14 +1,14 @@
 # Wally (1800): visualization trial
 
 Black won by **33...Qf1#** on September 5, 2026.
-The complete record is `codex-vs-wally-2026-09-05.pgn`.
+The complete record is [codex-vs-wally-2026-09-05.pgn](codex-vs-wally-2026-09-05.pgn).
 
 ## Method
 
 - Chose the displayed 1800 level, 300 above Wendy. Wally was available to guests.
 - Played White with no timer. Evaluation, threats, suggestions, move feedback, and engine lines were off. No hints or takebacks were used.
 - All playing decisions came from the assistant's own deliberation. No engine, automated search, move generator, or advice from another agent was used to select moves.
-- `board_scratchpad.py` applied explicitly supplied square edits, with no chess rules or attack detection. All 33 White moves had an inspected PNG preview before play. Some previews included hypothetical replies; those are not the actual game record.
+- [board_scratchpad.py](../../board_scratchpad.py) applied explicitly supplied square edits, with no chess rules or attack detection. All 33 White moves had an inspected PNG preview before play. Some previews included hypothetical replies; those are not the actual game record.
 - A separate agent was asked to check the record only after Chess.com declared checkmate. That check uses chess rules, not an engine evaluation.
 
 ## What happened
@@ -29,7 +29,7 @@ Final FEN: `6k1/p6p/2b3PQ/1p1pR3/3P2P1/P7/1P3r2/5q1K w - - 4 34`.
 
 ## Artifacts
 
-- `wally-board.json`: actual square edits and SAN move journal.
-- `images/positions/wally-candidate-01.png` through `images/positions/wally-candidate-33.png`: inspected candidate positions.
-- `images/positions/wally-final.png`: completed position.
-- `codex-vs-wally-2026-09-05.pgn`: complete move record.
+- [wally-board.json](wally-board.json): actual square edits and SAN move journal.
+- [wally-candidate-01.png](../../images/positions/wally-candidate-01.png) through [wally-candidate-33.png](../../images/positions/wally-candidate-33.png): inspected candidate positions.
+- [wally-final.png](../../images/positions/wally-final.png): completed position.
+- [codex-vs-wally-2026-09-05.pgn](codex-vs-wally-2026-09-05.pgn): complete move record.

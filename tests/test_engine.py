@@ -177,7 +177,7 @@ class OracleRulesTests(unittest.TestCase):
                              f"SAN differs for {uci} at {ours.fen()}")
 
     def test_all_archived_game_positions(self):
-        archives = sorted(ROOT.glob("codex-vs-*.pgn"))
+        archives = sorted((ROOT / "early-games").glob("*/*.pgn"))
         self.assertGreaterEqual(len(archives), 6)
         for path in archives:
             with self.subTest(archive=path.name), path.open(encoding="utf-8-sig") as stream:

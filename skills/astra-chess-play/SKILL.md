@@ -106,7 +106,10 @@ For each newly observed own turn:
    by default. Read completed depth, fallback status, candidate replies, and
    diagnostic coverage. A depth ceiling is not an achieved depth.
 3. Inspect prospective ASCII/FEN boards, or use the scratchpad/`--png` when a
-   picture helps. Save scratchpad PNGs in `images/positions/`: a bare scratchpad
+   picture helps. Scratchpad state defaults to `scratch/board.json`; bare
+   `--state` names go under `scratch/`, and explicit directories are honored.
+   Use this separate scratch state instead of modifying completed early board
+   journals in `early-games/GAME-DATE/`. Save scratchpad PNGs in `images/positions/`: a bare scratchpad
    `--png candidate.png` filename is routed there, while an explicit directory
    such as `--png scratch/candidate.png` is honored. Review the **opponent's**
    checks, captures, threats, newly opened files/diagonals, loose pieces,

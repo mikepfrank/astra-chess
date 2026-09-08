@@ -62,8 +62,12 @@ page on loopback. The source data and previous replay rebuild commands are in
 [README.md](README.md).
 
 For optional PNG diagrams, install `requirements-visuals.txt` (Pillow 12.3.0).
-`board_scratchpad.py` supports ASCII without it. Use an explicit `--state` under
-`scratch/` for experiments so historical board journals remain intact.
+`board_scratchpad.py` supports ASCII without it. Its state defaults to
+`scratch/board.json`, and bare `--state` filenames go under `scratch/`; an explicit
+directory is honored. Archived early PGNs, board journals and trial notes live
+under `early-games/GAME-DATE/`. Use a separate scratch state for experiments so
+those completed records remain intact; preserve substantive new evidence in a
+tracked game directory when finished.
 Bare scratchpad `--png` filenames are saved under `images/positions/`; a path with an
 explicit directory, such as `scratch/candidate.png`, is honored as supplied.
 Keep reusable position images in `images/positions/` and replay screenshots in
