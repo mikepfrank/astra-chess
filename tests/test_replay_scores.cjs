@@ -19,7 +19,7 @@ const { chromium } = require(process.argv[2] || 'playwright');
     assert.match(await page.locator('#engine-score-detail').innerText(), /1\. Nc3.*6 plies/);
     await page.locator('#next').click();
     assert.equal(await score.innerText(), 'No recorded evaluation');
-    assert.match(await page.locator('#engine-score-detail').innerText(), /Black reply/);
+    assert.match(await page.locator('#engine-score-detail').innerText(), /Black move/);
     for (const [ply, label] of [[57,'Mate in 2'], [59,'Mate in 1'], [61,'Checkmate']]) {
       await page.locator(`[data-ply="${ply}"].move-button`).click();
       assert.equal(await score.innerText(), label);

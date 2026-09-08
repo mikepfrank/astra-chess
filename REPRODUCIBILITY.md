@@ -58,6 +58,24 @@ All 146 Python tests passed after this follow-up, including the relocated PGN
 rules checks and scratch-state isolation test. Both canonical and installed
 skills passed the official validator and their hashes match.
 
+The iPhone pawn-color report exposed a platform-font dependency in the replay:
+both sides used U+265F, recolored by CSS. That character has an
+[emoji presentation](https://unicode.org/emoji/charts/emoji-variants.html), so
+iOS font/emoji fallback is the likely cause of the reported all-black pawns.
+The template now embeds original SVG drawings for all six piece types, with
+explicit White/Black fills and outlines, and all eight replay pages were rebuilt.
+Their saved PGNs, positions, results and per-move evaluation records match the
+previous archives. Older replays now also inherit the current template's explicit
+White-side default and evaluation explanatory wording.
+
+All 146 Python tests and all three offline replay browser suites passed after
+the SVG update. Checks included 390-by-844 mobile/touch emulation, visible SVG
+geometry, pawn contrast, promotion/rewind, flipping, scores and playback. The
+screenshots in `images/replays/` were inspected and the new replay opened in the
+embedded browser. These checks used Edge; actual iPhone/Safari validation remains
+for the user's redeployment test. All drawings are inline, so each replay still
+deploys as a single HTML file.
+
 The verified development environment on September 7, 2026 used Python 3.12.14,
 Node.js 24.19.0 and Playwright 1.62.1 with an existing Edge installation for
 headless checks. These are observed versions, not an asserted minimum support

@@ -93,6 +93,11 @@ Open any HTML file in `replays/` in a browser:
 All eight replay files are self-contained and work offline. No login, network connection,
 external fonts, or chess engine is required. Each includes its complete PGN.
 
+Board pieces use original inline SVG drawings with explicit light/dark fills and
+outlines. This avoids device font differences and the pawn's Unicode emoji
+variant, which can render as a black emoji on iPhone even when CSS requests a
+white piece. The drawings are embedded in each page; no extra files need uploading.
+
 - Click a move, use Previous / Next, or scrub the position slider.
 - Play / Pause animates the recorded sequence; Speed controls the interval.
 - Left / Right step through moves; Home / End jump to the endpoints.
@@ -241,5 +246,9 @@ The current tools pass **146 Python tests** with
 mobile layout, PGN download and compatibility with an older replay. Both
 the legacy browser suite and `tests/test_replay_black.cjs` pass offline.
 The Black suite additionally checks color-aware player rows and score semantics.
+`tests/test_replay_pieces.cjs` checks all eight pages at mobile dimensions,
+including SVG geometry, distinct pawn colors, board flips, and promotion/rewind.
+All three suites pass with the installed Edge browser. Current replay screenshots
+go under `images/replays/`; previous engine-output screenshots remain preserved.
 Both skills pass Codex's official skill validator. An independent read-only recovery
 exercise checked the interrupted-promotion case without changing the real game.
