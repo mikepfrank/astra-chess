@@ -17,6 +17,7 @@ visualization directory. Commit them at completion checkpoints.
 | Prospective board visualization and query reports | `board_scratchpad.py`, `images/positions/`, `astra_engine/report.py`, `astra_engine/report.template.html` |
 | Playing and archive procedures | `AGENTS.md`, `skills/astra-chess-play/`, `skills/astra-chess-archive/`, `ENGINE.md` |
 | Design rationale and measured improvements | `IMPROVEMENT-PROPOSAL.md`, `ENGINE-CHANGES.md`, benchmark scripts and `engine-benchmarks/` |
+| Evaluation/search specification and options | `docs/engine-design.md`, checked against the implemented source and linked from `ENGINE.md` |
 | Game evidence and observations | `early-games/GAME-DATE/` for early PGNs, saved board journals, validation and trial notes; `engine-games/` for engine-assisted trials |
 | Replay build and collection | `build_replay.py`, `templates/replay.template.html`, `replays/replay-metadata.json`, `replays/index.html`, `replays/*-replay.html`, `replays/replay.html` |
 | Historical evaluation extraction and graph | `export_evaluations.py`, `engine-output/wally-v02-evaluation/`, `engine-output/wally-v02-black-evaluation/` |
@@ -72,9 +73,9 @@ All 146 Python tests and all three offline replay browser suites passed after
 the SVG update. Checks included 390-by-844 mobile/touch emulation, visible SVG
 geometry, pawn contrast, promotion/rewind, flipping, scores and playback. The
 screenshots in `images/replays/` were inspected and the new replay opened in the
-embedded browser. These checks used Edge; actual iPhone/Safari validation remains
-for the user's redeployment test. All drawings are inline, so each replay still
-deploys as a single HTML file.
+embedded browser. These checks used Edge. Mike subsequently redeployed all eight
+pages and confirmed that they display correctly on his iPhone. All drawings are
+inline, so each replay still deploys as a single HTML file.
 
 The verified development environment on September 7, 2026 used Python 3.12.14,
 Node.js 24.19.0 and Playwright 1.62.1 with an existing Edge installation for

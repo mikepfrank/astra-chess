@@ -30,7 +30,9 @@ next trial, implement/test that policy as described in
 [TIME-CONTROL-NEXT.md](TIME-CONTROL-NEXT.md); the existing fixed-total initializer
 does not yet implement it. Do not apply it retrospectively to game 10.
 
-`ENGINE.md` is the maintained interface reference. `game.json`, `clock.jsonl`,
+`ENGINE.md` is the maintained interface reference; `docs/engine-design.md`
+documents evaluation formulas, search semantics, goal criteria and options.
+Keep the design reference synchronized with engine changes. `game.json`, `clock.jsonl`,
 saved query requests/results, and any unresolved `continuation.md` are recovery
 evidence; a conversation summary is not a substitute. Archive or development
 requests do not start another game or publish a site.

@@ -5,6 +5,11 @@ rules, move generation, evaluation, and search are written here from scratch.
 Running it needs only Python's standard library. It reads no opening book,
 endgame tablebase, external engine, online service, or trained evaluation model.
 
+For the complete evaluation formulas and weights, search implementation,
+goal semantics, and optional-feature reference, read
+[Engine design and evaluation](docs/engine-design.md). This page focuses on
+using the interface and the live-game workflow.
+
 ## The collaboration
 
 I supply a position, a question, and a budget. The engine returns structured
@@ -33,7 +38,8 @@ The evaluation uses material, centralization, pawn structure/advancement, rook
 files, bishop pairs, and simple king placement. There are no imported
 piece-square tables or learned weights. Quiescence follows captures and
 promotions for up to eight extra plies and always considers compulsory check
-evasions. A rare 96-ply checking chain interrupts the iteration rather than
+evasions. A checked quiescence node at root-relative ply 96 or later interrupts
+the iteration rather than
 substituting a quiet evaluation while in check. Base depth and the displayed
 line length can therefore differ. Quiet-position evaluation can still miss
 zugzwang and threats beyond the search horizon.
@@ -53,8 +59,10 @@ query again from the actual next position if the opponent chooses another reply.
 - `forced`: a strategy for the goal is proved within the specified horizon.
 - `possible`: a qualifying example exists, but the bounded goal can be prevented.
 - `unreachable`: no qualifying line exists within the specified horizon.
-- `unknown`: the budget prevented a definitive answer. Inspect the separate
-  `proof_status` and `witness_status`; an example may still be available.
+- `unknown`: the requested searches did not establish the full classification.
+  This can reflect a budget limit or an intentionally omitted witness search.
+  Inspect `proof_status` and `witness_status`; an example or a completed
+  proof-only refutation may still be available.
 
 These labels concern the requested finite horizon. “Unreachable in four plies”
 does not mean unreachable later. A proof of avoiding a loss for four plies does
@@ -172,7 +180,7 @@ Three extra evaluation terms are independently switchable and **off by default**
 ```
 
 `mobility` adds a small minor-piece mobility term excluding enemy pawn controls.
-`restricted_piece` adds a capped penalty when such a piece has few destinations
+`restricted_piece` adds a capped penalty per minor piece when it has few destinations
 and a credible capture threat. `king_exposure` assesses enemy heavy-piece access
 along open files near the king. These hand-written heuristics can misjudge
 compensation or defense and cost search time; they are experimental, not trained
@@ -293,8 +301,9 @@ For Black, initialization leaves the clock idle; observe White's first move and
 use `turn --opponent SAN --observed-utc UTC` to begin the first own turn.
 Recovery and move verification use the saved color. Search scores always favor
 the query root's side, including Black-root queries. The historical evaluation
-exporter and replay score overlay currently support White trials only; adapt
-and validate their perspective handling before archiving a Black trial's scores.
+exporter and replay score overlay support both White and Black trials and retain
+the recorded player's score perspective. See the
+[archive workflow](skills/astra-chess-archive/SKILL.md) for the color-aware build.
 
 The general query interface attaches to that same ledger:
 

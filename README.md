@@ -10,6 +10,7 @@ package and GitHub handoff. Core analysis needs only Python's standard library.
 | Directory | Contents |
 | --- | --- |
 | `astra_engine/` | From-scratch chess rules, evaluation, search, clocks and reports |
+| [docs/](docs/engine-design.md) | Detailed engine design, evaluation formulas, goal queries and optional features |
 | [early-games/](early-games/README.md) | Early trial PGNs, saved board journals, validation evidence and notes, grouped by game/date |
 | `engine-games/` | Game journals, PGNs, clock ledgers and saved queries |
 | `engine-output/` | Analysis reports, evaluation graphs and their supporting artifacts |
@@ -35,6 +36,9 @@ stay in place.
 
 [ENGINE.md](ENGINE.md) documents **Astra Search Lab**, the from-scratch chess
 engine, goal queries, visual evidence reports, and shared turn-budget workflow.
+The [engine design reference](docs/engine-design.md) documents every evaluation
+factor and weight, the search algorithm, all goal criteria, options and defaults,
+with examples and links to their implementations.
 Run `python astra_chess.py --help` for the command interface. Engine output lives
 in `engine-output/`; it is separate from the published game replays below.
 Version 0.2 adds faster search, a cumulative game clock, and optional threat
