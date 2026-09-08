@@ -30,6 +30,6 @@ Final FEN: `6k1/p6p/2b3PQ/1p1pR3/3P2P1/P7/1P3r2/5q1K w - - 4 34`.
 ## Artifacts
 
 - `wally-board.json`: actual square edits and SAN move journal.
-- `wally-candidate-01.png` through `wally-candidate-33.png`: inspected candidate positions.
-- `wally-final.png`: completed position.
+- `images/positions/wally-candidate-01.png` through `images/positions/wally-candidate-33.png`: inspected candidate positions.
+- `images/positions/wally-final.png`: completed position.
 - `codex-vs-wally-2026-09-05.pgn`: complete move record.

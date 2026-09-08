@@ -27,8 +27,8 @@ and writes an inspectable report under ignored `scratch/`; it does not start a
 game. Open `scratch/mate.html` in a browser. See [ENGINE.md](ENGINE.md) for
 arbitrary FENs, candidate limits, goals, recorded history and clock semantics.
 
-Any `*-replay.html` or `replay.html` can be opened directly without installing
-anything. These complete replay pages work offline. The collection `index.html`
+Any replay HTML in `replays/` can be opened directly without installing
+anything. These complete replay pages work offline. The collection `replays/index.html`
 links to separate online deployments; the historical evaluation chart alone
 uses D3 from a CDN and needs network access.
 
@@ -64,6 +64,12 @@ page on loopback. The source data and previous replay rebuild commands are in
 For optional PNG diagrams, install `requirements-visuals.txt` (Pillow 12.3.0).
 `board_scratchpad.py` supports ASCII without it. Use an explicit `--state` under
 `scratch/` for experiments so historical board journals remain intact.
+Bare scratchpad `--png` filenames are saved under `images/positions/`; a path with an
+explicit directory, such as `scratch/candidate.png`, is honored as supplied.
+Keep reusable position images in `images/positions/` and replay screenshots in
+`images/replays/`. Existing query/report artifacts remain in `engine-output/`.
+The live helper's `choose --png` writes its candidate to the game's own
+`engine-games/GAME-SLUG/images/` subdirectory.
 
 ## Optional browser checks
 

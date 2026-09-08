@@ -16,8 +16,8 @@ The complete record is `codex-vs-wendy-2026-09-05.pgn`.
 - **8. d4** used the pin on Black's e5 pawn to challenge the center and bishop.
 - **12. Rxe6** captured the bishop left undefended after Black castled.
 - **24. Nf7+** forked the king and rook, winning the exchange.
-- A candidate finish after **31...Kh5** was explicitly drawn in `wendy-line-31.png`. Wendy chose **31...Kh7**, so that hypothetical line was discarded.
-- Before **33. Ne4**, `wendy-mating-net.png` showed the intended finish: **33...h5 34. Nxf6+ Kh6 35. Bd3**, followed by **Rg6#**. Its hypothetical intervening pawn move was ...c4; Wendy actually played ...a5, which did not affect the mate.
+- A candidate finish after **31...Kh5** was explicitly drawn in `images/positions/wendy-line-31.png`. Wendy chose **31...Kh7**, so that hypothetical line was discarded.
+- Before **33. Ne4**, `images/positions/wendy-mating-net.png` showed the intended finish: **33...h5 34. Nxf6+ Kh6 35. Bd3**, followed by **Rg6#**. Its hypothetical intervening pawn move was ...c4; Wendy actually played ...a5, which did not affect the mate.
 - At checkmate, the bishop on d3 protects the rook on g6, and the knight on f6 covers h5 and h7. Before the final move, Black still had legal pawn moves, avoiding stalemate.
 
 ## Verification after checkmate
@@ -26,4 +26,4 @@ Only after the game ended, `chess==1.11.2` was used to verify all 71 legal plies
 
 Final FEN: `8/8/5NRk/p1p4p/8/2PB4/P4PPP/6K1 b - - 1 36`.
 
-Files: `wendy-board.json` contains the actual move journal; `wendy-candidate-01.png` through `wendy-candidate-36.png` contain the inspected candidate boards; `wendy-final.png` shows the completed position.
+Files: `wendy-board.json` contains the actual move journal; `images/positions/wendy-candidate-01.png` through `images/positions/wendy-candidate-36.png` contain the inspected candidate boards; `images/positions/wendy-final.png` shows the completed position.

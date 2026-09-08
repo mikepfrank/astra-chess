@@ -14,13 +14,13 @@ visualization directory. Commit them at completion checkpoints.
 | From-scratch rules, evaluation, search and optional diagnostics | `astra_engine/`, `astra_chess.py`, `engine_examples/` |
 | Manual game journal, cumulative own-turn clock and recovery | `play_engine_game.py`, `astra_engine/clock.py`, `resume_chess.py` |
 | Per-turn timing audit and future time-control policy | `audit_game_time.py`, `TIME-CONTROL-NEXT.md`, saved game timing reports |
-| Prospective board visualization and query reports | `board_scratchpad.py`, `astra_engine/report.py`, `astra_engine/report.template.html` |
+| Prospective board visualization and query reports | `board_scratchpad.py`, `images/positions/`, `astra_engine/report.py`, `astra_engine/report.template.html` |
 | Playing and archive procedures | `AGENTS.md`, `skills/astra-chess-play/`, `skills/astra-chess-archive/`, `ENGINE.md` |
 | Design rationale and measured improvements | `IMPROVEMENT-PROPOSAL.md`, `ENGINE-CHANGES.md`, benchmark scripts and `engine-benchmarks/` |
 | Game evidence and observations | `engine-games/`, source PGNs, saved board journals, and the `*-visualization-trial.md` notes |
-| Replay build and collection | `build_replay.py`, `replay.template.html`, `replay-metadata.json`, `index.html`, replay HTML files |
+| Replay build and collection | `build_replay.py`, `templates/replay.template.html`, `replay-metadata.json`, `replays/index.html`, `replays/*-replay.html`, `replays/replay.html` |
 | Historical evaluation extraction and graph | `export_evaluations.py`, `engine-output/wally-v02-evaluation/`, `engine-output/wally-v02-black-evaluation/` |
-| Validation | `tests/`, retained browser-check images and experiment audits |
+| Validation | `tests/`, `images/replays/`, retained browser-check images under `engine-output/`, and experiment audits |
 | Portable source/history packaging | `package_repo.py`, `SETUP.md`, `PACKAGING.md`, requirements files, `package.json`, `.gitattributes` |
 
 The installed copies of the two chess skills under the user's Codex skills
@@ -36,6 +36,13 @@ state, not the source of recorded timing evidence. New append-only
 substantive notes only in an ignored log or an external scratch directory.
 
 ## Environment and dependencies
+
+The September 8 asset reorganization moved 185 top-level HTML/PNG files without
+changing their bytes: nine pages to `replays/`, one template to `templates/`,
+173 position diagrams to `images/positions/`, and two screenshots to
+`images/replays/`. Builder, preview, future-image defaults, documentation and
+installed skills use the new paths. All 145 Python tests and both offline replay
+browser suites passed afterward. Published Netlify URLs are unchanged.
 
 The verified development environment on September 7, 2026 used Python 3.12.14,
 Node.js 24.19.0 and Playwright 1.62.1 with an existing Edge installation for

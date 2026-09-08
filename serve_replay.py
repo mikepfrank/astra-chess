@@ -3,7 +3,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import argparse
 
-PAGE = Path(__file__).resolve().with_name("replay.html")
+REPLAY_DIR = Path(__file__).resolve().parent / "replays"
+PAGE = REPLAY_DIR / "replay.html"
+
+
+def replay_page_path(path):
+    path = Path(path)
+    return REPLAY_DIR / path if not path.is_absolute() and path.parent == Path(".") else path
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -26,10 +32,11 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--page", type=Path, default=PAGE)
+    parser.add_argument("--page", type=Path, default=PAGE,
+                        help="Page to serve; bare filenames resolve under replays/")
     parser.add_argument("--port", type=int, default=8765)
     args = parser.parse_args()
-    PAGE = args.page.resolve(strict=True)
+    PAGE = replay_page_path(args.page).resolve(strict=True)
     server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
     print(f"Chess replay ready at http://127.0.0.1:{args.port}/{PAGE.name}", flush=True)
     server.serve_forever()

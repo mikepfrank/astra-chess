@@ -37,6 +37,14 @@ requests do not start another game or publish a site.
 
 ## Repository coverage
 
+Keep standalone replay pages and the collection index in `replays/`; the shared
+interface source is `templates/replay.template.html`. Save position/candidate
+PNGs in `images/positions/` and replay screenshots in `images/replays/`.
+The live helper keeps its candidate PNG in `engine-games/GAME-SLUG/images/`.
+Existing analysis reports and associated artifacts remain in `engine-output/`.
+Use these directories for future outputs; Netlify uploads still use a standalone
+`index.html` at each project's root.
+
 Keep new authored chess tools, skills, reusable visualization sources, game
 evidence and substantive notes in this repository and commit them at completion
 checkpoints. Preserve the dependency/cache/runtime exclusions in `.gitignore`.

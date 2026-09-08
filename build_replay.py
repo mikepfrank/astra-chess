@@ -13,9 +13,16 @@ import math
 import sys
 
 ROOT = Path(__file__).resolve().parent
+REPLAY_DIR = ROOT / "replays"
 sys.path.insert(0, str(ROOT / ".replay-deps"))
 import chess
 import chess.pgn
+
+
+def replay_output_path(path):
+    """Bare output names belong to replays; explicit directories are honored."""
+    path = Path(path)
+    return REPLAY_DIR / path if not path.is_absolute() and path.parent == Path(".") else path
 
 
 def normalized_fen(fen):
@@ -124,6 +131,7 @@ def attach_evaluations(frames, path, *, player_side=None):
 
 
 def build(pgn_path, output_path, subtitle=None, ending=None, evaluations=None):
+    output_path = replay_output_path(output_path)
     pgn = pgn_path.read_text(encoding="utf-8")
     game = chess.pgn.read_game(io.StringIO(pgn))
     if game is None or game.errors:
@@ -220,7 +228,7 @@ def build(pgn_path, output_path, subtitle=None, ending=None, evaluations=None):
     if evaluations is not None:
         data["evaluations"] = attach_evaluations(frames, evaluations, player_side=player_side)
     embedded = json.dumps(data, separators=(",", ":"), ensure_ascii=True).replace("<", "\\u003c")
-    template = (ROOT / "replay.template.html").read_text(encoding="utf-8")
+    template = (ROOT / "templates" / "replay.template.html").read_text(encoding="utf-8")
     assert template.count("__REPLAY_DATA__") == 1
     substitutions = {
         "__TITLE__": title,
@@ -237,6 +245,7 @@ def build(pgn_path, output_path, subtitle=None, ending=None, evaluations=None):
     for key, value in substitutions.items():
         output = output.replace(key, html.escape(value, quote=True))
     output = output.replace("__REPLAY_DATA__", embedded)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(output, encoding="utf-8")
     print(f"Validated {len(frames)-1} legal plies; recorded result {result} by {ending}.")
     print(f"Wrote {len(frames)} positions and {len(output):,} characters to {output_path.name}.")
@@ -245,12 +254,12 @@ def build(pgn_path, output_path, subtitle=None, ending=None, evaluations=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pgn", type=Path, default=ROOT / "codex-vs-sven-rematch-2026-09-05.pgn")
-    parser.add_argument("--output", type=Path)
+    parser.add_argument("--output", type=Path, help="Output page; bare filenames go under replays/")
     parser.add_argument("--subtitle", help="Label before the game date")
     parser.add_argument("--ending", choices=("checkmate", "resignation"),
                         help="Required for a resignation; checkmate is detected from the board")
     parser.add_argument("--evaluations", type=Path,
                         help="Audited evaluation-history JSON; shows recorded player-move scores")
     args = parser.parse_args()
-    output_path = args.output or ROOT / ("replay.html" if args.pgn.name == "codex-vs-sven-rematch-2026-09-05.pgn" else f"{args.pgn.stem}-replay.html")
+    output_path = args.output or REPLAY_DIR / ("replay.html" if args.pgn.name == "codex-vs-sven-rematch-2026-09-05.pgn" else f"{args.pgn.stem}-replay.html")
     build(args.pgn, output_path, args.subtitle, args.ending, args.evaluations)

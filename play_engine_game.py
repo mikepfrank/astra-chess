@@ -270,7 +270,7 @@ def main(argv=None):
             from board_scratchpad import render
             number = f"{pos.fullmove}." if pos.turn == 0 else f"{pos.fullmove}..."
             render({"board": {square_name(i): pc for i, pc in enumerate(child.board) if pc != "."},
-                    "last_edits": [move.uci()]}, game / "candidate.png", f"{number} {pos.san(move)} — candidate")
+                    "last_edits": [move.uci()]}, game / "images" / "candidate.png", f"{number} {pos.san(move)} — candidate")
     elif args.command in ("submit", "reject"):
         active_turn(game, journal)
         pending = journal.get("pending")

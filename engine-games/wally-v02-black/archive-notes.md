@@ -1,6 +1,6 @@
 # Game 10 replay archive
 
-The requested standalone page is `wally-engine-v02-black-replay.html`. It
+The requested standalone page is `replays/wally-engine-v02-black-replay.html`. It
 embeds all 96 legal plies and 97 positions, matching the verified journal and
 PGN. Astra (Ultra) plays Black, Wally (1800) plays White, and the ending is
 48...Rcxd2#, 0-1. The date follows the recorded PGN: September 8, 2026.
@@ -36,5 +36,5 @@ The collection index now has eight games and preserves its seven existing
 deployment links. Its new link uses the **proposed**, not published here,
 Netlify project `astra-vs-wally-engine-v02-black`. Upload a copy of the replay
 named `index.html` as that project's root page; separately redeploy the
-collection `index.html` to `astra-plays-chess`. Build/preview commands are in
+collection `replays/index.html` to `astra-plays-chess`. Build/preview commands are in
 `README.md`. No Netlify deployment or new game was performed.

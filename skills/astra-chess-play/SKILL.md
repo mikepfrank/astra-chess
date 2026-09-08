@@ -106,8 +106,11 @@ For each newly observed own turn:
    by default. Read completed depth, fallback status, candidate replies, and
    diagnostic coverage. A depth ceiling is not an achieved depth.
 3. Inspect prospective ASCII/FEN boards, or use the scratchpad/`--png` when a
-   picture helps. Review the **opponent's** checks, captures, threats, newly
-   opened files/diagonals, loose pieces, restricted escapes, and promotion
+   picture helps. Save scratchpad PNGs in `images/positions/`: a bare scratchpad
+   `--png candidate.png` filename is routed there, while an explicit directory
+   such as `--png scratch/candidate.png` is honored. Review the **opponent's**
+   checks, captures, threats, newly opened files/diagonals, loose pieces,
+   restricted escapes, and promotion
    possibilities after each serious candidate. A clean diagnostic is not a
    safety certificate. A principal variation covers one continuation.
 4. Spend additional time only on a concrete unresolved question. `critical`
@@ -117,7 +120,8 @@ For each newly observed own turn:
    and `--threat-extensions 1`/`2` are optional; assess their cost and record use.
 5. Use `choose --move UCI --note "..."`, explaining whether the engine changed
    the initial idea and what it revealed. Inspect the printed resulting board.
-   This writes a pending choice; it does not play it.
+   Add `--png` for `engine-games/GAME-SLUG/images/candidate.png`. This writes a
+   pending choice; it does not play it.
 6. Enter that move in the browser. Capture actual submission time after any
    promotion selection, then inspect fresh UI. Record `submit` if useful and
    call `verify --submitted-utc UTC --verified-utc UTC` **only after the move is

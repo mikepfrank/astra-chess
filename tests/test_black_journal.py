@@ -139,6 +139,14 @@ class BlackJournalTests(unittest.TestCase):
         self.assertEqual(state["issues"], [])
         self.assertEqual(journal.own_side(data), 0)
 
+    def test_candidate_png_is_scoped_to_game_image_directory(self):
+        self.call("turn", "--opponent", "e4", "--initial", "c7c5")
+        with patch("board_scratchpad.render") as render:
+            self.call("choose", "--move", "c7c5", "--png")
+        self.assertEqual(render.call_args.args[1], self.game / "images/candidate.png")
+        self.assertEqual(render.call_args.args[0]["board"]["c5"], "p")
+        self.assertEqual(self.state()["phase"], "pending_unverified")
+
 
 if __name__ == "__main__":
     unittest.main()

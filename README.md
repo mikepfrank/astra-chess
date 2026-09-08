@@ -5,6 +5,27 @@ workflow, and the complete archived experiment. Start with [SETUP.md](SETUP.md)
 for a fresh checkout, or [PACKAGING.md](PACKAGING.md) for the local source/history
 package and GitHub handoff. Core analysis needs only Python's standard library.
 
+## Repository layout
+
+| Directory | Contents |
+| --- | --- |
+| `astra_engine/` | From-scratch chess rules, evaluation, search, clocks and reports |
+| `engine-games/` | Game journals, PGNs, clock ledgers and saved queries |
+| `engine-output/` | Analysis reports, evaluation graphs and their supporting artifacts |
+| `replays/` | Standalone replay pages and the collection `index.html` |
+| `templates/` | Shared replay HTML template |
+| `images/positions/` | Saved board positions and candidate-move diagrams |
+| `images/replays/` | Replay screenshots |
+| `skills/` | Canonical assistant play and archive procedures |
+| `tests/` | Rules, tooling and browser checks |
+
+Keep future replay builds and collection edits in `replays/`. The builder defaults
+to `replays/replay.html`; specify an output there for other games. Bare scratchpad
+`--png` filenames go to `images/positions/`, while paths with an explicit directory
+are honored. The live helper's `choose --png` stores its candidate under
+`engine-games/GAME-SLUG/images/`. The documented analysis/report subdirectories
+stay in place.
+
 ## Chess engine experiment
 
 [ENGINE.md](ENGINE.md) documents **Astra Search Lab**, the from-scratch chess
@@ -48,12 +69,12 @@ The selected future staged/increment control is recorded in
 
 ## Replay collection
 
-**index.html** is the collection's standalone home page. It links to eight
+**[replays/index.html](replays/index.html)** is the collection's standalone home page. It links to eight
 replays at their `astra-vs-*.netlify.app` addresses, including the proposed
 game-10 deployment below. Upload just this
 file to the new master Netlify project; no other files or build step are needed.
 
-Open any HTML file in a browser:
+Open any HTML file in `replays/` in a browser:
 
 - **replay.html** — the 41-move winning rematch against Sven (1100), ending in Qxh6#.
 - **nelson-replay.html** — the 45-move winning rematch against Nelson (1300), ending in Rh8#.
@@ -77,7 +98,7 @@ external fonts, or chess engine is required. Each includes its complete PGN.
 
 ## Source and rebuild
 
-`replay.template.html` contains the interface. `build_replay.py` reads the saved
+`templates/replay.template.html` contains the interface. `build_replay.py` reads the saved
 PGN, validates every legal move with `chess==1.11.2`, and embeds all positions
 (including the starting position): 82 for Sven, 90 for Nelson, 72 for Wendy
 (71 plies), 67 for Wally (66 plies), 95 for the Wally rematch (94 plies), and
@@ -97,15 +118,15 @@ unchanged.
 ```text
 python -m pip install --target .replay-deps chess==1.11.2
 python build_replay.py
-python build_replay.py --pgn codex-vs-nelson-rematch-2026-09-05.pgn --output nelson-replay.html --subtitle "Rematch / Visualization trial"
-python build_replay.py --pgn codex-vs-wendy-2026-09-05.pgn --output wendy-replay.html --subtitle "Visualization trial"
-python build_replay.py --pgn codex-vs-wally-2026-09-05.pgn --output wally-replay.html --subtitle "Visualization trial"
-python build_replay.py --pgn codex-vs-wally-rematch-2026-09-06.pgn --output wally-rematch-replay.html --subtitle "Rematch / Visualization trial" --ending resignation
-python build_replay.py --pgn engine-games/wally-2026-09-07/astra-vs-wally-engine-2026-09-07.pgn --output wally-engine-replay.html --subtitle "Engine-assisted trial" --ending resignation
+python build_replay.py --pgn codex-vs-nelson-rematch-2026-09-05.pgn --output replays/nelson-replay.html --subtitle "Rematch / Visualization trial"
+python build_replay.py --pgn codex-vs-wendy-2026-09-05.pgn --output replays/wendy-replay.html --subtitle "Visualization trial"
+python build_replay.py --pgn codex-vs-wally-2026-09-05.pgn --output replays/wally-replay.html --subtitle "Visualization trial"
+python build_replay.py --pgn codex-vs-wally-rematch-2026-09-06.pgn --output replays/wally-rematch-replay.html --subtitle "Rematch / Visualization trial" --ending resignation
+python build_replay.py --pgn engine-games/wally-2026-09-07/astra-vs-wally-engine-2026-09-07.pgn --output replays/wally-engine-replay.html --subtitle "Engine-assisted trial" --ending resignation
 python export_evaluations.py --game wally-engine-v02 --output engine-output/wally-v02-evaluation/data.json
-python build_replay.py --pgn engine-games/wally-engine-v02/game.pgn --output wally-engine-v02-replay.html --subtitle "Engine v0.2 trial" --evaluations engine-output/wally-v02-evaluation/data.json
+python build_replay.py --pgn engine-games/wally-engine-v02/game.pgn --output replays/wally-engine-v02-replay.html --subtitle "Engine v0.2 trial" --evaluations engine-output/wally-v02-evaluation/data.json
 python export_evaluations.py --game wally-v02-black --output engine-output/wally-v02-black-evaluation/data.json
-python build_replay.py --pgn engine-games/wally-v02-black/game.pgn --output wally-engine-v02-black-replay.html --subtitle "Engine v0.2 trial / Astra as Black" --evaluations engine-output/wally-v02-black-evaluation/data.json
+python build_replay.py --pgn engine-games/wally-v02-black/game.pgn --output replays/wally-engine-v02-black-replay.html --subtitle "Engine v0.2 trial / Astra as Black" --evaluations engine-output/wally-v02-black-evaluation/data.json
 ```
 
 The Python dependency is only needed to rebuild. It is not bundled into the page
@@ -134,40 +155,41 @@ http://127.0.0.1:8765/replay.html. The server binds only to loopback and serves
 only the selected replay page. To preview Nelson alongside Sven:
 
 ```text
-python serve_replay.py --page nelson-replay.html --port 8766
+python serve_replay.py --page replays/nelson-replay.html --port 8766
 ```
 
 Open http://127.0.0.1:8766/nelson-replay.html. To preview Wendy on another port:
 
 ```text
-python serve_replay.py --page wendy-replay.html --port 8767
+python serve_replay.py --page replays/wendy-replay.html --port 8767
 ```
 
 Open http://127.0.0.1:8767/wendy-replay.html. To preview Wally on another port:
 
 ```text
-python serve_replay.py --page wally-replay.html --port 8768
+python serve_replay.py --page replays/wally-replay.html --port 8768
 ```
 
 Open http://127.0.0.1:8768/wally-replay.html. To preview the Wally rematch on another port:
 
 ```text
-python serve_replay.py --page wally-rematch-replay.html --port 8769
+python serve_replay.py --page replays/wally-rematch-replay.html --port 8769
 ```
 
 Open http://127.0.0.1:8769/wally-rematch-replay.html. To share any replay, upload just
-its HTML file to a static host.
+its HTML file to a static host. Local directory names do not change the hosted
+page's name: deploy each standalone replay as the project's root `index.html`.
 
 The game-8 index entry uses `https://astra-vs-wally-engine.netlify.app/`, the proposed
 project name following the existing naming pattern. To publish it with Netlify
-Drop, deploy a copy of `wally-engine-replay.html` named `index.html` as that
-project's root page. Deploy the collection's root `index.html` separately to
+Drop, deploy a copy of `replays/wally-engine-replay.html` named `index.html` as that
+project's root page. Deploy the collection's `replays/index.html` separately to
 `astra-plays-chess`. No deployment is performed by the local build.
 
 Preview the new replay with:
 
 ```text
-python serve_replay.py --page wally-engine-replay.html --port 8772
+python serve_replay.py --page replays/wally-engine-replay.html --port 8772
 ```
 
 The game journal, all engine queries, experiment observations, and audit are in
@@ -176,14 +198,14 @@ engine behavior and historical experiment artifacts. Legacy mutable turn clocks,
 server logs, Python caches, and the locally installed replay dependency are
 excluded. New append-only game-clock ledgers are retained as experiment evidence.
 
-Game 9's replay is `wally-engine-v02-replay.html`. Its index link uses the
+Game 9's replay is `replays/wally-engine-v02-replay.html`. Its index link uses the
 **proposed** Netlify project `astra-vs-wally-engine-v02`. Deploy this replay as
-that project's `index.html`, then upload the updated collection `index.html`
+that project's `index.html`, then upload the updated collection `replays/index.html`
 to `astra-plays-chess`. If you choose a different project name, change that one
 index link. The local build does not create or publish the Netlify project.
 Game-9 PGN, search evidence and clock are in `engine-games/wally-engine-v02/`.
 
-Game 10's replay is `wally-engine-v02-black-replay.html`. Astra plays Black;
+Game 10's replay is `replays/wally-engine-v02-black-replay.html`. Astra plays Black;
 the board initially puts Black at the bottom and keeps the recorded White/Black
 identities, ratings, 0-1 result and PGN intact. Round 10's `playerSide: "black"`
 in `replay-metadata.json` drives presentation. The exporter uses the journal's
@@ -193,12 +215,12 @@ recorded evaluation; 46/47 show **Mate in 2/Mate in 1**, and 48 shows **Checkmat
 
 Its index link uses the **proposed** Netlify project
 `astra-vs-wally-engine-v02-black`. Upload the replay HTML as that project's
-root `index.html`, then redeploy the collection's separate `index.html` to
+root `index.html`, then redeploy the collection's separate `replays/index.html` to
 `astra-plays-chess`. Change the new collection link if choosing another name.
 No deployment is performed by the local build. For the embedded preview:
 
 ```text
-python serve_replay.py --page wally-engine-v02-black-replay.html --port 8774
+python serve_replay.py --page replays/wally-engine-v02-black-replay.html --port 8774
 ```
 
 Black-specific offline browser checks are in `tests/test_replay_black.cjs`;
@@ -206,7 +228,7 @@ the exported scores and desktop/mobile checks are preserved in
 `engine-output/wally-v02-black-evaluation/`. Neither the exporter nor the
 archive build runs a new engine search.
 
-The current tools pass **140 Python tests** with
+The current tools pass **145 Python tests** with
 `python -m unittest discover -s tests`. Offline headless-browser checks in
 `tests/test_replay_scores.cjs` cover navigation, scores, mate labels, promotion,
 mobile layout, PGN download and compatibility with an older replay. Both

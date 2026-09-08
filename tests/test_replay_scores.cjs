@@ -11,7 +11,7 @@ const { chromium } = require(process.argv[2] || 'playwright');
     const errors = [], requests = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('request', request => { if (/^https?:/.test(request.url())) requests.push(request.url()); });
-    await page.goto(pathToFileURL(path.join(__dirname, '../wally-engine-v02-replay.html')).href);
+    await page.goto(pathToFileURL(path.join(__dirname, '../replays/wally-engine-v02-replay.html')).href);
     const score = page.locator('#engine-score-value');
     assert.equal(await score.innerText(), 'No recorded evaluation');
     await page.locator('#next').click();
@@ -41,7 +41,7 @@ const { chromium } = require(process.argv[2] || 'playwright');
     assert.deepEqual(errors, []);
     assert.deepEqual(requests, []);
     // The existing generated archive still behaves without any evaluation data.
-    await page.goto(pathToFileURL(path.join(__dirname, '../wally-engine-replay.html')).href);
+    await page.goto(pathToFileURL(path.join(__dirname, '../replays/wally-engine-replay.html')).href);
     await page.locator('#next').click();
     assert.equal(await page.locator('#board').getAttribute('data-ply'), '1');
     console.log('Replay browser checks passed: scores, Black-frame absence, mate convention, navigation, flip, promotion, mobile, offline download, legacy replay.');

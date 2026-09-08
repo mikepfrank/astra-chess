@@ -14,7 +14,7 @@ const { chromium } = require(process.argv[2] || 'playwright');
     page.on('pageerror', error => errors.push(error.message));
     page.on('request', request => { if (/^https?:/.test(request.url())) requests.push(request.url()); });
     await page.route(/^https?:/, route => route.abort());
-    await page.goto(pathToFileURL(path.join(__dirname, '../wally-engine-v02-black-replay.html')).href);
+    await page.goto(pathToFileURL(path.join(__dirname, '../replays/wally-engine-v02-black-replay.html')).href);
     const score = page.locator('#engine-score-value');
     const detail = page.locator('#engine-score-detail');
     const board = page.locator('#board');

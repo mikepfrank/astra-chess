@@ -12,7 +12,7 @@ Archiving does not authorize starting another game or publishing a deployment.
 ## Sources and recovery
 
 Locate the repository containing `ENGINE.md`, `build_replay.py`,
-`replay.template.html`, `replay-metadata.json`, and `index.html`. The current
+`templates/replay.template.html`, `replay-metadata.json`, and `replays/index.html`. The current
 checkout is `C:/Users/MikeFrank/Documents/ChatGPT/Chess`; use the user-selected
 checkout if relocated. Run commands there with a working Python executable.
 
@@ -36,7 +36,7 @@ merely to build an archive.
    Set `playerSide` to `black` for Black trials (legacy entries default to
    `white`). This selects Astra's display identity and initial board orientation;
    PGN White/Black headers, ratings, move-list columns and results remain intact.
-3. Reuse `build_replay.py` and `replay.template.html`, preserving the animation,
+3. Reuse `build_replay.py` and `templates/replay.template.html`, preserving the animation,
    clickable move list, keyboard/slider controls, board flip, and PGN download.
    The builder uses an existing rules-only dependency; the generated HTML has
    no external runtime dependencies. A resignation requires explicit
@@ -45,7 +45,7 @@ merely to build an archive.
    rather than mislabeling it as a win or resignation.
 
 ```text
-python build_replay.py --pgn engine-games/GAME-SLUG/game.pgn --output GAME-replay.html --subtitle "Engine-assisted trial"
+python build_replay.py --pgn engine-games/GAME-SLUG/game.pgn --output replays/GAME-replay.html --subtitle "Engine-assisted trial"
 ```
 
 When historical evaluation data is available, pass `--evaluations DATA.json`.
@@ -89,14 +89,23 @@ present it as the original assessment.
 
 ## Index, verification, and delivery
 
-Update `index.html` with the original session game number, correct date,
+Update `replays/index.html` with the original session game number, correct date,
 model/thinking level, opponent rating, move count, result, finish, and engine
 trial label. Update the collection count/description too. Preserve existing
 deployment links. The established collection uses separate Netlify projects for
 the index and each replay. If a new project's URL is unknown, identify any
 proposed project name clearly for the user's deployment; do not claim it is live.
 Use relative links when the user instead wants a combined deployment. Tell the
-user which files to upload when index and replay are hosted separately.
+user which files to upload when index and replay are hosted separately: each
+replay is uploaded as its project's root `index.html`, and `replays/index.html`
+is the separate collection deployment. Local subdirectories do not change the
+existing public URLs.
+
+Keep new replay pages in `replays/` and replay screenshots in `images/replays/`.
+Evaluation datasets and their existing graph/check artifacts stay in
+`engine-output/`. Preview a page with
+`python serve_replay.py --page replays/GAME-replay.html`; the loopback URL still
+uses the page's basename, such as `http://127.0.0.1:8765/GAME-replay.html`.
 
 Build and inspect the replay in the embedded sidebar browser. Check opening,
 capture/castling/promotion frames present in this game, final board and result,

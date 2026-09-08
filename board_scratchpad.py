@@ -12,11 +12,18 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+POSITION_IMAGES = ROOT / "images" / "positions"
 FILES = "abcdefgh"
 SQUARES = {f + r for f in FILES for r in "12345678"}
 START = {f + r: p for r, pieces in (("1", "RNBQKBNR"), ("2", "PPPPPPPP"),
                                    ("7", "pppppppp"), ("8", "rnbqkbnr"))
          for f, p in zip(FILES, pieces)}
+
+
+def position_image_path(path):
+    """Keep default/bare diagram names out of the repository's top level."""
+    path = Path(path)
+    return POSITION_IMAGES / path if not path.is_absolute() and path.parent == Path(".") else path
 
 
 def read_state(path):
@@ -128,7 +135,7 @@ def main():
     parser.add_argument("command", choices=("init", "commit", "preview", "show"))
     parser.add_argument("edits", nargs="*")
     parser.add_argument("--state", type=Path, default=ROOT / "nelson-rematch-board.json")
-    parser.add_argument("--png", type=Path)
+    parser.add_argument("--png", type=Path, help="Diagram path; bare filenames go under images/positions/")
     parser.add_argument("--san", help="Manually supplied journal text; never parsed")
     parser.add_argument("--force", action="store_true", help="Allow init to replace state")
     args = parser.parse_args()
@@ -159,9 +166,9 @@ def main():
         ascii_board(state)
         output = args.png
         if args.command == "preview" and output is None:
-            output = ROOT / "board-preview.png"
+            output = POSITION_IMAGES / "board-preview.png"
         if output:
-            render(state, output.resolve(), "Preview" if args.command == "preview" else "Current board")
+            render(state, position_image_path(output).resolve(), "Preview" if args.command == "preview" else "Current board")
     except (OSError, ValueError, KeyError) as error:
         parser.exit(2, f"Error: {error}\n")
 

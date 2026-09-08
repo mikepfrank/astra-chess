@@ -14,7 +14,7 @@ Game record: `codex-vs-nelson-rematch-2026-09-05.pgn`.
 
 ## Concrete observation
 
-Before move 13, the assistant considered **Nxg6**, mistakenly treating the f7 pawn as pinned to the king. Inspecting `candidate-13.png` made the error apparent: the bishop on c4 points through d5, e6, and f7 toward g8; Black's king was on e8. Thus **13...fxg6** would capture the knight. The candidate was rejected and **13.Nf3** was played, with `candidate-13-safe.png` showing the selected position.
+Before move 13, the assistant considered **Nxg6**, mistakenly treating the f7 pawn as pinned to the king. Inspecting `images/positions/candidate-13.png` made the error apparent: the bishop on c4 points through d5, e6, and f7 toward g8; Black's king was on e8. Thus **13...fxg6** would capture the knight. The candidate was rejected and **13.Nf3** was played, with `images/positions/candidate-13-safe.png` showing the selected position.
 
 The finish was also drawn before it was played:
 
@@ -29,8 +29,8 @@ A chess rules library was used only after checkmate to verify all 89 plies, the 
 ## Diagram files
 
 - `nelson-rematch-board.json`: final position and actual move journal.
-- `candidate-02.png` through `candidate-45.png`: candidate positions; `candidate-13.png` is the rejected candidate, with the actual move in `candidate-13-safe.png`.
-- `candidate-finish.png`: the explicitly supplied final continuation.
-- `board-current.png`: completed game position.
+- `images/positions/candidate-02.png` through `images/positions/candidate-45.png`: candidate positions; `images/positions/candidate-13.png` is the rejected candidate, with the actual move in `images/positions/candidate-13-safe.png`.
+- `images/positions/candidate-finish.png`: the explicitly supplied final continuation.
+- `images/positions/board-current.png`: completed game position.
 
 The current JSON records the completed game. To experiment with another game, initialize a separate state file with the renderer's `--state` option.

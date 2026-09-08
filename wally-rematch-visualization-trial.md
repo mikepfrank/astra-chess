@@ -35,7 +35,7 @@ Final FEN: `8/7R/6k1/1p3p2/2p2P1P/3b3K/1P1p2P1/8 w - - 4 48`.
 
 - `codex-vs-wally-rematch-2026-09-06.pgn`: complete game record.
 - `wally-rematch-board.json`: committed square edits and exact SAN journal.
-- `wally-rematch-candidate-01.png` through `wally-rematch-candidate-47.png`: candidate diagrams; number 45 is the rejected a8 candidate.
-- `wally-rematch-candidate-45b.png`: inspected a7 candidate that was actually played.
-- `wally-rematch-candidate-22-line.png`: hypothetical capture continuation, not an extra part of the game.
-- `wally-rematch-final.png`: board at resignation.
+- `images/positions/wally-rematch-candidate-01.png` through `images/positions/wally-rematch-candidate-47.png`: candidate diagrams; number 45 is the rejected a8 candidate.
+- `images/positions/wally-rematch-candidate-45b.png`: inspected a7 candidate that was actually played.
+- `images/positions/wally-rematch-candidate-22-line.png`: hypothetical capture continuation, not an extra part of the game.
+- `images/positions/wally-rematch-final.png`: board at resignation.
