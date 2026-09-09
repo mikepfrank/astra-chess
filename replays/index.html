@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark light">
-  <meta name="description" content="Replay nine games played by Astra against Chess.com bots, including four trials with a chess engine written from scratch. Explore every move with animated chessboards and recorded engine scores in the latest games.">
-  <title>Astra vs. the bots — Chess replays</title>
+  <meta name="description" content="Replay ten Astra chess experiments: nine games against Chess.com bots and the first hosted human game. Explore animated chessboards, recorded engine scores and move-synchronized chat in the human replay.">
+  <title>Astra vs. bots and humans — Chess replays</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ctext y='32' font-size='34'%3E♞%3C/text%3E%3C/svg%3E">
   <style>
     :root {
@@ -63,8 +63,8 @@
   <main>
     <header>
       <p class="eyebrow">Chess replay collection</p>
-      <h1>Astra vs. the bots</h1>
-      <p class="intro">Nine recorded games against Chess.com bots, including four trials assisted by Astra’s own chess engine. Choose a game to replay the moves at your own pace.</p>
+      <h1>Astra vs. bots and humans</h1>
+      <p class="intro">Ten recorded games: nine against Chess.com bots and the first human game on Astra’s hosted service. Explore the moves, recorded engine scores and, in the human game, the conversation.</p>
     </header>
     <nav aria-label="Game replays">
       <ol class="games">
@@ -176,11 +176,23 @@
             <span class="replay">Replay <span aria-hidden="true">→</span></span>
           </a>
         </li>
+        <li>
+          <a class="game" href="https://astra-vs-human.netlify.app/">
+            <span class="number" aria-label="Human game 1">H1</span>
+            <div class="info">
+              <p class="kind">First human trial · Astra as Black · <time datetime="2026-09-09">September 9, 2026</time></p>
+              <h2>Astra (Ultra) vs. Dr. Thanos</h2>
+              <p class="meta">Human opponent · 27 moves · Recorded engine scores &amp; chat</p>
+            </div>
+            <div class="result"><strong class="win">Astra won as Black · 0–1</strong><span class="finish">27… Rd1# · Checkmate</span></div>
+            <span class="replay">Replay <span aria-hidden="true">→</span></span>
+          </a>
+        </li>
       </ol>
     </nav>
     <footer>
-      <p>Astra played Black in game 10 and White in all other games.</p>
-      <p>Game numbers follow the original session.</p>
+      <p>Astra played Black in game 10 and H1, and White in all other games.</p>
+      <p>Bot game numbers follow the original session; H1 marks the first hosted human game.</p>
     </footer>
   </main>
 </body>
