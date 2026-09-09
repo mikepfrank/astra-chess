@@ -85,3 +85,19 @@ SMTP delivery still needs an operator-configured mail service. Linux isolation,
 CPU/search-depth measurements, proxy/TLS, backups, process limits and deployment
 remain the next host-specific work. No external chess engines, books, tablebases
 or game-database resources were used.
+
+## Optional historical evaluation display
+
+The evaluation reader passed nine tests, with one additional symlink test
+skipped because this Windows account lacked symlink creation privileges.
+Seventeen existing HTTP/service tests also passed. Coverage includes actual
+chosen-move evidence, latest qualifying query order, both colors, signed mate
+distances, malformed/missing/fallback results, path confinement, ownership and
+retention across a human reply. JavaScript syntax and Git whitespace checks passed.
+
+A separate read-only browser fixture confirmed the default-off toggle,
+preference persistence, signed pawn labels, mates for/against Astra, retention
+after a human reply, and hidden opening/missing/checkmate states. The evaluation
+panel was inspected visually. A read-only check against the active game's saved
+evidence selected its rank-two Nc6 score (-0.12 pawns), excluding the later
+hypothetical continuation. No new search or model call was needed for these checks.

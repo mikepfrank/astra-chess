@@ -5,6 +5,40 @@ const state={user:null,csrf:null,config:null,game:null,gameId:null,pending:false
 let toastTimer, pollTimer, promotionResolve, confirmResolve;
 const titleCase=text=>String(text||'').replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
 const parseDate=value=>new Date(typeof value==='number'&&value<1e12?value*1000:value);
+const EVALUATION_PREFERENCE_KEY='astra-show-evaluation';
+try{$('show-astra-evaluation').checked=localStorage.getItem(EVALUATION_PREFERENCE_KEY)==='true';}catch{}
+function renderAstraEvaluation(game){
+  const panel=$('astra-evaluation');
+  const evidence=game?.last_astra_evaluation;
+  let value='',context='';
+  let mate=false;
+  if($('show-astra-evaluation').checked&&evidence&&game.termination!=='checkmate'){
+    mate=Number.isInteger(evidence.mate_in_moves)&&evidence.mate_in_moves>0&&['astra','opponent'].includes(evidence.mate_for);
+    if(mate){
+      value=`Mate in ${evidence.mate_in_moves}${evidence.mate_for==='opponent'?' against Astra':''}`;
+    }else if(typeof evidence.score_pawns==='number'&&Number.isFinite(evidence.score_pawns)){
+      const rounded=Math.round(evidence.score_pawns*100)/100;
+      value=`${rounded<0?'':'+'}${rounded.toFixed(2)} pawns`;
+    }
+    if(value){
+      const parts=[];
+      if(evidence.san)parts.push(`After ${evidence.san}`);
+      if(Number.isInteger(evidence.completed_depth)&&evidence.completed_depth>0)parts.push(`depth ${evidence.completed_depth}`);
+      if(!mate)parts.push('Positive values favor Astra');
+      context=parts.join(' · ');
+    }
+  }
+  panel.hidden=!value;
+  // Avoid re-announcing unchanged evidence on every two-second game poll.
+  if($('astra-evaluation-value').textContent!==value)$('astra-evaluation-value').textContent=value;
+  if($('astra-evaluation-context').textContent!==context)$('astra-evaluation-context').textContent=context;
+  $('astra-evaluation-context').hidden=!context;
+  $('astra-evaluation-mate-note').hidden=!value||!mate;
+}
+$('show-astra-evaluation').addEventListener('change',()=>{
+  try{localStorage.setItem(EVALUATION_PREFERENCE_KEY,String($('show-astra-evaluation').checked));}catch{}
+  renderAstraEvaluation(state.game);
+});
 function toast(text){$('toast').textContent=text;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,6500);}
 function showError(id,error){$(id).textContent=error.message||String(error);$(id).hidden=false;}
 function openDialog(id){const dialog=$(id);if(!dialog.open)dialog.showModal();}
@@ -159,6 +193,7 @@ function renderGame(game){
   clockHost.append($('astra-clock'));
   renderCaptures($('top-captures'),game.moves||[],topSide,side);
   renderCaptures($('bottom-captures'),game.moves||[],bottomSide,side);
+  renderAstraEvaluation(game);
   $('game-status-text').textContent=statusText(game);
   $('game-status').className='game-status '+(game.status==='finished'?'finished':game.worker?.state==='thinking'?'thinking':game.worker?.state==='error'?'error':'');
   $('draw-banner').hidden=!game.draw_offer||game.status==='finished';
@@ -214,6 +249,7 @@ function clearPrivateView(){
   $('message-input').value='';$('message-input').disabled=true;$('send-message').disabled=true;
   $('offer-draw').disabled=true;$('resign').disabled=true;
   for(const id of ['draw-banner','claim-draw','resume-game','retry-worker','share-game','download-pgn'])$(id).hidden=true;
+  renderAstraEvaluation(null);
   renderMessages();renderMoves();
 }
 async function act(action,extra={}){

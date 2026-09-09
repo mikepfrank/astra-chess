@@ -13,6 +13,7 @@ from .config import Config, APP_ROOT
 from .identity import Identity, router as identity_router, require_user
 from .store import Store, Conflict
 from .supervisor import Supervisor
+from .evaluations import latest_astra_evaluation
 from . import chess_game as game
 
 
@@ -126,6 +127,11 @@ def create_app(config=None, player_factory=None):
             raise HTTPException(404, 'Game not found.')
         return state
 
+    def snapshot(state):
+        public = game.snapshot(state)
+        public['last_astra_evaluation'] = latest_astra_evaluation(state, config.data_dir)
+        return public
+
     @app.get('/api/config')
     async def public_config():
         return dict(player_available=supervisor.available, player_mode=config.player_mode,
@@ -147,11 +153,11 @@ def create_app(config=None, player_factory=None):
         store.create(state)
         if state['astra_side'] == 'white':
             supervisor.schedule(state['id'])
-        return game.snapshot(store.get(state['id']))
+        return snapshot(store.get(state['id']))
 
     @app.get('/api/games/{game_id}')
     async def get_game(request: Request, game_id: str):
-        return game.snapshot(owned(request, game_id))
+        return snapshot(owned(request, game_id))
 
     @app.post('/api/games/{game_id}/actions')
     async def action(request: Request, game_id: str):
@@ -205,12 +211,12 @@ def create_app(config=None, player_factory=None):
                 raise ValueError('Unsupported game action.')
         state, applied = store.mutate(game_id, apply, version=data['version'], request_id=data['request_id'], body=data, kind='human_action', return_applied=True)
         if not applied:
-            return game.snapshot(state)
+            return snapshot(state)
         if state['status'] == 'finished':
             await supervisor.cancel(game_id)
         elif act in {'move','message','offer_draw','retry'} or act == 'resume' and (game.side_to_move(state) == state['astra_side'] or state['draw_offer'] == 'human' or state['worker']['state'] in {'error','disabled'}):
             supervisor.schedule(game_id)
-        return game.snapshot(store.get(game_id))
+        return snapshot(store.get(game_id))
 
     @app.get('/api/games/{game_id}/pgn')
     async def download_pgn(request: Request, game_id: str):

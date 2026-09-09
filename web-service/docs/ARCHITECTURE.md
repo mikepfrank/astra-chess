@@ -28,6 +28,17 @@ questions when useful, then a considered choice. A move requires recorded
 candidate evidence and a non-fallback current-position search. The model still
 chooses its move; it is not required to take the highest-scored candidate.
 
+The optional board evaluation reads the latest qualifying saved search for the
+last accepted Astra move. It matches the actual pre-move and post-move FEN,
+chosen UCI/SAN, root side and exact completed search depth. Hypothetical
+continuations, fallback moves and missing scores cannot supply this label.
+Only the score, mate attribution and chosen-move metadata enter the owner-facing
+snapshot; private query paths and analysis remain private. Positive scores
+favor Astra for either color. The label describes its last move and persists
+through a human reply, as requested; it does not reevaluate the current board.
+Mate distances count from before that Astra move. Existing games use their
+original evidence without another search or a database migration.
+
 ## Recovery and time
 
 Games persist across visits. The 36-hour threshold is based on human game actions,

@@ -18,6 +18,13 @@
     <div id="availability-banner" class="notice availability-notice" hidden><span id="availability-text"></span><button id="availability-check" class="outline small" type="button">Check availability</button></div>
     <div class="play-layout">
       <section class="board-column" aria-label="Your game">
+        <label class="evaluation-preference"><input id="show-astra-evaluation" type="checkbox" aria-controls="astra-evaluation"> Show Astra's evaluation</label>
+        <section id="astra-evaluation" class="astra-evaluation" role="status" aria-live="polite" aria-atomic="true" hidden>
+          <p>Astra's tactical engine evaluated the position resulting from its last move as:</p>
+          <strong id="astra-evaluation-value"></strong>
+          <p id="astra-evaluation-context" class="evaluation-context"></p>
+          <p id="astra-evaluation-mate-note" class="evaluation-context" hidden>Mate count is from before Astra’s move</p>
+        </section>
         <div class="player-row"><div class="player-identity"><span id="top-avatar" class="avatar astra-avatar">A</span><div><strong id="top-name">Astra</strong><span id="top-detail" class="muted">Your opponent</span></div></div><div class="player-right"><span id="top-status" class="player-status">READY WHEN YOU ARE</span><span id="astra-clock" class="clock" title="Astra's remaining thinking time">—</span></div></div>
         <div id="top-captures" class="capture-tray" aria-label="No captured pieces"></div>
         <div class="board-container"><div id="board" class="chessboard"></div><div id="welcome-overlay" class="board-overlay"><div><span class="eyebrow">YOUR CHESS TABLE</span><h2 id="welcome-title">Take a seat.</h2><p id="welcome-description">Choose a side and meet Astra across the board.</p><button id="welcome-new" class="primary">Start a game <span aria-hidden="true">↗</span></button></div></div></div>

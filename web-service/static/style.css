@@ -1278,6 +1278,45 @@ input, textarea, .composer textarea, .message-body, .conversation-empty>span:las
 .brand-sub {
   font-size:12px;
 }
+.evaluation-preference {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  width:fit-content;
+  margin:0 0 12px;
+  color:var(--muted);
+  font-size:14px;
+  cursor:pointer;
+}
+.evaluation-preference input {
+  margin:0;
+}
+.astra-evaluation {
+  padding:13px 15px;
+  margin:0 0 15px;
+  border:1px solid #31505a;
+  border-radius:6px;
+  background:#1b2d35;
+}
+.astra-evaluation>p:first-child {
+  color:#c0d4da;
+  font-size:14px;
+  line-height:1.55;
+}
+.astra-evaluation strong {
+  display:block;
+  margin-top:7px;
+  color:var(--accent);
+  font-size:22px;
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+.astra-evaluation .evaluation-context {
+  margin-top:6px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
 .availability-notice {
   display:flex;
   align-items:center;

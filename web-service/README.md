@@ -76,6 +76,13 @@ two schedulers from owning the same games.
 
 - Original SVG pieces, legal move targets, keyboard/touch selection, promotion,
   board flip, captured-piece trays, SAN scoresheet and PGN download.
+- Optional **Show Astra's evaluation** toggle above the board, remembered in
+  this browser. The label above the board shows the saved pre-move search score
+  for Astra's last chosen move, in pawns with positive values favoring Astra.
+  It stays through the human reply until Astra moves again. Mate counts start
+  before Astra's move, including that move; mates against Astra are identified.
+  No label appears before Astra has moved, at checkmate, or when the latest
+  move has no qualifying recorded score. This display runs no new analysis.
 - Per-game public commentary, resignations, draw offers/acceptance/declines and
   claims. The server enforces chess rules, including castling, en passant,
   repetition history and automatic terminal results.
