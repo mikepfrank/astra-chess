@@ -81,8 +81,9 @@ at High; games 2–3 used Extra High; games 4–11 used Ultra. Explicit prospect
 visualization began with the successful Nelson rematch, game 4. Engine assistance
 began in game 8: a Wally loss, followed by v0.2 wins against Wally as White and
 Black (games 9–10), then the Li draw (game 11). Astra played Black only in game 10.
-The saved Sven records list 1100, despite a later conversational recollection
-of 1200; use the records for archive metadata.
+Mike rechecked Chess.com on September 9, 2026 and confirmed Sven's displayed
+rating is **1100**, matching the saved records. Use 1100 for both Sven games
+and disregard any conflicting rating mentioned earlier in the conversation.
 
 The latest completed game is **Li (displayed bot rating 2000), Astra White,
 1/2–1/2 after 70.Kxe6 by insufficient material**. Its directory is
