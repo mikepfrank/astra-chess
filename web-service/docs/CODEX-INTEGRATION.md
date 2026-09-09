@@ -8,9 +8,11 @@ server owns accepted moves, clocks, identities, transcripts and tactical tools.
 The process has an empty working directory, rather than the writable repository.
 
 `CodexPlayer.run(game_id, snapshot, tool_handler, emit, thread_id=None)` is async.
-The handler receives seven game tool names and two private lifecycle callbacks:
+The handler receives seven game tool names and three private lifecycle callbacks:
 `_thread {thread_id}` is emitted immediately when an ID is received, and
-`_usage {tokens}` reports cumulative usage within this action. Both the bridge's
+`_usage {tokens}` reports cumulative usage within this action.
+`_compaction {phase, item_id}` reports validated compaction starts/completions.
+Both the bridge's
 recovery file and the host database retain the ID. Conflicting stored IDs fail
 closed. `close()` terminates active processes; callers must serialize a game.
 
@@ -92,12 +94,36 @@ setting preserves Astra/Ultra.
 Automatic compaction summarizes history within the existing game thread; the
 next action still resumes its saved ID and reads fresh authoritative state.
 The bridge does not start a separate manual compaction turn. Compaction item
-events remain private, and usage notifications during the active turn count
-toward the same action allowance. The threshold is neither a billed-token cap
+events drive the host's `COMPACTING` indicator and chess-clock pause; their
+contents remain private. Usage notifications during the active turn count
+toward the same token allowance. The threshold is neither a billed-token cap
 nor a guarantee that every request contains fewer than 300,000 tokens:
 instructions, new output and compaction itself also consume context or tokens.
 The host's compact query replies and bounded snapshots reduce repeated input;
 complete tactical evidence remains private on disk for targeted retrieval.
+
+The pinned `ItemStartedNotification` and `ItemCompletedNotification` schemas
+identify compaction as `item.type = "contextCompaction"`, with a stable item ID
+and explicit thread/turn IDs. The bridge converts only those validated events
+to `_compaction {phase: "started" | "completed", item_id}`. Duplicate events do
+not repeat callbacks. An unmatched completion and a later repeated start are
+ignored, without retrospective clock credit. Wrong-thread/turn events, invalid
+identifiers and overlapping intervals fail closed. A pre-turn compaction
+received after submitting `turn/start` binds that requested turn even if the
+normal start notification or RPC response has not arrived yet; its tokens are
+charged to the action.
+
+`completed` is emitted only for an actual matching CLI completion event. The
+[versioned compaction implementation](https://github.com/openai/codex/blob/rust-v0.153.4/codex-rs/core/src/compact.rs#L234-L375)
+can exit on error before emitting completion. On interruption, cancellation or
+process exit, the bridge leaves an unmatched start for the supervisor to settle
+as an interrupted pause; crash recovery also closes persisted open pauses.
+The host uses its own timing for clock accounting. Public assistant items and
+chess-tool requests are blocked while compaction is active, so summary text
+does not leak and paused clock time cannot cover ordinary chess-tool work.
+The CLI's hooks remain disabled; these callbacks add no model-callable tool or
+arbitrary command capability. Independent token and emergency wall limits still
+apply during compaction.
 
 Live trials exposed repeated compaction at a 20,000-token threshold: a resumed
 request already used about 16,500 tokens, and a diagnostic reply immediately
@@ -174,8 +200,10 @@ separation, not an OS sandbox between mutually untrusted processes.
 Python subprocesses acting as fake app-servers. It checks start/resume, durable
 IDs, usage accounting, public/private event separation, forbidden tool and
 approval denial, configuration/version rejection, cancellation and timeout
-cleanup. Simulated automatic-compaction item events preserve the same thread
-and cumulative accounting. The tests and no-key configuration checks do not
+cleanup. Simulated automatic-compaction tests cover pre-turn ordering,
+duplicates, unmatched completions, invalid thread/turn IDs, summary privacy,
+mid-compaction failures and cancellation while preserving token accounting.
+The tests and no-key configuration checks do not
 establish that the revised 400,000-context/300,000-compaction policy completes a
 live turn; they do not
 call a model or use real credentials. The earlier 20,000-token policy did compact

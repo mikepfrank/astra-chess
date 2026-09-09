@@ -41,17 +41,27 @@ class Supervisor:
     def recover(self):
         self.store.recover_reservations()
         for state in self.store.list():
-            if state['active_started'] or state['worker']['state'] in ('thinking', 'queued'):
+            if (state['active_started'] is not None or state.get('compaction_pause')
+                    or state['worker']['state'] in ('thinking', 'queued', 'compacting')):
                 def recover_one(s):
-                    if s['active_started']:
+                    ended = time.time()
+                    if s['active_started'] is not None:
                         # Persisted admission deadline bounds a crashed worker's uncertain charge.
-                        elapsed = max(0, min(time.time(), s.get('active_deadline', time.time())) - s['active_started'])
+                        elapsed = game.active_clock_elapsed(s, ended)
+                        if s.get('active_deadline') is not None:
+                            allocation = max(0, s['active_deadline'] - s['active_started'] - s.get('active_paused_seconds', 0))
+                            elapsed = min(elapsed, allocation)
+                        game.finish_compaction(s, ended, 'service_restart')
                         s.setdefault('clock_events', []).append({'started_at': s['active_started'],
-                            'ended_at': s['active_started'] + elapsed, 'charged_seconds': elapsed,
+                            'ended_at': ended, 'charged_seconds': elapsed,
+                            'paused_seconds': s.get('active_paused_seconds', 0.0),
                             'own_moves_before_credit': s['own_moves'], 'ply': len(s['moves']),
                             'fen': s['fen'], 'outcome': 'interrupted', 'error_kind': 'service_restart'})
                         s['clock_used'] += elapsed
                         s['active_started'] = None
+                    game.finish_compaction(s, ended, 'service_restart')
+                    s['active_paused_seconds'] = 0.0
+                    s['active_deadline'] = None
                     s['worker'] = {'state': 'error', 'message': 'The service restarted. Your game is saved; resume when ready.'}
                 self.store.mutate(state['id'], recover_one, kind='restart_recovery')
         self.suspend_inactive()
@@ -223,9 +233,12 @@ class Supervisor:
         critical_allocation = min(self.config.critical_seconds, balance, 2 * balance / horizon) if own_turn else allocation
         control = {'deadline': started + allocation, 'queries': 0, 'candidate': False, 'root_query': False,
                    'chosen': False, 'tokens': None, 'usage_complete': False, 'public_messages': 0, 'ply': len(state['moves']),
-                   'stopped_clock': False, 'query_paths': [], 'attempt_id': secrets.token_hex(12), 'error_kind': None}
+                   'stopped_clock': False, 'query_paths': [], 'attempt_id': secrets.token_hex(12), 'error_kind': None,
+                   'allocation': allocation, 'paused_seconds': 0.0, 'pause': None, 'pause_items': set()}
         def begin(s):
             s['worker'] = {'state': 'thinking', 'message': 'Astra is considering the position.'}
+            s['compaction_pause'] = None
+            s['active_paused_seconds'] = 0.0
             if own_turn:
                 s['active_started'] = wall_started
                 s['active_deadline'] = wall_started + allocation
@@ -233,18 +246,26 @@ class Supervisor:
             'ply': control['ply'], 'fen': state['fen'], 'own_turn': own_turn})
 
         def stop_clock(s, outcome=None):
-            if own_turn and s['active_started']:
+            if own_turn and s['active_started'] is not None:
                 ended = time.time()
-                charged = max(0, ended - s['active_started'])
+                charged = game.active_clock_elapsed(s, ended)
                 remaining = game.clock(s)['remaining_seconds']
+                game.finish_compaction(s, ended, 'interrupted')
                 s.setdefault('clock_events', []).append({'started_at': s['active_started'], 'ended_at': ended,
                     'charged_seconds': charged, 'own_moves_before_credit': s['own_moves'],
+                    'paused_seconds': s.get('active_paused_seconds', 0.0),
                     'remaining_before_credit': remaining, 'attempt_id': control['attempt_id'],
                     'ply': control['ply'], 'fen': state['fen'], 'outcome': outcome or ('interrupted' if control['error_kind'] else 'completed'),
                     'error_kind': control['error_kind']})
                 s['clock_used'] += charged
                 s['active_started'] = None
+                s['active_deadline'] = None
+                s['active_paused_seconds'] = 0.0
                 control['stopped_clock'] = True
+
+        def remaining_turn():
+            now = control['pause']['monotonic'] if control['pause'] else time.monotonic()
+            return max(0.0, control['deadline'] - now)
 
         async def tool(name, args):
             if not isinstance(args, dict):
@@ -260,18 +281,60 @@ class Supervisor:
                 if control['tokens'] > self.config.max_turn_tokens:
                     raise ValueError('Turn token allowance reached')
                 return {}
+            if name == '_compaction':
+                phase, item_id = args.get('phase'), args.get('item_id')
+                if (set(args) != {'phase', 'item_id'} or phase not in {'started', 'completed'}
+                        or not isinstance(item_id, str) or not 1 <= len(item_id) <= 200):
+                    raise ValueError('Invalid compaction lifecycle event.')
+                pause = control['pause']
+                if phase == 'started':
+                    if item_id in control['pause_items']:
+                        return {}
+                    if pause:
+                        raise ValueError('Overlapping compaction intervals are unsupported.')
+                    if remaining_turn() <= 0:
+                        raise ValueError('The turn allowance is exhausted.')
+                    stamp, monotonic = time.time(), time.monotonic()
+                    def pause_clock(s):
+                        s['compaction_pause'] = {'item_id': item_id, 'attempt_id': control['attempt_id'],
+                            'started_at': stamp, 'clock_paused': s['active_started'] is not None}
+                        s['worker'] = {'state': 'compacting', 'message': 'Astra is preparing conversation context.'}
+                    self.store.mutate(game_id, pause_clock, kind='compaction_started', body=args)
+                    control['pause_items'].add(item_id)
+                    control['pause'] = {'item_id': item_id, 'monotonic': monotonic}
+                elif pause and pause['item_id'] == item_id:
+                    duration = max(0.0, time.monotonic() - pause['monotonic'])
+                    stamp = time.time()
+                    def resume_clock(s):
+                        before = s.get('active_paused_seconds', 0.0)
+                        game.finish_compaction(s, stamp, 'completed')
+                        if s.get('active_deadline') is not None:
+                            s['active_deadline'] += s.get('active_paused_seconds', 0.0) - before
+                        if s['worker']['state'] == 'compacting':
+                            s['worker'] = {'state': 'thinking', 'message': 'Astra is considering the position.'}
+                    self.store.mutate(game_id, resume_clock, kind='compaction_completed',
+                        body=dict(args, paused_seconds=duration))
+                    control['paused_seconds'] += duration
+                    control['deadline'] += duration
+                    control['pause'] = None
+                else:
+                    # Never infer missing start time or refund retrospectively.
+                    control['pause_items'].add(item_id)
+                return {}
             current = self.store.get(game_id)
             if current['status'] != 'active' and name != 'chess_comment':
                 raise ValueError('The game is no longer active.')
-            if time.monotonic() >= control['deadline']:
+            if remaining_turn() <= 0:
                 raise ValueError('The turn allowance is exhausted.')
             if name == 'chess_status':
                 result = game.model_snapshot(current)
-                result['remaining_turn_seconds'] = max(0, control['deadline'] - time.monotonic())
+                result['remaining_turn_seconds'] = remaining_turn()
                 result['memory'] = self.identity.memory_for_user(current['user_id'])
                 result['current_attempt'] = {'candidate_recorded': control['candidate'],
                     'root_query_completed': control['root_query'], 'move_accepted': control['chosen']}
                 return result
+            if control['pause']:
+                raise ValueError('Chess actions are unavailable during context compaction.')
             if name == 'chess_query_details':
                 if set(args) - {'query_index', 'candidate_rank'}:
                     raise ValueError('Use a saved query index and optional candidate rank.')
@@ -300,9 +363,11 @@ class Supervisor:
             if name == 'chess_critical':
                 if not own_turn or set(args) != {'reason'} or not 1 <= len(str(args['reason'])) <= 1000:
                     raise ValueError('A concrete critical-position reason is required.')
-                control['deadline'] = started + critical_allocation
-                self.store.mutate(game_id, lambda s: s.update(active_deadline=wall_started + critical_allocation), kind='critical', body=args, increment=False)
-                return {'remaining_turn_seconds': max(0, control['deadline'] - time.monotonic())}
+                control['allocation'] = critical_allocation
+                control['deadline'] = started + critical_allocation + control['paused_seconds']
+                self.store.mutate(game_id, lambda s: s.update(active_deadline=wall_started + critical_allocation
+                    + s.get('active_paused_seconds', 0.0)), kind='critical', body=args, increment=False)
+                return {'remaining_turn_seconds': remaining_turn()}
             if name == 'chess_candidate':
                 if set(args) != {'move', 'concern'} or not 1 <= len(str(args['concern'])) <= 2000:
                     raise ValueError('Record a legal candidate and a concrete concern.')
@@ -320,8 +385,8 @@ class Supervisor:
                 control['queries'] += 1
                 # A fixed forty-second reserve would make searches impossible
                 # once the rolling allocation shrinks below forty seconds.
-                reserve = min(40, (control['deadline'] - started) / 3)
-                available = control['deadline'] - time.monotonic() - reserve
+                reserve = min(40, control['allocation'] / 3)
+                available = remaining_turn() - reserve
                 if available < 0.2:
                     raise ValueError('Use the remaining time to review and choose your move.')
                 result, path = await self._query(game_id, current, args, available)
@@ -395,9 +460,9 @@ class Supervisor:
             run = asyncio.create_task(player.run(game_id, snapshot, tool, emit, thread_id=state['thread_id']))
             try:
                 while not run.done():
-                    if time.monotonic() >= control['deadline']:
+                    if remaining_turn() <= 0:
                         raise TimeoutError('Astra turn deadline reached')
-                    await asyncio.wait({run}, timeout=min(0.25, max(.01, control['deadline'] - time.monotonic())))
+                    await asyncio.wait({run}, timeout=min(0.25, max(.01, remaining_turn())))
                 result = await run
                 if result and result.get('usage_tokens') is not None:
                     control['tokens'] = result['usage_tokens']
@@ -424,7 +489,8 @@ class Supervisor:
             finally:
                 def settle(s):
                     stop_clock(s)
-                    if s['worker']['state'] == 'thinking':
+                    game.finish_compaction(s, time.time(), 'interrupted')
+                    if s['worker']['state'] in {'thinking', 'compacting'}:
                         s['worker'] = {'state': 'error', 'message': 'Astra’s turn stopped. Your game is saved; retry when ready.'}
                 try:
                     self.store.mutate(game_id, settle, kind='clock_settled', body={'elapsed': time.monotonic()-started,

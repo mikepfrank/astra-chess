@@ -478,8 +478,11 @@ class CodexPlayer:
         # supervisor can conservatively settle the admission reservation.
         usage_tokens = None
         turn_id = None
+        turn_requested = False
         turn_started = False
         finished = False
+        compactions = {}
+        active_compaction = None
         emitted_items = set()
         public_chars = 0
         request_count = 0
@@ -503,12 +506,46 @@ class CodexPlayer:
             await tool_handler("_thread", {"thread_id": new_id})
 
         async def on_event(method, params):
-            nonlocal usage_tokens, usage_baseline, turn_id, turn_started, finished, public_chars
+            nonlocal usage_tokens, usage_baseline, turn_id, turn_started, finished, public_chars, active_compaction
             if method == "thread/started":
                 await persist_thread(params.get("thread", {}).get("id"))
                 return
             if params.get("threadId") not in (None, thread_id):
                 raise CodexError("Codex emitted an event for another game thread")
+            item = params.get("item")
+            if (method in {"item/started", "item/completed"}
+                    and isinstance(item, dict) and item.get("type") == "contextCompaction"):
+                item_id, incoming_turn = item.get("id"), params.get("turnId")
+                if (not turn_requested or finished or not thread_id or params.get("threadId") != thread_id
+                        or not isinstance(item_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,200}", item_id)
+                        or not isinstance(incoming_turn, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", incoming_turn)):
+                    raise CodexError("Codex sent an invalid compaction lifecycle event")
+                if turn_id and incoming_turn != turn_id:
+                    raise CodexError("Codex compaction belongs to another turn")
+                turn_id = incoming_turn
+                if item_id not in compactions and len(compactions) >= 64:
+                    raise CodexError("Codex action exceeded the compaction-event limit")
+                if method == "item/started":
+                    if item_id in compactions:
+                        return
+                    if active_compaction is not None:
+                        raise CodexError("Codex started overlapping compactions")
+                    # A pre-turn compaction can precede turn/started or the
+                    # turn/start response. Its billed usage belongs to this action.
+                    turn_started = True
+                    compactions[item_id] = "started"
+                    active_compaction = item_id
+                    await tool_handler("_compaction", {"phase": "started", "item_id": item_id})
+                else:
+                    if compactions.get(item_id) != "started":
+                        # Never pause or retrospectively refund time for an
+                        # unmatched completion, including a later repeated start.
+                        compactions[item_id] = "completed"
+                        return
+                    await tool_handler("_compaction", {"phase": "completed", "item_id": item_id})
+                    compactions[item_id] = "completed"
+                    active_compaction = None
+                return
             if method == "thread/tokenUsage/updated":
                 total = params.get("tokenUsage", {}).get("total", {}).get("totalTokens")
                 if not isinstance(total, int) or isinstance(total, bool) or total < 0:
@@ -535,6 +572,10 @@ class CodexPlayer:
                 if item.get("type") == "agentMessage" and item.get("phase") in (None, "commentary", "final_answer"):
                     item_id = item.get("id")
                     text = item.get("text")
+                    if active_compaction is not None:
+                        if isinstance(item_id, str):
+                            emitted_items.add(item_id)
+                        return
                     if item_id and item_id not in emitted_items and isinstance(text, str) and text.strip():
                         public_chars += len(text)
                         if len(text) > MAX_PUBLIC_TEXT or public_chars > MAX_PUBLIC_TEXT * 4:
@@ -548,6 +589,8 @@ class CodexPlayer:
                 turn_id = turn.get("id")
                 if turn.get("status") != "completed":
                     raise CodexError("Codex action was interrupted or failed; game state is preserved")
+                if active_compaction is not None:
+                    raise CodexError("Codex completed a turn with unfinished compaction")
                 finished = True
             elif method == "model/rerouted":
                 raise CodexError("Codex attempted to reroute the requested model")
@@ -576,6 +619,8 @@ class CodexPlayer:
                     raise CodexError("Codex requested a tool outside the permitted game interface")
                 if turn_id and params.get("turnId") != turn_id:
                     raise CodexError("Codex tool request belongs to another turn")
+                if active_compaction is not None:
+                    raise CodexError("Codex requested a chess tool during compaction")
                 try:
                     result = await tool_handler(name, args)
                 except (ValueError, KeyError) as exc:
@@ -642,6 +687,7 @@ class CodexPlayer:
                         or response.get("sandbox", {}).get("networkAccess", False)
                         or response.get("instructionSources")):
                     raise CodexError("Codex effective model, permissions or instructions differ from the audited configuration")
+                turn_requested = True
                 response = await rpc.request("turn/start", {
                     "threadId": thread_id, "model": self.config.model, "effort": self.config.reasoning,
                     "approvalPolicy": "never", "approvalsReviewer": "user",
@@ -662,6 +708,8 @@ class CodexPlayer:
         except TimeoutError as exc:
             raise CodexError("Codex action timed out; game and conversation state are preserved") from exc
         finally:
+            # An unmatched compaction start stays unmatched on failure. The host
+            # settles its persisted pause as interrupted, including crash recovery.
             # Interrupt is best effort; termination remains the external bound.
             if not finished and turn_id and process.returncode is None:
                 with suppress(Exception):

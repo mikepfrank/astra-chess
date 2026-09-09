@@ -23,6 +23,17 @@ def send(item):
     print(json.dumps(item), flush=True)
 def event(method, params):
     send({'method': method, 'params': params})
+def compaction(phase, item_id='compact-1', turn_id='turn-1', thread_id='test-thread'):
+    event('item/' + phase, {'threadId': thread_id, 'turnId': turn_id,
+        'startedAtMs' if phase == 'started' else 'completedAtMs': int(time.time()*1000),
+        'item': {'id': item_id, 'type': 'contextCompaction'}})
+def usage(total):
+    event('thread/tokenUsage/updated', {'threadId': 'test-thread', 'turnId': 'turn-1',
+        'tokenUsage': {'total': {'totalTokens': total}, 'last': {'totalTokens': 10}}})
+def compaction_summary():
+    event('item/completed', {'threadId': 'test-thread', 'turnId': 'turn-1', 'item': {
+        'id': 'private-compaction-summary', 'type': 'agentMessage', 'phase': 'final_answer',
+        'text': 'Private compaction summary must not reach the player.'}})
 def tool(name, arguments):
     send({'id': 801, 'method': 'item/tool/call', 'params': {
         'threadId': 'test-thread', 'turnId': 'turn-1', 'callId': 'call-1',
@@ -58,8 +69,35 @@ for wire in sys.stdin:
                  'tokenUsage': {'total': {'totalTokens': 45}, 'last': {'totalTokens': 10}}})
         send({'id': request['id'], 'result': result})
     elif method == 'turn/start':
+        turn_previous = json.loads((root / 'bridge-state.json').read_text())['usage_total']
+        if scenario == 'compaction_preturn':
+            compaction('started')
+            usage(turn_previous + 5)
+            compaction_summary()
+            compaction('completed')
         event('turn/started', {'threadId': 'test-thread', 'turn': {'id': 'turn-1'}})
         send({'id': request['id'], 'result': {'turn': {'id': 'turn-1', 'status': 'inProgress'}}})
+        if scenario in ('compaction_wrong_thread', 'compaction_wrong_turn', 'compaction_invalid_id'):
+            compaction('started', thread_id='other-thread' if scenario == 'compaction_wrong_thread' else 'test-thread',
+                turn_id='other-turn' if scenario == 'compaction_wrong_turn' else 'turn-1',
+                item_id='../invalid' if scenario == 'compaction_invalid_id' else 'compact-1')
+            continue
+        if scenario in ('compaction_eof', 'compaction_timeout', 'compaction_unfinished_success',
+                        'compaction_overlap', 'compaction_tool'):
+            compaction('started')
+            usage(turn_previous + 7)
+            compaction_summary()
+            if scenario == 'compaction_eof': raise SystemExit
+            if scenario == 'compaction_timeout': time.sleep(30)
+            if scenario == 'compaction_unfinished_success':
+                event('turn/completed', {'threadId': 'test-thread', 'turn': {'id': 'turn-1', 'status': 'completed'}})
+            if scenario == 'compaction_overlap': compaction('started', item_id='compact-2')
+            if scenario == 'compaction_tool': tool('chess_status', {})
+            continue
+        if scenario == 'compaction_out_of_order':
+            compaction('completed')
+            compaction('started')
+            compaction('completed')
         if scenario == 'timeout_child':
             child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(30)'],
                 stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
@@ -87,18 +125,21 @@ for wire in sys.stdin:
         if scenario in ('current_time', 'wrong_time_thread'):
             send({'id': 800, 'method': 'currentTime/read', 'params': {
                 'threadId': 'test-thread' if scenario == 'current_time' else 'another-thread'}})
-        previous = json.loads((root / 'bridge-state.json').read_text())['usage_total']
+        previous = turn_previous
         totals = () if scenario in ('no_usage', 'baseline_only') else (previous + 10, previous + 10, previous + 20)
-        if scenario == 'compaction': totals = (previous + 10, previous + 15, previous + 20)
+        if scenario in ('compaction', 'compaction_duplicates'): totals = (previous + 10, previous + 15, previous + 20)
         for index, total in enumerate(totals):
-            if scenario == 'compaction' and index == 1:
-                event('item/started', {'threadId': 'test-thread', 'turnId': 'turn-1',
-                    'item': {'id': 'compact-1', 'type': 'contextCompaction'}})
-            event('thread/tokenUsage/updated', {'threadId': 'test-thread', 'turnId': 'turn-1',
-                 'tokenUsage': {'total': {'totalTokens': total}, 'last': {'totalTokens': 10}}})
-            if scenario == 'compaction' and index == 1:
-                event('item/completed', {'threadId': 'test-thread', 'turnId': 'turn-1',
-                    'item': {'id': 'compact-1', 'type': 'contextCompaction'}})
+            if scenario in ('compaction', 'compaction_duplicates') and index == 1:
+                compaction('started')
+                if scenario == 'compaction_duplicates': compaction('started')
+                compaction_summary()
+            usage(total)
+            if scenario in ('compaction', 'compaction_duplicates') and index == 1:
+                compaction('completed')
+                if scenario == 'compaction_duplicates':
+                    compaction('completed')
+                    compaction('started')
+                compaction_summary()
         event('item/reasoning/textDelta', {'threadId': 'test-thread', 'delta': 'private reasoning'})
         event('item/agentMessage/delta', {'threadId': 'test-thread', 'delta': 'unfinished public delta'})
         event('item/completed', {'threadId': 'test-thread', 'item': {'id': 'private', 'type': 'reasoning', 'text': 'private reasoning'}})
@@ -274,7 +315,70 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual([args['tokens'] for name, args in self.calls if name == '_usage'],
                          [10, 15, 20, 10, 15, 20])
         self.assertEqual(self.public, ['Your move.', 'Your move.'])
+        self.assertEqual([args for name, args in self.calls if name == '_compaction'],
+                         [{'phase': phase, 'item_id': 'compact-1'}
+                          for phase in ('started', 'completed', 'started', 'completed')])
         self.assertFalse(any(p.get('method') == 'thread/compact/start' for p in self.wires))
+        self.assertNotIn('_compaction', bridge.TOOL_NAMES)
+        self.assert_reaped()
+
+    async def test_compaction_duplicates_and_out_of_order_events_do_not_repause_clock(self):
+        await self.run_fake('compaction_duplicates')
+        self.assertEqual([args['phase'] for name, args in self.calls if name == '_compaction'],
+                         ['started', 'completed'])
+        self.assertEqual(self.public, ['Your move.'])
+        self.calls.clear()
+        await self.run_fake('compaction_out_of_order')
+        self.assertFalse(any(name == '_compaction' for name, _ in self.calls))
+        self.assert_reaped()
+
+    async def test_preturn_compaction_is_bound_to_requested_turn_and_usage_is_charged(self):
+        result = await self.run_fake('compaction_preturn')
+        self.assertEqual(result['turn_id'], 'turn-1')
+        self.assertEqual(result['usage_tokens'], 20)
+        self.assertEqual([args['tokens'] for name, args in self.calls if name == '_usage'],
+                         [5, 10, 10, 20])
+        self.assertEqual([args['phase'] for name, args in self.calls if name == '_compaction'],
+                         ['started', 'completed'])
+        self.assertEqual(self.public, ['Your move.'])
+        self.assert_reaped()
+
+    async def test_invalid_compaction_thread_turn_and_identifier_are_rejected(self):
+        for scenario in ('compaction_wrong_thread', 'compaction_wrong_turn', 'compaction_invalid_id'):
+            with self.subTest(scenario=scenario):
+                self.calls.clear()
+                with self.assertRaises(bridge.CodexError):
+                    await self.run_fake(scenario)
+                self.assertFalse(any(name == '_compaction' for name, _ in self.calls))
+                self.assert_reaped()
+
+    async def test_failed_compaction_preserves_unmatched_start_for_host_settlement(self):
+        for scenario in ('compaction_eof', 'compaction_timeout', 'compaction_unfinished_success',
+                         'compaction_overlap', 'compaction_tool'):
+            with self.subTest(scenario=scenario):
+                self.calls.clear()
+                self.config.codex_timeout_seconds = .3 if scenario == 'compaction_timeout' else 3
+                with self.assertRaises(bridge.CodexError):
+                    await self.run_fake(scenario)
+                self.assertEqual([args for name, args in self.calls if name == '_compaction'],
+                                 [{'phase': 'started', 'item_id': 'compact-1'}])
+                self.assertEqual([args['tokens'] for name, args in self.calls if name == '_usage'], [7])
+                self.assertFalse(any(name == 'chess_status' for name, _ in self.calls))
+                self.assertEqual(self.public, [])
+                self.assert_reaped()
+
+    async def test_cancellation_during_compaction_does_not_claim_completion(self):
+        task = asyncio.create_task(self.run_fake('compaction_timeout'))
+        for _ in range(200):
+            if any(name == '_compaction' for name, _ in self.calls):
+                break
+            await asyncio.sleep(.01)
+        self.assertTrue(any(name == '_compaction' for name, _ in self.calls))
+        task.cancel()
+        with self.assertRaises(asyncio.CancelledError):
+            await task
+        self.assertEqual([args['phase'] for name, args in self.calls if name == '_compaction'], ['started'])
+        self.assertEqual(self.public, [])
         self.assert_reaped()
 
     async def test_unknown_tool_is_denied_and_never_dispatched(self):

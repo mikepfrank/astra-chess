@@ -163,3 +163,39 @@ queued, and its HTTP availability check passed.
 These are configuration and compatibility checks. Handling a live context over
 300,000 tokens and any improvement in playing quality remain to be observed
 during longer games.
+
+## Compaction status and clock pauses
+
+The pinned CLI's context-compaction item notifications now drive a private host
+callback. The board displays COMPACTING for Astra in either orientation, and a
+paused own-turn clock displays PAUSED. Human-turn conversation compaction does
+not claim an own-clock pause. The normal status returns after completion.
+
+The supervisor persists compaction intervals and excludes them from both the
+chess clock and its ordinary/critical turn allocation. Interrupted pauses close
+with explicit evidence on settlement or recovery. Failed-attempt refunds use
+only charged thinking time, preventing a second credit for excluded compaction.
+Token accounting and the separate emergency process timeout remain active.
+
+All 27 bridge tests passed, including simulated start/end notifications,
+duplicates, ordering, private summary handling, cancellation and failed
+compactions. The 17 service, 10 retry-refund and two allocation/retry regression
+tests also passed. JavaScript syntax passed. A separate read-only browser
+fixture confirmed the new status, frozen clock and pause caption, restoration
+of THINKING, both colors and a flipped board. The optional evaluation remained
+visible through compaction. The fixture used no live records or model calls.
+
+Ten additional deterministic clock tests passed in 2.614 seconds. They cover
+multiple completed pauses followed by an interrupted pause, a frozen monitor
+beyond the original turn deadline, critical and reduced-time allocations,
+cancellation, duplicate notifications, human-turn conversation and post-move
+compaction. Recovery and Retry credit only actual charged thinking time.
+
+The service was restarted after a read-only guard confirmed no active or queued
+responses. A before/after digest verified preservation of game identity, sides,
+board, moves, messages, result, Codex thread, move credits and used clock time.
+The restarted HTTP service reported Astra/Ultra available. A page reload loads
+the new UI; the server continues active play independently of browser reloads.
+
+These checks simulate compaction notifications; an observed live compaction
+using the new display and accounting remains to be confirmed during play.

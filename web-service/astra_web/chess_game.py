@@ -107,12 +107,39 @@ def apply_move(state, uci, actor):
     check_ending(state)
 
 
+def active_clock_elapsed(state, now=None):
+    """Charge only active own-turn work, excluding context compaction."""
+    if state['active_started'] is None:
+        return 0.0
+    end = time.time() if now is None else now
+    pause = state.get('compaction_pause')
+    if pause and pause['clock_paused']:
+        end = min(end, pause['started_at'])
+    return max(0.0, end - state['active_started'] - state.get('active_paused_seconds', 0.0))
+
+
+def finish_compaction(state, now, outcome):
+    """Close durable pause evidence, including an interrupted worker's pause."""
+    pause = state.get('compaction_pause')
+    if not pause:
+        return
+    seconds = max(0.0, now - pause['started_at'])
+    state.setdefault('compaction_events', []).append(dict(pause, ended_at=now,
+        paused_seconds=seconds, outcome=outcome))
+    if pause['clock_paused'] and state['active_started'] is not None:
+        state['active_paused_seconds'] = state.get('active_paused_seconds', 0.0) + seconds
+    state['compaction_pause'] = None
+
+
 def clock(state):
     earned = 5400 + 30 * state['own_moves'] + (1800 if state['own_moves'] >= 40 else 0)
-    live = max(0, time.time() - state['active_started']) if state['active_started'] else 0
+    live = active_clock_elapsed(state)
     used = state['clock_used'] + live
+    pause = state.get('compaction_pause')
+    paused = bool(state['active_started'] is not None and pause and pause['clock_paused'])
     return {'remaining_seconds': max(0, earned - used), 'used_seconds': used,
-            'earned_seconds': earned}
+            'earned_seconds': earned, 'paused': paused,
+            'pause_reason': 'compaction' if paused else None}
 
 
 def snapshot(state, internal=False):

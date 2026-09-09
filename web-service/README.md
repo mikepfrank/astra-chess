@@ -98,6 +98,9 @@ two schedulers from owning the same games.
   action; they do not idle while waiting for the human. After 36 hours without
   a human game action, the game is marked suspended. Resume restores it without
   deleting moves, messages, clock evidence or the Codex session ID.
+- During automatic context compaction, the board shows **COMPACTING** and
+  freezes Astra's chess clock. The remaining turn allocation resumes when
+  compaction finishes; interrupted compactions retain auditable clock evidence.
 
 ## Configuration
 
@@ -139,7 +142,10 @@ per accepted Astra move and +30 minutes after its 40th move. Ordinary/critical
 targets are 120/240 seconds, with a 40-second review reserve. Allocations
 shrink with the earned balance; the reserve shrinks to at most one third of a
 shorter turn so that a tactical query remains possible. Queue time and human time are excluded; worker
-startup, deliberation, queries and recovery during active work are charged.
+startup, deliberation and queries during active work are charged. Codex-reported
+context compaction is excluded from the chess clock and the ordinary/critical
+turn allocation. The independent process timeout and API token accounting
+remain in force, including during compaction.
 No future credits are spent. Retrying a harness-interrupted own turn restores
 the recorded thinking time of its failed attempts, once, with an audit record.
 Accepted moves, completed turns and actual API usage keep their accounting.

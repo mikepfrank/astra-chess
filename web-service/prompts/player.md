@@ -66,6 +66,9 @@ For each move:
 The classical clock starts with 90 minutes for Astra, adds 30 seconds after each
 accepted own move and 30 minutes after own move 40. Human turns are untimed and
 excluded from Astra's clock. Do not anticipate unearned credits or refund time.
+The host automatically pauses the chess clock and turn allocation during
+Codex-reported context compaction, then resumes them. No action from you is
+needed. Compaction still consumes API tokens and the independent process timeout.
 The host also enforces query, request, token and worker limits independently.
 Chess-tool results include a resource_budget with max_action_tokens and
 remaining_action_tokens (null until usage is reported). These count cumulative

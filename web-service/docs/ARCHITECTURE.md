@@ -45,8 +45,12 @@ Games persist across visits. The 36-hour threshold is based on human game action
 not polling traffic. Suspension is a state marker; a CLI has already exited
 after its last action. Resume uses the same board, messages and Codex thread.
 Queued work spends no thinking time. Active work has a persisted start/deadline.
-On a service crash, uncertain time is charged conservatively through the earlier
-of recovery or the saved deadline. Token reservations left by a crash are charged,
+Validated Codex context-compaction events persist a pause interval, display
+COMPACTING, and freeze both the chess clock and the remaining turn allocation.
+Completion resumes them; duplicate notifications cannot award extra time.
+On a service crash, uncertain thinking time is bounded by the saved allocation,
+excluding completed pauses and time after an unfinished compaction began.
+Token reservations left by a crash are charged,
 not refunded. A stopped action receives a visible retry state. A player retry
 restores recorded clock charges for failed attempts on that same unfinished
 own turn, with transactional deduplication and a durable refund record. Accepted
@@ -55,7 +59,9 @@ refund tokens or change resource limits.
 
 An accepted Astra move stops its active clock before increment/stage credit.
 Actual started/ended timestamps, charge and pre-credit balance are retained in
-`clock_events`. Queue/worker events and decision notes are also durable. Private
+`clock_events`, with one settlement per attempt and its excluded pause duration.
+`compaction_events` retain completed and interrupted intervals. Queue/worker
+events and decision notes are also durable. Private
 query evidence is separate from public commentary and shared replays.
 
 For the model, each response begins with a small event marker and a chess_status

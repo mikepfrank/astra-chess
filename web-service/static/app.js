@@ -159,9 +159,18 @@ function statusText(game){
   if(game.worker?.state==='error')return game.worker.message||'Astra was interrupted. Your game is saved; try resuming the player.';
   if(game.worker?.state==='disabled')return game.worker.message||'Astra is unavailable. Your game is saved.';
   if(game.worker?.state==='queued')return 'Your game is queued. Astra will be with you shortly.';
+  if(game.worker?.state==='compacting')return 'Astra is compacting its conversation context. '+(game.clock?.paused?'Its chess clock is paused.':'It will continue when the context is ready.');
   if(game.worker?.state==='thinking')return 'Astra is thinking. You can keep the conversation going.';
   const turn=game.fen.split(' ')[1]==='w'?'white':'black';
   return turn===game.human_side?'Your move. Take your time.':'Astra’s move. Considering the position.';
+}
+function playerStatusText(game,side){
+  if(game.status==='finished')return 'GAME COMPLETE';
+  const turn=game.fen.split(' ')[1]==='w'?'white':'black';
+  if(side===game.human_side)return turn===side?'YOUR MOVE':'';
+  const worker=game.worker?.state;
+  if(['compacting','thinking','queued','error','disabled'].includes(worker))return worker.toUpperCase();
+  return turn===side?'ASTRA’S MOVE':'';
 }
 function renderGame(game){
   if(state.game?.id===game.id&&Number(game.version)<Number(state.game.version))return;
@@ -183,11 +192,19 @@ function renderGame(game){
   $('top-avatar').className='avatar '+(topHuman?'human-avatar':'astra-avatar');
   $('human-avatar').textContent=topHuman?'A':name.slice(0,1).toUpperCase();
   $('human-avatar').className='avatar '+(topHuman?'astra-avatar':'human-avatar');
-  $('top-status').textContent=game.status==='finished'?'GAME COMPLETE':turn===topSide?(topHuman?'YOUR MOVE':titleCase(game.worker?.state||'Thinking').toUpperCase()):'';
-  $('bottom-status').textContent=game.status==='finished'?'GAME COMPLETE':turn===bottomSide?(topHuman?'ASTRA’S MOVE':'YOUR MOVE'):'';
-  $('top-status').classList.toggle('active',active&&turn===topSide);$('bottom-status').classList.toggle('active',active&&turn===bottomSide);
+  for(const [location,displayedSide] of [['top',topSide],['bottom',bottomSide]]){
+    const status=$(location+'-status');
+    const astraCompacting=active&&displayedSide!==side&&game.worker?.state==='compacting';
+    status.textContent=playerStatusText(game,displayedSide);
+    status.classList.toggle('active',active&&(turn===displayedSide||astraCompacting));
+    status.classList.toggle('compacting',astraCompacting);
+  }
+  const clockPaused=game.clock?.paused===true;
   $('astra-clock').textContent=formatClock(game.clock?.remaining_seconds);
-  $('astra-clock').title='Astra’s remaining thinking time';
+  $('astra-clock').classList.toggle('paused',clockPaused);
+  $('astra-clock').title=clockPaused?'Astra’s chess clock is paused while its conversation context is compacted.':'Astra’s remaining thinking time';
+  $('astra-clock').setAttribute('role','timer');
+  $('astra-clock').setAttribute('aria-label',`Astra’s remaining thinking time: ${formatClock(game.clock?.remaining_seconds)}${clockPaused?', paused':''}`);
   // Keep the only clock attached to Astra even when the board is flipped.
   const clockHost=topHuman?$('bottom-status').parentElement:$('top-status').parentElement;
   clockHost.append($('astra-clock'));
@@ -195,7 +212,7 @@ function renderGame(game){
   renderCaptures($('bottom-captures'),game.moves||[],bottomSide,side);
   renderAstraEvaluation(game);
   $('game-status-text').textContent=statusText(game);
-  $('game-status').className='game-status '+(game.status==='finished'?'finished':game.worker?.state==='thinking'?'thinking':game.worker?.state==='error'?'error':'');
+  $('game-status').className='game-status '+(game.status==='finished'?'finished':['thinking','compacting','error'].includes(game.worker?.state)?game.worker.state:'');
   $('draw-banner').hidden=!game.draw_offer||game.status==='finished';
   $('draw-text').textContent=game.draw_offer==='astra'?'Astra offers a draw.':'Your draw offer is pending.';
   $('accept-draw').hidden=game.draw_offer!=='astra';$('decline-draw').hidden=game.draw_offer!=='astra';
@@ -209,7 +226,7 @@ function renderGame(game){
   $('message-input').disabled=game.status!=='active'||state.pending;
   $('send-message').disabled=game.status!=='active'||state.pending||!$('message-input').value.trim();
   for(const id of ['accept-draw','decline-draw','claim-draw','resume-game','retry-worker'])$(id).disabled=state.pending;
-  if(boardChanged)$('board-hint').textContent=humanTurn?'Your move: select a piece, then a highlighted square.':'You can inspect the board while Astra thinks.';
+  if(boardChanged)$('board-hint').textContent=humanTurn?'Your move: select a piece, then a highlighted square.':'You can inspect the board while you wait.';
   if(oldPly!==game.ply||!$('moves').querySelector('.move-row'))renderMoves();
   renderMessages();connection(true,'Connected');
 }
@@ -245,6 +262,8 @@ function clearPrivateView(){
   $('top-detail').textContent='Your opponent';$('bottom-detail').textContent='Choose White or Black';
   $('top-status').textContent='READY WHEN YOU ARE';$('bottom-status').textContent='';
   $('top-captures').replaceChildren();$('bottom-captures').replaceChildren();$('astra-clock').textContent='—';
+  $('astra-clock').classList.remove('paused');$('astra-clock').title='Astra’s remaining thinking time';$('astra-clock').removeAttribute('aria-label');
+  for(const id of ['top-status','bottom-status'])$(id).classList.remove('compacting','active');
   $('game-status-text').textContent='A fresh game, at your own pace.';$('game-status').className='game-status';
   $('message-input').value='';$('message-input').disabled=true;$('send-message').disabled=true;
   $('offer-draw').disabled=true;$('resign').disabled=true;

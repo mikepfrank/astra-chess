@@ -451,6 +451,30 @@ nav {
 .game-status.thinking .status-dot {
   animation:breathe 1.6s infinite;
 }
+.game-status.compacting {
+  background:#203141;
+  border-color:#486780;
+  color:#c7daeb;
+}
+.game-status.compacting .status-dot {
+  background:var(--blue);
+}
+.player-status.compacting {
+  color:var(--blue);
+}
+.clock.paused {
+  border-color:#65839a;
+  color:#c7daeb;
+}
+.clock.paused::after {
+  content:'PAUSED';
+  display:block;
+  margin-top:3px;
+  font-size:12px;
+  line-height:1;
+  letter-spacing:.5px;
+  text-align:center;
+}
 .game-status.error {
   border-color:#a15f54;
   color:#f3bfb8;
