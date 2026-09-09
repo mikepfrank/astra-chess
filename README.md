@@ -9,18 +9,18 @@ package and GitHub handoff. Core analysis needs only Python's standard library.
 
 | Directory | Contents |
 | --- | --- |
-| `astra_engine/` | From-scratch chess rules, evaluation, search, clocks and reports |
-| [docs/](docs/engine-design.md) | Detailed engine design, evaluation formulas, goal queries and optional features |
-| [early-games/](early-games/README.md) | Early trial PGNs, saved board journals, validation evidence and notes, grouped by game/date |
-| `engine-games/` | Game journals, PGNs, clock ledgers and saved queries |
-| `engine-output/` | Analysis reports, evaluation graphs and their supporting artifacts |
-| `replays/` | Standalone replay pages, collection `index.html` and display metadata |
-| `templates/` | Shared replay HTML template |
-| `images/positions/` | Saved board positions and candidate-move diagrams |
-| `images/replays/` | Replay screenshots |
-| `skills/` | Canonical assistant play and archive procedures |
-| `tests/` | Rules, tooling and browser checks |
-| `scratch/` | Ignored temporary analysis, including the default scratchpad state |
+| [astra_engine/](astra_engine/) | From-scratch chess rules, evaluation, search, clocks and reports |
+| [docs/](docs/) | Detailed engine design, evaluation formulas, goal queries and optional features |
+| [early-games/](early-games/) | Early trial PGNs, saved board journals, validation evidence and notes, grouped by game/date |
+| [engine-games/](engine-games/) | Game journals, PGNs, clock ledgers and saved queries |
+| [engine-output/](engine-output/) | Analysis reports, evaluation graphs and their supporting artifacts |
+| [replays/](replays/) | Standalone replay pages, collection `index.html` and display metadata |
+| [templates/](templates/) | Shared replay HTML template |
+| [images/positions/](images/positions/) | Saved board positions and candidate-move diagrams |
+| [images/replays/](images/replays/) | Replay screenshots |
+| [skills/](skills/) | Canonical assistant play and archive procedures |
+| [tests/](tests/) | Rules, tooling and browser checks |
+| [scratch/](scratch/) | Ignored temporary analysis, including the default scratchpad state |
 
 Keep future replay builds and collection edits in `replays/`. The builder defaults
 to `replays/replay.html`; specify an output there for other games. The scratchpad

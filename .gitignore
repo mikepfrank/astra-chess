@@ -11,4 +11,5 @@ engine-turn.json
 .venv/
 node_modules/
 dist/
-scratch/
+scratch/*
+!scratch/README.md
