@@ -42,7 +42,7 @@ class Supervisor:
         self.store.recover_reservations()
         for state in self.store.list():
             if (state['active_started'] is not None or state.get('compaction_pause')
-                    or state['worker']['state'] in ('thinking', 'queued', 'compacting')):
+                    or state['worker']['state'] in ('thinking', 'queued', 'compacting', 'calculating')):
                 def recover_one(s):
                     ended = time.time()
                     if s['active_started'] is not None:
@@ -389,7 +389,22 @@ class Supervisor:
                 available = remaining_turn() - reserve
                 if available < 0.2:
                     raise ValueError('Use the remaining time to review and choose your move.')
-                result, path = await self._query(game_id, current, args, available)
+                self.store.mutate(game_id, lambda s: s.update(worker={
+                    'state': 'calculating', 'message': 'Astra’s tactical engine is calculating.'}),
+                    kind='calculation_started', body={'attempt_id': control['attempt_id']})
+                completed = False
+                try:
+                    result, path = await self._query(game_id, current, args, available)
+                    completed = True
+                finally:
+                    def calculation_ended(s):
+                        # Never overwrite a newer lifecycle state while a query
+                        # is being cancelled or the human ends the game.
+                        if s['worker']['state'] == 'calculating':
+                            s['worker'] = ({'state': 'thinking', 'message': 'Astra is considering the position.'}
+                                if s['status'] == 'active' else {'state': 'idle', 'message': ''})
+                    self.store.mutate(game_id, calculation_ended, kind='calculation_ended',
+                        body={'attempt_id': control['attempt_id'], 'completed': completed})
                 control['query_paths'].append(path)
                 if not args.get('after') and not result.get('fallback', False):
                     control['root_query'] = True
@@ -490,7 +505,7 @@ class Supervisor:
                 def settle(s):
                     stop_clock(s)
                     game.finish_compaction(s, time.time(), 'interrupted')
-                    if s['worker']['state'] in {'thinking', 'compacting'}:
+                    if s['worker']['state'] in {'thinking', 'compacting', 'calculating'}:
                         s['worker'] = {'state': 'error', 'message': 'Astra’s turn stopped. Your game is saved; retry when ready.'}
                 try:
                     self.store.mutate(game_id, settle, kind='clock_settled', body={'elapsed': time.monotonic()-started,

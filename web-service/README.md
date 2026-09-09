@@ -101,6 +101,9 @@ two schedulers from owning the same games.
 - During automatic context compaction, the board shows **COMPACTING** and
   freezes Astra's chess clock. The remaining turn allocation resumes when
   compaction finishes; interrupted compactions retain auditable clock evidence.
+- While the tactical engine runs a query, Astra's status reads **CALCULATING**,
+  then returns to **THINKING** for review and deliberation. Calculation counts
+  toward the same chess clock and turn allocation as deliberation.
 
 ## Configuration
 

@@ -17,7 +17,7 @@ import httpx
 WAIT_SECONDS = 300
 POLL_SECONDS = 2
 CHAT = "How does the tactical engine help you choose a move?"
-WORKER_STATES = {"idle", "queued", "thinking", "compacting", "error", "disabled"}
+WORKER_STATES = {"idle", "queued", "thinking", "calculating", "compacting", "error", "disabled"}
 
 
 def loopback_origin(value):

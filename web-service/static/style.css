@@ -448,7 +448,8 @@ nav {
   border-radius:50%;
   flex-shrink:0;
 }
-.game-status.thinking .status-dot {
+.game-status.thinking .status-dot,
+.game-status.calculating .status-dot {
   animation:breathe 1.6s infinite;
 }
 .game-status.compacting {

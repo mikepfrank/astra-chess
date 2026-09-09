@@ -199,3 +199,21 @@ the new UI; the server continues active play independently of browser reloads.
 
 These checks simulate compaction notifications; an observed live compaction
 using the new display and accounting remains to be confirmed during play.
+
+## Tactical calculation status
+
+The host marks each tactical-query wait as CALCULATING, then restores THINKING
+when the result returns. Calculation uses the existing chess clock and turn
+allocation without pause. Query failure/cancellation clears the transient
+status; recovery also recognizes an interrupted calculation during conversation.
+
+Six new deterministic status/clock tests passed, alongside all 17 service,
+10 compaction-clock and two allocation/retry tests. JavaScript syntax and a
+separate browser fixture confirmed CALCULATING for both colors and board
+orientations, with the clock unpaused and the compact evaluation still visible.
+These checks used no model calls or live game actions.
+
+The service restarted while no response was active or queued. The player
+continued chatting and playing immediately afterward; a digest reconstructed
+from the pre-restart records verified that those earlier moves, messages,
+conversation identity and clock balance were preserved.
