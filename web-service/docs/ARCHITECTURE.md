@@ -43,6 +43,15 @@ Actual started/ended timestamps, charge and pre-credit balance are retained in
 `clock_events`. Queue/worker events and decision notes are also durable. Private
 query evidence is separate from public commentary and shared replays.
 
+For the model, fresh snapshots retain the complete move notation but repeat
+only the last twelve messages and omit redundant historical FEN arrays. The
+resumed Codex conversation retains earlier context, with automatic compaction
+at 20,000 total context tokens. Engine queries still receive the full authentic
+history. Search responses condense repetitive PV diagnostic geometry while
+preserving warnings and tactical changes. The complete original query remains
+on disk; `chess_query_details` retrieves it by a server-owned index within the
+same game's query directory, without executing another search.
+
 ## Identity, memory and sharing
 
 Guest identity comes from an HttpOnly, SameSite=Strict cookie; typing an existing

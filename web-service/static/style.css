@@ -1278,6 +1278,23 @@ input, textarea, .composer textarea, .message-body, .conversation-empty>span:las
 .brand-sub {
   font-size:12px;
 }
+.availability-notice {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.availability-notice .outline {
+  flex-shrink:0;
+}
+.new-dialog-actions {
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+#new-availability {
+  line-height:1.65;
+  margin:16px 0;
+}
 @media(max-width:900px) {
   .play-layout {
     grid-template-columns:minmax(0,1.2fr) minmax(300px,1fr);
@@ -1293,6 +1310,11 @@ input, textarea, .composer textarea, .message-body, .conversation-empty>span:las
   }
 }
 @media(max-width:760px) {
+  .availability-notice {
+    align-items:flex-start;
+    flex-direction:column;
+    gap:12px;
+  }
   .play-layout {
     grid-template-columns:1fr;
   }

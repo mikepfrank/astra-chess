@@ -8,7 +8,7 @@ server owns accepted moves, clocks, identities, transcripts and tactical tools.
 The process has an empty working directory, rather than the writable repository.
 
 `CodexPlayer.run(game_id, snapshot, tool_handler, emit, thread_id=None)` is async.
-The handler receives six public tool names and two private lifecycle callbacks:
+The handler receives seven game tool names and two private lifecycle callbacks:
 `_thread {thread_id}` is emitted immediately when an ID is received, and
 `_usage {tokens}` reports cumulative usage within this action. Both the bridge's
 recovery file and the host database retain the ID. Conflicting stored IDs fail
@@ -51,8 +51,10 @@ The installed schema adds details essential to this implementation:
 - `environments: []` on thread/turn start disables environment access. This is
   the boundary that removes environment-backed shell, patch and file tools.
   The resume schema has no dynamicTools field; stored definitions are reused.
-- `turn/start.effort` includes `ultra`; the effective thread response is checked
-  before a model turn starts. Explicit model rerouting events abort the action.
+- `turn/start.effort` accepts a nonempty string at the protocol-schema level.
+  This does not establish that a particular model or API account supports
+  `ultra`. The effective thread response is checked before a model turn starts;
+  explicit model rerouting events abort the action.
 - Usage notifications carry a cumulative `tokenUsage.total.totalTokens`. The
   persisted watermark avoids counting earlier turns again after resumption.
 
@@ -64,6 +66,42 @@ unneeded capabilities. Additional approval requests are denied and terminate
 the action; unknown host requests and tool names also fail closed.
 The effective configuration is read back before thread creation, and enabled
 ambient MCP servers or capabilities that failed to disable are rejected.
+
+The locally cached Astra model catalog specifies `tool_mode: code_mode_only`.
+The first authenticated Astra/Ultra trial completed a response but reported no
+available tools with code mode disabled. The bridge therefore enables
+`features.code_mode` and the separate local `features.code_mode_host`, requiring
+`disable_in_process_fallback = true`. This supplies JavaScript orchestration for
+the registered chess tools; it does not enable shell, file, browser, network,
+plugin or delegation tools. Environment access remains empty. The existing
+tool-name allowlist, request limits and external turn deadline still apply.
+The [app-server reference](https://learn.chatgpt.com/docs/app-server) describes
+its local code-mode host; the installed build accepts these feature settings in
+a no-key strict-config/initialize/config-read check.
+
+The bridge sets `model_auto_compact_token_limit = 20000` with
+`model_auto_compact_token_limit_scope = "total"`, checks the effective values,
+and reapplies them when starting or resuming a thread. Both fields are present
+in the installed `ConfigReadResponse` schema and were accepted unchanged by a
+no-key strict-config/initialize/config-read check with code mode enabled. The
+[configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference)
+defines this as the automatic compaction threshold for the full active context.
+It does not reduce the model's actual context window or change Astra/Ultra.
+
+Automatic compaction summarizes history within the existing game thread; the
+next action still resumes its saved ID and receives fresh authoritative state.
+The bridge does not start a separate manual compaction turn. Compaction item
+events remain private, and usage notifications during the active turn count
+toward the same action allowance. The threshold is neither a billed-token cap
+nor a guarantee that every request contains fewer than 20,000 tokens:
+instructions, new output and compaction itself also consume context or tokens.
+The host's compact query replies and bounded snapshots reduce repeated input;
+complete tactical evidence remains private on disk for targeted retrieval.
+
+`currentTime/read {threadId}` is also supported, returning only the server's
+integer UTC Unix timestamp. A mismatched thread or extra arguments are rejected;
+the request counts against the same per-action request limit. It cannot adjust
+the chess clock or authorize an operation.
 
 ## Host responsibilities and practical limits
 
@@ -83,9 +121,15 @@ This implementation does not estimate dollar costs. The bridge has its own
 clock allocation and can cancel the coroutine at any time.
 
 On Unix, each process has a separate process group, terminated with TERM then
-KILL. Windows starts child processes hidden and reaps the app-server process.
-No child-executing model tools are enabled, but full Windows descendant-process
-isolation has not been established. Production Linux deployment should enforce
+KILL. Windows creates processes hidden and suspended, assigns them to a
+kill-on-close job, then resumes their primary thread. This prevents runtime
+children escaping through an early-launch race. Code-host prewarming is disabled.
+The job permits
+at most eight processes and 1 GiB of committed memory for the app-server/runtime
+tree; closing it terminates descendants even if app-server exited first. A local
+fake-runtime descendant test verifies timeout cleanup. These limits bound
+runtime resource use, not every possible runtime or OS vulnerability.
+Production Linux deployment should enforce
 service-user filesystem permissions, process/memory/CPU limits and outbound
 network policy independently of Codex. A dedicated game home is useful
 separation, not an OS sandbox between mutually untrusted processes.
@@ -96,10 +140,19 @@ separation, not an OS sandbox between mutually untrusted processes.
 Python subprocesses acting as fake app-servers. It checks start/resume, durable
 IDs, usage accounting, public/private event separation, forbidden tool and
 approval denial, configuration/version rejection, cancellation and timeout
-cleanup. The tests do not call a model or use real credentials.
+cleanup. Simulated automatic-compaction item events preserve the same thread
+and cumulative accounting. The tests and no-key configuration checks do not
+establish that a live automatic-compaction cycle has completed; they do not call
+a model or use real credentials.
 
-The real model/API path remains **unverified** until an operator configures a
-service key and runs a controlled game. CLI schema support does not establish
-that this account can use this exact model/effort through API billing. The
-production Lightsail environment, hard OS limits, model tool inventory and a
-complete live game require an integration gate before announcing the service.
+Real Astra/Ultra actions have now submitted legal moves using the local tactical
+engine. The completed HTTP integration check played e4/e5, resumed the same
+Codex conversation for chat, then verified resignation, optional commentary
+sharing and revocation. It used a separate guest account and left the user's
+browser identity intact. See [LIVE-VALIDATION.md](LIVE-VALIDATION.md) for the
+earlier failures, measured usage and the checks actually completed.
+
+The production Lightsail environment and its hard OS limits remain unverified.
+A full live game and a deliberately observed live automatic-compaction cycle
+are not claimed by these short checks. Fake-process tests do not establish live
+playing strength or complete runtime sandbox isolation.

@@ -1,7 +1,7 @@
 import {BoardView, START_FEN, pieceImage, pieceNames, renderCaptures, formatClock} from './pieces.js';
 
 const $=id=>document.getElementById(id);
-const state={user:null,csrf:null,config:null,game:null,gameId:null,pending:false,mode:'register',next:null,polling:false,resetToken:null,messageKey:null};
+const state={user:null,csrf:null,config:null,game:null,gameId:null,pending:false,mode:'register',next:null,polling:false,resetToken:null,messageKey:null,availabilityChecking:false,availabilityError:null,lastAvailabilityCheck:0};
 let toastTimer, pollTimer, promotionResolve, confirmResolve;
 const titleCase=text=>String(text||'').replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
 const parseDate=value=>new Date(typeof value==='number'&&value<1e12?value*1000:value);
@@ -10,11 +10,11 @@ function showError(id,error){$(id).textContent=error.message||String(error);$(id
 function openDialog(id){const dialog=$(id);if(!dialog.open)dialog.showModal();}
 function closeDialog(id){$(id).close();}
 function connection(online,text){$('connection-status').classList.toggle('online',online);$('connection-status').lastChild.textContent=text;}
-async function api(path,{method='GET',body}={}){
+async function api(path,{method='GET',body,signal}={}){
   const headers={Accept:'application/json'};
   if(body!==undefined)headers['Content-Type']='application/json';
   if(method!=='GET'&&state.csrf)headers['X-CSRF-Token']=state.csrf;
-  const response=await fetch(path,{method,headers,credentials:'same-origin',body:body===undefined?undefined:JSON.stringify(body),cache:'no-store'});
+  const response=await fetch(path,{method,headers,credentials:'same-origin',body:body===undefined?undefined:JSON.stringify(body),cache:'no-store',signal});
   const data=await response.json().catch(()=>({}));
   if(!response.ok){
     let detail=data.detail||data.message||`Request failed (${response.status}).`;
@@ -32,15 +32,45 @@ function setIdentity(result){
   if(!state.game)$('bottom-name').textContent=state.user?.name||'You';
   $('human-avatar').textContent=(state.user?.name||'Y').slice(0,1).toUpperCase();
 }
+function playerReady(){return state.config?.player_available===true&&!state.availabilityError;}
 function updateAvailability(){
-  const available=state.config?.player_available===true;
+  const available=playerReady();
+  const checking=state.availabilityChecking;
   const testing=state.config?.player_mode==='test';
   $('availability-banner').hidden=available&&!testing;
-  $('availability-banner').textContent=testing?'Test environment: games here use a scripted test opponent to check the interface. This is not live Astra play.':'Live Astra play is not configured on this server yet. New games will be available when the operator connects the player. No simulated opponent is running.';
-  $('play-white').disabled=!available||state.pending;$('play-black').disabled=!available||state.pending;
+  const unavailableText=state.availabilityError?'The server could not be reached. Check your connection, then try again.':state.config?.player_mode==='disabled'?'Live play is not enabled on this server yet. The operator needs to enable Astra before a game can start.':'Astra is currently unavailable. Check again shortly; the operator may need to restore the player connection.';
+  $('availability-text').textContent=testing&&available?'Test environment: games here use a scripted test opponent to check the interface. This is not live Astra play.':unavailableText;
+  $('availability-check').hidden=available;
+  $('availability-check').disabled=checking;
+  $('availability-check').textContent=checking?'Checking…':'Check availability';
+  $('play-white').disabled=!available||checking||state.pending;$('play-black').disabled=!available||checking||state.pending;
+  $('side-options').hidden=!available||checking;
+  $('new-title').textContent=checking?'Checking Astra…':available?'Which side is yours?':'Astra is unavailable';
+  $('new-description').textContent=checking?'Checking whether the player is ready for a new game.':available?'White makes the first move. Black has the first reply.':'A new game cannot start until Astra is connected.';
+  $('new-availability').hidden=available||checking;
+  $('new-availability').textContent=unavailableText;
+  $('new-check-availability').hidden=available;
+  $('new-check-availability').disabled=checking;
+  $('new-check-availability').textContent=checking?'Checking…':'Check again';
+  $('new-saved-games').hidden=!state.user;
+  $('new-saved-note').textContent=state.user?'You are still signed in. Your account and saved games remain available; you can return to the board without starting a game.':'You can return to the board and check again later. No game has been started.';
+  $('welcome-title').textContent=available?'Take a seat.':'Astra is unavailable';
+  $('welcome-description').textContent=available?'Choose a side and meet Astra across the board.':'Live play is not ready yet. Check availability or return to one of your saved games.';
+  $('welcome-new').textContent=available?'Start a game ↗':'Check availability';
+  $('new-game').textContent=available?'New game':'Player availability';
   if(state.config){
     $('model-detail').textContent=`Player: ${state.config.model||'configured by operator'}${state.config.reasoning?' · '+state.config.reasoning+' reasoning':''}. ${state.config.suspend_hours?`Inactive games suspend after ${state.config.suspend_hours} hours and can be resumed.`:''}`;
   }
+}
+async function refreshAvailability(){
+  if(state.availabilityChecking)return playerReady();
+  state.availabilityChecking=true;updateAvailability();
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),8000);
+  try{state.config=await api('/api/config',{signal:controller.signal});state.availabilityError=null;}
+  catch(error){state.availabilityError=error.message;}
+  finally{clearTimeout(timeout);state.availabilityChecking=false;state.lastAvailabilityCheck=Date.now();updateAvailability();}
+  return playerReady();
 }
 const board=new BoardView($('board'),{
   onMove:move=>act('move',{move}),
@@ -163,6 +193,7 @@ async function poll(){
   if(document.hidden){pollTimer=setTimeout(poll,10000);return;}
   state.polling=true;
   try{
+    if($('new-dialog').open&&!playerReady()&&Date.now()-state.lastAvailabilityCheck>10000)await refreshAvailability();
     if(state.gameId&&state.user&&!state.pending){
       const id=state.gameId;
       const game=await api(`/api/games/${encodeURIComponent(id)}`);
@@ -298,15 +329,21 @@ $('logout').addEventListener('click',async()=>{
     location.reload();
   }catch(error){toast(error.message);}
 });
-function showNewGame(){$('new-error').hidden=true;updateAvailability();openDialog('new-dialog');}
-for(const id of ['new-game','welcome-new'])$(id).addEventListener('click',()=>requireUser(showNewGame));
+async function showNewGame(){$('new-error').hidden=true;openDialog('new-dialog');await refreshAvailability();}
+for(const id of ['new-game','welcome-new'])$(id).addEventListener('click',showNewGame);
+$('new-check-availability').addEventListener('click',refreshAvailability);
+$('availability-check').addEventListener('click',refreshAvailability);
+$('new-saved-games').addEventListener('click',()=>{closeDialog('new-dialog');requireUser(showGames);});
 async function newGame(side){
-  if(state.pending)return;state.pending=true;updateAvailability();$('new-error').hidden=true;
+  if(state.pending||state.availabilityChecking)return;
+  if(!playerReady()){await refreshAvailability();return;}
+  if(!state.user){closeDialog('new-dialog');showIdentity('register',async()=>{await showNewGame();if(playerReady())await newGame(side);});return;}
+  state.pending=true;updateAvailability();$('new-error').hidden=true;
   try{
     const game=await api('/api/games',{method:'POST',body:{side}});
     board.flipped=side==='black';state.game=null;state.messageKey=null;
     renderGame(game);rememberGame(game.id);closeDialog('new-dialog');$('message-input').value='';$('message-count').textContent='0 / 2000';
-  }catch(error){showError('new-error',error);}
+  }catch(error){showError('new-error',error);await refreshAvailability();}
   finally{state.pending=false;updateAvailability();if(state.game)renderGame(state.game);}
 }
 $('play-white').addEventListener('click',()=>newGame('white'));$('play-black').addEventListener('click',()=>newGame('black'));
@@ -370,7 +407,7 @@ async function initialize(){
       if(!id)try{id=localStorage.getItem('astra-game-'+state.user.id);}catch{}
       if(id)try{await loadGame(id);}catch(error){toast(error.message);}
     }
-  }catch(error){connection(false,'Unavailable');$('availability-banner').hidden=false;$('availability-banner').textContent='The service could not be reached. Please reload to try again.';toast(error.message);}
+  }catch(error){connection(false,'Unavailable');state.availabilityError=error.message;updateAvailability();toast(error.message);}
   poll();
 }
 initialize();

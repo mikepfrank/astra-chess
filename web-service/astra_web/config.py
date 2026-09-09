@@ -23,7 +23,7 @@ class Config:
     max_queries: int = 8
     max_messages_per_minute: int = 6
     max_daily_turns: int = field(default_factory=lambda: int(os.getenv("ASTRA_MAX_DAILY_TURNS", "500")))
-    max_turn_tokens: int = field(default_factory=lambda: int(os.getenv("ASTRA_MAX_TURN_TOKENS", "30000")))
+    max_turn_tokens: int = field(default_factory=lambda: int(os.getenv("ASTRA_MAX_TURN_TOKENS", "100000")))
     max_daily_tokens: int = field(default_factory=lambda: int(os.getenv("ASTRA_MAX_DAILY_TOKENS", "3000000")))
     smtp_host: str = field(default_factory=lambda: os.getenv("ASTRA_SMTP_HOST", ""))
     smtp_port: int = field(default_factory=lambda: int(os.getenv("ASTRA_SMTP_PORT", "587")))

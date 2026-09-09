@@ -21,11 +21,27 @@ Open **http://127.0.0.1:8788**. On this development laptop, `python` is not on
 PATH; the bundled Python runtime can create the virtual environment. Once the
 environment exists, the last two commands work without changing PATH.
 
-The default player mode is **disabled**. The interface explicitly reports that
-the operator must configure the model connection. It never substitutes an
-engine-only player or simulated game for Astra.
+Before setup, the default player mode is **disabled**. The interface explains
+availability inside the side-selector dialog and lets the player return to the
+board or saved games. It never substitutes an engine-only player or simulated
+game for Astra.
 
-To enable real play, configure `OPENAI_API_KEY` in the service process's
+For local Windows testing, configure the key once through a hidden terminal
+prompt, then launch normally:
+
+```powershell
+& ./.venv/Scripts/python.exe configure_local.py --codex-bin 'C:/path/to/codex.exe'
+& ./.venv/Scripts/python.exe run.py
+```
+
+The setup helper validates access to the exact Astra model before saving. It
+stores a Windows DPAPI encrypted credential in `var/secrets/openai-key.dpapi`
+and nonsecret launcher settings in `var/local-config.json`, both ignored by Git.
+The same Windows user can restart the service without re-entering the key.
+Explicit environment settings take precedence. This local encrypted file is
+not a portable Linux credential; use the environment on the deployment host.
+
+Alternatively, configure `OPENAI_API_KEY` in the service process's
 environment using your normal secret-management mechanism, then:
 
 ```powershell
@@ -35,11 +51,12 @@ $env:ASTRA_PLAYER = 'codex'
 & ./.venv/Scripts/python.exe run.py
 ```
 
-No API key is bundled or written into the repository. The bridge uses a fixed
+No plaintext API key is bundled or tracked in the repository. The bridge uses a fixed
 OpenAI API provider; it does not inherit the desktop's login or account profile.
 Keep the service key out of browser code, URLs, source files and screenshots.
-The UI's availability flag establishes configuration presence, not confirmed
-model access; a rejected live request leaves the game saved with a retry status.
+The UI's availability flag establishes configuration presence. Setup verifies
+model access at that time; later authentication or service failures still leave
+the game saved with a retry status.
 
 ## Linux
 
@@ -88,7 +105,7 @@ All optional environment variables are listed here; `config.py` contains limits.
 | `OPENAI_API_KEY` | absent | Service operator's API key |
 | `ASTRA_MAX_WORKERS` | `1` | Simultaneous active Codex actions/engine searches |
 | `ASTRA_MAX_DAILY_TURNS` | `500` | UTC daily admitted model-action limit, including chat and failed attempts |
-| `ASTRA_MAX_TURN_TOKENS` | `30000` | Reservation and stop threshold for one model action |
+| `ASTRA_MAX_TURN_TOKENS` | `100000` | Reservation and stop threshold for one model action, including input/context tokens |
 | `ASTRA_MAX_DAILY_TOKENS` | `3000000` | Daily admission allowance, including outstanding reservations |
 | `ASTRA_SMTP_HOST` | absent | Enables optional email recovery when sender is also configured |
 | `ASTRA_SMTP_PORT` | `587` | STARTTLS; port 465 uses implicit TLS |
@@ -122,6 +139,9 @@ These are private runtime data, ignored by Git. Do not publish this directory
 as static files or commit real players' records. Source control contains only
 application code, tests and authored documentation.
 
+On this Windows laptop, optional `var/secrets/` also contains the DPAPI encrypted
+operator key. It is separate from per-game Codex homes and query subprocesses.
+
 Back up the **entire data directory**, with the service stopped or using a
 coordinated SQLite backup plus matching Codex/evidence files. Copying only the
 SQLite main file while WAL writes are active is insufficient. Preserve the
@@ -144,3 +164,13 @@ See [VALIDATION.md](docs/VALIDATION.md) for the checks actually run and remainin
 live-integration gates. The fake Codex fixtures are test infrastructure only;
 they are not playing-strength evidence. See [ARCHITECTURE.md](docs/ARCHITECTURE.md)
 for ownership, recovery and security boundaries.
+
+An explicit paid integration check is available separately from the test suite:
+
+```powershell
+& ./.venv/Scripts/python.exe tests/live_codex_check.py --live --codex-bin 'C:/path/to/codex.exe' --data-dir var/operator-check --turns 2
+```
+
+It uses the production supervisor, real tactical queries and a deterministic
+test-opponent reply, with separate private records. It checks a fresh action and
+Codex conversation resumption; it is not a playing-strength benchmark.

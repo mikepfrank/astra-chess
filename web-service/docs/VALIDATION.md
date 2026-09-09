@@ -1,4 +1,14 @@
-# Local alpha validation
+# Validation history
+
+**Current status:** real Astra/Ultra play, chat and replay sharing work locally.
+See [LIVE-VALIDATION.md](LIVE-VALIDATION.md) for the subsequent integration
+checks and remaining deployment work.
+
+The rest of this document preserves the initial `2372364` checkpoint, before
+credentials and live integration were configured. Its outstanding API and
+Windows process-cleanup items describe that earlier state.
+
+## Initial local alpha validation
 
 Checkpoint: September 9, 2026. Development and checks ran natively on Windows
 with Python 3.12.14, Node.js 24.16.0 and the installed codex-cli 0.153.4.

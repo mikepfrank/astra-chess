@@ -1,7 +1,7 @@
 """Native Windows/Linux entry point. Public deployment is a separate host-validation step."""
 import argparse
 import os
-from urllib.parse import urlsplit
+from pathlib import Path
 
 
 if __name__ == '__main__':
@@ -10,6 +10,11 @@ if __name__ == '__main__':
     parser.add_argument('--host', default='127.0.0.1')
     parser.add_argument('--public', action='store_true', help='Enable binding for a separately configured HTTPS reverse proxy')
     args = parser.parse_args()
+    from astra_web.local_setup import load_local_environment, LocalSetupError
+    try:
+        load_local_environment(Path(__file__).resolve().parent)
+    except LocalSetupError as error:
+        parser.error(str(error))
     if args.host not in ('127.0.0.1', '::1', 'localhost') and not args.public:
         parser.error('Non-loopback binding requires --public and an HTTPS ASTRA_ORIGIN.')
     if args.public and not os.getenv('ASTRA_ORIGIN', '').startswith('https://'):

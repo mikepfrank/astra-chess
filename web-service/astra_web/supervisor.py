@@ -154,9 +154,27 @@ class Supervisor:
             if time.monotonic() >= control['deadline']:
                 raise ValueError('The turn allowance is exhausted.')
             if name == 'chess_status':
-                result = game.snapshot(current, internal=True)
+                result = game.model_snapshot(current)
                 result['remaining_turn_seconds'] = max(0, control['deadline'] - time.monotonic())
                 return result
+            if name == 'chess_query_details':
+                if set(args) - {'query_index', 'candidate_rank'}:
+                    raise ValueError('Use a saved query index and optional candidate rank.')
+                index = args.get('query_index')
+                if type(index) is not int or not 0 <= index < len(current['queries']):
+                    raise ValueError('Unknown saved query index.')
+                folder = (self.config.data_dir / 'games' / game_id / 'queries').resolve()
+                path = (self.config.data_dir / current['queries'][index]['path']).resolve()
+                if not path.is_relative_to(folder) or path.stat().st_size > 2_000_000:
+                    raise ValueError('Invalid saved query evidence.')
+                details = json.loads(path.read_text(encoding='utf-8'))
+                rank = args.get('candidate_rank')
+                if rank is not None:
+                    if type(rank) is not int or not 1 <= rank <= len(details.get('candidates', [])):
+                        raise ValueError('Unknown candidate rank.')
+                    return {'query_index': index, 'start_fen': details['start_fen'],
+                            'candidate': details['candidates'][rank - 1]}
+                return details
             if name == 'chess_comment':
                 if set(args) != {'text'}:
                     raise ValueError('Expected text only')
@@ -196,7 +214,10 @@ class Supervisor:
                 if not args.get('after') and not result.get('fallback', False):
                     control['root_query'] = True
                 self.store.mutate(game_id, lambda s: s['queries'].append({'ply': control['ply'], 'path': path}), kind='query_completed', increment=False)
-                return result
+                from .engine_view import compact_result
+                view = compact_result(result)
+                view['query_index'] = len(current['queries'])
+                return view
             if name == 'chess_choose':
                 if set(args) - {'action', 'move', 'note'} or not isinstance(args.get('note'), str) or not 1 <= len(args['note']) <= 2000:
                     raise ValueError('Supply action, optional move and a concise decision note.')
@@ -235,7 +256,7 @@ class Supervisor:
                     s['decisions'].append(dict(ply=control['ply'], **args))
                 self.store.mutate(game_id, choose, kind='astra_action', body=args)
                 control['chosen'] = action in {'move', 'resign', 'accept_draw', 'claim_draw'}
-                return {'accepted': True, 'game': game.snapshot(self.store.get(game_id))}
+                return {'accepted': True, 'game': game.model_snapshot(self.store.get(game_id))}
             raise ValueError('Unknown tool. Only the chess service tools are available.')
 
         async def emit(text):
@@ -253,7 +274,7 @@ class Supervisor:
             else:
                 from .codex_bridge import CodexPlayer
                 player = CodexPlayer(self.config)
-            snapshot = game.snapshot(self.store.get(game_id), internal=True)
+            snapshot = game.model_snapshot(self.store.get(game_id))
             snapshot['memory'] = self.identity.memory_for_user(state['user_id'])
             snapshot['remaining_turn_seconds'] = allocation
             run = asyncio.create_task(player.run(game_id, snapshot, tool, emit, thread_id=state['thread_id']))

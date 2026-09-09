@@ -142,3 +142,19 @@ def pgn(state):
         tokens.append(move['san'])
     tokens.append(state['result'])
     return '\n'.join(f'[{k} "{escape(v)}"]' for k, v in headers.items()) + '\n\n' + ' '.join(tokens) + '\n'
+
+
+def model_snapshot(state):
+    """Fresh authoritative context; the full transcript/evidence stays durable.
+
+    Previous messages already belong to the resumed Codex conversation. Avoid
+    reinserting its entire transcript and a FEN for every historical ply each turn.
+    """
+    result = snapshot(state, internal=True)
+    result.pop('history_fens', None)
+    result['history_plies'] = len(state['moves'])
+    result['moves'] = [{k: m[k] for k in ('uci', 'san', 'actor')} for m in state['moves']]
+    result['messages'] = state['messages'][-12:]
+    result['earlier_message_count'] = max(0, len(state['messages']) - 12)
+    result['query_records'] = [{'index': i, 'ply': q.get('ply')} for i, q in enumerate(state['queries'])][-8:]
+    return result
