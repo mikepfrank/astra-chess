@@ -1,4 +1,4 @@
-# Local package and GitHub handoff
+# Source packages and GitHub updates
 
 The source ZIP and Git bundle are generated from committed Git data. They
 include the tools, skills, game evidence, replay pages and notes; they exclude
@@ -28,25 +28,34 @@ The ZIP contains a single source directory and no `.git` directory. The bundle
 is a transport/backup artifact; it does not install Python or browser tools.
 Neither packaging nor restoring pushes to a remote or starts a game.
 
-## Tomorrow's GitHub handoff
+## Configured GitHub remote
 
-The local branch is currently `master`. No remote is configured, and nothing
-has been pushed. After Mike creates the GitHub repository and supplies its
-actual URL, inspect the remote state before adding `origin` and pushing the
-current branch. If the remote starts empty, the intended operations are:
+The repository is published at
+[mikepfrank/astra-chess](https://github.com/mikepfrank/astra-chess), with local
+branch `main` tracking `origin/main`. The configured `origin` is
+`https://github.com/mikepfrank/astra-chess.git`. The initial handoff is complete;
+do not add another remote or rename the branch for routine updates.
+
+After reviewing and committing the intended changes, inspect and push with:
 
 ```text
-git remote add origin REPOSITORY_URL
-git push -u origin HEAD
+git status --short
+git remote -v
+git push origin main
 ```
 
-`REPOSITORY_URL` is a placeholder, not a configured destination. If the new
-repository has an initial README or other commits, reconcile those before
-pushing; do not force-push or rename the local branch without a reason agreed
-with Mike. A public/private selection and license have not been chosen here;
-no `LICENSE` was added on Mike's behalf. The package preserves historical
-paths and the existing Git author identity rather than rewriting the record.
+If the remote has diverged, fetch and reconcile its commits before pushing;
+do not force-push. No `LICENSE` file has been added. The package preserves
+historical paths and the existing Git author identity.
 
-The next playing experiment is separate from publication. Implement/test the
-selected future time control first; choose the stronger opponent with Mike
-when he is ready to watch. No new game or scheduled reminder was started tonight.
+The current inventory includes 11 session games, nine standalone replay archives,
+and four engine-assisted trials, through game 11's draw against Li (2000).
+See the [game list](README.md#replay-collection) and
+[equipment inventory](REPRODUCIBILITY.md#what-is-preserved). Run `package_repo.py`
+again from a clean new commit to include subsequent changes; existing bundles
+and ZIPs retain the exact earlier commit named in their manifests.
+
+GitHub pushes and local packaging do not deploy Netlify pages. Mike publishes
+each standalone replay and the collection index separately. The staged own-time
+control is implemented and was used in game 11; any next playing experiment
+remains separate from this publication workflow.

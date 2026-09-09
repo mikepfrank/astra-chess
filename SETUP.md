@@ -18,7 +18,7 @@ cloned repository:
 ```text
 python astra_chess.py --help
 python resume_chess.py
-python resume_chess.py --game wally-v02-black
+python resume_chess.py --game li-v02-classical
 python astra_chess.py query --request engine_examples/mate-in-one.json --output scratch/mate.json --html scratch/mate.html
 ```
 
@@ -28,8 +28,11 @@ game. Open `scratch/mate.html` in a browser. See [ENGINE.md](ENGINE.md) for
 arbitrary FENs, candidate limits, goals, recorded history and clock semantics.
 
 Any replay HTML in `replays/` can be opened directly without installing
-anything. These complete replay pages work offline. The collection `replays/index.html`
-links to separate online deployments; the historical evaluation chart alone
+anything. The nine replay pages cover games 2 and 4–11; see the
+[game list](README.md#replay-collection) for opponents, results and archive files.
+These complete replay pages work offline. The collection `replays/index.html`
+links to separate online deployments, with `astra-vs-li` proposed for the latest
+Li draw; the historical evaluation chart alone
 uses D3 from a CDN and needs network access.
 
 ## Rebuild and validate replays
@@ -49,15 +52,16 @@ and replay-build package is `chess==1.11.2`, used for rules/notation and indepen
 validation. The search engine never imports it. Existing installations under
 `.replay-deps/` remain supported, but are not included in this package.
 
-With the environment's Python, rebuild the latest replay:
+With the environment's Python, rebuild the latest replay: game 11, Astra's
+70-move draw as White against Li (2000), ending by insufficient material.
 
 ```text
-python export_evaluations.py --game wally-v02-black --output scratch/black-scores.json
-python build_replay.py --pgn engine-games/wally-v02-black/game.pgn --output scratch/black-replay.html --subtitle "Engine v0.2 trial / Astra as Black" --evaluations scratch/black-scores.json
-python serve_replay.py --page scratch/black-replay.html --port 8774
+python export_evaluations.py --game li-v02-classical --output scratch/li-scores.json
+python build_replay.py --pgn engine-games/li-v02-classical/game.pgn --output scratch/li-replay.html --subtitle "Engine v0.2 trial / Classical clock" --evaluations scratch/li-scores.json
+python serve_replay.py --page scratch/li-replay.html --port 8775
 ```
 
-Open `http://127.0.0.1:8774/black-replay.html`. The server serves only the chosen
+Open `http://127.0.0.1:8775/li-replay.html`. The server serves only the chosen
 page on loopback. The source data and previous replay rebuild commands are in
 [README.md](README.md).
 
@@ -93,6 +97,8 @@ Or use an existing Edge installation without downloading another browser:
 ```text
 node tests/test_replay_scores.cjs playwright msedge
 node tests/test_replay_black.cjs playwright msedge
+node tests/test_replay_pieces.cjs playwright msedge
+node tests/test_replay_li.cjs playwright msedge
 node tests/test_report.cjs playwright msedge
 ```
 
@@ -121,10 +127,12 @@ be rediscovered in the new session. There are no account credentials or browser
 control plugins bundled here. Compaction recovery reconciles saved state with
 fresh UI; it must not repeat an uncertain move or silently reset the clock.
 
-**Before the next trial:** implement and test the staged 90/40 + 30, +30s policy
-in [TIME-CONTROL-NEXT.md](TIME-CONTROL-NEXT.md). It is selected for future play
-but not implemented in the current fixed-total clock. Game 10's separate
-extension and historical charges must remain as recorded.
+New trials explicitly select `--time-control classical --own-time-only`:
+90 minutes initially, 30 more after the 40th verified own move, and a 30-second
+increment after each verified own move. This policy is implemented and was used
+in game 11; see [TIME-CONTROL-NEXT.md](TIME-CONTROL-NEXT.md) for allocation and
+accounting details. Earlier journals, including game 10's separate extension
+and historical charges, retain their recorded controls.
 
 ## Preserve evidence when moving the repository
 
@@ -134,5 +142,5 @@ conceal a source or record change. Saved UTC/monotonic timestamps, original
 absolute paths and Git authorship are historical context, not portable active
 clock state. Completed games may be replayed; do not resume their clocks.
 
-See [PACKAGING.md](PACKAGING.md) for source/history archives and tomorrow's
-GitHub handoff, and [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for the inventory.
+See [PACKAGING.md](PACKAGING.md) for source/history archives and the configured
+GitHub remote, and [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for the inventory.

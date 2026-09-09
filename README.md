@@ -51,8 +51,9 @@ Astra played White and drew by insufficient material after 70.Kxe6. The
 [own-time audit](engine-games/li-v02-classical/time-audit.md) are preserved.
 
 [REPRODUCIBILITY.md](REPRODUCIBILITY.md) inventories the equipment, notes and
-environment requirements retained locally, and the remaining work for a future
-public package of this method.
+environment requirements retained in the
+[GitHub repository](https://github.com/mikepfrank/astra-chess), together with
+the boundaries of the portability checks performed so far.
 
 ## Persistent playing and archive procedures
 
@@ -88,7 +89,13 @@ retain their original policies. See `TIME-CONTROL-NEXT.md` for details.
 **[replays/index.html](replays/index.html)** is the collection's standalone home page. It links to nine
 replays at their `astra-vs-*.netlify.app` addresses, including the proposed
 `astra-vs-li.netlify.app` deployment for game 11. Upload just this
-file to the new master Netlify project; no other files or build step are needed.
+file to the existing `astra-plays-chess` master Netlify project; no other files
+or build step are needed.
+
+The session has **11 games**, including **four engine-assisted trials (8–11)**.
+The nine HTML archives cover games **2 and 4–11**; the initial Sven and Nelson
+losses (1 and 3) have no replay pages. Astra played Black in game 10 and White
+in every other game.
 
 Open any HTML file in `replays/` in a browser:
 
@@ -208,13 +215,13 @@ Open http://127.0.0.1:8769/wally-rematch-replay.html. To share any replay, uploa
 its HTML file to a static host. Local directory names do not change the hosted
 page's name: deploy each standalone replay as the project's root `index.html`.
 
-The game-8 index entry uses `https://astra-vs-wally-engine.netlify.app/`, the proposed
-project name following the existing naming pattern. To publish it with Netlify
-Drop, deploy a copy of `replays/wally-engine-replay.html` named `index.html` as that
+The game-8 index entry uses `https://astra-vs-wally-engine.netlify.app/`.
+To update it with Netlify Drop, deploy a copy of
+`replays/wally-engine-replay.html` named `index.html` as that
 project's root page. Deploy the collection's `replays/index.html` separately to
 `astra-plays-chess`. No deployment is performed by the local build.
 
-Preview the new replay with:
+Preview the first engine-assisted replay with:
 
 ```text
 python serve_replay.py --page replays/wally-engine-replay.html --port 8772
@@ -227,10 +234,10 @@ server logs, Python caches, and the locally installed replay dependency are
 excluded. New append-only game-clock ledgers are retained as experiment evidence.
 
 Game 9's replay is `replays/wally-engine-v02-replay.html`. Its index link uses the
-**proposed** Netlify project `astra-vs-wally-engine-v02`. Deploy this replay as
+Netlify project `astra-vs-wally-engine-v02`. Deploy updates to this replay as
 that project's `index.html`, then upload the updated collection `replays/index.html`
-to `astra-plays-chess`. If you choose a different project name, change that one
-index link. The local build does not create or publish the Netlify project.
+to `astra-plays-chess`. If the project name changes, update that index link.
+The local build does not create or publish the Netlify project.
 Game-9 PGN, search evidence and clock are in `engine-games/wally-engine-v02/`.
 
 Game 10's replay is `replays/wally-engine-v02-black-replay.html`. Astra plays Black;
@@ -241,10 +248,10 @@ in `replays/replay-metadata.json` drives presentation. The exporter uses the jou
 Flipping the board does not change those scores. Black moves 42-44 have no
 recorded evaluation; 46/47 show **Mate in 2/Mate in 1**, and 48 shows **Checkmate**.
 
-Its index link uses the **proposed** Netlify project
-`astra-vs-wally-engine-v02-black`. Upload the replay HTML as that project's
+Its index link uses the Netlify project
+`astra-vs-wally-engine-v02-black`. Upload replay updates as that project's
 root `index.html`, then redeploy the collection's separate `replays/index.html` to
-`astra-plays-chess`. Change the new collection link if choosing another name.
+`astra-plays-chess`. Update the collection link if the project name changes.
 No deployment is performed by the local build. For the embedded preview:
 
 ```text

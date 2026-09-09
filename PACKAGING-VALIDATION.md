@@ -5,6 +5,11 @@ The tools were validated from a true `git archive` of implementation commit
 The final documentation checkpoint adds this report; each generated package's
 manifest names its exact full commit and contains checksums for every source file.
 
+This is a historical validation report through game 10. Its file counts, test
+totals and then-unconfigured remote describe that checkpoint. For the current
+11-game inventory and nine replay pages, including the Li draw, see
+[REPRODUCIBILITY.md](REPRODUCIBILITY.md) and [README.md](README.md#replay-collection).
+
 ## Inventory
 
 The pre-packaging inventory contained 573 tracked files (14.33 MB), with no
@@ -67,8 +72,11 @@ evidence bytes with `.gitattributes` fixed that test without modifying any saved
 hash, position, evaluation or engine algorithm. Ordinary source-text LF and PNG
 binary defaults remain intact.
 
-## Next handoff
+## Subsequent status
 
-Mike will create the GitHub repository and supply its URL. Follow `PACKAGING.md`
-to inspect the remote and push the local history then. The future staged clock
-in `TIME-CONTROL-NEXT.md` remains pending implementation before another game.
+The initial GitHub handoff is complete: `main` tracks `origin/main` at
+`https://github.com/mikepfrank/astra-chess.git`. See [PACKAGING.md](PACKAGING.md)
+for current update/package instructions. The staged clock in
+[TIME-CONTROL-NEXT.md](TIME-CONTROL-NEXT.md) was subsequently implemented and used
+in game 11 against Li. These later changes do not alter the checkpoint evidence
+or claim a new fresh-source package validation.

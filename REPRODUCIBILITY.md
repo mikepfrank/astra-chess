@@ -1,8 +1,10 @@
 # Equipment and reproducibility inventory
 
-Mike intends to package this method for others to try in their own Astra
-sessions through GitHub. The local package is prepared with [SETUP.md](SETUP.md),
-[PACKAGING.md](PACKAGING.md), pinned optional dependencies and `package_repo.py`.
+This method is preserved in the
+[GitHub repository](https://github.com/mikepfrank/astra-chess) for others to inspect
+and try in their own Astra sessions. Source/history packages can be generated
+with [SETUP.md](SETUP.md), [PACKAGING.md](PACKAGING.md), pinned optional dependencies
+and `package_repo.py`.
 Keep all authored chess equipment, source data and substantive experiment notes
 in this repository, including sources initially created in a thread's
 visualization directory. Commit them at completion checkpoints.
@@ -32,18 +34,31 @@ Netlify project `astra-vs-li`; publishing remains Mike's step.
 
 ## What is preserved
 
+The session contains 11 games and [nine replay pages](README.md#replay-collection),
+covering rounds 2 and 4–11. The four engine-assisted trials are:
+
+| Game | Opponent | Astra's side | Result | Evidence |
+| --- | --- | --- | --- | --- |
+| 8 | Wally (1800) | White | Loss, resignation after 40...Re1 | [Trial notes](engine-games/wally-2026-09-07/experiment-notes.md) |
+| 9 | Wally (1800) | White | Win, 31.Qxf7# | [Trial notes](engine-games/wally-engine-v02/experiment-notes.md) |
+| 10 | Wally (1800) | Black | Win, 48...Rcxd2# | [Trial notes](engine-games/wally-v02-black/experiment-notes.md) |
+| 11 | Li (2000) | White | Draw, insufficient material after 70.Kxe6 | [Trial notes](engine-games/li-v02-classical/experiment.md) |
+
+All four used Astra (Ultra). Game 8 used the original engine; games 9–11 used
+v0.2, with the staged classical own-time control first used in game 11.
+
 | Component | Repository sources |
 | --- | --- |
 | From-scratch rules, evaluation, search and optional diagnostics | `astra_engine/`, `astra_chess.py`, `engine_examples/` |
 | Manual game journal, cumulative own-turn clock and recovery | `play_engine_game.py`, `astra_engine/clock.py`, `resume_chess.py` |
-| Per-turn timing audit and future time-control policy | `audit_game_time.py`, `TIME-CONTROL-NEXT.md`, saved game timing reports |
+| Per-turn timing audit and implemented time-control policy | `audit_game_time.py`, `TIME-CONTROL-NEXT.md`, saved game timing reports |
 | Prospective board visualization and query reports | `board_scratchpad.py`, `images/positions/`, `astra_engine/report.py`, `astra_engine/report.template.html` |
 | Playing and archive procedures | `AGENTS.md`, `skills/astra-chess-play/`, `skills/astra-chess-archive/`, `ENGINE.md` |
 | Design rationale and measured improvements | `IMPROVEMENT-PROPOSAL.md`, `ENGINE-CHANGES.md`, benchmark scripts and `engine-benchmarks/` |
 | Evaluation/search specification and options | `docs/engine-design.md`, checked against the implemented source and linked from `ENGINE.md` |
 | Game evidence and observations | `early-games/GAME-DATE/` for early PGNs, saved board journals, validation and trial notes; `engine-games/` for engine-assisted trials |
 | Replay build and collection | `build_replay.py`, `templates/replay.template.html`, `replays/replay-metadata.json`, `replays/index.html`, `replays/*-replay.html`, `replays/replay.html` |
-| Historical evaluation extraction and graph | `export_evaluations.py`, `engine-output/wally-v02-evaluation/`, `engine-output/wally-v02-black-evaluation/` |
+| Historical evaluation extraction and graph | `export_evaluations.py`; game 9's graph/data in `engine-output/wally-v02-evaluation/`; scored-replay data in `engine-output/wally-v02-black-evaluation/` and `engine-output/li-v02-evaluation/` |
 | Validation | `tests/`, `images/replays/`, retained browser-check images under `engine-output/`, and experiment audits |
 | Portable source/history packaging | `package_repo.py`, `SETUP.md`, `PACKAGING.md`, requirements files, `package.json`, `.gitattributes` |
 
@@ -60,6 +75,9 @@ state, not the source of recorded timing evidence. New append-only
 substantive notes only in an ignored log or an external scratch directory.
 
 ## Environment and dependencies
+
+The following dated checkpoints retain their original counts and test results;
+the current game/archive inventory is above.
 
 The September 8 asset reorganization moved 185 top-level HTML/PNG files without
 changing their bytes: nine pages to `replays/`, one template to `templates/`,
@@ -137,9 +155,10 @@ Git-history bundle are generated from a clean commit and exclude dependencies.
 The optional chart checker now accepts a browser channel instead of requiring
 Edge. Fresh-source validation is recorded in `PACKAGING-VALIDATION.md`.
 
-Mike will create the GitHub repository and choose its visibility/license; no
-remote or license is silently selected here. An actual live game in another
-assistant session/OS remains a separate experiment. Historical machine paths
+The configured `origin` is `https://github.com/mikepfrank/astra-chess.git`, and
+the published branch is `main`. See [PACKAGING.md](PACKAGING.md) for subsequent
+pushes and source/history packages. No `LICENSE` file has been added. An actual
+live game in another assistant session/OS remains a separate experiment. Historical machine paths
 are retained in notes and old ledgers; relocated workflows use the actual
 checkout and rediscover the embedded browser API. Saved games are evidence,
 not opening/endgame knowledge. The staged clock described above was implemented
@@ -150,7 +169,7 @@ changing their SHA-256 hashes. `.gitattributes` now preserves exact engine and
 evidence bytes. This changes how Git stores those files, not the recorded
 positions, timestamps, original hash claims or engine behavior.
 
-The current starting point is commit `c1ac0eb`: the complete scored game-9
+The original recovery checkpoint is commit `c1ac0eb`: the complete scored game-9
 archive and recovery machinery passed 110 Python tests, plus offline replay UI
 checks. Both skills passed the official validator. An independent read-only
 recovery exercise reconciled a pending promotion with an observed accepted
