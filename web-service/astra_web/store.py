@@ -12,6 +12,16 @@ class Conflict(ValueError):
     pass
 
 
+class DailyResourceLimit(ValueError):
+    """A known admission denial with a fixed, player-safe explanation."""
+    code = 'daily_resource_limit'
+    public_message = ('Astra cannot start another response within the service’s daily resource allowance. '
+                      'Your game is saved; please return later or ask the operator to increase the allowance.')
+
+    def __init__(self):
+        super().__init__(self.public_message)
+
+
 class Store:
     def __init__(self, config):
         self.config = config
@@ -128,7 +138,7 @@ class Store:
             db.execute("INSERT OR IGNORE INTO budget(day) VALUES(?)", (day,))
             row = db.execute("SELECT * FROM budget WHERE day=?", (day,)).fetchone()
             if row['turns'] >= self.config.max_daily_turns or row['tokens'] + row['reserved'] + amount > self.config.max_daily_tokens:
-                raise ValueError("Astra has reached the service's daily resource allowance. Your game is saved; please return later.")
+                raise DailyResourceLimit()
             db.execute("UPDATE budget SET turns=turns+1,reserved=reserved+? WHERE day=?", (amount, day))
         return day, amount
 

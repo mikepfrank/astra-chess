@@ -40,6 +40,11 @@ and nonsecret launcher settings in `var/local-config.json`, both ignored by Git.
 The same Windows user can restart the service without re-entering the key.
 Explicit environment settings take precedence. This local encrypted file is
 not a portable Linux credential; use the environment on the deployment host.
+An optional positive integer `max_daily_tokens` in `var/local-config.json`
+sets this laptop's daily allowance across restarts. It maps to
+`ASTRA_MAX_DAILY_TOKENS`; an explicit environment value still takes precedence.
+The current local testing allowance is 100,000,000 tokens per day. The shared
+configuration default remains 20,000,000 for a separately configured deployment.
 
 Alternatively, configure `OPENAI_API_KEY` in the service process's
 environment using your normal secret-management mechanism, then:
@@ -139,6 +144,10 @@ dollar spending guarantees**. Usage notifications arrive after model work, so
 one in-flight response can exceed a token threshold. Unknown/failed usage is
 charged conservatively against the reservation. Record actual API charges in
 the first controlled trial before selecting an operator spending policy.
+Admission requires room for the full per-response reservation, so a new response
+can be denied before the daily counter reaches its ceiling. Such denials do not
+start a model process or debit the chess clock; the UI identifies the daily
+resource allowance instead of reporting an interrupted turn.
 
 The original classical allowance is retained: 90 minutes initially, +30 seconds
 per accepted Astra move and +30 minutes after its 40th move. Ordinary/critical

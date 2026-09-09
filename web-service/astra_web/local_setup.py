@@ -115,10 +115,15 @@ def _read_config(path):
         if path.stat().st_size > 16384:
             raise ValueError()
         data = json.loads(path.read_text(encoding="utf-8"))
-        if (not isinstance(data, dict) or set(data) != {"version", "player", "codex_bin"}
-                or data["version"] != 1 or data["player"] != "codex"
+        required = {"version", "player", "codex_bin"}
+        allowed = required | {"max_daily_tokens"}
+        if (not isinstance(data, dict) or not required <= set(data) or not set(data) <= allowed
+                or type(data["version"]) is not int or data["version"] != 1 or data["player"] != "codex"
                 or not isinstance(data["codex_bin"], str) or not data["codex_bin"]
                 or len(data["codex_bin"]) > 4096 or "\x00" in data["codex_bin"]):
+            raise ValueError()
+        if "max_daily_tokens" in data and (type(data["max_daily_tokens"]) is not int
+                                          or data["max_daily_tokens"] <= 0):
             raise ValueError()
         return data
     except (OSError, ValueError, UnicodeError):
@@ -150,12 +155,15 @@ def configure_local(app_root, key: str, codex_bin: str | None = None, *, transpo
         return status
     folder = Path(app_root) / "var"
     try:
+        previous = _read_config(folder / "local-config.json")
         if not codex_bin:
-            codex_bin = os.environ.get("ASTRA_CODEX_BIN") or _read_config(folder / "local-config.json").get("codex_bin") or "codex"
+            codex_bin = os.environ.get("ASTRA_CODEX_BIN") or previous.get("codex_bin") or "codex"
         resolved = shutil.which(codex_bin)
         if not resolved or not Path(resolved).is_file():
             return "cli_unavailable"
         settings = {"version": 1, "player": "codex", "codex_bin": str(Path(resolved).resolve())}
+        if "max_daily_tokens" in previous:
+            settings["max_daily_tokens"] = previous["max_daily_tokens"]
         encrypted = _dpapi(_clean_key(key).encode("utf-8"))
         _atomic_write(folder / "secrets" / "openai-key.dpapi", encrypted)
         _atomic_write(folder / "local-config.json", (json.dumps(settings, indent=2) + "\n").encode("utf-8"))
@@ -173,6 +181,8 @@ def load_local_environment(app_root):
     if not settings:
         return
     pending = {"ASTRA_CODEX_BIN": settings["codex_bin"], "ASTRA_PLAYER": settings["player"]}
+    if "max_daily_tokens" in settings:
+        pending["ASTRA_MAX_DAILY_TOKENS"] = str(settings["max_daily_tokens"])
     if "OPENAI_API_KEY" not in os.environ:
         if not _is_windows():
             raise LocalSetupError("windows_only")

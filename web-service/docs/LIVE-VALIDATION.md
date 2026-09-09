@@ -217,3 +217,28 @@ The service restarted while no response was active or queued. The player
 continued chatting and playing immediately afterward; a digest reconstructed
 from the pre-restart records verified that those earlier moves, messages,
 conversation identity and clock balance were preserved.
+
+## Immediate retries blocked by daily admission
+
+The first longer game reached 17,128,936 recorded tokens. Reserving the next
+3,000,000-token action exceeded the 20,000,000 daily allowance, so admission
+failed before a player process or clock interval started. A generic supervisor
+error had misleadingly called this an interrupted turn on every Retry.
+
+Daily admission now raises a dedicated exception with a fixed safe public
+explanation and `daily_resource_limit` code. It also suppresses queued automatic
+reruns of that denial. Other exceptions retain their sanitized generic message.
+No denied reservation debits time or changes the usage ledger.
+
+The operator's generous local-testing policy is now persisted as
+`max_daily_tokens: 100000000` in the ignored Windows launcher settings. Explicit
+environment values still take precedence, and the shared configuration default
+remains 20,000,000. Reconfiguring credentials preserves the local allowance.
+
+Five admission tests, 14 local-setup tests and 17 existing service tests passed.
+A temporary SQLite backup of the real ledger also admitted the next 3,000,000
+reservation under the effective local setting; the private test copy was
+removed afterward. These checks started no model turn or live game action.
+The idle service restarted successfully with the local override, and its HTTP
+availability check passed. A before/after digest confirmed that the saved games,
+conversation IDs, move credits and clock balances were unchanged.

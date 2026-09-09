@@ -9,6 +9,7 @@ import secrets
 import sys
 import time
 from .config import REPO_ROOT
+from .store import DailyResourceLimit
 from . import chess_game as game
 
 
@@ -203,6 +204,12 @@ class Supervisor:
                 await self._active_run(game_id)
         except asyncio.CancelledError:
             raise
+        except DailyResourceLimit:
+            # Admission spent nothing. Do not automatically retry the same denial.
+            self.rerun.discard(game_id)
+            self.store.mutate(game_id, lambda s: s.update(worker={'state': 'error',
+                'error_code': DailyResourceLimit.code, 'message': DailyResourceLimit.public_message}),
+                kind='worker_admission_denied', body={'error_code': DailyResourceLimit.code})
         except Exception as error:
             # Internal error text belongs in operator evidence, not a player-facing traceback.
             self.store.audit(game_id, 'worker_error', {'type': type(error).__name__, 'message': str(error)[:1000]})

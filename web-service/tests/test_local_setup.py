@@ -28,11 +28,72 @@ class LocalSetupTests(unittest.TestCase):
         return httpx.MockTransport(lambda request: httpx.Response(
             status, json=body if body is not None else {"id": "gpt-6-astra"}))
 
-    def write_config(self, codex_bin="reviewed-codex.exe"):
+    def write_config(self, codex_bin="reviewed-codex.exe", **extra):
         var = self.root / "var"
         var.mkdir(parents=True, exist_ok=True)
         (var / "local-config.json").write_text(json.dumps(
-            {"version": 1, "player": "codex", "codex_bin": codex_bin}), encoding="utf-8")
+            {"version": 1, "player": "codex", "codex_bin": codex_bin, **extra}), encoding="utf-8")
+
+    def test_daily_token_setting_is_optional_and_preserves_default_behavior(self):
+        self.write_config()
+        with patch.object(setup.os, "environ", {"OPENAI_API_KEY": PLACEHOLDER}), patch.object(setup, "_dpapi", side_effect=AssertionError("Do not decrypt")):
+            setup.load_local_environment(self.root)
+            self.assertNotIn("ASTRA_MAX_DAILY_TOKENS", setup.os.environ)
+            self.assertEqual(setup.os.environ["ASTRA_PLAYER"], "codex")
+            self.assertEqual(setup.os.environ["ASTRA_CODEX_BIN"], "reviewed-codex.exe")
+        self.assertNotIn("max_daily_tokens", setup._read_config(self.root / "var" / "local-config.json"))
+
+    def test_daily_token_setting_loads_as_string_and_explicit_environment_wins(self):
+        self.write_config(max_daily_tokens=100_000_000)
+        for explicit, expected in (({}, "100000000"), ({"ASTRA_MAX_DAILY_TOKENS": "7654321"}, "7654321")):
+            with self.subTest(explicit=explicit), patch.object(setup.os, "environ", {"OPENAI_API_KEY": PLACEHOLDER, **explicit}), patch.object(setup, "_dpapi", side_effect=AssertionError("Do not decrypt")):
+                setup.load_local_environment(self.root)
+                self.assertEqual(setup.os.environ["ASTRA_MAX_DAILY_TOKENS"], expected)
+
+    def test_daily_token_setting_rejects_invalid_types_values_and_unknown_fields(self):
+        for value in (True, False, 0, -1, "100000000", 100000000.0, None, [], {}):
+            with self.subTest(value=value):
+                self.write_config(max_daily_tokens=value)
+                with patch.object(setup.os, "environ", {"OPENAI_API_KEY": PLACEHOLDER}):
+                    with self.assertRaises(setup.LocalSetupError) as raised:
+                        setup.load_local_environment(self.root)
+                    self.assertEqual(raised.exception.code, "configuration_invalid")
+                    self.assertEqual(setup.os.environ, {"OPENAI_API_KEY": PLACEHOLDER})
+        for extra in ({"unknown": 1}, {"version": True}, {"version": 2}):
+            with self.subTest(extra=extra):
+                self.write_config(max_daily_tokens=100_000_000, **extra)
+                with self.assertRaises(setup.LocalSetupError) as raised:
+                    setup._read_config(self.root / "var" / "local-config.json")
+                self.assertEqual(raised.exception.code, "configuration_invalid")
+
+    def test_reconfiguring_key_or_cli_preserves_optional_daily_token_setting(self):
+        previous_binary = self.root / "old-reviewed-codex.exe"
+        replacement_binary = self.root / "new-reviewed-codex.exe"
+        for binary in (previous_binary, replacement_binary):
+            binary.write_bytes(b"test fixture; never executed")
+        for explicit_cli in (None, str(replacement_binary)):
+            with self.subTest(explicit_cli=explicit_cli):
+                self.write_config(str(previous_binary), max_daily_tokens=100_000_000)
+                chosen = explicit_cli or str(previous_binary)
+                with patch.object(setup, "_is_windows", return_value=True), patch.object(setup.os, "environ", {}), patch.object(setup.shutil, "which", return_value=chosen) as which, patch.object(setup, "_dpapi", return_value=b"mock-encrypted-placeholder") as encrypt:
+                    result = setup.configure_local(self.root, PLACEHOLDER, explicit_cli, transport=self.transport())
+                self.assertEqual(result, "saved")
+                which.assert_called_once_with(chosen)
+                encrypt.assert_called_once_with(PLACEHOLDER.encode("utf-8"))
+                settings = setup._read_config(self.root / "var" / "local-config.json")
+                self.assertEqual(settings["max_daily_tokens"], 100_000_000)
+                self.assertEqual(settings["codex_bin"], str(Path(chosen).resolve()))
+                self.assertEqual((self.root / "var" / "secrets" / "openai-key.dpapi").read_bytes(), b"mock-encrypted-placeholder")
+
+    def test_invalid_existing_daily_token_setting_is_not_overwritten_on_reconfigure(self):
+        self.write_config(max_daily_tokens=False)
+        config_path = self.root / "var" / "local-config.json"
+        before = config_path.read_bytes()
+        with patch.object(setup, "_is_windows", return_value=True), patch.object(setup, "_dpapi") as encrypt:
+            result = setup.configure_local(self.root, PLACEHOLDER, "replacement.exe", transport=self.transport())
+        self.assertEqual(result, "configuration_invalid")
+        encrypt.assert_not_called()
+        self.assertEqual(config_path.read_bytes(), before)
 
     def test_validation_uses_fixed_endpoint_no_proxy_no_redirect_and_timeout(self):
         requests = []
