@@ -44,7 +44,7 @@ where a runtime child could start before job assignment.
 
 Early live actions exceeded the initial 30,000-token ceiling. A later action
 also exceeded 100,000 as repeated detailed search output accumulated in context;
-accepted moves and consumed time were preserved. The current 100,000-token
+accepted moves and consumed time were preserved. The initial 100,000-token
 ceiling is accompanied by compact model-facing diagnostics, on-demand complete
 query details, less duplicated snapshot history and 20,000-token automatic
 context compaction. The successful HTTP check above ran with those changes.
@@ -99,5 +99,46 @@ A separate read-only browser fixture confirmed the default-off toggle,
 preference persistence, signed pawn labels, mates for/against Astra, retention
 after a human reply, and hidden opening/missing/checkmate states. The evaluation
 panel was inspected visually. A read-only check against the active game's saved
-evidence selected its rank-two Nc6 score (-0.12 pawns), excluding the later
+evidence selected its recorded chosen-candidate score, excluding a later
 hypothetical continuation. No new search or model call was needed for these checks.
+
+## Retry interruptions and clock restoration
+
+Further local play exposed a compaction loop under the 20,000-token threshold.
+A resumed request already used roughly 16,500 tokens. One failed retry performed
+three compactions, each consuming about 13,000–20,000 total tokens; generated
+output for that retry was only about 3,100 tokens. The cumulative usage accounting
+was accurate. Repeating full board snapshots in user messages also made them
+persist through compaction, causing unnecessary growth across game turns.
+
+At the operator's request for generous local testing limits, the revised bridge
+uses a 100,000-token total-context compaction threshold, a bounded 1,000,000-token
+action allowance and a 20,000,000-token daily limit.
+New responses carry small event markers and retrieve fresh state, account-gated
+memory and attempt requirements through chess_status. Existing thread history
+is preserved. Tool responses report remaining tokens, and the player instructions
+explain fresh candidate/query requirements when retrying. API output limits and
+Astra/Ultra are unchanged.
+
+All 22 bridge/config tests passed, and the actual pinned CLI accepted the revised
+strict configuration in a no-key check. Seventeen service regression tests also
+passed after the clock changes. These checks did not call a model; a successful
+live retry under the revised policy remains to be observed.
+
+At the user's request, Retry now restores corroborated clock charges from failed
+attempts on the current unfinished Astra turn, once, within the action's SQLite
+transaction. Accepted moves and prior completed turns remain charged, and API
+usage is never refunded. Explicit operator clock settings establish a new
+baseline so older failed intervals cannot be refunded on top of that setting.
+
+Ten targeted clock/refund tests and two existing clock-allocation/retry tests
+passed. A read-only copy of the live records also confirmed that an explicitly
+set clock baseline would survive the next retry without another historical
+refund. Clock recovery, attempt flags, fresh board/messages and gated memory
+were exercised through the actual supervisor handler with local test players.
+
+The service was restarted with no active or queued responses. The existing
+browser game retained its identity, board and explicitly requested clock
+baseline. The live evaluation toggle showed the score selected from saved
+evidence and was returned to its default off state. Retry remained available;
+the user was told the revised service was ready for the next live attempt.

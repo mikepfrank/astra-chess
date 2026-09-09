@@ -66,7 +66,7 @@ class Store:
                               "SELECT state FROM games WHERE user_id=? ORDER BY updated DESC", () if user_id is None else (user_id,)).fetchall()
         return [json.loads(r[0]) for r in rows]
 
-    def mutate(self, game_id, fn, *, version=None, request_id=None, body=None, kind='update', increment=True, return_applied=False):
+    def mutate(self, game_id, fn, *, version=None, request_id=None, body=None, kind='update', increment=True, return_applied=False, transaction_hook=None):
         with self.connection() as db:
             db.execute("BEGIN IMMEDIATE")
             row = db.execute("SELECT state FROM games WHERE id=?", (game_id,)).fetchone()
@@ -83,6 +83,8 @@ class Store:
             if version is not None and version != state['version']:
                 raise Conflict("The game changed. Refresh the board and try again.")
             fn(state)
+            if transaction_hook is not None:
+                transaction_hook(state, db)
             if increment:
                 state['version'] += 1
             state['updated_at'] = time.time()

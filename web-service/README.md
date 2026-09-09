@@ -112,15 +112,15 @@ All optional environment variables are listed here; `config.py` contains limits.
 | `OPENAI_API_KEY` | absent | Service operator's API key |
 | `ASTRA_MAX_WORKERS` | `1` | Simultaneous active Codex actions/engine searches |
 | `ASTRA_MAX_DAILY_TURNS` | `500` | UTC daily admitted model-action limit, including chat and failed attempts |
-| `ASTRA_MAX_TURN_TOKENS` | `100000` | Reservation and stop threshold for one model action, including input/context tokens |
-| `ASTRA_MAX_DAILY_TOKENS` | `3000000` | Daily admission allowance, including outstanding reservations |
+| `ASTRA_MAX_TURN_TOKENS` | `1000000` | Reservation and stop threshold for one model action, including input/context tokens |
+| `ASTRA_MAX_DAILY_TOKENS` | `20000000` | Daily admission allowance, including outstanding reservations |
 | `ASTRA_SMTP_HOST` | absent | Enables optional email recovery when sender is also configured |
 | `ASTRA_SMTP_PORT` | `587` | STARTTLS; port 465 uses implicit TLS |
 | `ASTRA_SMTP_FROM` | absent | Recovery sender address |
 | `ASTRA_SMTP_USER`, `ASTRA_SMTP_PASSWORD` | absent | Optional SMTP authentication |
 
 Model and reasoning are fixed at `gpt-6-astra` / `ultra`; the service rejects
-silent fallback. Limits are conservative operational starting values, **not
+silent fallback. The operator chose generous local-testing limits, **not
 dollar spending guarantees**. Usage notifications arrive after model work, so
 one in-flight response can exceed a token threshold. Unknown/failed usage is
 charged conservatively against the reservation. Record actual API charges in
@@ -132,8 +132,10 @@ targets are 120/240 seconds, with a 40-second review reserve. Allocations
 shrink with the earned balance; the reserve shrinks to at most one third of a
 shorter turn so that a tactical query remains possible. Queue time and human time are excluded; worker
 startup, deliberation, queries and recovery during active work are charged.
-No future credits are spent. A worker failure preserves charged time and never
-silently refunds it. Exhaustion pauses play for operator review rather than
+No future credits are spent. Retrying a harness-interrupted own turn restores
+the recorded thinking time of its failed attempts, once, with an audit record.
+Accepted moves, completed turns and actual API usage keep their accounting.
+Exhaustion pauses play for operator review rather than
 inventing a chess timeout rule for the untimed human.
 
 ## Persistence and operations

@@ -209,7 +209,9 @@ def create_app(config=None, player_factory=None):
                 s['status'] = 'active'
             else:
                 raise ValueError('Unsupported game action.')
-        state, applied = store.mutate(game_id, apply, version=data['version'], request_id=data['request_id'], body=data, kind='human_action', return_applied=True)
+        refund = (lambda s, db: supervisor.refund_retry_clock(s, db, data['request_id'])) if act == 'retry' else None
+        state, applied = store.mutate(game_id, apply, version=data['version'], request_id=data['request_id'], body=data,
+                                      kind='human_action', return_applied=True, transaction_hook=refund)
         if not applied:
             return snapshot(state)
         if state['status'] == 'finished':

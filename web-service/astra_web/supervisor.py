@@ -2,6 +2,7 @@
 import asyncio
 import contextlib
 import json
+import math
 import os
 from pathlib import Path
 import secrets
@@ -9,6 +10,19 @@ import sys
 import time
 from .config import REPO_ROOT
 from . import chess_game as game
+
+
+def interruption_kind(error):
+    if isinstance(error, asyncio.CancelledError):
+        return 'service_interrupted'
+    if isinstance(error, TimeoutError):
+        return 'time_limit'
+    if isinstance(error, (ConnectionError, OSError)):
+        return 'connection_error'
+    text = str(error).lower()
+    if 'token' in text and any(word in text for word in ('limit', 'allowance', 'budget')):
+        return 'token_limit'
+    return 'harness_error'
 
 
 class Supervisor:
@@ -32,11 +46,106 @@ class Supervisor:
                     if s['active_started']:
                         # Persisted admission deadline bounds a crashed worker's uncertain charge.
                         elapsed = max(0, min(time.time(), s.get('active_deadline', time.time())) - s['active_started'])
+                        s.setdefault('clock_events', []).append({'started_at': s['active_started'],
+                            'ended_at': s['active_started'] + elapsed, 'charged_seconds': elapsed,
+                            'own_moves_before_credit': s['own_moves'], 'ply': len(s['moves']),
+                            'fen': s['fen'], 'outcome': 'interrupted', 'error_kind': 'service_restart'})
                         s['clock_used'] += elapsed
                         s['active_started'] = None
                     s['worker'] = {'state': 'error', 'message': 'The service restarted. Your game is saved; resume when ready.'}
                 self.store.mutate(state['id'], recover_one, kind='restart_recovery')
         self.suspend_inactive()
+
+    def refund_retry_clock(self, state, db, request_id=None):
+        """Apply only a human-requested retry refund, within Store.mutate's lock.
+
+        Legacy clock intervals require a matching failed worker event sequence.
+        Missing or ambiguous evidence never causes a guessed refund.
+        """
+        if (state['status'] != 'active' or state['active_started'] is not None
+                or state['worker']['state'] not in {'error', 'disabled'}
+                or game.side_to_move(state) != state['astra_side']):
+            return
+        ply = len(state['moves'])
+        blocks, current = [], None
+        rows = db.execute("SELECT id,at,kind,data FROM events WHERE game_id=? AND kind IN "
+                          "('worker_started','clock_settled','worker_error','worker_completed','astra_action','restart_recovery','operator_clock_set') ORDER BY id",
+                          (state['id'],)).fetchall()
+        for row in rows:
+            if row['kind'] == 'operator_clock_set':
+                # An explicit operator baseline supersedes every earlier charge.
+                blocks.clear()
+                current = None
+                continue
+            try:
+                data = json.loads(row['data'])
+            except (ValueError, TypeError):
+                continue
+            if not isinstance(data, dict):
+                continue
+            if row['kind'] == 'worker_started':
+                if current is not None:
+                    blocks.append(current)
+                current = {'start': row, 'data': data, 'settled': [], 'failed': False, 'completed': False} if data.get('ply') == ply else None
+            elif current is not None:
+                if row['kind'] in {'clock_settled', 'restart_recovery'} and data.get('ply') == ply:
+                    detail = data.get('request') or {}
+                    current['settled'].append(row)
+                    if row['kind'] == 'restart_recovery' or isinstance(detail, dict) and detail.get('outcome') == 'interrupted':
+                        current['failed'] = True
+                elif row['kind'] == 'worker_error' and data.get('ply', ply) == ply:
+                    current['failed'] = True
+                elif row['kind'] == 'worker_completed':
+                    current['completed'] = True
+                elif (row['kind'] == 'astra_action' and isinstance(data.get('request'), dict)
+                      and data['request'].get('action') in {'move', 'resign', 'accept_draw', 'claim_draw'}):
+                    current['completed'] = True
+        if current is not None:
+            blocks.append(current)
+
+        eligible, used_indices = [], set()
+        for block in blocks:
+            if not block['failed'] or block['completed'] or len(block['settled']) != 1:
+                continue
+            started, settled = block['start'], block['settled'][0]
+            start_detail = block['data'].get('request') or {}
+            if isinstance(start_detail, dict) and start_detail.get('fen', state['fen']) != state['fen']:
+                continue
+            matches = []
+            for index, event in enumerate(state.get('clock_events', [])):
+                if (not isinstance(event, dict) or index in used_indices or event.get('refund_id')
+                        or event.get('refunded_seconds') is not None
+                        or event.get('own_moves_before_credit') != state['own_moves']
+                        or event.get('ply', ply) != ply or event.get('fen', state['fen']) != state['fen']
+                        or event.get('outcome', 'interrupted') != 'interrupted'):
+                    continue
+                values = [event.get(key) for key in ('started_at', 'ended_at', 'charged_seconds')]
+                if any(type(value) not in (int, float) or not math.isfinite(value) for value in values):
+                    continue
+                begin, end, charged = values
+                if (charged > 0 and charged <= end - begin + 0.000001
+                        and begin <= started['at'] <= end <= settled['at']):
+                    matches.append((index, event))
+            if len(matches) == 1:
+                index, event = matches[0]
+                used_indices.add(index)
+                eligible.append({'clock_event_index': index, 'started_event_id': started['id'],
+                    'settled_event_id': settled['id'], 'seconds': event['charged_seconds'],
+                    'error_kind': event.get('error_kind') or 'legacy_harness_interruption'})
+        amount = sum(item['seconds'] for item in eligible)
+        before = state['clock_used']
+        if not amount or not math.isfinite(before) or amount > before + 0.000001:
+            return
+        stamp, refund_id = time.time(), secrets.token_hex(12)
+        state['clock_used'] = max(0.0, before - amount)
+        refund = {'id': refund_id, 'at': stamp, 'reason': 'human_requested_retry_after_interruption',
+                  'request_id': request_id, 'ply': ply, 'fen': state['fen'], 'seconds': amount,
+                  'clock_used_before': before, 'clock_used_after': state['clock_used'], 'attempts': eligible}
+        for item in eligible:
+            state['clock_events'][item['clock_event_index']].update(refund_id=refund_id,
+                refunded_at=stamp, refunded_seconds=item['seconds'])
+        state.setdefault('clock_refunds', []).append(refund)
+        self.store._event(db, state['id'], 'retry_clock_refund', refund)
 
     def suspend_inactive(self):
         cutoff = time.time() - self.config.suspend_hours * 3600
@@ -114,22 +223,25 @@ class Supervisor:
         critical_allocation = min(self.config.critical_seconds, balance, 2 * balance / horizon) if own_turn else allocation
         control = {'deadline': started + allocation, 'queries': 0, 'candidate': False, 'root_query': False,
                    'chosen': False, 'tokens': None, 'usage_complete': False, 'public_messages': 0, 'ply': len(state['moves']),
-                   'stopped_clock': False, 'query_paths': []}
+                   'stopped_clock': False, 'query_paths': [], 'attempt_id': secrets.token_hex(12), 'error_kind': None}
         def begin(s):
             s['worker'] = {'state': 'thinking', 'message': 'Astra is considering the position.'}
             if own_turn:
                 s['active_started'] = wall_started
                 s['active_deadline'] = wall_started + allocation
-        self.store.mutate(game_id, begin, kind='worker_started')
+        self.store.mutate(game_id, begin, kind='worker_started', body={'attempt_id': control['attempt_id'],
+            'ply': control['ply'], 'fen': state['fen'], 'own_turn': own_turn})
 
-        def stop_clock(s):
+        def stop_clock(s, outcome=None):
             if own_turn and s['active_started']:
                 ended = time.time()
                 charged = max(0, ended - s['active_started'])
                 remaining = game.clock(s)['remaining_seconds']
                 s.setdefault('clock_events', []).append({'started_at': s['active_started'], 'ended_at': ended,
                     'charged_seconds': charged, 'own_moves_before_credit': s['own_moves'],
-                    'remaining_before_credit': remaining})
+                    'remaining_before_credit': remaining, 'attempt_id': control['attempt_id'],
+                    'ply': control['ply'], 'fen': state['fen'], 'outcome': outcome or ('interrupted' if control['error_kind'] else 'completed'),
+                    'error_kind': control['error_kind']})
                 s['clock_used'] += charged
                 s['active_started'] = None
                 control['stopped_clock'] = True
@@ -156,6 +268,9 @@ class Supervisor:
             if name == 'chess_status':
                 result = game.model_snapshot(current)
                 result['remaining_turn_seconds'] = max(0, control['deadline'] - time.monotonic())
+                result['memory'] = self.identity.memory_for_user(current['user_id'])
+                result['current_attempt'] = {'candidate_recorded': control['candidate'],
+                    'root_query_completed': control['root_query'], 'move_accepted': control['chosen']}
                 return result
             if name == 'chess_query_details':
                 if set(args) - {'query_index', 'candidate_rank'}:
@@ -230,22 +345,22 @@ class Supervisor:
                     if len(s['moves']) != control['ply'] or s['status'] != 'active':
                         raise ValueError('The actual game has changed.')
                     if action == 'move':
-                        stop_clock(s)
+                        stop_clock(s, 'accepted_action')
                         game.apply_move(s, args['move'], 'astra')
                     elif action == 'resign':
-                        stop_clock(s)
+                        stop_clock(s, 'accepted_action')
                         game.finish(s, '1-0' if s['human_side'] == 'white' else '0-1', 'resignation')
                     elif action == 'claim_draw':
                         if not own_turn or not game.claimable(s, args.get('move')):
                             raise ValueError('No valid draw claim.')
-                        stop_clock(s)
+                        stop_clock(s, 'accepted_action')
                         game.finish(s, '1/2-1/2', 'draw_claim')
                     elif action == 'offer_draw':
                         s['draw_offer'] = 'astra'
                     elif action == 'accept_draw':
                         if s['draw_offer'] != 'human':
                             raise ValueError('There is no opponent draw offer.')
-                        stop_clock(s)
+                        stop_clock(s, 'accepted_action')
                         game.finish(s, '1/2-1/2', 'agreement')
                     elif action == 'decline_draw':
                         if s['draw_offer'] != 'human':
@@ -296,17 +411,26 @@ class Supervisor:
                     run.cancel()
                 with contextlib.suppress(BaseException):
                     await run
+        except BaseException as error:
+            control['error_kind'] = interruption_kind(error)
+            raise
         finally:
             try:
                 if player:
                     await player.close()
+            except BaseException as error:
+                control['error_kind'] = control['error_kind'] or interruption_kind(error)
+                raise
             finally:
                 def settle(s):
                     stop_clock(s)
                     if s['worker']['state'] == 'thinking':
                         s['worker'] = {'state': 'error', 'message': 'Astra’s turn stopped. Your game is saved; retry when ready.'}
                 try:
-                    self.store.mutate(game_id, settle, kind='clock_settled', body={'elapsed': time.monotonic()-started, 'tokens': control['tokens']})
+                    self.store.mutate(game_id, settle, kind='clock_settled', body={'elapsed': time.monotonic()-started,
+                        'tokens': control['tokens'], 'attempt_id': control['attempt_id'], 'ply': control['ply'],
+                        'outcome': 'accepted_action' if control['chosen'] else 'interrupted' if control['error_kind'] else 'completed',
+                        'error_kind': control['error_kind']})
                 finally:
                     charge = control['tokens'] if control['usage_complete'] else max(reservation[1], control['tokens'] or 0)
                     self.store.settle(reservation, charge)

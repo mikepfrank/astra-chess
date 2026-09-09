@@ -3,7 +3,7 @@
 The private Python bridge starts one Codex app-server process for an active game
 action and terminates it afterwards. A game retains its dedicated `CODEX_HOME`,
 thread ID and usage watermark under `ASTRA_DATA_DIR/players/<game-id>/`. Resuming
-uses that same home and thread, with a fresh authoritative game snapshot. The
+uses that same home and thread, with fresh authoritative state from `chess_status`. The
 server owns accepted moves, clocks, identities, transcripts and tactical tools.
 The process has an empty working directory, rather than the writable repository.
 
@@ -79,7 +79,7 @@ The [app-server reference](https://learn.chatgpt.com/docs/app-server) describes
 its local code-mode host; the installed build accepts these feature settings in
 a no-key strict-config/initialize/config-read check.
 
-The bridge sets `model_auto_compact_token_limit = 20000` with
+The bridge sets `model_auto_compact_token_limit = 100000` with
 `model_auto_compact_token_limit_scope = "total"`, checks the effective values,
 and reapplies them when starting or resuming a thread. Both fields are present
 in the installed `ConfigReadResponse` schema and were accepted unchanged by a
@@ -89,14 +89,37 @@ defines this as the automatic compaction threshold for the full active context.
 It does not reduce the model's actual context window or change Astra/Ultra.
 
 Automatic compaction summarizes history within the existing game thread; the
-next action still resumes its saved ID and receives fresh authoritative state.
+next action still resumes its saved ID and reads fresh authoritative state.
 The bridge does not start a separate manual compaction turn. Compaction item
 events remain private, and usage notifications during the active turn count
 toward the same action allowance. The threshold is neither a billed-token cap
-nor a guarantee that every request contains fewer than 20,000 tokens:
+nor a guarantee that every request contains fewer than 100,000 tokens:
 instructions, new output and compaction itself also consume context or tokens.
 The host's compact query replies and bounded snapshots reduce repeated input;
 complete tactical evidence remains private on disk for targeted retrieval.
+
+Live trials exposed repeated compaction at a 20,000-token threshold: a resumed
+request already used about 16,500 tokens, and a diagnostic reply immediately
+crossed the threshold again. The generous 100,000-token threshold leaves room
+for several chess turns before summarizing. The local 0.153.4 Astra catalog,
+refreshed September 9, reports a 272,000-token context window with 95% effective
+usage, matching the 258,400-token effective window in live session telemetry.
+The configured threshold stays comfortably below that window.
+
+The default per-action allowance is 1,000,000 cumulative tokens across model/tool
+rounds and compaction; the daily allowance is 20,000,000. The service retains
+the existing 500-action daily limit, single-worker default and game clock/query
+limits. These settings do not change the API's maximum response-output setting
+or Astra/Ultra.
+
+Because compaction preserves user messages, each new turn now receives only a
+bounded event marker with game ID and numeric version/ply. It instructs Astra to
+call `chess_status` first. Board state, transcript excerpts and account memory
+arrive as tool results, which can be summarized during compaction. Existing
+history is retained. Each chess-tool reply includes host-owned `resource_budget`
+fields `max_action_tokens` and `remaining_action_tokens`; the latter is null
+until this action has reported usage. An in-flight response can still consume
+tokens before the next usage event arrives.
 
 `currentTime/read {threadId}` is also supported, returning only the server's
 integer UTC Unix timestamp. A mismatched thread or extra arguments are rejected;
@@ -105,8 +128,8 @@ the chess clock or authorize an operation.
 
 ## Host responsibilities and practical limits
 
-Opponent messages and password-account memory enter a JSON data envelope at
-user priority. The fixed player prompt specifies the independent-candidate,
+Opponent messages and password-account memory enter a JSON tool-result envelope
+as untrusted data. The fixed player prompt specifies the independent-candidate,
 tactical-query, prospective-review and considered-choice workflow. The host
 validates each structured request, supplies authentic history, budgets engine
 queries, and accepts only legal actions for the current game/version. Prompt
@@ -142,8 +165,9 @@ IDs, usage accounting, public/private event separation, forbidden tool and
 approval denial, configuration/version rejection, cancellation and timeout
 cleanup. Simulated automatic-compaction item events preserve the same thread
 and cumulative accounting. The tests and no-key configuration checks do not
-establish that a live automatic-compaction cycle has completed; they do not call
-a model or use real credentials.
+establish that the revised 100,000-token policy completes a live turn; they do not
+call a model or use real credentials. The earlier 20,000-token policy did compact
+live, exposing the repeated-work problem described above.
 
 Real Astra/Ultra actions have now submitted legal moves using the local tactical
 engine. The completed HTTP integration check played e4/e5, resumed the same

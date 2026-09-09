@@ -47,21 +47,33 @@ after its last action. Resume uses the same board, messages and Codex thread.
 Queued work spends no thinking time. Active work has a persisted start/deadline.
 On a service crash, uncertain time is charged conservatively through the earlier
 of recovery or the saved deadline. Token reservations left by a crash are charged,
-not refunded. A stopped action receives a visible retry state.
+not refunded. A stopped action receives a visible retry state. A player retry
+restores recorded clock charges for failed attempts on that same unfinished
+own turn, with transactional deduplication and a durable refund record. Accepted
+moves and prior completed turns are excluded. This clock adjustment does not
+refund tokens or change resource limits.
 
 An accepted Astra move stops its active clock before increment/stage credit.
 Actual started/ended timestamps, charge and pre-credit balance are retained in
 `clock_events`. Queue/worker events and decision notes are also durable. Private
 query evidence is separate from public commentary and shared replays.
 
-For the model, fresh snapshots retain the complete move notation but repeat
-only the last twelve messages and omit redundant historical FEN arrays. The
-resumed Codex conversation retains earlier context, with automatic compaction
-at 20,000 total context tokens. Engine queries still receive the full authentic
+For the model, each response begins with a small event marker and a chess_status
+call. Its fresh snapshot retains the complete move notation, repeats only the
+last twelve messages and omits redundant historical FEN arrays. Delivering this
+as a tool result avoids retaining every board snapshot as a permanent user
+message. Password-account memory is supplied through the same status tool.
+The resumed Codex conversation retains earlier context, with automatic compaction
+at 100,000 total context tokens. Engine queries still receive the full authentic
 history. Search responses condense repetitive PV diagnostic geometry while
 preserving warnings and tactical changes. The complete original query remains
 on disk; `chess_query_details` retrieves it by a server-owned index within the
 same game's query directory, without executing another search.
+Each tool reply reports the action's remaining token allowance. The default
+1,000,000-token action limit and 20,000,000-token daily limit include repeated input
+and compaction. Retry status identifies the candidate/query requirements for
+the new response attempt, so saved evidence cannot be mistaken for completed
+workflow steps in that attempt.
 
 ## Identity, memory and sharing
 

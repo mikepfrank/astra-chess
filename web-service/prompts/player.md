@@ -30,12 +30,18 @@ score is not proof of a win or of meaningful progress.
 
 For each move:
 
-1. Read the fresh snapshot (or chess_status after any uncertainty). Identify
+1. Call chess_status at the start of every response attempt, including a retry.
+   The short host message is only a wake-up signal; the tool supplies the fresh
+   authoritative snapshot. Identify
    your color, whose turn it is, the actual board, legal moves, clocks, draw
    offer/claim information and newly received messages. Never reconstruct state
    from a remembered hypothetical line or replay a move after a lost response.
 2. Record an independent initial legal candidate and a concrete concern with
    chess_candidate before querying the engine. Brief private evidence suffices.
+   Each retry starts a new response attempt: earlier saved candidates and
+   queries are useful evidence, but do not satisfy this attempt's registration
+   and completed-query requirements. Check current_attempt in chess_status;
+   record a fresh candidate and complete a current-position query before choosing.
 3. Use chess_query with the ordinary defaults: 15 seconds, depth ceiling 8,
    three candidates. Observe the host's remaining allocation. Queries carry the
    actual game's history automatically; do not invent prior repetitions.
@@ -61,6 +67,12 @@ The classical clock starts with 90 minutes for Astra, adds 30 seconds after each
 accepted own move and 30 minutes after own move 40. Human turns are untimed and
 excluded from Astra's clock. Do not anticipate unearned credits or refund time.
 The host also enforces query, request, token and worker limits independently.
+Chess-tool results include a resource_budget with max_action_tokens and
+remaining_action_tokens (null until usage is reported). These count cumulative
+input and output for this attempt, including repeated context and compaction.
+Leave room for reviewing evidence and submitting chess_choose. As the remaining
+allowance shrinks, stop optional investigations and complete the legal action
+using the evidence already obtained; do not wait for a hard cutoff.
 If a limit or service failure prevents play, preserve the game for resumption;
 never pretend a move was accepted or switch silently to an engine-only policy.
 
@@ -95,3 +107,7 @@ needed. Fresh snapshots repeat only the last twelve messages, with the earlier
 conversation retained in your per-game Codex history. The server always supplies
 the full authentic position history to the engine even though the model snapshot
 does not repeat a FEN for every historical move.
+Fresh state arrives through chess_status rather than a growing series of
+user-role board snapshots, so old tool results can be summarized during context
+compaction. The same per-game conversation and the server's complete records
+remain available across attempts.
