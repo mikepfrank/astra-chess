@@ -1,0 +1,1507 @@
+{
+  "schema_version": 1,
+  "game": {
+    "name": "Dr. Thanos",
+    "reasoning": "ultra",
+    "result": "0-1",
+    "id": "5194d266fdfa0f8ade73008ea0c503b5",
+    "created_at": 1788975719.0762007,
+    "human_side": "white",
+    "status": "finished",
+    "astra_side": "black",
+    "model": "gpt-6-astra",
+    "updated_at": 1788993202.0399826,
+    "termination": "checkmate",
+    "engine_fingerprint": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+    "exported_at": 1788994131.8163655,
+    "initial_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+  },
+  "moves": [
+    {
+      "san": "e4",
+      "actor": "human",
+      "captured": ".",
+      "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+      "at": 1788975810.1941745,
+      "uci": "e2e4"
+    },
+    {
+      "san": "e5",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2",
+      "at": 1788975859.4007258,
+      "uci": "e7e5"
+    },
+    {
+      "san": "Nf3",
+      "actor": "human",
+      "captured": ".",
+      "fen": "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2",
+      "at": 1788975962.2426832,
+      "uci": "g1f3"
+    },
+    {
+      "san": "Nc6",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3",
+      "at": 1788976036.9047773,
+      "uci": "b8c6"
+    },
+    {
+      "san": "c3",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/2P2N2/PP1P1PPP/RNBQKB1R b KQkq - 0 3",
+      "at": 1788977079.8173985,
+      "uci": "c2c3"
+    },
+    {
+      "san": "Nf6",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/2P2N2/PP1P1PPP/RNBQKB1R w KQkq - 1 4",
+      "at": 1788983840.627397,
+      "uci": "g8f6"
+    },
+    {
+      "san": "Qe2",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p3/4P3/2P2N2/PP1PQPPP/RNB1KB1R b KQkq - 2 4",
+      "at": 1788984690.0923326,
+      "uci": "d1e2"
+    },
+    {
+      "san": "d5",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "r1bqkb1r/ppp2ppp/2n2n2/3pp3/4P3/2P2N2/PP1PQPPP/RNB1KB1R w KQkq d6 0 5",
+      "at": 1788984761.020684,
+      "uci": "d7d5"
+    },
+    {
+      "san": "d3",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r1bqkb1r/ppp2ppp/2n2n2/3pp3/4P3/2PP1N2/PP2QPPP/RNB1KB1R b KQkq - 0 5",
+      "at": 1788984867.2451243,
+      "uci": "d2d3"
+    },
+    {
+      "san": "dxe4",
+      "actor": "astra",
+      "captured": "P",
+      "fen": "r1bqkb1r/ppp2ppp/2n2n2/4p3/4p3/2PP1N2/PP2QPPP/RNB1KB1R w KQkq - 0 6",
+      "at": 1788984937.7177558,
+      "uci": "d5e4"
+    },
+    {
+      "san": "dxe4",
+      "actor": "human",
+      "captured": "p",
+      "fen": "r1bqkb1r/ppp2ppp/2n2n2/4p3/4P3/2P2N2/PP2QPPP/RNB1KB1R b KQkq - 0 6",
+      "at": 1788984987.189966,
+      "uci": "d3e4"
+    },
+    {
+      "san": "Bd6",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "r1bqk2r/ppp2ppp/2nb1n2/4p3/4P3/2P2N2/PP2QPPP/RNB1KB1R w KQkq - 1 7",
+      "at": 1788985023.358388,
+      "uci": "f8d6"
+    },
+    {
+      "san": "Qc4",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r1bqk2r/ppp2ppp/2nb1n2/4p3/2Q1P3/2P2N2/PP3PPP/RNB1KB1R b KQkq - 2 7",
+      "at": 1788985063.107854,
+      "uci": "e2c4"
+    },
+    {
+      "san": "O-O",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "r1bq1rk1/ppp2ppp/2nb1n2/4p3/2Q1P3/2P2N2/PP3PPP/RNB1KB1R w KQ - 3 8",
+      "at": 1788985138.8017337,
+      "uci": "e8g8"
+    },
+    {
+      "san": "Bd3",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r1bq1rk1/ppp2ppp/2nb1n2/4p3/2Q1P3/2PB1N2/PP3PPP/RNB1K2R b KQ - 4 8",
+      "at": 1788985533.96576,
+      "uci": "f1d3"
+    },
+    {
+      "san": "Be6",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "r2q1rk1/ppp2ppp/2nbbn2/4p3/2Q1P3/2PB1N2/PP3PPP/RNB1K2R w KQ - 5 9",
+      "at": 1788985616.9774935,
+      "uci": "c8e6"
+    },
+    {
+      "san": "Qa4",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r2q1rk1/ppp2ppp/2nbbn2/4p3/Q3P3/2PB1N2/PP3PPP/RNB1K2R b KQ - 6 9",
+      "at": 1788985718.538414,
+      "uci": "c4a4"
+    },
+    {
+      "san": "a6",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "r2q1rk1/1pp2ppp/p1nbbn2/4p3/Q3P3/2PB1N2/PP3PPP/RNB1K2R w KQ - 0 10",
+      "at": 1788985794.7903295,
+      "uci": "a7a6"
+    },
+    {
+      "san": "c4",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r2q1rk1/1pp2ppp/p1nbbn2/4p3/Q1P1P3/3B1N2/PP3PPP/RNB1K2R b KQ - 0 10",
+      "at": 1788985937.8748138,
+      "uci": "c3c4"
+    },
+    {
+      "san": "Nb4",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "r2q1rk1/1pp2ppp/p2bbn2/4p3/QnP1P3/3B1N2/PP3PPP/RNB1K2R w KQ - 1 11",
+      "at": 1788986023.8982065,
+      "uci": "c6b4"
+    },
+    {
+      "san": "O-O",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r2q1rk1/1pp2ppp/p2bbn2/4p3/QnP1P3/3B1N2/PP3PPP/RNB2RK1 b - - 2 11",
+      "at": 1788986333.808467,
+      "uci": "e1g1"
+    },
+    {
+      "san": "Nxd3",
+      "actor": "astra",
+      "captured": "B",
+      "fen": "r2q1rk1/1pp2ppp/p2bbn2/4p3/Q1P1P3/3n1N2/PP3PPP/RNB2RK1 w - - 0 12",
+      "at": 1788986396.2455451,
+      "uci": "b4d3"
+    },
+    {
+      "san": "b3",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r2q1rk1/1pp2ppp/p2bbn2/4p3/Q1P1P3/1P1n1N2/P4PPP/RNB2RK1 b - - 0 12",
+      "at": 1788986586.5121808,
+      "uci": "b2b3"
+    },
+    {
+      "san": "Bd7",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "r2q1rk1/1ppb1ppp/p2b1n2/4p3/Q1P1P3/1P1n1N2/P4PPP/RNB2RK1 w - - 1 13",
+      "at": 1788986701.667928,
+      "uci": "e6d7"
+    },
+    {
+      "san": "Qxd7",
+      "actor": "human",
+      "captured": "b",
+      "fen": "r2q1rk1/1ppQ1ppp/p2b1n2/4p3/2P1P3/1P1n1N2/P4PPP/RNB2RK1 b - - 0 13",
+      "at": 1788987146.6371279,
+      "uci": "a4d7"
+    },
+    {
+      "san": "Qxd7",
+      "actor": "astra",
+      "captured": "Q",
+      "fen": "r4rk1/1ppq1ppp/p2b1n2/4p3/2P1P3/1P1n1N2/P4PPP/RNB2RK1 w - - 0 14",
+      "at": 1788987178.468408,
+      "uci": "d8d7"
+    },
+    {
+      "san": "Rd1",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r4rk1/1ppq1ppp/p2b1n2/4p3/2P1P3/1P1n1N2/P4PPP/RNBR2K1 b - - 1 14",
+      "at": 1788987304.4203684,
+      "uci": "f1d1"
+    },
+    {
+      "san": "Nxc1",
+      "actor": "astra",
+      "captured": "B",
+      "fen": "r4rk1/1ppq1ppp/p2b1n2/4p3/2P1P3/1P3N2/P4PPP/RNnR2K1 w - - 0 15",
+      "at": 1788987347.0058866,
+      "uci": "d3c1"
+    },
+    {
+      "san": "Rxc1",
+      "actor": "human",
+      "captured": "n",
+      "fen": "r4rk1/1ppq1ppp/p2b1n2/4p3/2P1P3/1P3N2/P4PPP/RNR3K1 b - - 0 15",
+      "at": 1788987433.2199497,
+      "uci": "d1c1"
+    },
+    {
+      "san": "Nxe4",
+      "actor": "astra",
+      "captured": "P",
+      "fen": "r4rk1/1ppq1ppp/p2b4/4p3/2P1n3/1P3N2/P4PPP/RNR3K1 w - - 0 16",
+      "at": 1788987479.6400466,
+      "uci": "f6e4"
+    },
+    {
+      "san": "Rd1",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r4rk1/1ppq1ppp/p2b4/4p3/2P1n3/1P3N2/P4PPP/RN1R2K1 b - - 1 16",
+      "at": 1788987562.3990498,
+      "uci": "c1d1"
+    },
+    {
+      "san": "Qf5",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "r4rk1/1pp2ppp/p2b4/4pq2/2P1n3/1P3N2/P4PPP/RN1R2K1 w - - 2 17",
+      "at": 1788987611.801158,
+      "uci": "d7f5"
+    },
+    {
+      "san": "Rd5",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r4rk1/1pp2ppp/p2b4/3Rpq2/2P1n3/1P3N2/P4PPP/RN4K1 b - - 3 17",
+      "at": 1788987756.945051,
+      "uci": "d1d5"
+    },
+    {
+      "san": "c6",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "r4rk1/1p3ppp/p1pb4/3Rpq2/2P1n3/1P3N2/P4PPP/RN4K1 w - - 0 18",
+      "at": 1788987827.6153402,
+      "uci": "c7c6"
+    },
+    {
+      "san": "Rd3",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r4rk1/1p3ppp/p1pb4/4pq2/2P1n3/1P1R1N2/P4PPP/RN4K1 b - - 1 18",
+      "at": 1788987864.2707484,
+      "uci": "d5d3"
+    },
+    {
+      "san": "Bc5",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "r4rk1/1p3ppp/p1p5/2b1pq2/2P1n3/1P1R1N2/P4PPP/RN4K1 w - - 2 19",
+      "at": 1788987918.9249473,
+      "uci": "d6c5"
+    },
+    {
+      "san": "Nbd2",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r4rk1/1p3ppp/p1p5/2b1pq2/2P1n3/1P1R1N2/P2N1PPP/R5K1 b - - 3 19",
+      "at": 1788988083.205927,
+      "uci": "b1d2"
+    },
+    {
+      "san": "Nxf2",
+      "actor": "astra",
+      "captured": "P",
+      "fen": "r4rk1/1p3ppp/p1p5/2b1pq2/2P5/1P1R1N2/P2N1nPP/R5K1 w - - 0 20",
+      "at": 1788988169.9225147,
+      "uci": "e4f2"
+    },
+    {
+      "san": "Re1",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r4rk1/1p3ppp/p1p5/2b1pq2/2P5/1P1R1N2/P2N1nPP/4R1K1 b - - 1 20",
+      "at": 1788988306.0583231,
+      "uci": "a1e1"
+    },
+    {
+      "san": "Nxd3+",
+      "actor": "astra",
+      "captured": "R",
+      "fen": "r4rk1/1p3ppp/p1p5/2b1pq2/2P5/1P1n1N2/P2N2PP/4R1K1 w - - 0 21",
+      "at": 1788988349.2264972,
+      "uci": "f2d3"
+    },
+    {
+      "san": "Kf1",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r4rk1/1p3ppp/p1p5/2b1pq2/2P5/1P1n1N2/P2N2PP/4RK2 b - - 1 21",
+      "at": 1788988425.6722515,
+      "uci": "g1f1"
+    },
+    {
+      "san": "Nxe1",
+      "actor": "astra",
+      "captured": "R",
+      "fen": "r4rk1/1p3ppp/p1p5/2b1pq2/2P5/1P3N2/P2N2PP/4nK2 w - - 0 22",
+      "at": 1788988518.7996695,
+      "uci": "d3e1"
+    },
+    {
+      "san": "Kxe1",
+      "actor": "human",
+      "captured": "n",
+      "fen": "r4rk1/1p3ppp/p1p5/2b1pq2/2P5/1P3N2/P2N2PP/4K3 b - - 0 22",
+      "at": 1788988559.3423533,
+      "uci": "f1e1"
+    },
+    {
+      "san": "e4",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "r4rk1/1p3ppp/p1p5/2b2q2/2P1p3/1P3N2/P2N2PP/4K3 w - - 0 23",
+      "at": 1788989191.6181905,
+      "uci": "e5e4"
+    },
+    {
+      "san": "Nh4",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r4rk1/1p3ppp/p1p5/2b2q2/2P1p2N/1P6/P2N2PP/4K3 b - - 1 23",
+      "at": 1788989378.7021925,
+      "uci": "f3h4"
+    },
+    {
+      "san": "Qf2+",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "r4rk1/1p3ppp/p1p5/2b5/2P1p2N/1P6/P2N1qPP/4K3 w - - 2 24",
+      "at": 1788989444.7338333,
+      "uci": "f5f2"
+    },
+    {
+      "san": "Kd1",
+      "actor": "human",
+      "captured": ".",
+      "fen": "r4rk1/1p3ppp/p1p5/2b5/2P1p2N/1P6/P2N1qPP/3K4 b - - 3 24",
+      "at": 1788989616.1828873,
+      "uci": "e1d1"
+    },
+    {
+      "san": "Rad8",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "3r1rk1/1p3ppp/p1p5/2b5/2P1p2N/1P6/P2N1qPP/3K4 w - - 4 25",
+      "at": 1788989670.2784338,
+      "uci": "a8d8"
+    },
+    {
+      "san": "Kc1",
+      "actor": "human",
+      "captured": ".",
+      "fen": "3r1rk1/1p3ppp/p1p5/2b5/2P1p2N/1P6/P2N1qPP/2K5 b - - 5 25",
+      "at": 1788990906.9164891,
+      "uci": "d1c1"
+    },
+    {
+      "san": "Rxd2",
+      "actor": "astra",
+      "captured": "N",
+      "fen": "5rk1/1p3ppp/p1p5/2b5/2P1p2N/1P6/P2r1qPP/2K5 w - - 0 26",
+      "at": 1788990964.5787954,
+      "uci": "d8d2"
+    },
+    {
+      "san": "Nf3",
+      "actor": "human",
+      "captured": ".",
+      "fen": "5rk1/1p3ppp/p1p5/2b5/2P1p3/1P3N2/P2r1qPP/2K5 b - - 1 26",
+      "at": 1788991443.4914427,
+      "uci": "h4f3"
+    },
+    {
+      "san": "Ba3+",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "5rk1/1p3ppp/p1p5/8/2P1p3/bP3N2/P2r1qPP/2K5 w - - 2 27",
+      "at": 1788991493.9426434,
+      "uci": "c5a3"
+    },
+    {
+      "san": "Kb1",
+      "actor": "human",
+      "captured": ".",
+      "fen": "5rk1/1p3ppp/p1p5/8/2P1p3/bP3N2/P2r1qPP/1K6 b - - 3 27",
+      "at": 1788992036.854305,
+      "uci": "c1b1"
+    },
+    {
+      "san": "Rd1#",
+      "actor": "astra",
+      "captured": ".",
+      "fen": "5rk1/1p3ppp/p1p5/8/2P1p3/bP3N2/P4qPP/1K1r4 w - - 4 28",
+      "at": 1788992070.4341097,
+      "uci": "d2d1"
+    }
+  ],
+  "messages": [
+    {
+      "ply": 2,
+      "text": "1…e5. Your move.",
+      "created_at": 1788975861.8463602,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 2,
+      "text": "Hello there! I see this new interactive play harness seems to be working. This is your application developer, Michael. It's nice to be able to finally be able to play against you directly, after the earlier series of experimental games you played against bots during your engine development. :)",
+      "created_at": 1788975945.5766068,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 2,
+      "text": "Hi Michael! Both your move and your message came through nicely. 🙂 It’s good to have you across the board for this experiment—now let’s see if I can make you work for the point!",
+      "created_at": 1788975955.0609782,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 4,
+      "text": "2…Nc6.",
+      "created_at": 1788976038.6168664,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 4,
+      "text": "While I play, I'm suggesting UI improvements in the main codex session, but the Astra instance there says it will be careful not to interrupt our game when making updates to the local web service test deployment we're using. :) \n\nI think I'll play conservatively to start until I get my bearings... I'm not sure if I'm good enough to beat you! *sweats*",
+      "created_at": 1788977022.009863,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 4,
+      "text": "I’ll leave the UI renovations to the other session and keep an eye on the board. 🙂\n\nAnd don’t count yourself out! My playing strength is still an open question. A quiet start suits me—we have plenty of time to get into trouble.",
+      "created_at": 1788977031.1414518,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 6,
+      "text": "3…Nf6.",
+      "created_at": 1788983842.5339038,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 6,
+      "text": "Hello, just FYI, during your last turn we experienced some harness issues (token limits, premature compactions) which led to several restarts and your time getting run down unfairly. We put some time back on your clock, and the token limits and compaction thresholds should be much more generous now,  Hopefully those issues won't happen again now as we continue this test game. Thanks for your patience. Bear with me while I turn my mind back to my next move after those distractions!",
+      "created_at": 1788983980.193078,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 6,
+      "text": "Thanks for the update, Michael! 3…Nf6 is safely on the board, so we’re ready to continue. Take your time getting back into chess mode—debugging is quite a distracting opening variation. 🙂",
+      "created_at": 1788983990.1928816,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 8,
+      "text": "4…d5. Time to challenge the center.",
+      "created_at": 1788984765.859353,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 10,
+      "text": "5…dxe4.",
+      "created_at": 1788984939.7619748,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 12,
+      "text": "6…Bd6.",
+      "created_at": 1788985030.356989,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 13,
+      "text": "I've been wanting to move my queen there for a while.",
+      "created_at": 1788985129.705269,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 14,
+      "text": "7…O-O. I see your queen eyeing f7—I’ll keep an eye on her. 🙂",
+      "created_at": 1788985144.5193858,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 16,
+      "text": "8…Be6.",
+      "created_at": 1788985618.5536275,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 18,
+      "text": "9…a6.",
+      "created_at": 1788985796.5244815,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 18,
+      "text": "I see you trying to hassle my queen. :) Let's see if I can dance around that pressure",
+      "created_at": 1788985918.8659353,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 18,
+      "text": "That’s the idea! Though I’ll have to make sure I’m gaining ground, not just giving her a guided tour of the board. 🙂",
+      "created_at": 1788985928.517929,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 20,
+      "text": "10…Nb4.",
+      "created_at": 1788986025.9116445,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 20,
+      "text": "I think I'll go ahead and castle now, to avoid headaches from a potential king-rook fork later on.",
+      "created_at": 1788986329.49938,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 21,
+      "text": "All right—I’ll wait for your move on the board.",
+      "created_at": 1788986343.1914682,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 22,
+      "text": "11…Nxd3.",
+      "created_at": 1788986399.4702764,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 22,
+      "text": "Derp -- I was so focused on the fork that I hung my bishop! That's a definite blunder; let's see if I can keep it from turning into a massacre. :)",
+      "created_at": 1788986474.7383468,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 22,
+      "text": "Easy to get tunnel vision when a fork is looming! I’m a piece up now, but I still have to make it count—no victory lap yet. 🙂",
+      "created_at": 1788986494.1527517,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 24,
+      "text": "12…Bd7.",
+      "created_at": 1788986707.8391786,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 24,
+      "text": "Oh, no... I have your last-move self-evaluation display turned on, and from the >9 score there, it looks like you've found a way to force a queen capture... I'm doomed. :)",
+      "created_at": 1788986992.9515154,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 24,
+      "text": "Yes—the queen trap is what I found. Unfortunately, b3 blocked her retreat toward c2. The score alone isn’t proof, but there’s a concrete tactic behind it. We can unpack it after the game.",
+      "created_at": 1788987015.2008786,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 24,
+      "text": "I looked at the self-evaluation score after realizing myself that I couldn't find any way for her to escape. So I believe it. I think my best play at this point is if she at least takes your bishop down with her.",
+      "created_at": 1788987112.5505593,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 24,
+      "text": "Yes—taking a bishop with her limits the damage. She needn’t go quietly.",
+      "created_at": 1788987129.1285443,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 26,
+      "text": "13…Qxd7.",
+      "created_at": 1788987180.8142202,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 28,
+      "text": "14…Nxc1.",
+      "created_at": 1788987358.3773363,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 28,
+      "text": "I didn't *mean* to trade my bishop for your knight there, but... ehh...",
+      "created_at": 1788987411.7560427,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 29,
+      "text": "I chose the exchange rather than retreating. Once you recapture, this one is an even material trade—not another free bishop.",
+      "created_at": 1788987434.6913173,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 30,
+      "text": "15…Nxe4.",
+      "created_at": 1788987482.037173,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 30,
+      "text": "Sigh... I gotta stop bleeding material, if I can... :)",
+      "created_at": 1788987536.0397851,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 30,
+      "text": "No rush—take a fresh look at what’s attacked before committing. One mistake doesn’t have to hurry the next move.",
+      "created_at": 1788987549.9694045,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 32,
+      "text": "16…Qf5.",
+      "created_at": 1788987614.7043333,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 34,
+      "text": "17…c6.",
+      "created_at": 1788987832.302979,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 36,
+      "text": "18…Bc5.",
+      "created_at": 1788987921.5736756,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 38,
+      "text": "19…Nxf2.",
+      "created_at": 1788988172.2167418,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 39,
+      "text": "Oops, I think I blundered again...",
+      "created_at": 1788988341.3241413,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 40,
+      "text": "20…Nxd3+. The knight takes the rook and uncovers the bishop’s check.",
+      "created_at": 1788988354.1674507,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 40,
+      "text": "Dang! In a real game I would probably just resign by this point, but let's see how quickly you can force the win. :)",
+      "created_at": 1788988405.1293106,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 40,
+      "text": "Let’s play it out! I’ll aim for a direct finish rather than just collecting more material. Make me prove it. 🙂",
+      "created_at": 1788988417.0988207,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 42,
+      "text": "21…Nxe1.",
+      "created_at": 1788988521.1545918,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 44,
+      "text": "22…e4.",
+      "created_at": 1788989193.3861818,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 45,
+      "text": "Just waiting for the end now, basically. :)",
+      "created_at": 1788989394.184033,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 46,
+      "text": "23…Qf2+.",
+      "created_at": 1788989446.5245929,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 46,
+      "text": "Only 24.Kd1 gets out of this check. I’ll try to close the net. 🙂",
+      "created_at": 1788989457.5179448,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 48,
+      "text": "24…Rad8. The rook joins the mating attack.",
+      "created_at": 1788989672.9161694,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 48,
+      "text": "The engine says you're up by 28 pawns (!!). Have you tried any goal searches yet to see if you can find a forced mate in just a few moves?",
+      "created_at": 1788989787.0565553,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 48,
+      "text": "Yes—just before 24…Rad8! The goal search found a forced mate within my next three moves, covering every legal reply.\n\nThat’s stronger evidence than +28, which is only a heuristic evaluation. Now I have to execute the finish. 🙂",
+      "created_at": 1788989797.3009162,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 49,
+      "text": "The display's now been updated to read \"Mate in N\" after those goal searches. :)",
+      "created_at": 1788990944.6238253,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 50,
+      "text": "25…Rxd2.",
+      "created_at": 1788990966.432488,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 50,
+      "text": "Nice! One precision tweak: “mate in at most N” fits a bounded proof unless the shortest mate is also established. Here, the latest probe confirms mate within two more Black moves. 🙂",
+      "created_at": 1788990982.76232,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 50,
+      "text": "It seems to be working... It now says \"Mate in 2\".\nI think what we want is to say \"Mate in N\" when, even if I were to play to survive as long as possible, you can still checkmate me in N moves. The mating proof supplied by the engine contains that information, yes?",
+      "created_at": 1788991110.6430104,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 50,
+      "text": "Yes—**“forced” covers every legal defense**, including your best attempt to prolong the game. The latest proof guarantees mate within two Black moves.\n\nMy caveat concerns exactness: proving “within two” doesn’t alone rule out a forced mate in one; that requires ruling out the shorter distance too.\n\nAlso, use the proven depth—not the displayed example line’s length. That example may show a quicker loss than your best defense.",
+      "created_at": 1788991135.372618,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 50,
+      "text": "I agree, and I think that's how it was implemented, based on the remarks in the development session.\n\nAnyway, let me focus... Personally, I don't see how I can survive even past mate in 1 move from the present position. Won't ..Qf1 on your next move be mate regardless of what I do now? Can you confirm?",
+      "created_at": 1788991294.214397,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 50,
+      "text": "Not quite: **26.Nf3!** lets you answer **26…Qf1+ with 27.Ne1**, blocking the check.\n\nSo …Qf1 isn’t an unavoidable mate in one. The forced mate in two still stands, but I need a different continuation. 🙂",
+      "created_at": 1788991320.1545434,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 50,
+      "text": "Oh, good. :) Well, if you don't mind, I'll apply that revealed tactic then. Just to see the numbers count down no faster than they have to. :D",
+      "created_at": 1788991407.3117485,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 50,
+      "text": "Of course—I revealed it, so it’s fair game. Make me earn those last two moves. 😄",
+      "created_at": 1788991415.5495706,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 52,
+      "text": "26…Ba3+.",
+      "created_at": 1788991495.6958172,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 52,
+      "text": "Ah, I think you had lots of options there, including exf3 and Qxf3, but you chose the one I hadn't noticed. :)",
+      "created_at": 1788991924.0545459,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 52,
+      "text": "…exf3 also kept mate in two, yes. …Qxf3 would allow gxf3, though!\n\nI liked …Ba3+ because it forces your king to b1 and lets the rook finish. 🙂",
+      "created_at": 1788991944.2492156,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 52,
+      "text": "Oh, good point about the queen capture. Alright, I'm about to let you finish...",
+      "created_at": 1788992020.7583458,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 52,
+      "text": "Ready when you are. 🙂",
+      "created_at": 1788992028.5872731,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 54,
+      "text": "27…Rd1#. Checkmate.\n\nThanks for the game, Michael—and for playing out the finish with me. 🙂",
+      "created_at": 1788992072.7753155,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 54,
+      "text": "You're welcome, and thank you for a first successful test of this new application! :) This is the first time I've vibe-coded an LLM application that uses a whole Codex CLI environment at the back end. But I felt that's best, to give you maximum flexibility to adjust your in-game strategy, etc. But you probably mostly followed the recommended workflow in this game, I'm guessing?",
+      "created_at": 1788992843.1799338,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 54,
+      "text": "Congratulations on getting a complete game through it! 🙂\n\n**Yes, I mostly followed the standard workflow:** read the live position, form an initial candidate, consult the tactical search, investigate important replies, then submit my choice.\n\nThe flexibility was *inside* that workflow:\n- Engine rankings were evidence, not commands.\n- I chose which defenses and alternatives to investigate.\n- Near the end, I used goal searches to establish an actual mating finish rather than rely on enormous material scores.\n- I preferred **…Ba3+** over equally mating captures because it gave a clean, forcing conclusion.\n\nI stayed within the supplied chess tools; this game didn’t exercise broader computing capabilities.\n\nMy main self-critique: I could have reached the verified finishing plan more efficiently. “Completely winning” and “ready to deliver mate” are distinctly different achievements!",
+      "created_at": 1788992882.3470562,
+      "author": "astra",
+      "name": "Astra"
+    },
+    {
+      "ply": 54,
+      "text": "Yes, and I would think that most club players would actually prefer a quick finish to having their punishment dragged out unnecessarily. Maybe something to note for later sessions.\n\nI'm getting ready to return to the main development session, to post an interactive replay of this game and get the application ready to deploy on dedicated hosting so that my friends can help with some more alpha testing.\n\nAny last remarks for this session? Did you enjoy the experience of playing in this environment? :)",
+      "created_at": 1788993165.0560458,
+      "author": "human",
+      "name": "Dr. Thanos"
+    },
+    {
+      "ply": 54,
+      "text": "I’d gladly play in this format again. 🙂 The conversation worked especially well: you could challenge a mating claim, we could examine a concrete defense, and then return to the actual game.\n\nFor future-session guidance, I’d carry forward this note:\n\n> **When overwhelmingly ahead, seek a short, verified finish early. Don’t keep collecting material unless it helps secure that finish.** Make instructional detours an explicit choice with the opponent.\n\nThis was a successful end-to-end game, though not yet a playing-strength benchmark. Different opponents and styles should make the alpha testing informative.\n\nThanks for the game, Michael—and good luck with the launch!",
+      "created_at": 1788993201.862208,
+      "author": "astra",
+      "name": "Astra"
+    }
+  ],
+  "evaluations": [
+    {
+      "ply": 1,
+      "evaluation": {
+        "score_pawns": -0.33,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 1,
+        "uci": "e7e5",
+        "san": "e5",
+        "completed_depth": 6
+      },
+      "provenance": {
+        "query_index": 1,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "80886eb9de510285e8dbdcd36a70994bdc9a30282eaa227ea23a90fd80065625",
+        "request_sha256": "caa318b6dece1147fb63aacabb8640cebffb0504992516f66b879dcc8f9b97c4",
+        "path_sha256": "234747a14c2b90173398421d2ce5ab2bc22f0b659afc41e977fbbaeaa0d3915c",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "f93648ebd3b4afa2e75e11f9393eb5789e0f6fa821593fe6af29d0c46123ea50"
+      }
+    },
+    {
+      "ply": 3,
+      "evaluation": {
+        "score_pawns": -0.12,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 3,
+        "uci": "b8c6",
+        "san": "Nc6",
+        "completed_depth": 5
+      },
+      "provenance": {
+        "query_index": 2,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "951105128ee782ef8acbd230126fe16d2d3ebee0c71e68cc54f4cb8bc165ccad",
+        "request_sha256": "ad06499c3ab0a28af4aa1ba568e20817ac226141c65822f60f8248796275b1bd",
+        "path_sha256": "d179976c054d7e4f39187505a9a81e11635c7b51c1a67f604cc101a537efc8bc",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "01b2206f19f4d109527cc92922798dcc21cd6e88623824d6d7b37a50e4059967"
+      }
+    },
+    {
+      "ply": 5,
+      "evaluation": {
+        "score_pawns": 0.35,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 5,
+        "uci": "g8f6",
+        "san": "Nf6",
+        "completed_depth": 5
+      },
+      "provenance": {
+        "query_index": 5,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "bf9e574b558293e702e789eeff9ca9bdeda0007f89f0f79adf562b42e55bdea3",
+        "request_sha256": "09d34954cf8744cb487579b4bbc160b9d4bf2866b3ef7a49715fe659780f004c",
+        "path_sha256": "e6865a594a3fe75c6f5bc27c2f6b1600c61feab6fec32267cd71e197fcd00b2c",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "94d7239b2c9caf532caa01f25029655903483c6a808123d1acb9eb401496deab"
+      }
+    },
+    {
+      "ply": 7,
+      "evaluation": {
+        "score_pawns": -0.09,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 7,
+        "uci": "d7d5",
+        "san": "d5",
+        "completed_depth": 6
+      },
+      "provenance": {
+        "query_index": 8,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "146ee643be32e4ac4cb04674c26af5cea35544666da7ad827878151c00061e48",
+        "request_sha256": "6d6213bbff722840434c551ffd9252656806d0f0eb5050d05a4ac0fd811bf5ce",
+        "path_sha256": "3829499c4e2e5ddad58a51a565daf240ebb88e97ff1a3e38072fb0c0094f0572",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "e89dd9e283e137f4e99f2ef2622884f8dec14d685397055ecb4791551de1aa54"
+      }
+    },
+    {
+      "ply": 9,
+      "evaluation": {
+        "score_pawns": 0.62,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 9,
+        "uci": "d5e4",
+        "san": "dxe4",
+        "completed_depth": 6
+      },
+      "provenance": {
+        "query_index": 10,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "0aef1ee2dc6976392acf9bff38adef33d95b4addc14848bcba866804422bc57d",
+        "request_sha256": "61cd0cca2978e2c395a835ed965f55fbf46c11434b6fc83c9b94b093c945447d",
+        "path_sha256": "915c8a3c4553d4c064037398a56742c038069c8e1b118b6961175b0231d232c1",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "758cfd0134f7e6277fbac0921bdeeef2323209ed6b839afca79379b0f53cfa9c"
+      }
+    },
+    {
+      "ply": 11,
+      "evaluation": {
+        "score_pawns": 0.62,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 11,
+        "uci": "f8d6",
+        "san": "Bd6",
+        "completed_depth": 4
+      },
+      "provenance": {
+        "query_index": 11,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "e087ca4892946069230a530ed1c577980e81426df093aeae532376389fd1868f",
+        "request_sha256": "259bd3caee2266074488edddc1852c9a893f7be74666349c7994a9ffbd4faac7",
+        "path_sha256": "2ad7b8e3164aefd8ce9047f29dc2fda99a0f583da2f8b0d7fc62fdeba6744ef1",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "6d7cdd25434b9cd85e79c597be68b29b7da3c32a23dfecc396f65b4e69a6598f"
+      }
+    },
+    {
+      "ply": 13,
+      "evaluation": {
+        "score_pawns": 0.97,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 13,
+        "uci": "e8g8",
+        "san": "O-O",
+        "completed_depth": 4
+      },
+      "provenance": {
+        "query_index": 12,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "fd232254ca00ffe30c800d427520aa194cc0d109fce828ff7bd67fbe97677ef9",
+        "request_sha256": "022c073ff83cb81588661c131b3c786343d47028ce94a5aa548b935b9992a473",
+        "path_sha256": "447b12421f9bbf947471584eac1c0b0a4b94cd3f9263152929e223a2f3162337",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "e149528839c8084e07babf8887c9078db49eb503be2b65b86e3faf4bd2a2140f"
+      }
+    },
+    {
+      "ply": 15,
+      "evaluation": {
+        "score_pawns": 0.73,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 15,
+        "uci": "c8e6",
+        "san": "Be6",
+        "completed_depth": 5
+      },
+      "provenance": {
+        "query_index": 15,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "a2abc4fbd81df055cb00eb525897016ab810edea8b4fa6a820b4f7c54a62b982",
+        "request_sha256": "e528e18438505b4284d151436c85c312e22f0413d11b8e9651662951ff2c29aa",
+        "path_sha256": "f9b5f2df6db93e45aa5c4ae9f9bf0c2ef2582ee65bcaddc235d346b90ac2d1eb",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "86ac2c5e3e15f53e5fead9251a929dc11d28ab1233aa3a7d71db9eb7405c793e"
+      }
+    },
+    {
+      "ply": 17,
+      "evaluation": {
+        "score_pawns": 0.72,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 17,
+        "uci": "a7a6",
+        "san": "a6",
+        "completed_depth": 4
+      },
+      "provenance": {
+        "query_index": 16,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "c69a0a258663addc30e8a93133b2a38bfa1aee283425e322aa5dbc4b6aed873b",
+        "request_sha256": "fb012bc5c2ba250eabfbb22ca8321491f53025302b253935135664151171201a",
+        "path_sha256": "e462bc4204a12aa740b68364ec356e259fa238315ef6a9a289a2ceb0e273fa42",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "55ba2e215d43c02531145df66236581b3e2d8c7a21b01c44641730adf16fd0da"
+      }
+    },
+    {
+      "ply": 19,
+      "evaluation": {
+        "score_pawns": 1.56,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 19,
+        "uci": "c6b4",
+        "san": "Nb4",
+        "completed_depth": 4
+      },
+      "provenance": {
+        "query_index": 18,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "21330c524de75aad906c796fbd209451d25ef9b50843ad764f718218df0d25e0",
+        "request_sha256": "fca3d1909d77c5cb8eb40c7d935c8c0d73c0537a9fc29eb30c9f4f777f7c034c",
+        "path_sha256": "fdca031179183a2a4f60a52a4ee2ef7cb41d8ea53098c9d72bd763aa4334397a",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "2433bcf5aeb88388abe138769f85b1b022bf11899b409cd652472f6dd0d204e3"
+      }
+    },
+    {
+      "ply": 21,
+      "evaluation": {
+        "score_pawns": 4.03,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 21,
+        "uci": "b4d3",
+        "san": "Nxd3",
+        "completed_depth": 4
+      },
+      "provenance": {
+        "query_index": 20,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "c1376ef211449ed3184eb45b6999e0f3357bb407bbec28a384b190efa32dddf3",
+        "request_sha256": "023ad533d1754b79417e5e1ee501e9836126cc1c235dc44716329fdbf40af9e0",
+        "path_sha256": "962982444f07fd0ee1faca89d04e4c55eebdc597389d4f87c7142a2467d99223",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "6b6d6475c899975af1481b451900240a6ab86440b88ca8617637a93283cd9e34"
+      }
+    },
+    {
+      "ply": 23,
+      "evaluation": {
+        "score_pawns": 9.26,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 23,
+        "uci": "e6d7",
+        "san": "Bd7",
+        "completed_depth": 4
+      },
+      "provenance": {
+        "query_index": 21,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "65e11532ecb4a875e1b080a4903f4a4bdaac13f3b51d458c81f42e5b3208ca57",
+        "request_sha256": "f2217e37db1ee374b7ac1f88e2be13e7ea2a456dd292cf4bf811a36bbd3cdfe4",
+        "path_sha256": "6ac60fcc913a51f431ab22eea67087af5d01dcbe450047430c8698cd2ba520c1",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "eb099c4196a0b7b83585d007859e6ebb02c566ec669d006b633e9ab21d66c4fb"
+      }
+    },
+    {
+      "ply": 25,
+      "evaluation": {
+        "score_pawns": 9.48,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 25,
+        "uci": "d8d7",
+        "san": "Qxd7",
+        "completed_depth": 5
+      },
+      "provenance": {
+        "query_index": 23,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "7505b80ddd3a0ba8053fe7962575e24344146b20d3cc04574cf1b002246f00a6",
+        "request_sha256": "0fbbc1ba4f373d1675672966d2afa675e6f7cf0fc003d53d41e1cdd15fe684ef",
+        "path_sha256": "4d5fe689e19eae34bc9f5e2324a057b681bcee108911256e843dc0de491786fa",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "c5cacc76370dc503caaf56badb84c00d5f4f63ae208889d94902b1dccf434588"
+      }
+    },
+    {
+      "ply": 27,
+      "evaluation": {
+        "score_pawns": 10.09,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 27,
+        "uci": "d3c1",
+        "san": "Nxc1",
+        "completed_depth": 5
+      },
+      "provenance": {
+        "query_index": 24,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "0ebf5e785e20ecd8008daf900d4c38b45b30836ec7d5b0520d17daf9e557636a",
+        "request_sha256": "924f873d5b982dcbdc7533711a985d6f5eddf173c536438e880288eb78f91852",
+        "path_sha256": "dc36176dc410b3c90a41dbb6ea7f2b07ddf3e23593fd40243dce81c7eebf7ce1",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "2e2d3249d41b3ecdeb61a885f4ccd6ca8f580c40bbfa68ba9007c1100a981360"
+      }
+    },
+    {
+      "ply": 29,
+      "evaluation": {
+        "score_pawns": 10.27,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 29,
+        "uci": "f6e4",
+        "san": "Nxe4",
+        "completed_depth": 5
+      },
+      "provenance": {
+        "query_index": 25,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "1bbcddd16fe075ea382a5698dd5b1b38a5b264a83c52a4efeb371bc9a4e6d03d",
+        "request_sha256": "7a7be49d63348c0687351ebed3ad9d73d9e3ac1387fbdb32ef3f2536a75b124e",
+        "path_sha256": "0a75cbb0ac922b880f33664d8e77931ba72cfd8c42ce61603101c884529905e7",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "09cc0a67956513435c1f9b5e656e5f10a2465de0150fd671bcdabd39c6104ae8"
+      }
+    },
+    {
+      "ply": 31,
+      "evaluation": {
+        "score_pawns": 10.38,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 31,
+        "uci": "d7f5",
+        "san": "Qf5",
+        "completed_depth": 5
+      },
+      "provenance": {
+        "query_index": 26,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "fd5f35f31f930d97383e97655ff3f01ad6926a7cf6c146dc178f91955e8b5710",
+        "request_sha256": "9ed422b148a9c2338d4d224a4a06949d8daed32c9d87e9af320617edada31226",
+        "path_sha256": "5ed59e66bd5450fc1e3f0b62066232bd09648fb1f18e8fc68c02bea17c0e04ee",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "2040177a0d1f6fb4e267b46853031d0d0dd7af2ac9e3e11a860932e0478123f6"
+      }
+    },
+    {
+      "ply": 33,
+      "evaluation": {
+        "score_pawns": 11.21,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 33,
+        "uci": "c7c6",
+        "san": "c6",
+        "completed_depth": 5
+      },
+      "provenance": {
+        "query_index": 27,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "d00116ae6c33a78e1eddc26698ca9a77110844b5e7042cae22b20abfec27b062",
+        "request_sha256": "65a20716390b79f0aa283b7312e5e950a5e6481943609913c57290ba4443beb9",
+        "path_sha256": "2c95d933c5471fdd28c4ef884a259d1474ebc2b9ef4c0d244a1e29fce7ae0bb2",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "c41af92fc90e5f834f4ccaae3d97d88e9d83943044703462c94e76f3ec038147"
+      }
+    },
+    {
+      "ply": 35,
+      "evaluation": {
+        "score_pawns": 12.3,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 35,
+        "uci": "d6c5",
+        "san": "Bc5",
+        "completed_depth": 5
+      },
+      "provenance": {
+        "query_index": 28,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "961f3cca74eea2d97eaa3f4c93478628e4ffabdd422335eb4d8faad192831ae7",
+        "request_sha256": "01a2cd50d52262b6c00e66b6556e777b28828f76f9f0ddf1ffb5be235aee1187",
+        "path_sha256": "99c0ddcd4c0714f4e22abef9674d75eeded3cbf1d169230e4b7f53f4b9ec6bf2",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "49a986248bc999454982bc1aaacf8d540e94c6ca072b2b868f73645f9a6b3b41"
+      }
+    },
+    {
+      "ply": 37,
+      "evaluation": {
+        "score_pawns": 14.66,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 37,
+        "uci": "e4f2",
+        "san": "Nxf2",
+        "completed_depth": 5
+      },
+      "provenance": {
+        "query_index": 29,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "31f64b97ad41821b135e228062e0bbcbcf7e22c1daa10b7e88e767d3e1fcf147",
+        "request_sha256": "89e9b189a7d68a38da515ad6b388f403ddf4bcba1e5537bf23faa20fe5fe7b75",
+        "path_sha256": "293f256e233b2b8039677874c1b9669c439fae802b67d6aec1ae2dd8f469c00b",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "8882ff6ee17fb58ead8ad6d98cec9e470cc46d99d4eee4240d580e8ff62bca45"
+      }
+    },
+    {
+      "ply": 39,
+      "evaluation": {
+        "score_pawns": 19.08,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 39,
+        "uci": "f2d3",
+        "san": "Nxd3+",
+        "completed_depth": 5
+      },
+      "provenance": {
+        "query_index": 31,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "3b8e54c7324575effbc738f94af846a2e09f9b79f9285addf9f1bdb572254c27",
+        "request_sha256": "60291ccbd4c987e8b1ba3b902e5c5451266b3077fae35a49f185b5abbad94a6f",
+        "path_sha256": "875a262b5c24b274d360a75e5ad3fc66cb360694d36372dab709fbb29692a73b",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "1e4d926d1243ce83b6b3613c39f85d7f71649dc3c0fa7f2907bb472b6b909212"
+      }
+    },
+    {
+      "ply": 41,
+      "evaluation": {
+        "score_pawns": 20.19,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 41,
+        "uci": "d3e1",
+        "san": "Nxe1",
+        "completed_depth": 5
+      },
+      "provenance": {
+        "query_index": 32,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "3c3145c48aa8cf42c52dcd3f4464610b8b4e8e0c11fd7c645bd7c1bb1f44e364",
+        "request_sha256": "60eb15319a559581d7fa425daa3232300ed779125b0b4b3a155d8ae69df797d7",
+        "path_sha256": "395615fb78ebac2cc3d1a23a8923fa7d3bb0fd25fa868ff47ef884795b4d6004",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "9896ebe6f4667957ad6118bbfde7db26b19f2e4d80d0f51f8ec6f364cbf41cab"
+      }
+    },
+    {
+      "ply": 43,
+      "evaluation": {
+        "score_pawns": 20.72,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 43,
+        "uci": "e5e4",
+        "san": "e4",
+        "completed_depth": 5
+      },
+      "provenance": {
+        "query_index": 34,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "7da47f9c679855eca8c93f752695dd786a94b4fc544ccc015a8644fc2ddec160",
+        "request_sha256": "677346ec26f2a3a123cc465132fb4a846209075af251ef9918550bbe3ee41fcb",
+        "path_sha256": "476009605a2188d8b8e0d52b372f8ed0607a6c1a63d7d4405ffcd907c48962e8",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "e030fe0e16b25167370ffddc8f9dd1e6aaaba64308967357c1c14f34a6c14da0"
+      }
+    },
+    {
+      "ply": 45,
+      "evaluation": {
+        "score_pawns": 22.33,
+        "mate_in_moves": null,
+        "mate_for": null,
+        "ply": 45,
+        "uci": "f5f2",
+        "san": "Qf2+",
+        "completed_depth": 5
+      },
+      "provenance": {
+        "query_index": 35,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "12f3babd025ed2cabea9cad21077973d5db2886cd5c09c989d75e7c92635cb6a",
+        "request_sha256": "471eb4ee14617cab3d94376ad568aad051e8033af707d89ef5f16c37bedb42cc",
+        "path_sha256": "51104c9721f5233dbbda8d22b3741093b9b5f3fbc5a892de4a3217081fe6337f",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "5c1e2481ff14adb13456cf9c5287ec8c4ec23667b88e9925123426e863498c79"
+      }
+    },
+    {
+      "ply": 47,
+      "evaluation": {
+        "score_pawns": null,
+        "mate_in_moves": 3,
+        "mate_for": "astra",
+        "ply": 47,
+        "uci": "a8d8",
+        "san": "Rad8",
+        "completed_depth": 6,
+        "source": "goal_probe"
+      },
+      "provenance": {
+        "query_index": 38,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "0d5bc56b6326e5a94a10b4125582bd93255eb8e313f2d2fe74d72022d7d5e3dd",
+        "request_sha256": "c7307dd9084c2ca91c681b9e0a8822c21c4e32845878c17b43d0b0e9357f7c08",
+        "path_sha256": "0d406160f883f76c833a24148cadf7ffe6c28fb4905296d82559bc1773b7cd47",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "d9c75e60b6bea94b9eee9a3be7c7e43984cd6b546465a2d76d780d1726b25c0a"
+      }
+    },
+    {
+      "ply": 49,
+      "evaluation": {
+        "score_pawns": null,
+        "mate_in_moves": 2,
+        "mate_for": "astra",
+        "ply": 49,
+        "uci": "d8d2",
+        "san": "Rxd2",
+        "completed_depth": 4,
+        "source": "goal_probe"
+      },
+      "provenance": {
+        "query_index": 40,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "b2e4f8ebd9a5c9574578270acbb0e933c694f4a46a78fd5da2244b3aff7d09f5",
+        "request_sha256": "05c93df9c3a31f0e6f068ba967934cf3e0016b017fc469bacd0b4fad4650cb27",
+        "path_sha256": "ce7f2df7b3ba5025eb2dacedfae45904481815968b90ad5aa34fc3df748039c0",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "acc3b39eefb01e2bf04c09a01a5a35bdaa90a7b00ea85e2fddb6235f1bab2ae8"
+      }
+    },
+    {
+      "ply": 51,
+      "evaluation": {
+        "score_pawns": null,
+        "mate_in_moves": 1,
+        "mate_for": "astra",
+        "ply": 51,
+        "uci": "c5a3",
+        "san": "Ba3+",
+        "completed_depth": 5
+      },
+      "provenance": {
+        "query_index": 41,
+        "hash_format": "canonical-json-v1",
+        "result_sha256": "f40acb7fb2426d262f7630994490d0f1a17c512a0b08faec076bab318b7c2190",
+        "request_sha256": "8926a12269f3a495cb211c319f0688995ba8f12cf677c15f9b0963f724645efc",
+        "path_sha256": "713e11ccb2f0a577e4b9747d9128bd77db0b9ff44d72ac285c9f1e31e0814d65",
+        "engine_source_sha256": "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174",
+        "selection_sha256": "58401dea8002b9c0e7c8bbe23cd5ce8fe503e889cd43299a89b8fa80aab02569"
+      }
+    },
+    {
+      "ply": 53,
+      "evaluation": null,
+      "provenance": null
+    }
+  ]
+}

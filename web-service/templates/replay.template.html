@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>__TITLE__ — Game replay</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ctext y='32' font-size='34'%3E♞%3C/text%3E%3C/svg%3E">
+  <style>
+    :root { color-scheme: dark light; --page:#111b18; --surface:#1a2722; --hover:#263a30; --text:#edf2e9; --muted:#a9bbae; --line:#33483c; --accent:#c7e89f; --on-accent:#182914; --light-square:#e8edda; --dark-square:#789580; --last-light:#e8df9b; --last-dark:#b7bc75; --check:#d87e71; }
+    @media(prefers-color-scheme:light) { :root { --page:#f5f6ef; --surface:#fffef7; --hover:#e7ecdf; --text:#263b2d; --muted:#637562; --line:#d5dfcf; --accent:#395f40; --on-accent:#fffef7; } }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--page); color:var(--text); font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    button,select,input { font:inherit; }
+    button,select { color:inherit; }
+    button { cursor:pointer; }
+    button:disabled { opacity:.3; cursor:default; }
+    :focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+    .app { max-width:1140px; margin:0 auto; padding:24px 24px 22px; }
+    .heading { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:24px; }
+    .eyebrow { margin:0 0 5px; color:var(--muted); font-size:12px; letter-spacing:.13em; font-weight:600; }
+    h1 { margin:0; font:400 clamp(25px,4vw,34px)/1.2 Georgia,"Times New Roman",serif; letter-spacing:-.02em; }
+    .subtitle { margin:7px 0 0; color:var(--muted); font-size:12px; }
+    .result { display:flex; flex-direction:column; align-items:center; flex-shrink:0; border:1px solid var(--line); border-radius:12px; padding:9px 15px; gap:1px; }
+    .result strong { font-size:22px; font-weight:500; letter-spacing:.1em; color:var(--accent); }
+    .result span { font-size:11px; color:var(--muted); }
+    .layout { display:grid; grid-template-columns:minmax(0,1fr) 380px; align-items:start; gap:24px; }
+    .heading > div:first-child { min-width:0; overflow-wrap:anywhere; }
+    .board-column { min-width:0; }
+    .player { display:flex; justify-content:space-between; align-items:center; min-height:39px; gap:8px; padding:0 0 9px 18px; }
+    .player.bottom { padding:10px 0 0 18px; }
+    .engine-score { margin:16px 0 0 18px; padding:12px 14px; border:1px solid var(--line); border-radius:9px; background:var(--surface); }
+    .engine-score[hidden] { display:none; }
+    .engine-score .label { margin:0 0 3px; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; }
+    .engine-score strong { display:block; color:var(--accent); font-size:19px; font-weight:500; font-variant-numeric:tabular-nums; }
+    .engine-score p { margin:4px 0 0; font-size:12px; color:var(--muted); }
+    .engine-score details { margin-top:6px; font-size:12px; color:var(--muted); }
+    .engine-score summary { cursor:pointer; }
+    .player-name { display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; font-weight:500; min-width:0; }
+    .name-text { overflow-wrap:anywhere; }
+    .color-dot { width:10px; height:10px; border:1px solid #879584; border-radius:50%; flex-shrink:0; }
+    .color-dot.white { background:#f9faee; }
+    .color-dot.black { background:#203025; }
+    .player-meta { color:var(--muted); font-size:12px; font-weight:400; }
+    .turn { color:var(--accent); font-size:11px; text-transform:uppercase; letter-spacing:.07em; }
+    .board-wrap { position:relative; padding:0 0 18px 18px; }
+    .board { position:relative; width:100%; aspect-ratio:1; overflow:hidden; border-radius:4px; container-type:inline-size; box-shadow:0 8px 26px #00000016; }
+    .squares { position:absolute; inset:0; display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr); }
+    .square { background:var(--light-square); }
+    .square.dark { background:var(--dark-square); }
+    .square.last { background:var(--last-light); }
+    .square.dark.last { background:var(--last-dark); }
+    .square.check { background:var(--check); }
+    .piece { position:absolute; inset:0 auto auto 0; width:12.5%; height:12.5%; display:flex; align-items:center; justify-content:center; transition:transform 320ms cubic-bezier(.25,.7,.25,1),opacity 180ms ease; will-change:transform; pointer-events:none; }
+    .piece-art { position:absolute; width:0; height:0; overflow:hidden; pointer-events:none; }
+    .piece svg { display:block; width:92%; height:92%; fill:var(--piece-fill); stroke:var(--piece-outline); color:var(--piece-outline); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 1px 1px #263a3045); }
+    .piece.white { --piece-fill:#fffff3; --piece-outline:#354b3d; }
+    .piece.black { --piece-fill:#203126; --piece-outline:#dce5cd; }
+    .board.instant .piece { transition:none; }
+    .files { position:absolute; bottom:0; left:18px; right:0; display:grid; grid-template-columns:repeat(8,1fr); text-align:center; height:18px; align-items:end; color:var(--muted); font-size:11px; }
+    .ranks { position:absolute; left:0; top:0; bottom:18px; width:18px; display:grid; grid-template-rows:repeat(8,1fr); align-items:center; color:var(--muted); font-size:11px; }
+    .transport { margin:20px 0 0 18px; }
+    .position-line { display:flex; justify-content:space-between; gap:12px; align-items:baseline; margin-bottom:9px; }
+    .position-title { font-weight:500; }
+    .position-count { font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .timeline { accent-color:var(--accent); width:100%; margin:0; cursor:pointer; height:22px; }
+    .controls { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:12px; }
+    .icon-button { width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; padding:0; border:1px solid var(--line); border-radius:9px; background:transparent; }
+    .icon-button:hover:not(:disabled),.quiet:hover { background:var(--hover); }
+    .icon-button svg { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+    .play { width:84px; gap:7px; border-color:var(--accent); background:var(--accent); color:var(--on-accent); font-weight:600; }
+    .play:hover:not(:disabled) { background:var(--accent); filter:brightness(.95); }
+    .secondary-controls { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:15px; }
+    .quiet { display:inline-flex; gap:6px; align-items:center; border:0; background:transparent; color:var(--muted); padding:6px 0; border-radius:4px; font-size:12px; text-decoration:none; }
+    .quiet svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+    .speed-label { display:flex; align-items:center; gap:7px; font-size:12px; color:var(--muted); }
+    select { border:1px solid var(--line); border-radius:6px; padding:4px 7px; background:var(--surface); font-size:12px; }
+    .replay-sidebar { display:grid; gap:18px; min-width:0; }
+    .moves-panel,.chat-panel { border:1px solid var(--line); border-radius:12px; background:var(--surface); overflow:hidden; min-width:0; }
+    .moves-heading,.chat-heading { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:4px 12px; padding:12px 16px; }
+    .moves-heading h2 { font-size:14px; font-weight:500; margin:0; }
+    .moves-heading span { color:var(--muted); font-size:12px; }
+    .chat-heading { border-bottom:1px solid var(--line); }
+    .chat-heading h2 { margin:0; font-size:16px; font-weight:500; }
+    .chat-count { color:var(--muted); font-size:12px; font-variant-numeric:tabular-nums; }
+    .chat-list { height:clamp(280px,42dvh,440px); overflow-y:auto; overscroll-behavior:contain; overflow-anchor:none; padding:16px; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
+    .chat-message + .chat-message { margin-top:22px; }
+    .chat-message-header { display:flex; flex-wrap:wrap; gap:3px 9px; align-items:baseline; }
+    .chat-author { font-size:14px; font-weight:600; overflow-wrap:anywhere; }
+    .chat-message.astra .chat-author { color:var(--accent); }
+    .chat-context { margin:3px 0 0; color:var(--muted); font-size:12px; }
+    .chat-time { display:block; margin-top:2px; color:var(--muted); font-size:12px; overflow-wrap:anywhere; }
+    .chat-text { margin:7px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; font-size:16px; line-height:1.55; }
+    .chat-empty { margin:0; color:var(--muted); font-size:14px; }
+    .chat-help { margin:0; padding:10px 16px; border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+    .columns { display:grid; grid-template-columns:30px 1fr 1fr; gap:5px; padding:0 13px 9px; color:var(--muted); font-size:12px; border-bottom:1px solid var(--line); }
+    .move-list { max-height:190px; overflow-y:auto; overscroll-behavior:contain; padding:7px; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
+    .move-row { display:grid; grid-template-columns:30px minmax(0,1fr) minmax(0,1fr); gap:5px; align-items:center; padding:2px 0; }
+    .move-number { color:var(--muted); text-align:center; font-size:12px; font-variant-numeric:tabular-nums; }
+    .move-button { display:block; border:0; border-radius:5px; background:transparent; padding:6px; text-align:left; font-size:14px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .move-button:hover { background:var(--hover); }
+    .move-button[aria-current="step"] { background:var(--accent); color:var(--on-accent); font-weight:600; }
+    .selection { border-top:1px solid var(--line); padding:10px 16px 12px; }
+    .selection .label { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.07em; margin:0 0 3px; }
+    .selection p { margin:0; font-size:14px; }
+    .selection small { display:block; margin-top:3px; color:var(--muted); font-size:12px; }
+    .footer { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px 18px; margin:18px 0 0 18px; border-top:1px solid var(--line); padding-top:12px; color:var(--muted); font-size:11px; }
+    .footer .quiet { font-size:11px; padding:0; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    .error { color:#d98175; padding:16px; }
+    @media(min-width:901px) {
+      :root { --board-track:clamp(360px,calc(100dvh - 535px),640px); }
+      .app { max-width:calc(var(--board-track) + 452px); padding-top:22px; padding-bottom:16px; }
+      .layout { grid-template-columns:minmax(0,var(--board-track)) minmax(350px,380px); }
+      .heading { margin-bottom:18px; }
+      .replay-sidebar { margin-top:39px; }
+    }
+    @media(max-width:900px) { .app { max-width:640px; padding:22px 20px; } .layout { grid-template-columns:1fr; gap:22px; } .chat-list { height:360px; max-height:60dvh; } .move-list { max-height:205px; } .heading { margin-bottom:19px; } }
+    @media(max-width:400px) { .app { padding:18px 12px; } .result { padding:6px 10px; } .result strong { font-size:19px; } .heading { gap:10px; } .subtitle { font-size:11px; } .transport { margin-top:16px; } .controls { gap:7px; } .position-count { font-size:11px; } }
+    @media(pointer:coarse) { .icon-button { min-width:44px; min-height:44px; } .move-button { min-height:44px; } .quiet,select { min-height:40px; } }
+    @media(prefers-reduced-motion:reduce) { .piece { transition:none; } }
+  </style>
+</head>
+<body>
+<!-- Original vector pieces: no platform fonts, emoji substitution, or external assets. -->
+<svg class="piece-art" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="piece-p" viewBox="0 0 45 45">
+      <circle cx="22.5" cy="11" r="5"/>
+      <path d="M19 16h7l1 5c-2 5-1 9 3 13H15c4-4 5-8 3-13z"/>
+      <path d="M17 20h11M14 34h17l2 5H12z"/>
+    </symbol>
+    <symbol id="piece-r" viewBox="0 0 45 45">
+      <path d="M13 18h19l-3 5v8l4 3H12l4-3v-8z"/>
+      <path d="M11 8h6v5h4V8h4v5h4V8h5v11H11zM16 23h13M10 34h25l2 5H8z"/>
+    </symbol>
+    <symbol id="piece-n" viewBox="0 0 45 45">
+      <path d="M12 34c0-7 6-9 8-15l-7 4-5-5 8-10 1-5 6 5c10 0 14 10 11 19l-2 7z"/>
+      <path d="M25 13c6 4 7 11 3 17" fill="none"/>
+      <circle cx="19" cy="13" r="1.2" fill="currentColor" stroke="none"/>
+      <path d="M10 34h25l2 5H8z"/>
+    </symbol>
+    <symbol id="piece-b" viewBox="0 0 45 45">
+      <circle cx="22.5" cy="6" r="2"/>
+      <path d="M22.5 8C11 17 12 22 19 24l-3 8h13l-3-8c7-2 8-7-3.5-16z"/>
+      <path d="m25 12-6 8M15 32h15v3H15zM10 35h25l2 4H8z"/>
+    </symbol>
+    <symbol id="piece-q" viewBox="0 0 45 45">
+      <path d="m11 13 6 8 5.5-12 5.5 12 6-8-4 16H15zM15 29h15l3 5H12zM10 34h25l2 5H8z"/>
+      <circle cx="10.5" cy="10.5" r="2.5"/>
+      <circle cx="22.5" cy="6.5" r="2.5"/>
+      <circle cx="34.5" cy="10.5" r="2.5"/>
+    </symbol>
+    <symbol id="piece-k" viewBox="0 0 45 45">
+      <path d="M20.5 3h4v4h4v4h-4v5h-4v-5h-4V7h4z"/>
+      <path d="M16 28c-2-5-7-7-5-12 2-4 8-3 11.5 2C26 13 32 12 34 16c2 5-3 7-5 12z"/>
+      <path d="M16 28h13l4 6H12zM10 34h25l2 5H8zM22.5 18v10"/>
+    </symbol>
+  </defs>
+</svg>
+<main id="chess-replay" class="app">
+  <header class="heading">
+    <div><p class="eyebrow">ASTRA CHESS · HOSTED GAME REPLAY</p><h1>__TITLE__</h1><p class="subtitle">__SUBTITLE__</p></div>
+    <div class="result" aria-label="Game result: __RESULT_DESCRIPTION__"><strong>__RESULT__</strong><span>__ENDING__</span></div>
+  </header>
+  <div class="layout">
+    <section class="board-column" aria-label="Game replay">
+      <div class="player" id="top-player"></div>
+      <div class="board-wrap">
+        <div id="board" class="board" role="img" aria-label="Chessboard, starting position" aria-describedby="board-description">
+          <div id="squares" class="squares" aria-hidden="true"></div>
+          <div id="pieces" aria-hidden="true"></div>
+        </div>
+        <div id="ranks" class="ranks" aria-hidden="true"></div><div id="files" class="files" aria-hidden="true"></div>
+      </div>
+      <p id="board-description" class="sr-only"></p>
+      <div class="player bottom" id="bottom-player"></div>
+      <section class="engine-score" id="engine-score" aria-label="Recorded engine evaluation" hidden>
+        <p class="label" id="engine-score-label">Recorded engine evaluation</p>
+        <strong id="engine-score-value" aria-live="polite"></strong>
+        <p id="engine-score-detail"></p>
+        <details><summary>How to read this</summary><p id="engine-score-note"></p></details>
+      </section>
+      <div class="transport">
+        <div class="position-line"><span id="position-title" class="position-title" aria-live="polite">Starting position</span><span id="position-count" class="position-count">0 / __PLIES__</span></div>
+        <label class="sr-only" for="timeline">Replay position</label><input id="timeline" class="timeline" type="range" min="0" max="__PLIES__" value="0" step="1" aria-valuetext="Starting position">
+        <div class="controls" aria-label="Playback controls">
+          <button id="first" class="icon-button" type="button" aria-label="Go to start" title="Start (Home)"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4v12M15 4l-6 6 6 6"/></svg></button>
+          <button id="previous" class="icon-button" type="button" aria-label="Previous move" title="Previous move (Left arrow)"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 4-6 6 6 6"/></svg></button>
+          <button id="play" class="icon-button play" type="button" aria-label="Play replay"><svg id="play-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="m6 3 10 7-10 7z"/></svg><span id="play-label">Play</span></button>
+          <button id="next" class="icon-button" type="button" aria-label="Next move" title="Next move (Right arrow)"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m8 4 6 6-6 6"/></svg></button>
+          <button id="last" class="icon-button" type="button" aria-label="Go to end" title="End (End)"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 4v12M5 4l6 6-6 6"/></svg></button>
+        </div>
+        <div class="secondary-controls">
+          <button id="flip" class="quiet" type="button" aria-label="Flip board" title="Flip board"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6h12l-3-3M16 14H4l3 3"/></svg>Flip board</button>
+          <label class="speed-label" for="speed">Speed<select id="speed"><option value="2200">0.5×</option><option value="1100" selected>1×</option><option value="550">2×</option></select></label>
+        </div>
+      </div>
+    </section>
+    <aside class="replay-sidebar" aria-label="Conversation and recorded moves">
+      <section class="chat-panel" aria-labelledby="chat-heading">
+        <div class="chat-heading"><h2 id="chat-heading">Conversation</h2><span id="chat-count" class="chat-count" role="status" aria-live="polite" aria-atomic="true">0 / 0 messages</span></div>
+        <div id="chat-list" class="chat-list" role="region" tabindex="0" aria-label="Conversation through the selected position"></div>
+        <p class="chat-help">Messages appear after their recorded move. The final position includes the closing conversation.</p>
+      </section>
+      <section class="moves-panel" aria-label="Recorded moves">
+        <div class="moves-heading"><h2>Move list</h2><span>__MOVES__ moves</span></div>
+        <div class="columns" aria-hidden="true"><span>#</span><span>White</span><span>Black</span></div>
+        <div id="move-list" class="move-list" role="region" tabindex="0" aria-label="Move list"></div>
+        <div class="selection"><p class="label" id="selected-label">Position</p><p id="selected-move">Starting position</p><small id="selected-detail">White to move</small></div>
+      </section>
+    </aside>
+  </div>
+  <footer class="footer"><span>← → Step through · Space Play / pause</span><a id="download-pgn" class="quiet" download="__PGN_FILENAME__" href="#">Download PGN ↗</a></footer>
+  <noscript><p class="error">Enable JavaScript to use the replay controls.</p></noscript>
+</main>
+<script id="replay-data" type="application/json">__REPLAY_DATA__</script>
+<script>
+(() => {
+  'use strict';
+  const root = document.getElementById('chess-replay');
+  const $ = (id) => root.querySelector('#' + id);
+  const data = JSON.parse(document.getElementById('replay-data').textContent);
+  const frames = data.frames;
+  const end = frames.length - 1;
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const names = {k:'King', q:'Queen', r:'Rook', b:'Bishop', n:'Knight', p:'Pawn'};
+  const board = $('board');
+  const pieces = new Map();
+  const squareNodes = new Map();
+  const moveButtons = new Map();
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let index = 0, flipped = data.playerSide === 'black', playing = false, timer = null, generation = 0;
+  const messages = Array.isArray(data.messages) ? data.messages : [];
+  const humanSide = data.humanSide || (data.playerSide === 'black' ? 'white' : 'black');
+  const messageNodes = messages.map(messageNode);
+  let chatFrame = -1, visibleMessageCount = -1;
+
+  for (let rank = 1; rank <= 8; rank++) {
+    for (const file of 'abcdefgh') {
+      const sq = file + rank;
+      const el = document.createElement('div');
+      el.className = 'square';
+      el.dataset.square = sq;
+      $('squares').append(el);
+      squareNodes.set(sq, el);
+    }
+  }
+  for (const p of frames[0].pieces) {
+    const el = document.createElement('div');
+    el.className = 'piece ' + p.color;
+    el.dataset.piece = p.id;
+    const symbol = document.createElementNS(svgNS, 'svg');
+    symbol.setAttribute('viewBox', '0 0 45 45');
+    symbol.setAttribute('aria-hidden', 'true');
+    symbol.setAttribute('focusable', 'false');
+    const shape = document.createElementNS(svgNS, 'use');
+    shape.setAttribute('href', '#piece-' + p.type);
+    symbol.append(shape);
+    el.append(symbol);
+    $('pieces').append(el);
+    pieces.set(p.id, el);
+  }
+  for (let ply = 1; ply <= end; ply += 2) {
+    const row = document.createElement('div');
+    row.className = 'move-row';
+    const number = document.createElement('span');
+    number.className = 'move-number';
+    number.textContent = Math.ceil(ply / 2) + '.';
+    row.append(number);
+    for (const i of [ply, ply + 1]) {
+      if (i > end) { row.append(document.createElement('span')); continue; }
+      const m = frames[i].move;
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'move-button';
+      button.dataset.ply = i;
+      button.textContent = m.san;
+      button.setAttribute('aria-label', `${m.color === 'white' ? 'White' : 'Black'} move ${m.number}: ${m.san}`);
+      row.append(button);
+      moveButtons.set(i, button);
+    }
+    $('move-list').append(row);
+  }
+
+  function xy(square) {
+    const x = square.charCodeAt(0) - 97;
+    const y = 8 - Number(square[1]);
+    return flipped ? [7 - x, 7 - y] : [x, y];
+  }
+  function messageNode(message) {
+    const article = document.createElement('article');
+    article.className = 'chat-message ' + (message.author === 'astra' ? 'astra' : 'human');
+    const header = document.createElement('header');
+    header.className = 'chat-message-header';
+    const author = document.createElement('strong');
+    author.className = 'chat-author';
+    const side = message.author === 'astra' ? data.playerSide : humanSide;
+    author.textContent = message.name || data.displayNames[side] || (message.author === 'astra' ? 'Astra' : 'Player');
+    header.append(author);
+    const context = document.createElement('p');
+    context.className = 'chat-context';
+    const move = frames[message.ply]?.move;
+    context.textContent = move
+      ? `After ${move.number}. ${move.color === 'white' ? 'White' : 'Black'} · ${move.san}`
+      : 'Before the first move';
+    if (message.ply === end) context.textContent += ' · Final position';
+    const timestamp = document.createElement('time');
+    timestamp.className = 'chat-time';
+    const date = new Date(message.created_at * 1000);
+    if (typeof message.created_at === 'number' && Number.isFinite(date.getTime())) {
+      timestamp.dateTime = date.toISOString();
+      timestamp.title = timestamp.dateTime;
+      timestamp.textContent = date.toLocaleString(undefined, {
+        year:'numeric', month:'short', day:'numeric', hour:'numeric', minute:'2-digit',
+        second:'2-digit', timeZoneName:'short'
+      });
+    }
+    const text = document.createElement('p');
+    text.className = 'chat-text';
+    text.textContent = message.text;
+    article.append(header, context, timestamp, text);
+    return article;
+  }
+  function showMessages() {
+    // Board flips and repeated selections must not disturb a reader's scroll.
+    if (chatFrame === index) return;
+    chatFrame = index;
+    const visible = messageNodes.filter((node, i) => index === end || messages[i].ply <= index);
+    if (visible.length === visibleMessageCount) return;
+    visibleMessageCount = visible.length;
+    const list = $('chat-list');
+    list.replaceChildren(...visible);
+    if (!visible.length) {
+      const empty = document.createElement('p');
+      empty.className = 'chat-empty';
+      empty.textContent = messages.length
+        ? 'No messages yet at this position. Step forward to reveal the conversation.'
+        : 'No conversation was included in this replay.';
+      list.append(empty);
+    }
+    $('chat-count').textContent = `${visible.length} / ${messages.length} messages`;
+    // The newest revealed message is also the right stopping point on rewind.
+    list.scrollTop = list.scrollHeight;
+  }
+  function player(element, color, frame) {
+    const white = color === 'white';
+    const side = white ? 'White' : 'Black';
+    const rating = data.headers[side + 'Elo'];
+    element.innerHTML = `<span class="player-name"><span class="color-dot ${color}"></span><span class="name-text"></span><span class="player-meta"></span></span><span class="turn"></span>`;
+    element.querySelector('.name-text').textContent = data.displayNames[color];
+    element.querySelector('.player-meta').textContent = rating && rating !== '?' ? `${rating} · ${side}` : side;
+    element.querySelector('.turn').textContent = index === end
+      ? (data.outcome.winner === null ? 'Draw'
+        : data.outcome.winner === color ? 'Winner' : (data.outcome.reason === 'resignation' ? 'Resigned' : 'Checkmate'))
+      : (frame.turn === color ? 'To move' : '');
+  }
+  function pause() {
+    playing = false;
+    window.clearTimeout(timer);
+    timer = null;
+    $('play-label').textContent = index === end ? 'Replay' : 'Play';
+    $('play').setAttribute('aria-label', index === end ? 'Replay from start' : 'Play replay');
+    $('play').setAttribute('aria-pressed', 'false');
+    $('play-icon').innerHTML = '<path d="m6 3 10 7-10 7z"/>';
+  }
+  function schedule() {
+    window.clearTimeout(timer);
+    if (!playing) return;
+    timer = window.setTimeout(() => {
+      if (!playing) return;
+      show(index + 1, true);
+      if (index === end) pause(); else schedule();
+    }, Number($('speed').value));
+  }
+  function togglePlay() {
+    if (playing) { pause(); return; }
+    if (index === end) show(0, false);
+    playing = true;
+    $('play-label').textContent = 'Pause';
+    $('play').setAttribute('aria-label', 'Pause replay');
+    $('play').setAttribute('aria-pressed', 'true');
+    $('play-icon').innerHTML = '<path d="M7 4v12M13 4v12"/>';
+    schedule();
+  }
+  function keepMoveVisible(button) {
+    const list = $('move-list');
+    if (!button) { list.scrollTop = 0; return; }
+    const row = button.parentElement;
+    const listBox = list.getBoundingClientRect();
+    const rowBox = row.getBoundingClientRect();
+    if (rowBox.top < listBox.top + 5) list.scrollTop -= listBox.top + 5 - rowBox.top;
+    else if (rowBox.bottom > listBox.bottom - 5) list.scrollTop += rowBox.bottom - listBox.bottom + 5;
+  }
+  function showEvaluation(frame) {
+    const finalDraw = index === end && data.outcome.winner === null;
+    $('engine-score').hidden = !data.evaluations && !finalDraw;
+    $('engine-score-label').textContent = finalDraw ? 'Final game result' : 'Recorded engine evaluation';
+    $('engine-score').setAttribute('aria-label', finalDraw ? 'Final game result' : 'Recorded engine evaluation');
+    if (finalDraw) {
+      const historical = frame.evaluation && frame.evaluation.kind !== 'not_recorded' ? frame.evaluation : null;
+      $('engine-score-value').textContent = 'Draw';
+      $('engine-score-detail').textContent = data.outcome.label + (historical
+        ? ` · Historical engine result: ${historical.label} · ${historical.detail}` : '');
+      $('engine-score-note').textContent = 'The actual game ended in a draw. ' + (historical
+        ? `The saved engine result was ${historical.label}. ${historical.note}`
+        : 'No engine score is needed to establish the recorded result.');
+      return;
+    }
+    if (!data.evaluations) return;
+    const value = frame.evaluation;
+    if (value) {
+      $('engine-score-value').textContent = value.label;
+      $('engine-score-detail').textContent = value.detail;
+      $('engine-score-note').textContent = value.note;
+    } else {
+      $('engine-score-value').textContent = 'No recorded evaluation';
+      const opponent = data.evaluations.perspective === 'black' ? 'White' : 'Black';
+      $('engine-score-detail').textContent = !frame.move ? 'Starting position'
+        : frame.move.color !== data.evaluations.perspective
+          ? `No score was logged after this ${opponent} move.`
+          : 'No search result was recorded for this choice.';
+      $('engine-score-note').textContent = data.evaluations.description;
+    }
+  }
+  function show(target, animate) {
+    const next = Math.max(0, Math.min(end, target));
+    const doAnimate = animate && Math.abs(next - index) <= 1 && !reducedMotion.matches;
+    const token = ++generation;
+    board.classList.toggle('instant', !doAnimate);
+    // Flush the transition mode before changing positions, including rapid scrubbing.
+    board.getBoundingClientRect();
+    index = next;
+    const frame = frames[index];
+    const m = frame.move;
+    const visible = new Set(frame.pieces.map(p => p.id));
+    for (const [id, el] of pieces) {
+      el.style.opacity = visible.has(id) ? '1' : '0';
+      el.dataset.present = visible.has(id) ? 'true' : 'false';
+    }
+    for (const p of frame.pieces) {
+      const el = pieces.get(p.id);
+      const [x, y] = xy(p.square);
+      el.style.transform = `translate(${x * 100}%, ${y * 100}%)`;
+      el.style.zIndex = m && (p.square === m.to || p.square === m.from) ? '2' : '1';
+      el.dataset.square = p.square;
+      el.dataset.type = p.type;
+      // Update the same piece's drawing on promotion, and restore it on rewind.
+      el.firstElementChild.firstElementChild.setAttribute('href', '#piece-' + p.type);
+    }
+    for (const [sq, el] of squareNodes) {
+      const [x, y] = xy(sq);
+      el.style.gridColumn = x + 1;
+      el.style.gridRow = y + 1;
+      el.className = 'square' + ((sq.charCodeAt(0) - 97 + Number(sq[1])) % 2 === 1 ? ' dark' : '')
+        + (m && (m.from === sq || m.to === sq) ? ' last' : '')
+        + (frame.check === sq ? ' check' : '');
+    }
+    $('files').innerHTML = [...(flipped ? 'hgfedcba' : 'abcdefgh')].map(f => `<span>${f}</span>`).join('');
+    $('ranks').innerHTML = (flipped ? [1,2,3,4,5,6,7,8] : [8,7,6,5,4,3,2,1]).map(r => `<span>${r}</span>`).join('');
+    player($('top-player'), flipped ? 'white' : 'black', frame);
+    player($('bottom-player'), flipped ? 'black' : 'white', frame);
+    showEvaluation(frame);
+    showMessages();
+    const moveLabel = m ? `${m.number}${m.color === 'white' ? '.' : '…'} ${m.san}` : 'Starting position';
+    const positionLabel = index === end ? `${moveLabel} · ${data.outcome.label}` : moveLabel;
+    $('position-title').textContent = positionLabel;
+    $('position-count').textContent = `${index} / ${end}`;
+    $('timeline').value = index;
+    $('timeline').max = end;
+    $('timeline').setAttribute('aria-valuetext', `${positionLabel}, position ${index} of ${end}`);
+    $('first').disabled = $('previous').disabled = index === 0;
+    $('next').disabled = $('last').disabled = index === end;
+    for (const [ply, button] of moveButtons) {
+      if (ply === index) button.setAttribute('aria-current', 'step');
+      else button.removeAttribute('aria-current');
+    }
+    $('selected-label').textContent = m ? `${m.color === 'white' ? 'White' : 'Black'} · Move ${m.number}` : 'Position';
+    $('selected-move').textContent = m ? `${names[m.type]} ${m.from} → ${m.to}` : 'Starting position';
+    const details = [];
+    if (m && m.castle) details.push(m.to[0] === 'g' ? 'Kingside castling' : 'Queenside castling');
+    if (m && m.captured) details.push(`Captures ${names[m.captured].toLowerCase()}`);
+    if (m && m.promotion) details.push(`Promotes to ${names[m.promotion].toLowerCase()}`);
+    if (index === end) details.push(data.outcome.detail);
+    else if (frame.check) details.push('Check');
+    if (!details.length) details.push(`${frame.turn === 'white' ? 'White' : 'Black'} to move`);
+    $('selected-detail').textContent = details.join(' · ');
+    board.setAttribute('aria-label', `Chessboard after ${positionLabel}. ${index === end ? data.outcome.description + '.' : frame.turn + ' to move.'}`);
+    board.dataset.ply = index;
+    board.dataset.fen = frame.fen;
+    $('board-description').textContent = frame.pieces.map(p => `${p.color} ${names[p.type].toLowerCase()} on ${p.square}`).join('; ');
+    keepMoveVisible(moveButtons.get(index));
+    if (!playing) pause();
+    window.requestAnimationFrame(() => { if (generation === token) board.classList.remove('instant'); });
+  }
+  function seek(position) { pause(); show(position, true); }
+  $('first').addEventListener('click', () => seek(0));
+  $('previous').addEventListener('click', () => seek(index - 1));
+  $('next').addEventListener('click', () => seek(index + 1));
+  $('last').addEventListener('click', () => seek(end));
+  $('play').addEventListener('click', togglePlay);
+  $('timeline').addEventListener('input', event => seek(Number(event.target.value)));
+  $('speed').addEventListener('change', () => { if (playing) schedule(); });
+  $('flip').addEventListener('click', () => { flipped = !flipped; show(index, false); });
+  $('move-list').addEventListener('click', event => {
+    const button = event.target.closest('button[data-ply]');
+    if (button) seek(Number(button.dataset.ply));
+  });
+  document.addEventListener('keydown', event => {
+    if (event.ctrlKey || event.metaKey || event.altKey || event.target.isContentEditable) return;
+    if (/^(INPUT|SELECT|TEXTAREA)$/.test(event.target.tagName)) return;
+    if (event.key === 'ArrowLeft') { event.preventDefault(); seek(index - 1); }
+    else if (event.key === 'ArrowRight') { event.preventDefault(); seek(index + 1); }
+    else if (event.key === 'Home') { event.preventDefault(); seek(0); }
+    else if (event.key === 'End') { event.preventDefault(); seek(end); }
+    else if (event.code === 'Space' && !/^(BUTTON|A)$/.test(event.target.tagName)) { event.preventDefault(); togglePlay(); }
+  });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+  const downloadUrl = URL.createObjectURL(new Blob([data.pgn], {type:'application/x-chess-pgn'}));
+  $('download-pgn').href = downloadUrl;
+  window.addEventListener('pagehide', () => { pause(); });
+  show(0, false);
+})();
+</script>
+</body>
+</html>

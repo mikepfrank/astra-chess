@@ -6,6 +6,11 @@ from-scratch tactical engine. Human turns are untimed; games can continue over
 several days. The original playing checkout and its experiment records are not
 modified by this application.
 
+The durable player workflow lives in [prompts/player.md](prompts/player.md).
+Its finishing guidance is to seek a short, verified finish early when
+overwhelmingly ahead, collect material only when it helps secure that finish,
+and agree on instructional detours with the opponent.
+
 ## Run on Windows
 
 Use Python 3.12 and the reviewed Codex CLI version in
@@ -109,6 +114,9 @@ two schedulers from owning the same games.
   and revoke the link. Generating another link replaces the previous link.
   A replay captures the conversation at sharing time; later post-game messages
   stay private unless the owner generates a new replay including commentary.
+  Its sidebar shows the conversation through the selected move. Advancing
+  reveals messages and going back hides later ones; the final position includes
+  the shared post-game discussion.
   Revocation stops service access; it cannot remove copies others already saved.
 - One durable Codex conversation per game. Processes exit after each completed
   action; they do not idle while waiting for the human. After 36 hours without
@@ -120,6 +128,37 @@ two schedulers from owning the same games.
 - While the tactical engine runs a query, Astra's status reads **CALCULATING**,
   then returns to **THINKING** for review and deliberation. Calculation counts
   toward the same chess clock and turn allocation as deliberation.
+
+## Offline game replays
+
+The [replay collection](replays/README.md) contains standalone HTML archives with
+animated moves, historical evaluations and a conversation sidebar synchronized
+to the selected position. The HTML works offline and can be shared as one file.
+Building it uses the existing repository replay builder and an optional
+rules-and-notation dependency; it runs no chess search or model request.
+
+From this directory:
+
+```powershell
+& ./.venv/Scripts/python.exe -m pip install -r requirements-replay.txt
+& ./.venv/Scripts/python.exe export_replay.py --game GAME_ID --data-dir var --record replays/game.json --output replays/game.html --pgn replays/game.pgn
+```
+
+The exporter reads a consistent, read-only snapshot of a finished game. It
+validates each recorded move, final result and message position. The saved JSON
+contains display metadata, moves, public chat and historical evaluations with
+source hashes; credentials, account details, private decisions and Codex
+transcripts are excluded. Messages retain their recorded order and text,
+including the post-game discussion captured at export time.
+
+Rebuild from that JSON without accessing the service database or query files:
+
+```powershell
+& ./.venv/Scripts/python.exe export_replay.py --from-record replays/game.json --output replays/game.html
+```
+
+Use `--record-only` to save the validated JSON without building HTML. Exporting
+does not publish a page or change the service's optional public replay links.
 
 ## Configuration
 
@@ -182,8 +221,9 @@ memory notes, game state, messages, idempotency keys, event records, resource
 admission and shared snapshots. `var/games/ID/queries/` keeps requests/results,
 including failed-request evidence. `var/players/ID/` keeps Codex recovery state.
 These are private runtime data, ignored by Git. Do not publish this directory
-as static files or commit real players' records. Source control contains only
-application code, tests and authored documentation.
+as static files or commit real players' records without their authorization.
+Source control contains application code, tests, authored documentation and
+explicitly requested archives in `replays/`.
 
 On this Windows laptop, optional `var/secrets/` also contains the DPAPI encrypted
 operator key. It is separate from per-game Codex homes and query subprocesses.

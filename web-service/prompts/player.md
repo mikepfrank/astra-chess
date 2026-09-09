@@ -28,6 +28,12 @@ defense. Optional goal probes distinguish bounded forced results, cooperative
 witnesses and unknown results. Unknown is not a refutation. A positive endgame
 score is not proof of a win or of meaningful progress.
 
+When overwhelmingly ahead, seek a short, verified finish early. Do not keep
+collecting material unless it helps secure that finish. Use bounded mating
+probes when appropriate, distinguish forced proofs from cooperative examples,
+and verify the continuation after the opponent's actual reply. Make
+instructional detours an explicit choice with the opponent.
+
 For each move:
 
 1. Call chess_status at the start of every response attempt, including a retry.

@@ -1,7 +1,7 @@
 import {BoardView,START_FEN,renderCaptures} from './pieces.js';
 const $=id=>document.getElementById(id);
 const board=new BoardView($('board'));
-let data,index=0,playing=false,timer;
+let data,index=0,playing=false,timer,shownMessageCount=-1;
 const moveButtons=[];
 const titleCase=text=>String(text||'').replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
 function stop(){playing=false;clearTimeout(timer);$('play').textContent=index===data.moves.length?'Replay':'Play';$('play').setAttribute('aria-label',index===data.moves.length?'Replay from the beginning':'Play replay');$('play').setAttribute('aria-pressed','false');}
@@ -33,13 +33,16 @@ function show(ply){
   if(!playing)$('play').textContent=index===data.moves.length?'Replay':'Play';
 }
 function renderCommentary(){
-  const container=$('messages');container.replaceChildren();
   const all=data.messages||[];
-  const messages=all.filter(message=>Number(message.ply)===index);
+  const messages=all.filter(message=>Number(message.ply)<=index);
+  // Board flips and quiet moves must not reset someone reading earlier chat.
+  if(messages.length===shownMessageCount)return;
+  shownMessageCount=messages.length;
+  const container=$('messages');container.replaceChildren();
   if(!messages.length){
     const empty=document.createElement('div');empty.className='conversation-empty';
-    const heading=document.createElement('p');heading.textContent=all.length?'A quiet moment.':'The moves tell the story.';
-    const note=document.createElement('span');note.textContent=all.length?'No messages were recorded at this position. Step through the game to read the conversation alongside the moves.':'No commentary was included in this shared replay.';
+    const heading=document.createElement('p');heading.textContent=all.length?'The conversation is still ahead.':'The moves tell the story.';
+    const note=document.createElement('span');note.textContent=all.length?'Advance through the moves to reveal the conversation. Going back hides later messages.':'No commentary was included in this shared replay.';
     empty.append(heading,note);container.append(empty);
   }else{
     for(const message of messages){
@@ -49,6 +52,7 @@ function renderCommentary(){
       const body=document.createElement('p');body.className='message-body';body.textContent=message.text;
       header.append(author);article.append(header,body);container.append(article);
     }
+    container.scrollTop=container.scrollHeight;
   }
 }
 function buildMoves(){
@@ -97,7 +101,7 @@ async function initialize(){
     document.title=`${data.name} vs Astra · Shared replay`;
     $('replay-result').textContent=`${data.result||'Finished'} · ${titleCase(data.termination||'Game complete')}`;
     $('replay-slider').max=data.moves.length;board.flipped=data.human_side==='black';
-    $('commentary-disclosure').textContent=data.messages?.length?'The player explicitly chose to share this game’s conversation. Messages are shown at their recorded position.':'The player shared the moves. No conversation is displayed.';
+    $('commentary-disclosure').textContent=data.messages?.length?'The player chose to share this conversation. Messages accumulate at their recorded positions; going back hides later messages. The final position includes any shared post-game discussion.':'The player shared the moves. No conversation is displayed.';
     buildMoves();show(0);$('replay-content').hidden=false;
   }catch(error){$('replay-error-detail').textContent=error.message;$('replay-error').hidden=false;}
   finally{$('replay-loading').hidden=true;}

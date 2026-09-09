@@ -1,0 +1,15 @@
+[Date "2026.09.09"]
+[UTCDate "2026.09.09"]
+[UTCTime "17:41:59"]
+[Round "hosted-5194d266fdfa0f8ade73008ea0c503b5"]
+[Event "Astra Chess Public Beta"]
+[Site "Astra Chess"]
+[White "Dr. Thanos"]
+[Black "Astra"]
+[Result "0-1"]
+[Termination "checkmate"]
+[AstraModel "gpt-6-astra"]
+[AstraReasoning "ultra"]
+[EngineSHA256 "96e9ed243d69eede25b24c4c22248753053ee162b51fd0eb4cc081f47a311174"]
+
+1. e4 e5 2. Nf3 Nc6 3. c3 Nf6 4. Qe2 d5 5. d3 dxe4 6. dxe4 Bd6 7. Qc4 O-O 8. Bd3 Be6 9. Qa4 a6 10. c4 Nb4 11. O-O Nxd3 12. b3 Bd7 13. Qxd7 Qxd7 14. Rd1 Nxc1 15. Rxc1 Nxe4 16. Rd1 Qf5 17. Rd5 c6 18. Rd3 Bc5 19. Nbd2 Nxf2 20. Re1 Nxd3+ 21. Kf1 Nxe1 22. Kxe1 e4 23. Nh4 Qf2+ 24. Kd1 Rad8 25. Kc1 Rxd2 26. Nf3 Ba3+ 27. Kb1 Rd1# 0-1
