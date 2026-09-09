@@ -4,6 +4,10 @@ Mike is Michael P. Frank, a reversible-computing researcher and AI enthusiast.
 
 ## Durable workflows
 
+New sessions, especially parallel spin-off development, should read
+[HANDOFF.md](HANDOFF.md) for project intent, the dated experiment snapshot,
+portable context and boundaries between development and live play.
+
 - For an authorized live game or its resumption, read
   [skills/astra-chess-play/SKILL.md](skills/astra-chess-play/SKILL.md).
 - For replay pages, historical engine scores, and the collection index, read
@@ -61,4 +65,4 @@ evidence and substantive notes in this repository and commit them at completion
 checkpoints. Preserve the dependency/cache/runtime exclusions in `.gitignore`.
 Check task-owned assets outside the repo before assuming a clean `git status`
 means coverage is complete. [REPRODUCIBILITY.md](REPRODUCIBILITY.md) records the
-equipment inventory and the user's intention to prepare a public package later.
+equipment inventory, publication status and portability checks.

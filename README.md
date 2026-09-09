@@ -5,6 +5,10 @@ workflow, and the complete archived experiment. Start with [SETUP.md](SETUP.md)
 for a fresh checkout, or [PACKAGING.md](PACKAGING.md) for the local source/history
 package and GitHub handoff. Core analysis needs only Python's standard library.
 
+New assistant sessions and spin-off development should start with
+[HANDOFF.md](HANDOFF.md) for the experimental intent, current state, lessons,
+parallel-work boundaries, and portable context not captured by the API reference.
+
 ## Repository layout
 
 | Directory | Contents |
