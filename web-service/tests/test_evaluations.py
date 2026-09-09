@@ -41,6 +41,39 @@ class EvaluationTests(unittest.TestCase):
                 "completed_depth": 5, "fallback": False, "timed_out": True,
                 "candidates": [candidate], "query": {"mode": "analyze", "fen": before}}
 
+    def goal_result(self, state, *, direct_after=True, depth=6, ply=None):
+        if ply is None:
+            ply = max(i for i, move in enumerate(state["moves"]) if move["actor"] == "astra")
+        chosen = state["moves"][ply]
+        before = game.START_FEN if ply == 0 else state["moves"][ply - 1]["fen"]
+        pre_move = deepcopy(state)
+        pre_move.update(moves=state["moves"][:ply], fen=before)
+        history = game.history(pre_move)
+        goal = {"type": "checkmate", "side": state["astra_side"]}
+        start_fen = chosen["fen"] if direct_after else before
+        board = game.Position.from_fen(start_fen)
+        # These are stored-result fixtures, not claims about the opening position.
+        # Legal line metadata is intentionally shorter than the forced proof depth.
+        line = {"uci": [], "san": [], "fens": [start_fen], "ending": "goal_reached",
+                "claim_by_intended_move": None, "evidence": "proof_representative"}
+        for index in range(4):
+            legal = board.legal_moves()
+            if not legal:
+                break
+            move = board.parse_uci(chosen["uci"]) if not direct_after and index == 0 else legal[0]
+            line["uci"].append(move.uci())
+            line["san"].append(board.san(move))
+            board = board.play(move)
+            line["fens"].append(board.fen())
+        return {"kind": "goal_probe", "start_fen": start_fen, "goal": deepcopy(goal),
+                "horizon_plies": 8, "status": "forced", "proof_status": "forced",
+                "proof_completed_depth": depth, "witness_status": "found", "lines": [line],
+                "history_supplied": True, "position_history_fens": history + ([before] if direct_after else []),
+                "timed_out": False, "diagnostics": {"proof_budget_exhausted": False,
+                    "witness_budget_exhausted": False},
+                "query": {"mode": "probe", "fen": before, "after": [chosen["uci"]] if direct_after else [],
+                          "history_fens": history, "goal": goal, "depth": 8}}
+
     def save(self, state, result, *, ply=None, name=None):
         if ply is None:
             ply = max(i for i, move in enumerate(state["moves"]) if move["actor"] == "astra")
@@ -96,9 +129,9 @@ class EvaluationTests(unittest.TestCase):
         self.save(state, self.result(state, -6))
         self.assertEqual(self.evaluate(state)["score_pawns"], -0.06)
 
-    def test_mate_distance_is_from_root_and_signed_for_either_color(self):
+    def test_mate_distance_is_after_selected_move_and_signed_for_either_color(self):
         for side in ("white", "black"):
-            for plies, moves, winner in ((3, 2, "astra"), (5, 3, "astra"), (-4, 2, "opponent")):
+            for plies, moves, winner in ((3, 1, "astra"), (5, 2, "astra"), (-4, 2, "opponent")):
                 with self.subTest(side=side, plies=plies):
                     state = self.state(side)
                     result = self.result(state, 30000 - plies if plies > 0 else -30000 - plies)
@@ -107,6 +140,165 @@ class EvaluationTests(unittest.TestCase):
                     actual = self.evaluate(state)
                     self.assertIsNone(actual["score_pawns"])
                     self.assertEqual((actual["mate_in_moves"], actual["mate_for"]), (moves, winner))
+
+    def test_direct_after_goal_proof_uses_completed_depth_not_shorter_line_for_both_colors(self):
+        for side in ("white", "black"):
+            with self.subTest(side=side):
+                state = self.state(side)
+                result = self.goal_result(state)
+                ply = 0 if side == "white" else 3
+                chosen = state["moves"][ply]
+                authentic_history = [] if ply == 0 else [game.START_FEN] + [m["fen"] for m in state["moves"][:ply - 1]]
+                self.assertEqual(result["query"]["history_fens"], authentic_history)
+                self.assertEqual(result["position_history_fens"], authentic_history + [result["query"]["fen"]])
+                self.assertEqual(len(result["lines"][0]["uci"]), 4)
+                self.save(state, result)
+                self.assertEqual(self.evaluate(state), {"score_pawns": None, "mate_in_moves": 3,
+                    "mate_for": "astra", "ply": ply, "uci": chosen["uci"], "san": chosen["san"],
+                    "completed_depth": 6, "source": "goal_probe"})
+
+    def test_pre_move_goal_proof_requires_actual_first_move_and_excludes_it_from_distance(self):
+        for side in ("white", "black"):
+            for omit_after in (False, True):
+                with self.subTest(side=side, omit_after=omit_after):
+                    state = self.state(side)
+                    result = self.goal_result(state, direct_after=False, depth=5)
+                    if omit_after:
+                        result["query"].pop("after")
+                    self.save(state, result)
+                    actual = self.evaluate(state)
+                    self.assertEqual((actual["mate_in_moves"], actual["mate_for"]), (2, "astra"))
+                    self.assertEqual(actual["source"], "goal_probe")
+
+    def test_forced_goal_proof_survives_later_numeric_query_and_human_reply_but_not_next_astra_move(self):
+        state = self.state("black")
+        self.save(state, self.goal_result(state))
+        self.save(state, self.result(state, -70))
+        expected = self.evaluate(state)
+        self.assertEqual(expected["mate_in_moves"], 3)
+        self.assertEqual(expected["source"], "goal_probe")
+        game.apply_move(state, "f1b5", "human")
+        self.assertEqual(self.evaluate(state), expected)
+        game.apply_move(state, "a7a6", "astra")
+        self.assertIsNone(self.evaluate(state))
+
+    def test_witness_timeout_does_not_discard_an_already_completed_forced_proof(self):
+        state = self.state()
+        result = self.goal_result(state)
+        result["timed_out"] = True
+        result["diagnostics"]["witness_budget_exhausted"] = True
+        self.save(state, result)
+        self.assertEqual(self.evaluate(state)["mate_in_moves"], 3)
+
+    def test_direct_after_opponent_goal_and_omitted_query_side_follow_probe_root_turn(self):
+        for side in ("white", "black"):
+            for omit_side in (False, True):
+                with self.subTest(side=side, omit_side=omit_side):
+                    state = self.state(side)
+                    result = self.goal_result(state, depth=5)
+                    opponent = "white" if side == "black" else "black"
+                    result["goal"]["side"] = opponent
+                    result["query"]["goal"]["side"] = opponent
+                    if omit_side:
+                        result["query"]["goal"].pop("side")
+                    self.save(state, result)
+                    actual = self.evaluate(state)
+                    self.assertEqual((actual["mate_in_moves"], actual["mate_for"]), (3, "opponent"))
+        state = self.state()
+        result = self.goal_result(state, direct_after=False, depth=5)
+        result["query"]["goal"].pop("side")
+        self.save(state, result)
+        self.assertEqual(self.evaluate(state)["mate_for"], "astra")
+
+    def test_goal_probe_requires_exact_root_history_and_completed_forced_mate_evidence(self):
+        changes = {
+            "wrong kind": lambda r: r.update(kind="other"),
+            "unknown proof": lambda r: r.update(proof_status="unknown"),
+            "refuted proof": lambda r: r.update(proof_status="refuted"),
+            "witness only": lambda r: r.update(status="possible", proof_status="refuted"),
+            "inconsistent status": lambda r: r.update(status="unknown"),
+            "nonmate result goal": lambda r: r["goal"].update(type="check"),
+            "nonmate matching goals": lambda r: (r["goal"].update(type="check"), r["query"]["goal"].update(type="check")),
+            "mismatched requested side": lambda r: r["query"]["goal"].update(side="white"),
+            "wrong query mode": lambda r: r["query"].update(mode="analyze"),
+            "filtered root moves": lambda r: r["query"].update(root_moves=["b8c6"]),
+            "wrong requested depth": lambda r: r["query"].update(depth=7),
+            "boolean requested depth": lambda r: r["query"].update(depth=True),
+            "missing query": lambda r: r.pop("query"),
+            "wrong original root FEN": lambda r: r["query"].update(fen=game.START_FEN),
+            "wrong result root FEN": lambda r: r.update(start_fen=game.START_FEN),
+            "wrong after move": lambda r: r["query"].update(after=["g8f6"]),
+            "multiple hypothetical moves": lambda r: r["query"]["after"].append("f1b5"),
+            "non-list after": lambda r: r["query"].update(after="b8c6"),
+            "missing supplied history flag": lambda r: r.pop("history_supplied"),
+            "history not supplied": lambda r: r.update(history_supplied=False),
+            "numeric history flag": lambda r: r.update(history_supplied=1),
+            "missing request history": lambda r: r["query"].pop("history_fens"),
+            "wrong request history": lambda r: r["query"].update(history_fens=[]),
+            "root duplicated in request history": lambda r: r["query"]["history_fens"].append(r["query"]["fen"]),
+            "wrong expanded history": lambda r: r.update(position_history_fens=r["query"]["history_fens"]),
+            "missing expanded history": lambda r: r.pop("position_history_fens"),
+            "zero proof depth": lambda r: r.update(proof_completed_depth=0),
+            "negative proof depth": lambda r: r.update(proof_completed_depth=-1),
+            "Astra cannot mate on opponent's first ply": lambda r: r.update(proof_completed_depth=1),
+            "Astra cannot mate on opponent's fifth ply": lambda r: r.update(proof_completed_depth=5),
+            "boolean proof depth": lambda r: r.update(proof_completed_depth=True),
+            "fractional proof depth": lambda r: r.update(proof_completed_depth=5.5),
+            "missing proof depth": lambda r: r.pop("proof_completed_depth"),
+            "proof beyond horizon": lambda r: r.update(proof_completed_depth=9),
+            "invalid horizon": lambda r: r.update(horizon_plies=0),
+            "boolean horizon": lambda r: r.update(horizon_plies=True),
+            "oversize horizon": lambda r: (r.update(horizon_plies=33), r["query"].update(depth=33)),
+            "proof exhausted": lambda r: r["diagnostics"].update(proof_budget_exhausted=True),
+            "missing proof diagnostics": lambda r: r.pop("diagnostics"),
+            "missing proof budget flag": lambda r: r["diagnostics"].pop("proof_budget_exhausted"),
+        }
+        for label, change in changes.items():
+            with self.subTest(case=label):
+                state = self.state()
+                result = self.goal_result(state)
+                change(result)
+                self.save(state, result)
+                self.assertIsNone(self.evaluate(state))
+
+    def test_pre_move_goal_probe_rejects_wrong_selected_line_or_opponent_goal(self):
+        changes = {
+            "no representative line": lambda r: r.update(lines=[]),
+            "cooperative line": lambda r: r["lines"][0].update(evidence="cooperative_witness"),
+            "wrong first UCI": lambda r: r["lines"][0]["uci"].__setitem__(0, "g8f6"),
+            "wrong first SAN": lambda r: r["lines"][0]["san"].__setitem__(0, "Nf6"),
+            "wrong before FEN": lambda r: r["lines"][0]["fens"].__setitem__(0, game.START_FEN),
+            "wrong after FEN": lambda r: r["lines"][0]["fens"].__setitem__(1, game.START_FEN),
+            "wrong line ending": lambda r: r["lines"][0].update(ending="draw_claim"),
+            "already mated after move": lambda r: r.update(proof_completed_depth=1),
+            "Astra cannot mate on opponent's even ply": lambda r: r.update(proof_completed_depth=4),
+            "opponent goal": lambda r: (r["goal"].update(side="white"), r["query"]["goal"].update(side="white")),
+        }
+        for label, change in changes.items():
+            with self.subTest(case=label):
+                state = self.state()
+                result = self.goal_result(state, direct_after=False, depth=5)
+                change(result)
+                self.save(state, result)
+                self.assertIsNone(self.evaluate(state))
+
+    def test_impossible_goal_proof_parity_preserves_valid_numeric_fallback(self):
+        state = self.state()
+        self.save(state, self.result(state, 42))
+        self.save(state, self.goal_result(state, depth=5))
+        actual = self.evaluate(state)
+        self.assertEqual(actual["score_pawns"], 0.42)
+        self.assertIsNone(actual["mate_in_moves"])
+        self.assertNotIn("source", actual)
+
+    def test_goal_probe_is_hidden_after_actual_checkmate(self):
+        state = game.new_game({"id": "player", "name": "Player"}, "white", self.config)
+        for move in ("f2f3", "e7e5", "g2g4", "d8h4"):
+            game.apply_move(state, move, "astra" if game.side_to_move(state) == "black" else "human")
+        result = self.goal_result(state, direct_after=False, depth=1)
+        self.save(state, result)
+        self.assertEqual(state["termination"], "checkmate")
+        self.assertIsNone(self.evaluate(state))
 
     def test_initial_and_actual_checkmate_positions_have_no_display_evaluation(self):
         initial = game.new_game({"id": "player", "name": "Player"}, "white", self.config)
@@ -141,6 +333,8 @@ class EvaluationTests(unittest.TestCase):
             "overflowing score": lambda r: r["candidates"][0].update(score_cp=10 ** 500),
             "missing mate classification": lambda r: r["candidates"][0].pop("mate_in_plies"),
             "zero mate": lambda r: r["candidates"][0].update(mate_in_plies=0),
+            "mate already completed by chosen move": lambda r: r["candidates"][0].update(mate_in_plies=1),
+            "negative mate with no remaining plies": lambda r: r["candidates"][0].update(mate_in_plies=-1),
             "noninteger mate": lambda r: r["candidates"][0].update(mate_in_plies=2.5),
             "hypothetical metadata": lambda r: r["query"].update(after=["b8c6"]),
             "wrong request FEN": lambda r: r["query"].update(fen=game.START_FEN),

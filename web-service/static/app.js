@@ -23,6 +23,7 @@ function renderAstraEvaluation(game){
     if(value){
       const parts=[];
       if(evidence.san)parts.push(`After ${evidence.san}`);
+      if(mate&&evidence.source==='goal_probe')parts.push('mate proof');
       if(Number.isInteger(evidence.completed_depth)&&evidence.completed_depth>0)parts.push(`depth ${evidence.completed_depth}`);
       if(!mate)parts.push('Positive values favor Astra');
       context=parts.join(' · ');
