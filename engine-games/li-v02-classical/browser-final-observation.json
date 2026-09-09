@@ -1,0 +1,15 @@
+{
+  "source": "Embedded Chess.com tab: visible board, move list and final-result dialog",
+  "url": "https://www.chess.com/play/computer/Li-Bot",
+  "observed_utc": "2026-09-09T02:09:59.868Z",
+  "submitted_utc": "2026-09-09T02:09:59.688Z",
+  "opponent": "Li",
+  "displayed_opponent_rating": 2000,
+  "player_color": "white",
+  "board_orientation": "white",
+  "displayed_result": "1/2-1/2",
+  "dialog_text": "Draw by insufficient material",
+  "board_rows_rank_8_to_1": ["........", "........", "....K...", ".......k", "........", "........", "........", "........"],
+  "san_from_visible_move_list": "Nc3 c5 Nf3 Nc6 e3 e6 Bb5 Nf6 O-O a6 Bxc6 bxc6 d4 Bb7 e4 cxd4 Qxd4 c5 Qd3 d5 exd5 Bxd5 Nxd5 Qxd5 Qe2 Qe4 Be3 Bd6 Rad1 Qc6 Bg5 O-O Bxf6 gxf6 Qc4 Rfb8 Qg4+ Kf8 b3 c4 Qxc4 Qxc4 bxc4 Bc5 Rb1 h5 Rb3 Rd8 a4 Rac8 Rfb1 e5 Rd3 e4 Rxd8+ Rxd8 Nh4 Rd2 Rb8+ Ke7 Nf5+ Kd7 Ne3 Kc7 Re8 Bxe3 fxe3 Kc6 Rxe4 Kc5 Rf4 Rxc2 Rxf6 Ra2 Rxa6 Kxc4 Rf6 Kd3 Rxf7 Kxe3 Re7+ Kd4 Ra7 h4 Rh7 Ke3 Re7+ Kd3 Ra7 Ke3 h3 Kd3 Ra8 Kc3 Kh2 Kd3 a5 Kc4 Rh8 Rxa5 Rxh4+ Kd3 g4 Ke4 g5+ Kf5 Rg4 Kg6 h4 Ra1 Rf4 Kh5 Kg3 Ra3+ Rf3 Ra4 Rf4 Ra3+ Kg2 Rd3 Re4 Ra3 Re6 Kxh4 g6 Rg3+ Kf2 Rg5 Kf3 Kh5 Kf4 Rg4+ Kf5 Rg5+ Kf6 Rxg6+ Ke5 Rxe6+ Kxe6",
+  "scope": "Transcribed from DOM-visible UI in the final browser observation. No Chess.com analysis score or move classification was used to select moves."
+}

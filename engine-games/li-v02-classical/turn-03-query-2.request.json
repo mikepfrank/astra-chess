@@ -1,0 +1,20 @@
+{
+  "label": "Li game 11, move 3: Compare my central break with restrained development",
+  "mode": "analyze",
+  "fen": "r1bqkbnr/pp1ppppp/2n5/2p5/8/2N2N2/PPPPPPPP/R1BQKB1R w KQkq - 2 3",
+  "history_fens": [
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b KQkq - 1 1",
+    "rnbqkbnr/pp1ppppp/8/2p5/8/2N5/PPPPPPPP/R1BQKBNR w KQkq c6 0 2",
+    "rnbqkbnr/pp1ppppp/8/2p5/8/2N2N2/PPPPPPPP/R1BQKB1R b KQkq - 1 2"
+  ],
+  "depth": 8,
+  "seconds": 15.0,
+  "candidates": 3,
+  "diagnostics": true,
+  "root_moves": [
+    "d2d4",
+    "e2e3",
+    "e2e4"
+  ]
+}

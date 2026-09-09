@@ -45,6 +45,11 @@ Version 0.2 adds faster search, a cumulative game clock, and optional threat
 inspection. [ENGINE-CHANGES.md](ENGINE-CHANGES.md) records the selected defaults,
 benchmarks, and verification against the preserved baseline.
 
+The latest trial is [game 11 against Li (2000)](engine-games/li-v02-classical/experiment.md):
+Astra played White and drew by insufficient material after 70.Kxe6. The
+[PGN](engine-games/li-v02-classical/game.pgn), all search evidence, and
+[own-time audit](engine-games/li-v02-classical/time-audit.md) are preserved.
+
 [REPRODUCIBILITY.md](REPRODUCIBILITY.md) inventories the equipment, notes and
 environment requirements retained locally, and the remaining work for a future
 public package of this method.
@@ -73,8 +78,10 @@ timestamps in the game's `continuation.md` until the journal has caught up.
 The historical one-hour allowance means cumulative own-turn time, excluding the opponent's thinking.
 Compaction does not silently reset it. The ledger supports explicit user credits
 without deleting original charges. See `ENGINE.md` for the accounting boundary.
-The selected future staged/increment control is recorded in
-`TIME-CONTROL-NEXT.md` and still needs implementation before the next game.
+New trials can select `--time-control classical`: 90 minutes initially,
+30 more after the 40th verified own move, and a 30-second increment after each
+verified own move. Game 11 used this implemented control; earlier journals
+retain their original policies. See `TIME-CONTROL-NEXT.md` for details.
 
 ## Replay collection
 

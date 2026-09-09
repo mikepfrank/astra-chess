@@ -17,7 +17,11 @@ records any pre-credit overrun and never spends future credits in advance.
 Legacy clock defaults and saved game 9/10 ledgers remain unchanged. All 157
 Python tests passed, including staged-clock and White/Black journal integration
 checks. Both play-skill copies match and pass validation. The rules, search and
-evaluation are unchanged for the next trial against Li (2000).
+evaluation remained unchanged throughout game 11 against Li (2000), which ended
+in a draw after 70.Kxe6. The [game record and assessment](engine-games/li-v02-classical/experiment.md)
+preserve all 91 query request/result pairs, the final browser observation, and
+the classical ledger. Charged own time was 6596.720 seconds; 2703.280 seconds
+remained, with no refunds, extensions, or overall clock overruns.
 
 ## What is preserved
 
@@ -131,8 +135,8 @@ remote or license is silently selected here. An actual live game in another
 assistant session/OS remains a separate experiment. Historical machine paths
 are retained in notes and old ledgers; relocated workflows use the actual
 checkout and rediscover the embedded browser API. Saved games are evidence,
-not opening/endgame knowledge. The future staged clock must be implemented
-before the next trial.
+not opening/endgame knowledge. The staged clock described above was implemented
+before game 11; earlier trial ledgers retain their original controls.
 
 Git previously normalized Windows line endings in saved records on archive,
 changing their SHA-256 hashes. `.gitattributes` now preserves exact engine and

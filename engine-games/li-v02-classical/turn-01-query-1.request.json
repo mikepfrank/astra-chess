@@ -1,0 +1,10 @@
+{
+  "label": "Li game 11, move 1: Occupy the center and develop; compare central pawn advance with knight development.",
+  "mode": "analyze",
+  "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  "history_fens": [],
+  "depth": 8,
+  "seconds": 15.0,
+  "candidates": 3,
+  "diagnostics": true
+}

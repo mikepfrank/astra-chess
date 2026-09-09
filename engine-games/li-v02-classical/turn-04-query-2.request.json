@@ -1,0 +1,22 @@
+{
+  "label": "Li game 11, move 4: Bishop placement versus d5 and queenside pawn tempos",
+  "mode": "analyze",
+  "fen": "r1bqkbnr/pp1p1ppp/2n1p3/2p5/8/2N1PN2/PPPP1PPP/R1BQKB1R w KQkq - 0 4",
+  "history_fens": [
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b KQkq - 1 1",
+    "rnbqkbnr/pp1ppppp/8/2p5/8/2N5/PPPPPPPP/R1BQKBNR w KQkq c6 0 2",
+    "rnbqkbnr/pp1ppppp/8/2p5/8/2N2N2/PPPPPPPP/R1BQKB1R b KQkq - 1 2",
+    "r1bqkbnr/pp1ppppp/2n5/2p5/8/2N2N2/PPPPPPPP/R1BQKB1R w KQkq - 2 3",
+    "r1bqkbnr/pp1ppppp/2n5/2p5/8/2N1PN2/PPPP1PPP/R1BQKB1R b KQkq - 0 3"
+  ],
+  "depth": 8,
+  "seconds": 20.0,
+  "candidates": 3,
+  "diagnostics": true,
+  "root_moves": [
+    "f1e2",
+    "f1b5",
+    "f1c4"
+  ]
+}
