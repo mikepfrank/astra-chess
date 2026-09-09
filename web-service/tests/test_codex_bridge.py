@@ -41,6 +41,8 @@ for wire in sys.stdin:
         if scenario == 'unsafe_code_host': conf['features']['code_mode_host']['disable_in_process_fallback'] = False
         if scenario == 'missing_compaction': conf.pop('model_auto_compact_token_limit')
         if scenario == 'wrong_compaction_scope': conf['model_auto_compact_token_limit_scope'] = 'body_after_prefix'
+        if scenario == 'missing_context_window': conf.pop('model_context_window')
+        if scenario == 'wrong_context_window': conf['model_context_window'] = 272000
         send({'id': request['id'], 'result': {'config': conf}})
     elif method in ('thread/start', 'thread/resume'):
         result = {'thread': {'id': 'test-thread'}, 'model': 'gpt-6-astra',
@@ -190,12 +192,14 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn('shell_tool = false', config_text)
         self.assertIn('code_mode = true', config_text)
         self.assertIn('disable_in_process_fallback = true', config_text)
-        self.assertIn('model_auto_compact_token_limit = 100000', config_text)
+        self.assertIn('model_context_window = 400000', config_text)
+        self.assertIn('model_auto_compact_token_limit = 300000', config_text)
         self.assertIn('model_auto_compact_token_limit_scope = "total"', config_text)
         for request in self.wires:
             if request.get('method') in ('thread/start', 'thread/resume'):
                 overrides = request['params']['config']
-                self.assertEqual(overrides['model_auto_compact_token_limit'], 100000)
+                self.assertEqual(overrides['model_context_window'], 400000)
+                self.assertEqual(overrides['model_auto_compact_token_limit'], 300000)
                 self.assertEqual(overrides['model_auto_compact_token_limit_scope'], 'total')
         self.assert_reaped()
 
@@ -217,7 +221,7 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         from astra_web.config import Config
         with patch.dict(os.environ, {}, clear=True):
             config = Config(data_dir=self.root)
-            self.assertEqual(config.max_turn_tokens, 1000000)
+            self.assertEqual(config.max_turn_tokens, 3000000)
             self.assertEqual(config.max_daily_tokens, 20000000)
             self.assertEqual(config.max_daily_turns, 500)
             self.assertEqual(config.max_workers, 1)
@@ -250,8 +254,9 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(json.loads(malformed.split('\n', 1)[1]), {'game_id': 'game-1'})
         self.assert_reaped()
 
-    async def test_compaction_configuration_must_be_effective_before_thread_start(self):
-        for scenario in ('missing_compaction', 'wrong_compaction_scope'):
+    async def test_context_and_compaction_configuration_must_be_effective_before_thread_start(self):
+        for scenario in ('missing_compaction', 'wrong_compaction_scope',
+                         'missing_context_window', 'wrong_context_window'):
             with self.subTest(scenario=scenario):
                 self.wires.clear()
                 with self.assertRaisesRegex(bridge.CodexError, 'audited configuration'):

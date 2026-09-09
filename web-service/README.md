@@ -112,12 +112,20 @@ All optional environment variables are listed here; `config.py` contains limits.
 | `OPENAI_API_KEY` | absent | Service operator's API key |
 | `ASTRA_MAX_WORKERS` | `1` | Simultaneous active Codex actions/engine searches |
 | `ASTRA_MAX_DAILY_TURNS` | `500` | UTC daily admitted model-action limit, including chat and failed attempts |
-| `ASTRA_MAX_TURN_TOKENS` | `1000000` | Reservation and stop threshold for one model action, including input/context tokens |
+| `ASTRA_MAX_TURN_TOKENS` | `3000000` | Reservation and stop threshold for one model action, including input/context tokens |
 | `ASTRA_MAX_DAILY_TOKENS` | `20000000` | Daily admission allowance, including outstanding reservations |
 | `ASTRA_SMTP_HOST` | absent | Enables optional email recovery when sender is also configured |
 | `ASTRA_SMTP_PORT` | `587` | STARTTLS; port 465 uses implicit TLS |
 | `ASTRA_SMTP_FROM` | absent | Recovery sender address |
 | `ASTRA_SMTP_USER`, `ASTRA_SMTP_PASSWORD` | absent | Optional SMTP authentication |
+
+The player uses a 400,000-token context window (380,000 usable) and compacts at
+300,000 total-context tokens. Both values are enforced when starting or resuming
+a game. The audited CLI and Astra catalog support this larger window; the
+threshold leaves space for new output and tool results. These context settings
+are separate from cumulative action and daily token allowances. The 3,000,000
+action allowance leaves room for several model calls with this larger context,
+since each call counts repeated input as well as generated output.
 
 Model and reasoning are fixed at `gpt-6-astra` / `ultra`; the service rejects
 silent fallback. The operator chose generous local-testing limits, **not

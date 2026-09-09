@@ -79,38 +79,49 @@ The [app-server reference](https://learn.chatgpt.com/docs/app-server) describes
 its local code-mode host; the installed build accepts these feature settings in
 a no-key strict-config/initialize/config-read check.
 
-The bridge sets `model_auto_compact_token_limit = 100000` with
+The bridge sets `model_context_window = 400000` and
+`model_auto_compact_token_limit = 300000` with
 `model_auto_compact_token_limit_scope = "total"`, checks the effective values,
-and reapplies them when starting or resuming a thread. Both fields are present
+and reapplies them when starting or resuming a thread. These fields are present
 in the installed `ConfigReadResponse` schema and were accepted unchanged by a
 no-key strict-config/initialize/config-read check with code mode enabled. The
 [configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference)
-defines this as the automatic compaction threshold for the full active context.
-It does not reduce the model's actual context window or change Astra/Ultra.
+defines the compaction threshold for the full active context. The larger context
+setting preserves Astra/Ultra.
 
 Automatic compaction summarizes history within the existing game thread; the
 next action still resumes its saved ID and reads fresh authoritative state.
 The bridge does not start a separate manual compaction turn. Compaction item
 events remain private, and usage notifications during the active turn count
 toward the same action allowance. The threshold is neither a billed-token cap
-nor a guarantee that every request contains fewer than 100,000 tokens:
+nor a guarantee that every request contains fewer than 300,000 tokens:
 instructions, new output and compaction itself also consume context or tokens.
 The host's compact query replies and bounded snapshots reduce repeated input;
 complete tactical evidence remains private on disk for targeted retrieval.
 
 Live trials exposed repeated compaction at a 20,000-token threshold: a resumed
 request already used about 16,500 tokens, and a diagnostic reply immediately
-crossed the threshold again. The generous 100,000-token threshold leaves room
-for several chess turns before summarizing. The local 0.153.4 Astra catalog,
-refreshed September 9, reports a 272,000-token context window with 95% effective
-usage, matching the 258,400-token effective window in live session telemetry.
-The configured threshold stays comfortably below that window.
+crossed the threshold again. The generous 300,000-token threshold leaves much
+more room for game history before summarizing. It requires enlarging the
+catalog's default 272,000-token raw window. The exact 0.153.4
+[bundled Astra catalog](https://github.com/openai/codex/blob/rust-v0.153.4/codex-rs/models-manager/models.json)
+permits a maximum raw window of 872,000 tokens. Its
+[override implementation](https://github.com/openai/codex/blob/rust-v0.153.4/codex-rs/models-manager/src/model_info.rs#L21-L33)
+clamps the requested window to that maximum, so 400,000 resolves unchanged.
+The [model calculations](https://github.com/openai/codex/blob/rust-v0.153.4/codex-rs/protocol/src/openai_models.rs#L458-L480)
+then yield 380,000 usable tokens (95%) and a 360,000 automatic-compaction ceiling
+(90% of the raw window). The requested 300,000 threshold fits below both.
+This conclusion combines the versioned implementation and catalog with local
+strict-config verification; an actual model turn using more than the previous
+default context has not been exercised by that no-key check.
 
-The default per-action allowance is 1,000,000 cumulative tokens across model/tool
+The default per-action allowance is 3,000,000 cumulative tokens across model/tool
 rounds and compaction; the daily allowance is 20,000,000. The service retains
 the existing 500-action daily limit, single-worker default and game clock/query
 limits. These settings do not change the API's maximum response-output setting
-or Astra/Ultra.
+or Astra/Ultra. Retaining more context reduces summarization frequency but sends
+more input on each model call; playing quality and long-game cost still require
+live observation.
 
 Because compaction preserves user messages, each new turn now receives only a
 bounded event marker with game ID and numeric version/ply. It instructs Astra to
@@ -165,7 +176,8 @@ IDs, usage accounting, public/private event separation, forbidden tool and
 approval denial, configuration/version rejection, cancellation and timeout
 cleanup. Simulated automatic-compaction item events preserve the same thread
 and cumulative accounting. The tests and no-key configuration checks do not
-establish that the revised 100,000-token policy completes a live turn; they do not
+establish that the revised 400,000-context/300,000-compaction policy completes a
+live turn; they do not
 call a model or use real credentials. The earlier 20,000-token policy did compact
 live, exposing the repeated-work problem described above.
 

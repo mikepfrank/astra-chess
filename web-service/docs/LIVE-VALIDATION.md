@@ -112,7 +112,7 @@ was accurate. Repeating full board snapshots in user messages also made them
 persist through compaction, causing unnecessary growth across game turns.
 
 At the operator's request for generous local testing limits, the revised bridge
-uses a 100,000-token total-context compaction threshold, a bounded 1,000,000-token
+initially used a 100,000-token total-context compaction threshold, a bounded 1,000,000-token
 action allowance and a 20,000,000-token daily limit.
 New responses carry small event markers and retrieve fresh state, account-gated
 memory and attempt requirements through chess_status. Existing thread history
@@ -142,3 +142,24 @@ browser game retained its identity, board and explicitly requested clock
 baseline. The live evaluation toggle showed the score selected from saved
 evidence and was returned to its default off state. Retry remained available;
 the user was told the revised service was ready for the next live attempt.
+
+## Larger context experiment
+
+The operator subsequently requested compaction at 300,000 tokens. The default
+272,000-token Astra context would clamp that threshold, so this change also
+sets model_context_window to 400,000. The exact pinned CLI's bundled catalog
+advertises a maximum context of 872,000; its model resolution accepts 400,000,
+providing 380,000 usable tokens and a 360,000 compaction ceiling. A 300,000
+threshold fits below both. The action allowance increases to 3,000,000 cumulative
+tokens so several model calls with 250,000–300,000 input tokens can finish a
+response. The 20,000,000-token daily allowance and Astra/Ultra are unchanged.
+
+All 22 bridge tests passed with the context override and compaction checks;
+the affected default-budget test passed again after the action allowance change.
+The pinned CLI accepted the larger window and threshold in a no-key strict
+configuration check. The service restarted while no response was active or
+queued, and its HTTP availability check passed.
+
+These are configuration and compatibility checks. Handling a live context over
+300,000 tokens and any improvement in playing quality remain to be observed
+during longer games.

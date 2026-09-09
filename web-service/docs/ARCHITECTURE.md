@@ -63,14 +63,17 @@ call. Its fresh snapshot retains the complete move notation, repeats only the
 last twelve messages and omits redundant historical FEN arrays. Delivering this
 as a tool result avoids retaining every board snapshot as a permanent user
 message. Password-account memory is supplied through the same status tool.
-The resumed Codex conversation retains earlier context, with automatic compaction
-at 100,000 total context tokens. Engine queries still receive the full authentic
+The resumed Codex conversation retains earlier context, with a 400,000-token
+context window (380,000 usable) and automatic compaction at 300,000 total context
+tokens. Both settings are checked and reapplied on start/resume; increasing the
+threshold alone would be clamped by the smaller default model window.
+Engine queries still receive the full authentic
 history. Search responses condense repetitive PV diagnostic geometry while
 preserving warnings and tactical changes. The complete original query remains
 on disk; `chess_query_details` retrieves it by a server-owned index within the
 same game's query directory, without executing another search.
 Each tool reply reports the action's remaining token allowance. The default
-1,000,000-token action limit and 20,000,000-token daily limit include repeated input
+3,000,000-token action limit and 20,000,000-token daily limit include repeated input
 and compaction. Retry status identifies the candidate/query requirements for
 the new response attempt, so saved evidence cannot be mistaken for completed
 workflow steps in that attempt.
