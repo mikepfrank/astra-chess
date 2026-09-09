@@ -21,6 +21,51 @@ import chess
 import chess.pgn
 
 
+AUTOMATIC_ENDINGS = {
+    chess.Termination.CHECKMATE: "checkmate",
+    chess.Termination.STALEMATE: "stalemate",
+    chess.Termination.INSUFFICIENT_MATERIAL: "insufficient material",
+    chess.Termination.FIVEFOLD_REPETITION: "fivefold repetition",
+    chess.Termination.SEVENTYFIVE_MOVES: "seventy-five-move rule",
+}
+CLAIM_ENDINGS = ("threefold repetition", "fifty-move rule")
+ENDING_CHOICES = tuple(AUTOMATIC_ENDINGS.values()) + CLAIM_ENDINGS + ("resignation", "agreement")
+
+
+def validated_ending(board, result, ending=None):
+    """Check the recorded result without inventing a winner or an unplayed claim.
+
+    Automatic endings follow the board, including its PGN move history. A
+    claim-based or agreed draw needs an explicit ending; an intended but unplayed
+    move is not enough to establish the displayed position's draw claim.
+    """
+    if result not in ("1-0", "0-1", "1/2-1/2"):
+        raise ValueError("This replay requires a completed game result")
+    if ending is not None and ending not in ENDING_CHOICES:
+        raise ValueError(f"Unsupported ending: {ending}")
+    automatic = board.outcome(claim_draw=False)
+    if automatic is not None:
+        detected = AUTOMATIC_ENDINGS.get(automatic.termination)
+        if detected is None:
+            raise ValueError(f"Unsupported terminal position: {automatic.termination}")
+        if automatic.result() != result or ending not in (None, detected):
+            raise ValueError(f"Recorded result or ending disagrees with the {detected} position")
+        return detected
+    if result in ("1-0", "0-1"):
+        if ending != "resignation":
+            raise ValueError("A non-terminal decisive position requires an explicit --ending resignation")
+        return ending
+    if ending == "agreement":
+        return ending
+    if ending == "threefold repetition" and board.is_repetition(3):
+        return ending
+    if ending == "fifty-move rule" and board.is_fifty_moves():
+        return ending
+    if ending in CLAIM_ENDINGS:
+        raise ValueError(f"The displayed final position does not establish {ending}")
+    raise ValueError("A non-terminal draw requires an explicit supported claim or --ending agreement")
+
+
 def replay_output_path(path):
     """Bare output names belong to replays; explicit directories are honored."""
     path = Path(path)
@@ -139,6 +184,8 @@ def build(pgn_path, output_path, subtitle=None, ending=None, evaluations=None):
     if game is None or game.errors:
         raise ValueError(f"Invalid PGN: {getattr(game, 'errors', None)}")
     board = game.board()
+    if not board.is_valid():
+        raise ValueError("Invalid PGN starting position")
     identities = {sq: f"{piece.symbol()}-{chess.square_name(sq)}"
                   for sq, piece in board.piece_map().items()}
 
@@ -158,6 +205,8 @@ def build(pgn_path, output_path, subtitle=None, ending=None, evaluations=None):
 
     frames = [position()]
     for move in game.mainline_moves():
+        if board.is_game_over(claim_draw=False):
+            raise ValueError("PGN continues after an automatic terminal position")
         if move not in board.legal_moves:
             raise ValueError(f"Illegal move {move.uci()} at {board.fen()}")
         san = board.san(move)
@@ -189,14 +238,10 @@ def build(pgn_path, output_path, subtitle=None, ending=None, evaluations=None):
         frames.append(position(info))
 
     result = game.headers["Result"]
-    if result not in ("1-0", "0-1"):
-        raise ValueError("This replay template expects a completed decisive game")
-    if board.is_checkmate():
-        if board.result() != result or ending not in (None, "checkmate"):
-            raise ValueError("Recorded result or ending disagrees with the checkmate position")
-        ending = "checkmate"
-    elif ending != "resignation" or board.is_game_over():
-        raise ValueError("A non-terminal final position requires an explicit --ending resignation")
+    ending = validated_ending(board, result, ending)
+    recorded_ending = game.headers.get("Termination", "").strip().lower()
+    if recorded_ending in ENDING_CHOICES and recorded_ending != ending:
+        raise ValueError("PGN Termination header disagrees with the validated ending")
     for frame in frames:
         if len({p["id"] for p in frame["pieces"]}) != len(frame["pieces"]):
             raise AssertionError("Duplicate piece identities")
@@ -216,14 +261,19 @@ def build(pgn_path, output_path, subtitle=None, ending=None, evaluations=None):
     title = f"{title_player} vs. {display_names[opponent_side]}"
     date = datetime.strptime(game.headers["Date"], "%Y.%m.%d")
     date_label = f"{date.strftime('%B')} {date.day}, {date.year}"
-    winner = "White" if result == "1-0" else "Black"
-    loser = "Black" if winner == "White" else "White"
-    outcome = {
-        "reason": ending, "label": ending.title(), "winner": winner.lower(),
-        "description": f"{winner} won by {ending}",
-        "detail": (f"{loser} resigned · {winner} wins" if ending == "resignation"
-                   else f"Checkmate · {winner} wins"),
-    }
+    if result == "1/2-1/2":
+        outcome = {"reason": ending, "label": ending.capitalize(), "winner": None,
+                   "description": f"Draw by {ending}",
+                   "detail": f"Draw · {ending.capitalize()}"}
+    else:
+        winner = "White" if result == "1-0" else "Black"
+        loser = "Black" if winner == "White" else "White"
+        outcome = {
+            "reason": ending, "label": ending.title(), "winner": winner.lower(),
+            "description": f"{winner} won by {ending}",
+            "detail": (f"{loser} resigned · {winner} wins" if ending == "resignation"
+                       else f"Checkmate · {winner} wins"),
+        }
 
     data = {"headers": dict(game.headers), "pgn": pgn, "frames": frames,
             "displayNames": display_names, "outcome": outcome, "playerSide": player_side}
@@ -240,7 +290,7 @@ def build(pgn_path, output_path, subtitle=None, ending=None, evaluations=None):
         "__ENDING__": outcome["label"],
         "__RESULT_DESCRIPTION__": outcome["description"],
         "__PLIES__": str(len(frames) - 1),
-        "__MOVES__": str(frames[-1]["move"]["number"]),
+        "__MOVES__": str(frames[-1]["move"]["number"] if frames[-1]["move"] else 0),
         "__PGN_FILENAME__": pgn_path.name,
     }
     output = template
@@ -258,8 +308,8 @@ if __name__ == "__main__":
     parser.add_argument("--pgn", type=Path, default=DEFAULT_PGN)
     parser.add_argument("--output", type=Path, help="Output page; bare filenames go under replays/")
     parser.add_argument("--subtitle", help="Label before the game date")
-    parser.add_argument("--ending", choices=("checkmate", "resignation"),
-                        help="Required for a resignation; checkmate is detected from the board")
+    parser.add_argument("--ending", choices=ENDING_CHOICES,
+                        help="Required for resignation, agreement, or a claim-based draw; automatic endings are detected")
     parser.add_argument("--evaluations", type=Path,
                         help="Audited evaluation-history JSON; shows recorded player-move scores")
     args = parser.parse_args()

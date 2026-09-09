@@ -161,7 +161,7 @@
       <p id="board-description" class="sr-only"></p>
       <div class="player bottom" id="bottom-player"></div>
       <section class="engine-score" id="engine-score" aria-label="Recorded engine evaluation" hidden>
-        <p class="label">Recorded engine evaluation</p>
+        <p class="label" id="engine-score-label">Recorded engine evaluation</p>
         <strong id="engine-score-value" aria-live="polite"></strong>
         <p id="engine-score-detail"></p>
         <details><summary>How to read this</summary><p id="engine-score-note"></p></details>
@@ -270,7 +270,8 @@
     element.querySelector('.name-text').textContent = data.displayNames[color];
     element.querySelector('.player-meta').textContent = rating && rating !== '?' ? `${rating} · ${side}` : side;
     element.querySelector('.turn').textContent = index === end
-      ? (data.outcome.winner === color ? 'Winner' : (data.outcome.reason === 'resignation' ? 'Resigned' : 'Checkmate'))
+      ? (data.outcome.winner === null ? 'Draw'
+        : data.outcome.winner === color ? 'Winner' : (data.outcome.reason === 'resignation' ? 'Resigned' : 'Checkmate'))
       : (frame.turn === color ? 'To move' : '');
   }
   function pause() {
@@ -311,7 +312,20 @@
     else if (rowBox.bottom > listBox.bottom - 5) list.scrollTop += rowBox.bottom - listBox.bottom + 5;
   }
   function showEvaluation(frame) {
-    $('engine-score').hidden = !data.evaluations;
+    const finalDraw = index === end && data.outcome.winner === null;
+    $('engine-score').hidden = !data.evaluations && !finalDraw;
+    $('engine-score-label').textContent = finalDraw ? 'Final game result' : 'Recorded engine evaluation';
+    $('engine-score').setAttribute('aria-label', finalDraw ? 'Final game result' : 'Recorded engine evaluation');
+    if (finalDraw) {
+      const historical = frame.evaluation && frame.evaluation.kind !== 'not_recorded' ? frame.evaluation : null;
+      $('engine-score-value').textContent = 'Draw';
+      $('engine-score-detail').textContent = data.outcome.label + (historical
+        ? ` · Historical engine result: ${historical.label} · ${historical.detail}` : '');
+      $('engine-score-note').textContent = 'The actual game ended in a draw. ' + (historical
+        ? `The saved engine result was ${historical.label}. ${historical.note}`
+        : 'No engine score is needed to establish the recorded result.');
+      return;
+    }
     if (!data.evaluations) return;
     const value = frame.evaluation;
     if (value) {

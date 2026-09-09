@@ -85,9 +85,9 @@ retain their original policies. See `TIME-CONTROL-NEXT.md` for details.
 
 ## Replay collection
 
-**[replays/index.html](replays/index.html)** is the collection's standalone home page. It links to eight
+**[replays/index.html](replays/index.html)** is the collection's standalone home page. It links to nine
 replays at their `astra-vs-*.netlify.app` addresses, including the proposed
-game-10 deployment below. Upload just this
+`astra-vs-li.netlify.app` deployment for game 11. Upload just this
 file to the new master Netlify project; no other files or build step are needed.
 
 Open any HTML file in `replays/` in a browser:
@@ -100,8 +100,9 @@ Open any HTML file in `replays/` in a browser:
 - **wally-engine-replay.html** — the 40-move engine-assisted trial against Wally (1800) on 2026-09-07, won by Wally after White resigned following 40...Re1 (0-1).
 - **wally-engine-v02-replay.html** — the 31-move engine-v0.2 win against Wally (1800) on 2026-09-07, ending 31. Qxf7# (1-0), with recorded engine scores below the board.
 - **wally-engine-v02-black-replay.html** — the 48-move win as Black against Wally (1800), ending 48...Rcxd2# (0-1), with Black-relative recorded engine scores.
+- **li-replay.html** — the 70-move draw as White against Li (2000), ending 70.Kxe6 by insufficient material (1/2-1/2), with recorded engine scores and an explicit final draw label.
 
-All eight replay files are self-contained and work offline. No login, network connection,
+All nine replay files are self-contained and work offline. No login, network connection,
 external fonts, or chess engine is required. Each includes its complete PGN.
 
 Board pieces use original inline SVG drawings with explicit light/dark fills and
@@ -124,16 +125,18 @@ PGN, validates every legal move with `chess==1.11.2`, and embeds all positions
 (including the starting position): 82 for Sven, 90 for Nelson, 72 for Wendy
 (71 plies), 67 for Wally (66 plies), 95 for the Wally rematch (94 plies), and
 81 for the first engine-assisted Wally trial (80 plies), 62 for the v0.2 White win
-(61 plies), and 97 for the v0.2 Black win (96 plies).
+(61 plies), 97 for the v0.2 Black win (96 plies), and 140 for the Li draw (139 plies).
 The opponent, rating, date, move count, result, and download filename come
-from the record. Non-checkmate endings are specified explicitly when rebuilding.
+from the record. Automatic terminal endings, including insufficient material
+and stalemate, are detected and checked against the PGN result. Resignations,
+agreed draws, and claim-based draws require an explicit supported `--ending`.
 
 `replays/replay-metadata.json` supplies display names and thinking levels by the PGN's
 `Round` number. Replay titles use **Astra (thinking level) vs. opponent**, while
 the board's player label is simply **Astra**. The recorded levels are High for
 game 1 (Sven loss), Extra High for games 2–3 (Sven rematch and Nelson loss), and
-Ultra for games 4–10 (Nelson rematch, Wendy, and the five Wally games). The eight
-HTML archives cover games 2 and 4–10. Early source PGNs, board journals and trial
+Ultra for games 4–11 (Nelson rematch, Wendy, the five Wally games, and Li). The nine
+HTML archives cover games 2 and 4–11. Early source PGNs, board journals and trial
 notes are grouped under `early-games/` by game/date. Original PGN contents and
 filenames remain unchanged. With no arguments, the builder reads
 `early-games/sven-rematch-2026-09-05/codex-vs-sven-rematch-2026-09-05.pgn`.
@@ -150,6 +153,8 @@ python export_evaluations.py --game wally-engine-v02 --output engine-output/wall
 python build_replay.py --pgn engine-games/wally-engine-v02/game.pgn --output replays/wally-engine-v02-replay.html --subtitle "Engine v0.2 trial" --evaluations engine-output/wally-v02-evaluation/data.json
 python export_evaluations.py --game wally-v02-black --output engine-output/wally-v02-black-evaluation/data.json
 python build_replay.py --pgn engine-games/wally-v02-black/game.pgn --output replays/wally-engine-v02-black-replay.html --subtitle "Engine v0.2 trial / Astra as Black" --evaluations engine-output/wally-v02-black-evaluation/data.json
+python export_evaluations.py --game li-v02-classical --output engine-output/li-v02-evaluation/data.json
+python build_replay.py --pgn engine-games/li-v02-classical/game.pgn --output replays/li-replay.html --subtitle "Engine v0.2 trial / Classical clock" --evaluations engine-output/li-v02-evaluation/data.json
 ```
 
 The Python dependency is only needed to rebuild. It is not bundled into the page
@@ -251,15 +256,17 @@ the exported scores and desktop/mobile checks are preserved in
 `engine-output/wally-v02-black-evaluation/`. Neither the exporter nor the
 archive build runs a new engine search.
 
-The current tools pass **157 Python tests** with
+The current tools pass **168 Python tests** with
 `python -m unittest discover -s tests`. Offline headless-browser checks in
 `tests/test_replay_scores.cjs` cover navigation, scores, mate labels, promotion,
 mobile layout, PGN download and compatibility with an older replay. Both
 the legacy browser suite and `tests/test_replay_black.cjs` pass offline.
 The Black suite additionally checks color-aware player rows and score semantics.
-`tests/test_replay_pieces.cjs` checks all eight pages at mobile dimensions,
+`tests/test_replay_pieces.cjs` checks all nine pages at mobile dimensions,
 including SVG geometry, distinct pawn colors, board flips, and promotion/rewind.
-All three suites pass with the installed Edge browser. Current replay screenshots
+`tests/test_replay_li.cjs` checks the drawn ending, all 70 recorded scores,
+navigation, castling/captures, PGN download, mobile layout, and the nine-game index.
+All four suites pass with the installed Edge browser. Current replay screenshots
 go under `images/replays/`; previous engine-output screenshots remain preserved.
 Both skills pass Codex's official skill validator. An independent read-only recovery
 exercise checked the interrupted-promotion case without changing the real game.

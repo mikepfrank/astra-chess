@@ -43,8 +43,10 @@ merely to build an archive.
    The builder uses an existing rules-only dependency; the generated HTML has
    no external runtime dependencies. A resignation requires explicit
    `--ending resignation`; checkmate is validated from the final board. The
-   current template supports decisive games, so handle a draw deliberately
-   rather than mislabeling it as a win or resignation.
+   builder also detects automatic drawn endings from the final board, including
+   insufficient material and stalemate, and validates their recorded result.
+   Claim-based draws and agreed draws require an explicit supported `--ending`;
+   consult `--help`. Both player labels must read Draw at a drawn final frame.
 
 ```text
 python build_replay.py --pgn engine-games/GAME-SLUG/game.pgn --output replays/GAME-replay.html --subtitle "Engine-assisted trial"
@@ -92,6 +94,9 @@ present it as the original assessment.
   boards, and 48...Rcxd2# shows actual Checkmate. Moves 42-44 remain unscored.
 - Score changes include the intervening opponent reply and different search
   horizons. They are not isolated move-quality grades or win probabilities.
+- At a drawn final frame, show the actual Draw and its reason prominently.
+  Preserve any saved score for that last move as historical evidence; it must
+  not replace or contradict the actual terminal result.
 
 ## Index, verification, and delivery
 

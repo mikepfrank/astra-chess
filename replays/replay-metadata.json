@@ -8,5 +8,6 @@
   "7": {"model": "Astra", "thinkingLevel": "Ultra"},
   "8": {"model": "Astra", "thinkingLevel": "Ultra"},
   "9": {"model": "Astra", "thinkingLevel": "Ultra"},
-  "10": {"model": "Astra", "thinkingLevel": "Ultra", "playerSide": "black"}
+  "10": {"model": "Astra", "thinkingLevel": "Ultra", "playerSide": "black"},
+  "11": {"model": "Astra", "thinkingLevel": "Ultra", "playerSide": "white"}
 }

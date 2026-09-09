@@ -23,6 +23,13 @@ preserve all 91 query request/result pairs, the final browser observation, and
 the classical ledger. Charged own time was 6596.720 seconds; 2703.280 seconds
 remained, with no refunds, extensions, or overall clock overruns.
 
+Game 11's standalone archive is `replays/li-replay.html`, with all 70 historical
+scores in `engine-output/li-v02-evaluation/data.json`. The builder/template now
+validate drawn endings and label the final result correctly; existing decisive
+archives retain their outcomes and position data. All 168 Python tests and four
+offline replay browser suites passed. The nine-game index proposes the separate
+Netlify project `astra-vs-li`; publishing remains Mike's step.
+
 ## What is preserved
 
 | Component | Repository sources |
