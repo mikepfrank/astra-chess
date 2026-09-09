@@ -1,0 +1,4 @@
+# Replace this hostname and configure ASTRA_ORIGIN to exactly match it.
+chess.example.com {
+    reverse_proxy 127.0.0.1:8788
+}

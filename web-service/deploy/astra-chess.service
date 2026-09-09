@@ -1,0 +1,41 @@
+# Template: review paths, executable, environment, RAM and CPU on the AWS host.
+[Unit]
+Description=Astra Chess web service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=astra-chess
+Group=astra-chess
+WorkingDirectory=/srv/astra-chess/repo/web-service
+EnvironmentFile=/etc/astra-chess/service.env
+Environment=ASTRA_DATA_DIR=/var/lib/astra-chess
+Environment=ASTRA_CODEX_BIN=/opt/codex/bin/codex
+ExecStart=/srv/astra-chess/repo/web-service/.venv/bin/python run.py --host 127.0.0.1 --port 8788
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+KillMode=control-group
+UMask=0077
+StateDirectory=astra-chess
+StateDirectoryMode=0700
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/astra-chess
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=2G
+CPUQuota=100%
+TasksMax=64
+LimitNOFILE=1024
+
+[Install]
+WantedBy=multi-user.target

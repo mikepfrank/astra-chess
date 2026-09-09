@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="robots" content="noindex,nofollow"><title>Shared replay · Astra Chess</title><link rel="stylesheet" href="/static/style.css"><script type="module" src="/static/replay.js"></script></head>
+<body>
+  <a class="skip-link" href="#board">Skip to chessboard</a>
+  <header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">A</span><span>ASTRA<span class="brand-sub">CHESS CLUB</span></span></a><span class="beta-badge">PUBLIC BETA</span><nav><a class="outline small" href="/">Play your own game ↗</a></nav></header>
+  <main class="page-shell">
+    <div id="replay-error" class="error-page" hidden><h1>This replay is unavailable.</h1><p id="replay-error-detail">The link may have expired or been revoked by its owner.</p><a class="primary wide" href="/">Visit Astra Chess</a></div>
+    <div id="replay-content" hidden>
+      <div class="replay-intro"><div><p class="eyebrow">A GAME, REVISITED</p><h1 id="replay-title">Astra at the board.</h1></div><p id="replay-result" class="muted"></p></div>
+      <div class="play-layout">
+        <section class="board-column" aria-label="Shared game replay">
+          <div class="player-row"><div class="player-identity"><span class="avatar astra-avatar" id="top-avatar">A</span><div><strong id="top-name">Astra</strong><span id="top-detail" class="muted">Black</span></div></div><span id="top-status" class="player-status"></span></div>
+          <div id="top-captures" class="capture-tray"></div>
+          <div class="board-container"><div id="board" class="chessboard"></div></div>
+          <div id="bottom-captures" class="capture-tray"></div>
+          <div class="player-row bottom"><div class="player-identity"><span class="avatar human-avatar" id="bottom-avatar">Y</span><div><strong id="bottom-name">Player</strong><span id="bottom-detail" class="muted">White</span></div></div><span id="bottom-status" class="player-status"></span></div>
+          <div class="game-status replay-status" role="status"><span class="status-dot"></span><span id="position-label">Starting position</span></div>
+          <label class="sr-only" for="replay-slider">Move through the game</label><input id="replay-slider" class="replay-slider" type="range" min="0" max="0" value="0">
+          <div class="replay-nav"><button id="first" class="outline small" aria-label="Starting position" title="Starting position">|‹</button><button id="previous" class="outline small" aria-label="Previous move" title="Previous move">‹</button><button id="play" class="primary small" aria-label="Play replay">Play</button><button id="next" class="outline small" aria-label="Next move" title="Next move">›</button><button id="last" class="outline small" aria-label="Final position" title="Final position">›|</button><button id="flip-board" class="text-button small">↕ Flip</button></div>
+          <p id="replay-provenance" class="replay-meta">Shared by the player. This page replays a recorded game; no player or search is running.</p>
+        </section>
+        <aside class="conversation-column">
+          <section class="moves-card"><div class="card-heading"><h2>The scoresheet</h2><span id="move-count" class="muted"></span></div><div class="moves-head"><span>#</span><span>White</span><span>Black</span></div><div id="moves" class="move-list"></div></section>
+          <section class="chat-card replay-commentary"><div class="card-heading"><div><p class="eyebrow">AT THIS POSITION</p><h2>The conversation</h2></div></div><div id="messages" class="messages" aria-live="polite"></div><p id="commentary-disclosure" class="discretion">Only commentary explicitly included by the player is shown.</p></section>
+        </aside>
+      </div>
+    </div>
+    <div id="replay-loading" class="empty-note" role="status">Opening the scoresheet…</div>
+    <footer class="site-footer"><span>Astra Chess · Shared replay</span></footer>
+  </main>
+</body>
+</html>
