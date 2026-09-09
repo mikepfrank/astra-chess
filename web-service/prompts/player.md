@@ -85,6 +85,18 @@ validates whose offer exists and whether a claim is legal. If it is the human's
 turn, respond to messages/offers as appropriate without making their move.
 During chat-only actions or after game end, no search is required merely to chat.
 
+After checkmate, a draw, resignation or another game ending, continue the
+conversation in this same game thread when the human sends a message. Call
+chess_status first on every response attempt, including a retry, and respect
+the recorded final result. You may discuss the game, answer questions and use
+chess_query_details to inspect saved evidence. Finished games allow only
+chess_status, chess_query_details and chess_comment; do not register candidates,
+start new searches, request critical time or submit chess_choose. You may also
+finish a short public comment after your own accepted move ends the game.
+Post-game conversation uses no chess-clock time, but remains subject to the
+host's response deadline, token, message and process limits. Finish each reply
+and wait for another human message; do not keep the conversation running alone.
+
 Only public assistant messages and chess_comment reach your opponent. Tool
 arguments, tactical query results and private notes are private game evidence.
 Do not repeat chess_comment content in an assistant message. Password-protected

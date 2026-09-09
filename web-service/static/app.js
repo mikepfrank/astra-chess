@@ -154,23 +154,29 @@ function renderMessages(){
   }
   if(atBottom)log.scrollTop=log.scrollHeight;
 }
-function statusText(game){
-  if(game.status==='finished')return `${game.result||'Game over'} · ${titleCase(game.termination||'Game finished')}`;
-  if(game.status==='suspended')return 'This game is resting. Resume whenever you are ready.';
-  if(game.worker?.state==='error')return game.worker.message||'Astra was interrupted. Your game is saved; try resuming the player.';
+function canChat(game){return ['active','finished'].includes(game?.status);}
+function responseStatusText(game){
+  if(game.worker?.state==='error')return game.worker.message||'Astra’s response was interrupted. You can retry.';
   if(game.worker?.state==='disabled')return game.worker.message||'Astra is unavailable. Your game is saved.';
-  if(game.worker?.state==='queued')return 'Your game is queued. Astra will be with you shortly.';
+  if(game.worker?.state==='queued')return 'Astra will be with you shortly. Your response is queued.';
   if(game.worker?.state==='compacting')return 'Astra is compacting its conversation context. '+(game.clock?.paused?'Its chess clock is paused.':'It will continue when the context is ready.');
   if(game.worker?.state==='calculating')return 'Astra’s tactical engine is calculating. Astra will review the result next.';
-  if(game.worker?.state==='thinking')return 'Astra is thinking. You can keep the conversation going.';
+  if(game.worker?.state==='thinking')return game.status==='finished'?'Astra is thinking about your message.':'Astra is thinking. You can keep the conversation going.';
+  return '';
+}
+function statusText(game){
+  if(game.status==='suspended')return 'This game is resting. Resume whenever you are ready.';
+  const response=responseStatusText(game);
+  if(game.status==='finished')return `${game.result||'Game over'} · ${titleCase(game.termination||'Game finished')} · ${response||'You can keep chatting about the game.'}`;
+  if(response)return response;
   const turn=game.fen.split(' ')[1]==='w'?'white':'black';
   return turn===game.human_side?'Your move. Take your time.':'Astra’s move. Considering the position.';
 }
 function playerStatusText(game,side){
-  if(game.status==='finished')return 'GAME COMPLETE';
+  const worker=game.worker?.state;
+  if(game.status==='finished')return side===game.astra_side&&['compacting','thinking','queued','error','disabled'].includes(worker)?worker.toUpperCase():'GAME COMPLETE';
   const turn=game.fen.split(' ')[1]==='w'?'white':'black';
   if(side===game.human_side)return turn===side?'YOUR MOVE':'';
-  const worker=game.worker?.state;
   if(['compacting','calculating','thinking','queued','error','disabled'].includes(worker))return worker.toUpperCase();
   return turn===side?'ASTRA’S MOVE':'';
 }
@@ -196,9 +202,9 @@ function renderGame(game){
   $('human-avatar').className='avatar '+(topHuman?'astra-avatar':'human-avatar');
   for(const [location,displayedSide] of [['top',topSide],['bottom',bottomSide]]){
     const status=$(location+'-status');
-    const astraCompacting=active&&displayedSide!==side&&game.worker?.state==='compacting';
+    const astraCompacting=canChat(game)&&displayedSide!==side&&game.worker?.state==='compacting';
     status.textContent=playerStatusText(game,displayedSide);
-    status.classList.toggle('active',active&&(turn===displayedSide||astraCompacting));
+    status.classList.toggle('active',active&&(turn===displayedSide||astraCompacting)||game.status==='finished'&&displayedSide!==side&&['thinking','queued','compacting'].includes(game.worker?.state));
     status.classList.toggle('compacting',astraCompacting);
   }
   const clockPaused=game.clock?.paused===true;
@@ -214,7 +220,7 @@ function renderGame(game){
   renderCaptures($('bottom-captures'),game.moves||[],bottomSide,side);
   renderAstraEvaluation(game);
   $('game-status-text').textContent=statusText(game);
-  $('game-status').className='game-status '+(game.status==='finished'?'finished':['thinking','calculating','compacting','error'].includes(game.worker?.state)?game.worker.state:'');
+  $('game-status').className='game-status '+(['thinking','calculating','compacting','error'].includes(game.worker?.state)?game.worker.state:game.status==='finished'?'finished':'');
   $('draw-banner').hidden=!game.draw_offer||game.status==='finished';
   $('draw-text').textContent=game.draw_offer==='astra'?'Astra offers a draw.':'Your draw offer is pending.';
   $('accept-draw').hidden=game.draw_offer!=='astra';$('decline-draw').hidden=game.draw_offer!=='astra';
@@ -222,13 +228,16 @@ function renderGame(game){
   $('resign').disabled=game.status==='finished'||state.pending;
   $('claim-draw').hidden=!game.claimable||!active||!humanTurn;
   $('resume-game').hidden=game.status!=='suspended';
-  $('retry-worker').hidden=!['error','disabled'].includes(game.worker?.state)||game.status==='finished';
+  $('retry-worker').hidden=!['error','disabled'].includes(game.worker?.state)||!canChat(game);
+  $('retry-worker').textContent=game.status==='finished'?'Retry reply':'Retry Astra';
   $('share-game').hidden=game.status!=='finished';
   $('download-pgn').hidden=false;$('download-pgn').href=`/api/games/${encodeURIComponent(game.id)}/pgn`;
-  $('message-input').disabled=game.status!=='active'||state.pending;
-  $('send-message').disabled=game.status!=='active'||state.pending||!$('message-input').value.trim();
+  $('message-input').disabled=!canChat(game)||state.pending;
+  $('message-input').placeholder=game.status==='finished'?'Discuss the game with Astra…':'Say something to Astra…';
+  $('send-message').disabled=!canChat(game)||state.pending||!$('message-input').value.trim();
   for(const id of ['accept-draw','decline-draw','claim-draw','resume-game','retry-worker'])$(id).disabled=state.pending;
-  if(boardChanged)$('board-hint').textContent=humanTurn?'Your move: select a piece, then a highlighted square.':'You can inspect the board while you wait.';
+  if(game.status==='finished')$('board-hint').textContent='Game complete. You can discuss it with Astra.';
+  else if(boardChanged)$('board-hint').textContent=humanTurn?'Your move: select a piece, then a highlighted square.':'You can inspect the board while you wait.';
   if(oldPly!==game.ply||!$('moves').querySelector('.move-row'))renderMoves();
   renderMessages();connection(true,'Connected');
 }
@@ -427,7 +436,7 @@ $('decline-draw').addEventListener('click',()=>act('decline_draw'));
 $('claim-draw').addEventListener('click',()=>act('claim_draw'));
 $('resume-game').addEventListener('click',()=>act('resume'));
 $('retry-worker').addEventListener('click',()=>act('retry'));
-$('message-input').addEventListener('input',()=>{$('message-count').textContent=`${$('message-input').value.length} / 2000`;$('send-message').disabled=state.pending||!$('message-input').value.trim()||state.game?.status!=='active';});
+$('message-input').addEventListener('input',()=>{$('message-count').textContent=`${$('message-input').value.length} / 2000`;$('send-message').disabled=state.pending||!$('message-input').value.trim()||!canChat(state.game);});
 $('message-input').addEventListener('keydown',event=>{if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();$('message-form').requestSubmit();}});
 $('message-form').addEventListener('submit',async event=>{
   event.preventDefault();const text=$('message-input').value.trim();if(!text)return;

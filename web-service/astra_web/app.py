@@ -171,7 +171,7 @@ def create_app(config=None, player_factory=None):
         if not isinstance(act, str):
             raise ValueError('A game action must be a string.')
         def apply(s):
-            if s['status'] == 'finished' and act != 'message':
+            if s['status'] == 'finished' and act not in ('message', 'retry'):
                 raise ValueError('This game has finished.')
             if s['status'] == 'suspended' and act not in ('resume', 'resign'):
                 raise ValueError('Resume the saved game first.')
@@ -206,7 +206,8 @@ def create_app(config=None, player_factory=None):
             elif act in ('resume', 'retry'):
                 if act == 'retry' and s['worker']['state'] not in ('error', 'disabled'):
                     raise ValueError('There is no interrupted Astra response to retry.')
-                s['status'] = 'active'
+                if act == 'resume':
+                    s['status'] = 'active'
             else:
                 raise ValueError('Unsupported game action.')
         refund = (lambda s, db: supervisor.refund_retry_clock(s, db, data['request_id'])) if act == 'retry' else None
@@ -214,7 +215,7 @@ def create_app(config=None, player_factory=None):
                                       kind='human_action', return_applied=True, transaction_hook=refund)
         if not applied:
             return snapshot(state)
-        if state['status'] == 'finished':
+        if state['status'] == 'finished' and act not in {'message', 'retry'}:
             await supervisor.cancel(game_id)
         elif act in {'move','message','offer_draw','retry'} or act == 'resume' and (game.side_to_move(state) == state['astra_side'] or state['draw_offer'] == 'human' or state['worker']['state'] in {'error','disabled'}):
             supervisor.schedule(game_id)

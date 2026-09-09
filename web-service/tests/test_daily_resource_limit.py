@@ -127,7 +127,7 @@ class DailyResourceLimitTests(unittest.IsolatedAsyncioTestCase):
         await asyncio.wait_for(supervisor.tasks[self.game_id], timeout=2)
         worker = self.store.get(self.game_id)['worker']
         self.assertEqual(worker, {'state': 'error',
-            'message': 'Astra’s turn was interrupted. The board is saved; you can retry.'})
+            'message': 'Astra’s response was interrupted. Your game and conversation are saved; you can retry.'})
         self.assertNotIn('operator-file', worker['message'])
         self.assertEqual(closed, [True])
         self.assertEqual(self.event_count('worker_admission_denied'), 0)

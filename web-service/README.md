@@ -95,6 +95,11 @@ two schedulers from owning the same games.
 - Per-game public commentary, resignations, draw offers/acceptance/declines and
   claims. The server enforces chess rules, including castling, en passant,
   repetition history and automatic terminal results.
+- Conversation stays available after the game ends, in the same per-game
+  Codex session. Astra can discuss the moves and inspect saved search evidence;
+  the final board, result and chess clock stay fixed. Interrupted replies can
+  be retried. Each post-game response has the ordinary response time allocation
+  and existing token/resource limits, without using any chess-clock time.
 - Browser-bound guest names; optional password protection and optional recovery
   email. Password accounts can enable/edit private notes supplied to Astra in
   subsequent games. Memories are opt-in, user-managed, and never available for
@@ -102,10 +107,12 @@ two schedulers from owning the same games.
 - Private records by default. After a game, the owner can generate a public
   replay link, explicitly choose whether to include the exchanged commentary,
   and revoke the link. Generating another link replaces the previous link.
+  A replay captures the conversation at sharing time; later post-game messages
+  stay private unless the owner generates a new replay including commentary.
   Revocation stops service access; it cannot remove copies others already saved.
 - One durable Codex conversation per game. Processes exit after each completed
   action; they do not idle while waiting for the human. After 36 hours without
-  a human game action, the game is marked suspended. Resume restores it without
+  a human game action, an unfinished game is marked suspended. Resume restores it without
   deleting moves, messages, clock evidence or the Codex session ID.
 - During automatic context compaction, the board shows **COMPACTING** and
   freezes Astra's chess clock. The remaining turn allocation resumes when
