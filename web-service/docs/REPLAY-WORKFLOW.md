@@ -151,3 +151,9 @@ layouts. A separate browser check verified that an older shared snapshot can
 be relisted without exposing a newer private conversation, and that disabling
 standalone and legacy links is independent. No model requests or live game
 mutations were used for these checks.
+
+The Linux suite also passed all 186 tests (three platform-related skips) from
+a separate staged checkout. Revision `5cb1a2d` was deployed at 22:57 UTC;
+read-only HTTPS browser checks confirmed the single entry point and public
+library. All 14 saved games, clock records, usage rows, existing replay metadata
+and HTML files were preserved. See the [deployment checkpoint](LIGHTSAIL-DEPLOYMENT.md#unified-replay-sharing--september-10-2026).

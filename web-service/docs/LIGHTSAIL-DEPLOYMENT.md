@@ -256,6 +256,30 @@ Linux log in `replay-release-15881ae/`, database backup in
 `replay-library-deployment-2026-09-10.json`. The new archive/publication tables
 are additive; the backup and original game records were retained.
 
+## Unified replay sharing — September 10, 2026
+
+Revision `5cb1a2d` was deployed at 22:57 UTC. A single **Save/share replay**
+dialog now offers independent downloads and sharing; new shares are unlisted
+unless the owner chooses **Also publish to public game list**. Removing a listing
+keeps its link usable; disabling the link revokes access. Earlier legacy links
+remain separately manageable inside the same dialog. Existing public entries
+remain listed; the additive unlisted table is never read by the older index code.
+
+All 186 tests passed on Windows (two platform-related skips) and in a separate
+Linux staging directory (three platform-related skips). Browser tests exercised
+the complete unified flow, both chat choices, offline downloads, unlisted
+discovery exclusion, same-URL visibility changes, older-version relisting and
+independent legacy revocation. Read-only public HTTPS checks verified the served
+controls and library without creating an account, game or publication.
+
+Deployment waited for zero active responses, replay builds and token reservations.
+It preserved all 14 games and their clock records, usage rows, existing replay
+metadata and HTML snapshots. The 100,000,000-token daily allowance remains active.
+Private evidence under `/home/astra/.local/share/astra-chess/operator-checks/`
+includes the `unified-replay-release-5cb1a2d/` staging directory and Linux test log,
+`before-unified-replay-20260910T225727Z.sqlite3` backup, and
+`unified-replay-deployment-20260910T225727Z.json` audit.
+
 ## Remaining limits and checks
 
 - A full game on Linux, an observed live Linux automatic-compaction cycle and
