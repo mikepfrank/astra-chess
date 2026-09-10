@@ -1,4 +1,4 @@
-# Template: review paths, executable, environment, RAM and CPU on the AWS host.
+# Systemd 252 template. See deploy/README.md for setup and namespace checks.
 [Unit]
 Description=Astra Chess web service
 After=network-online.target
@@ -6,32 +6,48 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=astra-chess
-Group=astra-chess
-WorkingDirectory=/srv/astra-chess/repo/web-service
-EnvironmentFile=/etc/astra-chess/service.env
-Environment=ASTRA_DATA_DIR=/var/lib/astra-chess
-Environment=ASTRA_CODEX_BIN=/opt/codex/bin/codex
-ExecStart=/srv/astra-chess/repo/web-service/.venv/bin/python run.py --host 127.0.0.1 --port 8788
+User=astra
+Group=astra
+WorkingDirectory=/home/astra/astra-chess/web-service
+# PID1 reads this before applying the service's private filesystem view.
+EnvironmentFile=/home/astra/.config/astra-chess/service.env
+Environment=ASTRA_DATA_DIR=/home/astra/.local/share/astra-chess
+Environment=ASTRA_CODEX_BIN=/home/astra/.codex/packages/standalone/releases/0.154.0-x86_64-unknown-linux-musl/bin/codex
+Environment=ASTRA_MAX_WORKERS=1
+Environment=HOME=/home/astra/.local/share/astra-chess
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONNOUSERSITE=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/home/astra/astra-chess/web-service/.venv/bin/python run.py --host 127.0.0.1 --port 8788
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=15
 KillMode=control-group
 UMask=0077
-StateDirectory=astra-chess
-StateDirectoryMode=0700
 NoNewPrivileges=true
+CapabilityBoundingSet=
+AmbientCapabilities=
 PrivateTmp=true
 PrivateDevices=true
 ProtectSystem=strict
-ProtectHome=true
-ReadWritePaths=/var/lib/astra-chess
+# Hide all homes, then expose only these four existing subdirectories.
+ProtectHome=tmpfs
+BindReadOnlyPaths=/home/astra/astra-chess
+# The virtual environment links into this user-installed Python runtime.
+BindReadOnlyPaths=/home/astra/.local/share/astra-chess-runtime
+# Keep native code-mode-host, bwrap and rg beside the pinned executable.
+BindReadOnlyPaths=/home/astra/.codex/packages/standalone/releases/0.154.0-x86_64-unknown-linux-musl
+BindPaths=/home/astra/.local/share/astra-chess
+ReadWritePaths=/home/astra/.local/share/astra-chess
+ProtectProc=invisible
 ProtectKernelTunables=true
 ProtectKernelModules=true
 ProtectControlGroups=true
 RestrictSUIDSGID=true
 LockPersonality=true
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+# Do not block unprivileged namespaces or executable memory: Codex's bundled
+# sandbox and V8 code-mode host need their own runtime capabilities.
 MemoryMax=2G
 CPUQuota=100%
 TasksMax=64
