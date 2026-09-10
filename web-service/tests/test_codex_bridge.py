@@ -16,8 +16,11 @@ FAKE_SERVER = r'''
 import json, os, sys, time, tomllib, subprocess
 from pathlib import Path
 scenario = SCENARIO
+version = '0.154.0' if scenario.startswith('v154_') else '0.153.4'
+scenario = scenario.removeprefix('v154_')
 if '--version' in sys.argv:
-    print('codex-cli ' + ('0.100.0' if scenario == 'old_version' else '0.153.4'))
+    version = {'old_version': '0.100.0', 'new_version': '0.155.0', 'version_suffix': '0.154.0-dev'}.get(scenario, version)
+    print('codex-cli ' + version)
     raise SystemExit
 def send(item):
     print(json.dumps(item), flush=True)
@@ -45,7 +48,7 @@ for wire in sys.stdin:
         out.write(json.dumps(request) + '\n')
     method, params = request.get('method'), request.get('params', {})
     if method == 'initialize':
-        send({'id': request['id'], 'result': {'codexHome': os.environ['CODEX_HOME'], 'userAgent': 'fake 0.153.4'}})
+        send({'id': request['id'], 'result': {'codexHome': os.environ['CODEX_HOME'], 'userAgent': 'fake ' + version}})
     elif method == 'config/read':
         conf = tomllib.loads((Path(os.environ['CODEX_HOME']) / 'config.toml').read_text())
         if scenario == 'ambient_mcp': conf['mcp_servers'] = {'untrusted': {'command': 'do-not-run'}}
@@ -60,9 +63,11 @@ for wire in sys.stdin:
                   'modelProvider': 'astra_openai', 'reasoningEffort': 'ultra',
                   'approvalPolicy': 'never', 'approvalsReviewer': 'user',
                   'sandbox': {'type': 'readOnly', 'networkAccess': False},
-                  'instructionSources': []}
+                  'instructionSources': [], 'runtimeWorkspaceRoots': [], 'activePermissionProfile': None}
         if scenario == 'wrong_model': result['model'] = 'other-model'
         if scenario == 'unsafe_sandbox': result['sandbox']['type'] = 'dangerFullAccess'
+        if scenario == 'unsafe_roots': result['runtimeWorkspaceRoots'] = ['/unexpected-workspace']
+        if scenario == 'unsafe_profile': result['activePermissionProfile'] = {'id': 'unreviewed-profile'}
         event('thread/started', {'thread': {'id': 'test-thread'}})
         if scenario == 'baseline_only':
             event('thread/tokenUsage/updated', {'threadId': 'test-thread', 'turnId': 'earlier-turn',
@@ -257,6 +262,28 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(content['resource_budget'],
                          {'max_action_tokens': 100, 'remaining_action_tokens': None})
         self.assert_reaped()
+
+    async def test_audited_154_start_resume_compaction_and_usage_keep_existing_contract(self):
+        self.assertEqual(bridge.AUDITED_CODEX_VERSIONS, {'0.153.4', '0.154.0'})
+        first = await self.run_fake('v154_success')
+        second = await self.run_fake('v154_compaction', thread_id=first['thread_id'])
+        self.assertEqual(first['usage_tokens'], 20)
+        self.assertEqual(second['usage_tokens'], 20)
+        self.assertEqual(second['usage_total'], 40)
+        self.assertEqual(self.public, ['Your move.', 'Your move.'])
+        self.assertEqual([args['phase'] for name, args in self.calls if name == '_compaction'], ['started', 'completed'])
+        for wire in self.wires:
+            if wire.get('method') in {'thread/start', 'turn/start'}:
+                self.assertEqual(wire['params']['environments'], [])
+            if wire.get('method') in {'thread/start', 'thread/resume', 'turn/start'}:
+                self.assertEqual(wire['params']['runtimeWorkspaceRoots'], [])
+        self.assert_reaped()
+
+    async def test_audited_154_still_rejects_widened_permissions_and_ambient_capabilities(self):
+        for scenario in ('unsafe_sandbox', 'unsafe_roots', 'unsafe_profile', 'ambient_mcp', 'unsafe_code_host', 'approval'):
+            with self.subTest(scenario=scenario), self.assertRaises(bridge.CodexError):
+                await self.run_fake('v154_' + scenario)
+            self.assert_reaped()
 
     def test_generous_defaults_preserve_model_other_limits_and_environment_overrides(self):
         from astra_web.config import Config
@@ -461,7 +488,7 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         self.assert_reaped()
 
     async def test_protocol_failures_close_process(self):
-        for scenario in ('old_version', 'malformed', 'eof'):
+        for scenario in ('old_version', 'new_version', 'version_suffix', 'malformed', 'eof'):
             with self.subTest(scenario=scenario), self.assertRaises(bridge.CodexError):
                 await self.run_fake(scenario)
             self.assert_reaped()

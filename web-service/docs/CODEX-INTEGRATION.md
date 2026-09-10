@@ -28,14 +28,50 @@ custom provider's endpoint is fixed to `https://api.openai.com/v1`.
 ## Audited protocol contract
 
 Protocol details were checked against local **codex-cli 0.153.4** on September 9,
-2026 with `codex app-server --help`, `codex features list` and
+2026 and Lightsail **codex-cli 0.154.0** on September 10, 2026 (UTC), using
+`codex app-server --help`, `codex features list` and
 `codex app-server generate-json-schema --experimental --out <temporary-dir>`.
-The bridge rejects other CLI versions until a maintainer audits them. The
+The bridge accepts exactly those two versions and rejects other CLI versions,
+including development suffixes, until a maintainer audits them. The
 generated schemas are inspection output, not another bundled dependency.
 An unauthenticated local app-server startup and `initialize`/`config/read` smoke
 check passed with this generated strict configuration. That check found that
 the documented `tools.view_image` key is rejected by this build; the verified
 `features.view_image = false` setting is used instead.
+
+The 0.154.0 server audit used a fresh private `CODEX_HOME`, an empty workspace,
+and a constructed environment without authentication keys. Its 426 generated
+schema files retain the required start/resume/turn, dynamic tool, current-time,
+usage and context-compaction contracts. Strict-config initialization and
+`config/read` passed with the existing configuration, including Astra/Ultra,
+400,000 raw context and the 300,000 total compaction threshold. A real no-key
+`thread/start` accepted the seven dynamic tools and returned Astra/Ultra,
+`never`/`user` approvals, `readOnly` with network access false, empty runtime
+workspace roots, no additional permission profile and no instruction sources.
+These returned boundaries are checked by the bridge before a model turn.
+
+The generated 0.154.0 `environments` descriptions explicitly say that an empty
+array disables environment access at both thread and turn scope. On both
+0.153.4 and 0.154.0, `features list` reports `unified_exec` true even with its
+configuration entry false; `config/read` retains the false entry. Therefore
+that feature-list display is not evidence that shell access has been removed.
+The empty-environment boundary, disabled shell feature, absent runtime roots,
+and rejection of any unregistered host tool remain necessary together.
+
+This audit sent no `turn/start`, model request or credentials. Immediately
+resuming a newly created thread before its first turn returned "no rollout
+found"; an empty no-turn thread is not a durable-resume test. First-turn
+materialization, subsequent resume, actual code-mode execution and the final
+Linux service sandbox still require the deployment's authenticated smoke test.
+The CLI reported that system bubblewrap was absent from PATH and used its
+bundled bubblewrap; preserve access to the complete installed release bundle.
+
+Repeat the no-key startup check inside the final service namespace with
+`python tests/audit_codex_protocol.py --codex /absolute/path/to/codex --audit-dir /writable/data/audits`.
+It creates a fresh private home, strips inherited credentials, verifies the
+effective strict configuration and thread permissions, then terminates the
+process group. Its audit JSON and startup stderr stay in that audit directory.
+It sends no model turn and keeps code-host prewarming disabled.
 
 The [official app-server documentation](https://learn.chatgpt.com/docs/app-server)
 describes initialization, thread start/resume, streamed events and experimental
@@ -216,7 +252,9 @@ sharing and revocation. It used a separate guest account and left the user's
 browser identity intact. See [LIVE-VALIDATION.md](LIVE-VALIDATION.md) for the
 earlier failures, measured usage and the checks actually completed.
 
-The production Lightsail environment and its hard OS limits remain unverified.
+The no-key Lightsail 0.154.0 protocol/configuration audit above is complete;
+authenticated play under the production service's hard OS limits remains a
+separate validation step.
 A full live game and a deliberately observed live automatic-compaction cycle
 are not claimed by these short checks. Fake-process tests do not establish live
 playing strength or complete runtime sandbox isolation.

@@ -1,8 +1,8 @@
 """Private, deliberately narrow Codex app-server transport for a chess player.
 
 The host owns game state and executes every dynamic tool. This module never
-executes a command supplied by the model or the opponent. Protocol 0.153.4 is
-pinned because disabling environment access is a security boundary.
+executes a command supplied by the model or the opponent. Only explicitly
+audited CLI versions are allowed because empty environments are a security boundary.
 """
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ import time
 from typing import Awaitable, Callable
 
 
-AUDITED_CODEX_VERSION = "0.153.4"
+AUDITED_CODEX_VERSIONS = frozenset({"0.153.4", "0.154.0"})
 PROVIDER = "astra_openai"
 # The audited Astra catalog permits raw windows up to 872,000 tokens. This
 # override gives 380,000 usable tokens and a 360,000 auto-compaction ceiling.
@@ -432,8 +432,11 @@ class CodexPlayer:
                 output, _ = await asyncio.wait_for(process.communicate(), 10)
             except asyncio.TimeoutError as exc:
                 raise CodexError("Codex version check timed out") from exc
-            if process.returncode != 0 or output.decode("utf-8", errors="replace").strip() != f"codex-cli {AUDITED_CODEX_VERSION}":
-                raise CodexError(f"Codex CLI {AUDITED_CODEX_VERSION} is required; review newer protocol versions before enabling them")
+            accepted = {f"codex-cli {version}" for version in AUDITED_CODEX_VERSIONS}
+            if process.returncode != 0 or output.decode("utf-8", errors="replace").strip() not in accepted:
+                versions = ", ".join(sorted(AUDITED_CODEX_VERSIONS))
+                raise CodexError(f"An audited Codex CLI version is required ({versions}); review other protocol versions before enabling them")
+            return output.decode("utf-8").strip().removeprefix("codex-cli ")
         finally:
             await _terminate(process)
 
@@ -685,6 +688,8 @@ class CodexPlayer:
                         or response.get("approvalsReviewer") != "user"
                         or response.get("sandbox", {}).get("type") != "readOnly"
                         or response.get("sandbox", {}).get("networkAccess", False)
+                        or response.get("runtimeWorkspaceRoots", []) != []
+                        or response.get("activePermissionProfile") is not None
                         or response.get("instructionSources")):
                     raise CodexError("Codex effective model, permissions or instructions differ from the audited configuration")
                 turn_requested = True
