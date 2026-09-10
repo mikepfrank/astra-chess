@@ -126,7 +126,9 @@ These controls reduce exposure; they are **not a claim of proven multi-tenant
 isolation on Amazon Linux**. The dedicated OS account, read-only code, process
 and memory limits, secret provisioning, egress policy, TLS proxy, backups and
 restart behavior must be checked on the chosen host. The sample systemd unit
-is a starting point. No SSH, firewall, AWS or deployment changes have been made.
+is a starting point. No firewall, AWS configuration or deployment changes have
+been made. The [capacity assessment](../benchmarks/README.md) used read-only SSH
+inspection and bounded engine benchmarks loaded entirely in memory.
 
 ## Deliberate initial limits
 
