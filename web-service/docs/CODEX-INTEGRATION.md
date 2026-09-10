@@ -43,8 +43,9 @@ The 0.154.0 server audit used a fresh private `CODEX_HOME`, an empty workspace,
 and a constructed environment without authentication keys. Its 426 generated
 schema files retain the required start/resume/turn, dynamic tool, current-time,
 usage and context-compaction contracts. Strict-config initialization and
-`config/read` passed with the existing configuration, including Astra/Ultra,
-400,000 raw context and the 300,000 total compaction threshold. A real no-key
+`config/read` passed with the September 10 audit configuration, including
+Astra/Ultra, 400,000 raw context and the then-current 300,000 total compaction
+threshold. A real no-key
 `thread/start` accepted the seven dynamic tools and returned Astra/Ultra,
 `never`/`user` approvals, `readOnly` with network access false, empty runtime
 workspace roots, no additional permission profile and no instruction sources.
@@ -120,23 +121,34 @@ its local code-mode host; the installed build accepts these feature settings in
 a no-key strict-config/initialize/config-read check.
 
 The bridge sets `model_context_window = 400000` and
-`model_auto_compact_token_limit = 300000` with
+`model_auto_compact_token_limit = 250000` with
 `model_auto_compact_token_limit_scope = "total"`, checks the effective values,
 and reapplies them when starting or resuming a thread. These fields are present
-in the installed `ConfigReadResponse` schema and were accepted unchanged by a
-no-key strict-config/initialize/config-read check with code mode enabled. The
+in the installed `ConfigReadResponse` schema; the earlier no-key check accepted
+the 400,000 window and then-current 300,000 threshold with code mode enabled. The
 [configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference)
 defines the compaction threshold for the full active context. The larger context
-setting preserves Astra/Ultra.
+setting preserves Astra/Ultra. The live rollout status of the revised threshold
+is recorded under [operator policy changes](LIGHTSAIL-DEPLOYMENT.md#operator-policy-changes).
+
+The operator selected 250,000 on September 10, 2026 to leave a nominal
+22,000-token margin below the pricing boundary. A prompt above 272,000 input
+tokens makes the entire request use double input and cache rates, and 1.5 times
+the output rate, according to the
+[Astra model pricing](https://developers.openai.com/api/docs/models/gpt-6-astra)
+checked that day. Retaining the 400,000 window leaves runtime headroom while
+requesting earlier summarization.
 
 Automatic compaction summarizes history within the existing game thread; the
 next action still resumes its saved ID and reads fresh authoritative state.
 The bridge does not start a separate manual compaction turn. Compaction item
 events drive the host's `COMPACTING` indicator and chess-clock pause; their
 contents remain private. Usage notifications during the active turn count
-toward the same token allowance. The threshold is neither a billed-token cap
-nor a guarantee that every request contains fewer than 300,000 tokens:
-instructions, new output and compaction itself also consume context or tokens.
+toward the same token allowance. The 250,000 threshold is a soft trigger, not a
+billed-token cap or a guarantee that every request stays below the pricing
+boundary: instructions, new output, tool results and compaction itself can
+increase a request beyond the margin. The full-context trigger and the API's
+billed input are distinct measures.
 The host's compact query replies and bounded snapshots reduce repeated input;
 complete tactical evidence remains private on disk for targeted retrieval.
 
@@ -165,16 +177,18 @@ apply during compaction.
 
 Live trials exposed repeated compaction at a 20,000-token threshold: a resumed
 request already used about 16,500 tokens, and a diagnostic reply immediately
-crossed the threshold again. The generous 300,000-token threshold leaves much
-more room for game history before summarizing. It requires enlarging the
-catalog's default 272,000-token raw window. The exact 0.153.4
+crossed the threshold again. The original 300,000-token replacement left much
+more room for game history before summarizing and required enlarging the
+catalog's default 272,000-token raw window. The current 250,000 trigger retains
+substantial history while adding the pricing margin described above. The exact 0.153.4
 [bundled Astra catalog](https://github.com/openai/codex/blob/rust-v0.153.4/codex-rs/models-manager/models.json)
 permits a maximum raw window of 872,000 tokens. Its
 [override implementation](https://github.com/openai/codex/blob/rust-v0.153.4/codex-rs/models-manager/src/model_info.rs#L21-L33)
 clamps the requested window to that maximum, so 400,000 resolves unchanged.
 The [model calculations](https://github.com/openai/codex/blob/rust-v0.153.4/codex-rs/protocol/src/openai_models.rs#L458-L480)
 then yield 380,000 usable tokens (95%) and a 360,000 automatic-compaction ceiling
-(90% of the raw window). The requested 300,000 threshold fits below both.
+(90% of the raw window). Both the historical 300,000 and current 250,000
+thresholds fit below those limits.
 This conclusion combines the versioned implementation and catalog with local
 strict-config verification; an actual model turn using more than the previous
 default context has not been exercised by that no-key check.
@@ -244,7 +258,7 @@ cleanup. Simulated automatic-compaction tests cover pre-turn ordering,
 duplicates, unmatched completions, invalid thread/turn IDs, summary privacy,
 mid-compaction failures and cancellation while preserving token accounting.
 These tests and no-key configuration checks do not call a model or use real
-credentials. Separate real turns have completed with the revised
+credentials. The September 9–10 real-turn checks completed with the historical
 400,000-context/300,000-compaction configuration; the short Linux smoke test
 did not reach the compaction threshold. The earlier 20,000-token policy did
 compact live, exposing the repeated-work problem described above.

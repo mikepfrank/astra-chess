@@ -239,13 +239,13 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn('code_mode = true', config_text)
         self.assertIn('disable_in_process_fallback = true', config_text)
         self.assertIn('model_context_window = 400000', config_text)
-        self.assertIn('model_auto_compact_token_limit = 300000', config_text)
+        self.assertIn('model_auto_compact_token_limit = 250000', config_text)
         self.assertIn('model_auto_compact_token_limit_scope = "total"', config_text)
         for request in self.wires:
             if request.get('method') in ('thread/start', 'thread/resume'):
                 overrides = request['params']['config']
                 self.assertEqual(overrides['model_context_window'], 400000)
-                self.assertEqual(overrides['model_auto_compact_token_limit'], 300000)
+                self.assertEqual(overrides['model_auto_compact_token_limit'], 250000)
                 self.assertEqual(overrides['model_auto_compact_token_limit_scope'], 'total')
         self.assert_reaped()
 

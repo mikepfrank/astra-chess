@@ -23,7 +23,9 @@ PROVIDER = "astra_openai"
 # The audited Astra catalog permits raw windows up to 872,000 tokens. This
 # override gives 380,000 usable tokens and a 360,000 auto-compaction ceiling.
 MODEL_CONTEXT_WINDOW = 400_000
-AUTO_COMPACT_TOKEN_LIMIT = 300_000
+# Leave headroom below Astra's 272,000-input-token long-context pricing tier.
+# Compaction uses estimated active context, so this is not a hard billing cap.
+AUTO_COMPACT_TOKEN_LIMIT = 250_000
 MAX_RPC_BYTES = 2 * 1024 * 1024
 MAX_PUBLIC_TEXT = 6000
 TOOL_NAMES = frozenset({"chess_status", "chess_candidate", "chess_query", "chess_query_details",

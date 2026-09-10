@@ -175,6 +175,23 @@ if any exist, then run `sudo systemctl daemon-reload`. Leave other services,
 the repository, managed runtimes, credentials and application/proxy data intact.
 This is a unit rollback, not a data deletion or a Python rollback.
 
+## Operator policy changes
+
+On September 10, 2026, the operator doubled this host's daily token allowance
+from 20,000,000 to 40,000,000 using `ASTRA_MAX_DAILY_TOKENS=40000000`. That change
+is applied. The repository default remains 20,000,000; the separate 3,000,000
+per-action reservation and 500-action daily limit are unchanged. Previously
+recorded usage remains charged.
+
+Later that day, the operator authorized lowering automatic compaction from
+300,000 to 250,000 total-context tokens while retaining the 400,000-token
+window. The [current policy](CODEX-INTEGRATION.md) explains the pricing margin
+and why the threshold is soft. **Live rollout is pending at this checkpoint**;
+do not infer that a running game already uses the new value. Apply it at an idle
+service boundary without interrupting active players, then record the deployed
+revision and validation result here. The original 300,000 validation above
+remains a historical record of the settings actually checked.
+
 ## Remaining limits and checks
 
 - A full game on Linux, an observed live Linux automatic-compaction cycle and

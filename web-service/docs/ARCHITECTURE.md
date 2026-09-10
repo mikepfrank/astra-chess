@@ -70,9 +70,12 @@ last twelve messages and omits redundant historical FEN arrays. Delivering this
 as a tool result avoids retaining every board snapshot as a permanent user
 message. Password-account memory is supplied through the same status tool.
 The resumed Codex conversation retains earlier context, with a 400,000-token
-context window (380,000 usable) and automatic compaction at 300,000 total context
-tokens. Both settings are checked and reapplied on start/resume; increasing the
-threshold alone would be clamped by the smaller default model window.
+context window (380,000 usable) and a soft automatic-compaction trigger at
+250,000 total-context tokens. Both settings are checked and reapplied on
+start/resume. The nominal 22,000-token pricing margin can be consumed by request
+growth or compaction; it does not enforce a billed-request size ceiling. See
+the [compaction policy](CODEX-INTEGRATION.md) for the pricing rationale and the
+separate model-window limits.
 Engine queries still receive the full authentic
 history. Search responses condense repetitive PV diagnostic geometry while
 preserving warnings and tactical changes. The complete original query remains

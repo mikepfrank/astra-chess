@@ -192,13 +192,19 @@ All optional environment variables are listed here; `config.py` contains limits.
 | `ASTRA_SMTP_FROM` | absent | Recovery sender address |
 | `ASTRA_SMTP_USER`, `ASTRA_SMTP_PASSWORD` | absent | Optional SMTP authentication |
 
-The player uses a 400,000-token context window (380,000 usable) and compacts at
-300,000 total-context tokens. Both values are enforced when starting or resuming
-a game. The audited CLI and Astra catalog support this larger window; the
-threshold leaves space for new output and tool results. These context settings
-are separate from cumulative action and daily token allowances. The 3,000,000
-action allowance leaves room for several model calls with this larger context,
-since each call counts repeated input as well as generated output.
+The player uses a 400,000-token context window (380,000 usable) and requests
+automatic compaction at 250,000 total-context tokens. Both values are enforced
+when starting or resuming a game. The threshold leaves a nominal 22,000-token
+margin below Astra's 272,000-input-token pricing boundary, checked on
+September 10, 2026. It is a soft trigger: request growth and compaction can still
+cross that boundary. See [Astra pricing](https://developers.openai.com/api/docs/models/gpt-6-astra)
+and the [compaction policy](docs/CODEX-INTEGRATION.md).
+
+These context settings are separate from cumulative action and daily token
+allowances. The 3,000,000 action allowance leaves room for several model calls
+with this larger context, since each call counts repeated input as well as
+generated output. Dated validation and the live host's policy overrides are in
+the [deployment checkpoint](docs/LIGHTSAIL-DEPLOYMENT.md#operator-policy-changes).
 
 Model and reasoning are fixed at `gpt-6-astra` / `ultra`; the service rejects
 silent fallback. The operator chose generous local-testing limits, **not

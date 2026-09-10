@@ -289,7 +289,12 @@ The supplied values allow one worker, 500 model actions per UTC day, a
 3,000,000-token reservation per action and 20,000,000 daily tokens. Repeated
 context/input tokens count too; these are generous accounting limits, not a
 dollar spending cap. Reserve enough daily headroom for one full action.
-The separate context settings remain 400,000 tokens with compaction at 300,000.
+The separate context settings are a 400,000-token window and a soft compaction
+trigger at 250,000 total-context tokens. The nominal 22,000-token margin below
+the long-input pricing boundary reduces exposure to that rate tier without
+guaranteeing it. See the [current compaction policy](docs/CODEX-INTEGRATION.md)
+and the [dated host overrides](docs/LIGHTSAIL-DEPLOYMENT.md#operator-policy-changes);
+the supplied 20,000,000 daily default is separate from those operator choices.
 
 Leave SMTP settings unset for the initial test. The interface then omits the
 optional recovery-email setup. Password-protected accounts still work.
