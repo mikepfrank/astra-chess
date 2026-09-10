@@ -137,6 +137,15 @@ prevents two schedulers from owning the same games.
   reveals messages and going back hides later ones; the final position includes
   the shared post-game discussion.
   Revocation stops service access; it cannot remove copies others already saved.
+- **Save replay** on any finished game constructs a standalone interactive
+  HTML archive, with chat included only when selected. Download it, publish it
+  to the site's **Public games** list, or do both. Publication and removal are
+  separate from the private download. Rebuilding a private replay does not
+  silently replace a published version. The [replay workflow](docs/REPLAY-WORKFLOW.md)
+  covers the preserved template, recorded evaluations and privacy choices.
+- **Public games** at `/games/` links to the earlier ten experiment replays at
+  `/experiments/`, all hosted on this domain. Earlier Netlify copies remain
+  available at their original addresses.
 - One durable Codex conversation per game. Processes exit after each completed
   action; they do not idle while waiting for the human. After 36 hours without
   a human game action, an unfinished game is marked suspended. Resume restores it without
@@ -153,8 +162,8 @@ prevents two schedulers from owning the same games.
 The [replay collection](replays/README.md) contains standalone HTML archives with
 animated moves, historical evaluations and a conversation sidebar synchronized
 to the selected position. The HTML works offline and can be shared as one file.
-Building it uses the existing repository replay builder and an optional
-rules-and-notation dependency; it runs no chess search or model request.
+Building it uses the existing repository replay builder and the rules-and-notation
+dependency included in `requirements.txt`; it runs no chess search or model request.
 
 From this directory:
 
@@ -176,7 +185,8 @@ Rebuild from that JSON without accessing the service database or query files:
 & ./.venv/Scripts/python.exe export_replay.py --from-record replays/game.json --output replays/game.html
 ```
 
-Use `--record-only` to save the validated JSON without building HTML. Exporting
+Add `--omit-commentary` to exclude chat from both the HTML and JSON. Use
+`--record-only` to save the validated JSON without building HTML. CLI exporting
 does not publish a page or change the service's optional public replay links.
 
 ## Configuration

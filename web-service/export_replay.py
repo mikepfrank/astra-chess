@@ -35,9 +35,12 @@ def main(argv=None):
     parser.add_argument('--output', type=Path, help='Standalone HTML output')
     parser.add_argument('--pgn', type=Path, help='Optional separate PGN output')
     parser.add_argument('--record-only', action='store_true', help='Validate and save the public JSON without building HTML')
+    parser.add_argument('--omit-commentary', action='store_true', help='Exclude all conversation text from the HTML and JSON outputs')
     args = parser.parse_args(argv)
     try:
         record = load_record(args.from_record) if args.from_record else make_record(read_game(args.data_dir, args.game), args.data_dir)
+        if args.omit_commentary:
+            record['messages'] = []
         output = args.output or APP_ROOT / 'replays' / ('hosted-' + record['game']['id'] + '.html')
         record_path = args.record or (output.with_suffix('.json') if not args.from_record else None)
         if args.record_only and record_path is None:

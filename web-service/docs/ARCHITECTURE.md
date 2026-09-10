@@ -106,8 +106,17 @@ end-of-game action that creates a separate snapshot containing only the board
 record and, if selected, public messages. Private candidate notes, tools, model
 reasoning, credentials, email, account IDs and memories are excluded. Message
 content is rendered as text, never as HTML. Sharing a new snapshot revokes the
-old URL. A generated public page depends on this service and is not yet a
-downloadable standalone HTML bundle like the original experiment archives.
+old URL. This original share-link path remains available alongside **Save replay**.
+
+The standalone archive library reuses the original replay builder and hosted
+conversation template. A bounded background queue builds a private HTML snapshot
+from a finished game's saved evidence. Owner-authenticated downloads and explicit
+publication are independent. Publication copies the exact ready revision to a
+separate public file and records its listing in SQLite; private regeneration
+cannot change that public copy. Removal revokes the listing and URL while
+preserving the private download. No archive operation invokes a model, runs
+the tactical engine or changes game/clock state. See
+[REPLAY-WORKFLOW.md](REPLAY-WORKFLOW.md) for storage, routes and reconstruction.
 
 ## Prompt-injection and operating limits
 

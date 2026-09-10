@@ -754,6 +754,7 @@ textarea::placeholder,input::placeholder {
 }
 .site-footer {
   display:flex;
+  flex-wrap:wrap;
   justify-content:space-between;
   gap:20px;
   color:#758c9b;
@@ -815,6 +816,52 @@ dialog>p.muted {
   font-size:25px;
   color:var(--muted);
   padding:2px 9px;
+}
+#archive-dialog {
+  max-width:min(560px,calc(100vw - 28px));
+}
+.archive-status {
+  margin-top:16px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.6;
+}
+.archive-status.building {
+  color:var(--accent);
+}
+.archive-section {
+  margin-top:18px;
+  padding-top:18px;
+  border-top:1px solid var(--line);
+}
+.archive-section h3 {
+  margin:0;
+  font-size:17px;
+  font-weight:600;
+}
+.archive-actions {
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:14px;
+}
+.archive-actions>* {
+  flex:1 1 170px;
+  text-align:center;
+  justify-content:center;
+}
+.archive-list-link {
+  margin-top:18px;
+}
+#generate-archive {
+  margin-top:16px;
+}
+#open-archive-public {
+  margin-top:8px;
+}
+#remove-archive-public {
+  display:block;
+  text-align:left;
 }
 .tabs {
   display:flex;

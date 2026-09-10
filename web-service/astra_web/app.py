@@ -14,6 +14,8 @@ from .identity import Identity, router as identity_router, require_user
 from .store import Store, Conflict
 from .supervisor import Supervisor
 from .evaluations import latest_astra_evaluation
+from .replay_library import install_replay_library
+from .experiment_library import install_experiment_library
 from . import chess_game as game
 
 
@@ -30,6 +32,7 @@ def create_app(config=None, player_factory=None):
         from .process_lock import ProcessLock
         with ProcessLock(config.data_dir / 'service.lock'):
             supervisor.recover()
+            replay_library.recover()
             async def maintain():
                 while True:
                     await asyncio.sleep(60)
@@ -40,7 +43,10 @@ def create_app(config=None, player_factory=None):
             finally:
                 sweeper.cancel()
                 await asyncio.gather(sweeper, return_exceptions=True)
-                await supervisor.close()
+                try:
+                    await supervisor.close()
+                finally:
+                    await replay_library.close()
 
     app = FastAPI(title='Astra Chess', docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     app.state.identity, app.state.store, app.state.supervisor, app.state.config = identity, store, supervisor, config
@@ -91,8 +97,8 @@ def create_app(config=None, player_factory=None):
         response.headers['Referrer-Policy'] = 'no-referrer'
         response.headers['X-Frame-Options'] = 'DENY'
         response.headers['Permissions-Policy'] = 'camera=(), microphone=(), geolocation=()'
-        response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
-        response.headers['Cache-Control'] = 'no-store' if path.startswith('/api/') or path.startswith('/replay/') else 'no-cache'
+        response.headers.setdefault('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+        response.headers.setdefault('Cache-Control', 'no-store' if path.startswith('/api/') or path.startswith('/replay/') else 'no-cache')
         if config.secure_cookies:
             response.headers['Strict-Transport-Security'] = 'max-age=31536000'
         return response
@@ -264,5 +270,8 @@ def create_app(config=None, player_factory=None):
     async def health():
         return {'ok': True}
 
+    replay_library = install_replay_library(app, config, store, owned, body)
+    app.state.replay_library = replay_library
+    install_experiment_library(app)
     app.mount('/static', StaticFiles(directory=APP_ROOT / 'static'), name='static')
     return app

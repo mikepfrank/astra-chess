@@ -115,5 +115,16 @@ class ExportDestinationTests(unittest.TestCase):
         self.assertEqual(self.source.read_text(encoding='utf-8'), 'original source')
 
 
+    def test_omit_commentary_excludes_chat_from_generated_artifacts(self):
+        self.record['messages'] = [{'text': 'Private chat fixture that must not be exported'}]
+        target = self.root / 'moves-only.json'
+        self.invoke(['--from-record', self.source, '--record-only', '--record', target,
+                     '--omit-commentary'])
+        saved = json.loads(target.read_text(encoding='utf-8'))
+        self.assertEqual(saved['messages'], [])
+        self.assertNotIn('Private chat fixture', target.read_text(encoding='utf-8'))
+        self.assertEqual(self.source.read_text(), 'original source')
+
+
 if __name__ == '__main__':
     unittest.main()

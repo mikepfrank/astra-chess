@@ -5,6 +5,12 @@ read-only checks on the existing Amazon Linux 2023 x86-64 host, using a login
 environment for `astra`. This is an installation proposal, not a deployment
 record. No packages were installed and no services were started for this review.
 
+**September 10 update:** the finished-game **Save replay** feature makes
+`chess==1.11.2` a service dependency, now pinned in `requirements.txt`.
+It was already installed for archive regression checks on the deployed host.
+The inventory below preserves the earlier proposal; use
+[REPLAY-WORKFLOW.md](REPLAY-WORKFLOW.md) for the current archive behavior.
+
 ## Proposed installation
 
 | Component | Purpose | Observed status and proposed action |

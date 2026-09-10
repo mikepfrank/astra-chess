@@ -39,7 +39,7 @@ The engine runs on your CPU; the language model runs through the OpenAI API.
 No GPU, external chess engine, opening book or endgame database is needed.
 The frontend is static HTML/CSS/JavaScript with no build step. SQLite requires
 no separate database server, and the standalone Codex bundle needs no Node/npm
-installation. The optional offline replay builder uses `chess` for notation
+installation. The downloadable replay builder uses `chess` for notation
 and rules; it does not replace the authored tactical engine.
 
 Each game has its own durable Codex conversation and private files. A Codex
@@ -182,9 +182,10 @@ to install the same reviewed release under `astra`, then continue from
 keeps the interpreter and standard library within the unit's read-only runtime
 mount. Do not use `sudo pip` or change the system Python to solve this step.
 
-The sequence includes `requirements-replay.txt` because the full suite tests
-offline HTML archive generation. It is optional for the live site and its
-public replay links, but required for that archive builder and its tests.
+The full service now includes the rules-only `chess` dependency in
+`requirements.txt` for the finished-game **Save replay** feature. The second
+requirements file is the same dependency subset for standalone CLI builds;
+installing it again is harmless. The full suite tests archive generation.
 On the reference server, the final suite ran 160 tests successfully with three
 Windows-only skips. Your selected revision may have a different test count;
 record the actual result. These tests make no real model calls.

@@ -34,7 +34,7 @@
         <div class="board-toolbar"><span id="board-hint" class="muted" aria-live="polite">Click or tap a piece, then its destination.</span><button id="flip-board" class="text-button small" title="Flip board">↕ Flip</button></div>
         <div id="game-status" class="game-status" role="status"><span class="status-dot"></span><span id="game-status-text">A fresh game, at your own pace.</span></div>
         <div id="draw-banner" class="notice draw-banner" hidden><span id="draw-text"></span><div><button id="accept-draw" class="primary small">Accept draw</button><button id="decline-draw" class="outline small">Decline</button></div></div>
-        <div class="game-actions"><button id="new-game" class="primary small">New game</button><button id="offer-draw" class="outline small" disabled>Offer draw</button><button id="claim-draw" class="outline small" hidden>Claim draw</button><button id="resign" class="text-button small" disabled>Resign</button><button id="resume-game" class="primary small" hidden>Resume game</button><button id="retry-worker" class="outline small" hidden>Retry Astra</button><button id="share-game" class="outline small" hidden>Share replay</button><a id="download-pgn" class="text-button small" hidden download>Download PGN</a></div>
+        <div class="game-actions"><button id="new-game" class="primary small">New game</button><button id="offer-draw" class="outline small" disabled>Offer draw</button><button id="claim-draw" class="outline small" hidden>Claim draw</button><button id="resign" class="text-button small" disabled>Resign</button><button id="resume-game" class="primary small" hidden>Resume game</button><button id="retry-worker" class="outline small" hidden>Retry Astra</button><button id="save-replay" class="outline small" hidden>Save replay</button><button id="share-game" class="text-button small" hidden>Share link</button><a id="download-pgn" class="text-button small" hidden download>Download PGN</a></div>
         <details class="about-method"><summary>What makes an Astra game different?</summary><p>Astra combines language-model deliberation with a tactical engine written from scratch. It chooses which positions to investigate, reviews the evidence, and decides what to play. No external chess engines, opening books, game databases, or endgame tablebases guide its moves.</p><p>Astra may explain an idea or keep a plan to itself. The conversation is part of the game. Its time budget is separate from yours; you can take your time.</p><p id="model-detail" class="muted"></p></details>
       </section>
       <aside class="conversation-column">
@@ -54,7 +54,7 @@
         <section class="moves-card" aria-labelledby="moves-title"><div class="card-heading"><h2 id="moves-title">The scoresheet</h2><span id="move-count" class="muted">No moves yet</span></div><div class="moves-head"><span>#</span><span>White</span><span>Black</span></div><div id="moves" class="move-list"><p class="empty-note">The first move is still ahead.</p></div></section>
       </aside>
     </div>
-    <footer class="site-footer"><span>Astra Chess · Public beta</span></footer>
+    <footer class="site-footer"><span>Astra Chess · Public beta</span><a href="/games/" target="_blank" rel="noopener">Public games ↗</a></footer>
   </main>
   <div id="toast" class="toast" role="alert" hidden></div>
   <dialog id="identity-dialog" aria-labelledby="identity-title"><button class="dialog-close" data-close aria-label="Close">×</button><p class="eyebrow">WELCOME TO THE CLUB</p><h2 id="identity-title">What should we call you?</h2><p id="identity-description" class="muted">A guest name is all you need. This browser will remember your seat.</p><div id="identity-tabs" class="tabs"><button id="register-tab" class="active" type="button">Join as a guest</button><button id="login-tab" type="button">Sign in</button></div><form id="identity-form"><div id="name-field" class="field"><label for="identity-name">Display name</label><input id="identity-name" name="username" autocomplete="username" maxlength="40" required></div><div id="password-field" class="field"><label id="password-label" for="identity-password">Password <span class="muted">(optional)</span></label><input id="identity-password" type="password" name="password" autocomplete="new-password" maxlength="200"><p id="password-help" class="field-note">Add a password to use your name on other devices and enable optional memory.</p></div><div id="email-field" class="field" hidden><label for="identity-email">Recovery email <span class="muted">(optional)</span></label><input id="identity-email" type="email" autocomplete="email" maxlength="254"><p class="field-note">Optionally enter your email address if you would like a password reset option.</p></div><p id="identity-error" class="form-error" role="alert" hidden></p><button id="identity-submit" type="submit" class="primary wide">Take a seat</button><button id="forgot-password" type="button" class="text-button wide small">Forgot your password?</button></form><p id="guest-warning" class="field-note">Without a password, your guest identity is tied to this browser. Clearing its cookies can lose access. Games and messages are recorded; use discretion.</p></dialog>
@@ -71,9 +71,35 @@
     <button id="new-check-availability" class="primary wide" type="button" hidden>Check again</button>
     <div class="dialog-actions new-dialog-actions"><button id="new-saved-games" class="text-button" type="button" hidden>Your games</button><button class="outline" data-close type="button">Back to board</button></div>
   </dialog>
-  <dialog id="games-dialog" aria-labelledby="games-title"><button class="dialog-close" data-close aria-label="Close">×</button><p class="eyebrow">YOUR SCORESHEETS</p><h2 id="games-title">Return to the board.</h2><div id="game-list" class="saved-games"></div></dialog>
+  <dialog id="games-dialog" aria-labelledby="games-title"><button class="dialog-close" data-close aria-label="Close">×</button><p class="eyebrow">YOUR SCORESHEETS</p><h2 id="games-title">Return to the board.</h2><div id="game-list" class="saved-games"></div><a class="text-button small" href="/games/" target="_blank" rel="noopener">Browse public games ↗</a></dialog>
   <dialog id="promotion-dialog" aria-labelledby="promotion-title"><h2 id="promotion-title">Promote your pawn.</h2><p class="muted">Choose the piece to join the board.</p><div id="promotion-options" class="promotion-options"></div><button id="cancel-promotion" class="text-button wide">Cancel move</button></dialog>
   <dialog id="confirm-dialog" aria-labelledby="confirm-title"><h2 id="confirm-title">Confirm</h2><p id="confirm-description" class="muted"></p><div class="dialog-actions"><button id="confirm-cancel" class="outline">Keep playing</button><button id="confirm-accept" class="primary">Confirm</button></div></dialog>
   <dialog id="share-dialog" aria-labelledby="share-title"><button class="dialog-close" data-close aria-label="Close">×</button><p class="eyebrow">A GAME WORTH REVISITING</p><h2 id="share-title">Share this replay.</h2><p class="muted">Anyone with the link can view the moves and player name. Sharing is optional; your game is private by default.</p><label class="check-label"><input id="share-commentary" type="checkbox"> Also publish the complete game conversation</label><p class="field-note">Only check this if you are comfortable making every message in this game visible to anyone with the link.</p><button id="create-share" class="primary wide">Create replay link</button><div id="share-result" hidden><label for="share-url">Replay link</label><input id="share-url" readonly><div class="dialog-actions"><button id="copy-share" class="outline">Copy link</button><a id="open-share" class="text-button" target="_blank" rel="noopener">Open replay ↗</a></div></div><button id="revoke-share" class="text-button wide">Revoke existing replay link</button><p id="share-error" class="form-error" role="alert" hidden></p></dialog>
+  <dialog id="archive-dialog" aria-labelledby="archive-title" aria-describedby="archive-description">
+    <button class="dialog-close" data-close type="button" aria-label="Close save replay">×</button>
+    <p class="eyebrow">A GAME TO KEEP</p><h2 id="archive-title">Save your replay.</h2>
+    <p id="archive-description" class="muted">Create a standalone replay page, then download it, publish it to the public game list, or do both.</p>
+    <label class="check-label"><input id="archive-commentary" type="checkbox" disabled> Include the complete conversation</label>
+    <p class="field-note">Includes all chat through the moment you generate the replay, including post-game discussion. Later messages are included only if you generate again.</p>
+    <button id="generate-archive" type="button" class="primary wide" disabled>Generate replay</button>
+    <p id="archive-status" class="archive-status" role="status" aria-live="polite">Loading your saved replay…</p>
+    <p id="archive-error" class="form-error" role="alert" hidden></p>
+    <button id="refresh-archive" type="button" class="text-button small" hidden>Check again</button>
+    <section id="archive-ready" class="archive-section" aria-labelledby="archive-ready-title" hidden>
+      <h3 id="archive-ready-title">Your replay is ready.</h3>
+      <p id="archive-details" class="field-note"></p>
+      <div class="archive-actions"><a id="download-archive" class="outline" download>Download HTML</a><button id="publish-archive" type="button" class="primary">Publish to public game list</button></div>
+      <p class="field-note">Downloading keeps a private copy on your device. Publishing makes this version and any included chat visible to everyone.</p>
+      <p id="archive-new-version-note" class="field-note" hidden>Generating again changes your private replay. Your public version changes only when you choose to publish the new version.</p>
+    </section>
+    <section id="archive-publication" class="archive-section" aria-labelledby="archive-publication-title" hidden>
+      <h3 id="archive-publication-title">On the public game list</h3>
+      <p id="archive-public-details" class="field-note"></p>
+      <a id="open-archive-public" class="text-button small" target="_blank" rel="noopener">Open public replay ↗</a>
+      <button id="remove-archive-public" type="button" class="text-button small">Remove from public game list</button>
+      <p class="field-note">Removal revokes this public link and listing. Your private download stays available; downloaded copies cannot be recalled.</p>
+    </section>
+    <a class="archive-list-link text-button small" href="/games/" target="_blank" rel="noopener">Browse public games ↗</a>
+  </dialog>
 </body>
 </html>

@@ -2,6 +2,7 @@ import {BoardView, START_FEN, pieceImage, pieceNames, renderCaptures, formatCloc
 
 const $=id=>document.getElementById(id);
 const state={user:null,csrf:null,config:null,game:null,gameId:null,pending:false,mode:'register',next:null,polling:false,resetToken:null,messageKey:null,availabilityChecking:false,availabilityError:null,lastAvailabilityCheck:0};
+const archiveUI={session:0,gameId:null,status:null,busy:null,error:null,uncertain:false,loaded:false,timer:null,controller:null};
 let toastTimer, pollTimer, promotionResolve, confirmResolve;
 const titleCase=text=>String(text||'').replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
 const parseDate=value=>new Date(typeof value==='number'&&value<1e12?value*1000:value);
@@ -182,6 +183,7 @@ function playerStatusText(game,side){
 }
 function renderGame(game){
   if(game.id!==state.game?.id)closeEmojiPicker();
+  if(archiveUI.gameId&&archiveUI.gameId!==game.id)closeArchiveDialog();
   if(state.game?.id===game.id&&Number(game.version)<Number(state.game.version))return;
   const boardChanged=state.game?.fen!==game.fen;
   const oldPly=state.game?.ply;
@@ -232,6 +234,7 @@ function renderGame(game){
   $('retry-worker').hidden=!['error','disabled'].includes(game.worker?.state)||!canChat(game);
   $('retry-worker').textContent=game.status==='finished'?'Retry reply':'Retry Astra';
   $('share-game').hidden=game.status!=='finished';
+  $('save-replay').hidden=game.status!=='finished';
   $('download-pgn').hidden=false;$('download-pgn').href=`/api/games/${encodeURIComponent(game.id)}/pgn`;
   updateComposer();
   $('message-input').placeholder=game.status==='finished'?'Discuss the game with Astra…':'Say something to Astra…';
@@ -268,6 +271,7 @@ async function poll(){
   }finally{state.polling=false;pollTimer=setTimeout(poll,2000);}
 }
 function clearPrivateView(){
+  closeArchiveDialog();
   state.messageKey=null;board.set({fen:START_FEN,flipped:false});
   $('welcome-overlay').hidden=false;$('top-name').textContent='Astra';$('bottom-name').textContent='You';
   $('top-detail').textContent='Your opponent';$('bottom-detail').textContent='Choose White or Black';
@@ -278,7 +282,7 @@ function clearPrivateView(){
   $('game-status-text').textContent='A fresh game, at your own pace.';$('game-status').className='game-status';
   $('message-input').value='';updateComposer();
   $('offer-draw').disabled=true;$('resign').disabled=true;
-  for(const id of ['draw-banner','claim-draw','resume-game','retry-worker','share-game','download-pgn'])$(id).hidden=true;
+  for(const id of ['draw-banner','claim-draw','resume-game','retry-worker','share-game','save-replay','download-pgn'])$(id).hidden=true;
   renderAstraEvaluation(null);
   renderMessages();renderMoves();
 }
@@ -497,6 +501,111 @@ $('message-form').addEventListener('submit',async event=>{
   event.preventDefault();const text=$('message-input').value.trim();if(!text)return;
   if(await act('message',{text})){if($('message-input').value.trim()===text)$('message-input').value='';$('message-input').dispatchEvent(new Event('input'));$('messages').scrollTop=$('messages').scrollHeight;}
 });
+function resetArchiveSession(){
+  archiveUI.session++;
+  clearTimeout(archiveUI.timer);archiveUI.timer=null;
+  archiveUI.controller?.abort();archiveUI.controller=null;
+  archiveUI.gameId=null;archiveUI.status=null;archiveUI.busy=null;
+}
+function closeArchiveDialog(){
+  resetArchiveSession();
+  if($('archive-dialog').open)$('archive-dialog').close();
+}
+function archiveCurrent(session,gameId){
+  return archiveUI.session===session&&archiveUI.gameId===gameId&&$('archive-dialog').open
+    &&state.user&&state.gameId===gameId&&state.game?.status==='finished';
+}
+function archiveUrl(value){
+  if(typeof value!=='string'||!value)return null;
+  try{const url=new URL(value,location.origin);return url.origin===location.origin?url.href:null;}catch{return null;}
+}
+function renderArchive(){
+  const saved=archiveUI.status;
+  const building=saved?.state==='building';
+  const ready=saved?.state==='ready'&&typeof saved.archive_id==='string';
+  const disabled=!!archiveUI.busy||!archiveUI.loaded||archiveUI.uncertain;
+  const published=saved?.published===true;
+  const currentPublic=published&&ready&&saved.published_archive_id===saved.archive_id;
+  const downloadUrl=ready?archiveUrl(saved.download_url):null;
+  const publicUrl=published?archiveUrl(saved.public_url):null;
+  $('archive-commentary').disabled=disabled||building;
+  $('generate-archive').disabled=disabled||building;
+  $('generate-archive').textContent=ready?'Generate again':'Generate replay';
+  let status='Generate a replay to keep or share.';
+  if(archiveUI.busy==='generate')status='Starting your replay…';
+  else if(archiveUI.busy==='publish')status='Publishing this version…';
+  else if(archiveUI.busy==='remove')status='Removing the public replay…';
+  else if(!saved)status=archiveUI.error?'Saved replay status is unavailable.':'Loading your saved replay…';
+  else if(building)status='Constructing your replay… You can close this window and return later.';
+  else if(ready)status='Replay ready. Download it, publish it, or do both.';
+  else if(saved.state==='error')status='The replay could not be generated. You can try generating again.';
+  if($('archive-status').textContent!==status)$('archive-status').textContent=status;
+  $('archive-status').classList.toggle('building',building||archiveUI.busy==='generate');
+  const error=archiveUI.error||(saved?.state==='error'?(saved.error||'Replay generation failed. Please try again.'):'');
+  $('archive-error').hidden=!error;$('archive-error').textContent=error;
+  $('refresh-archive').hidden=!archiveUI.error;
+  $('refresh-archive').disabled=!!archiveUI.busy;
+  $('archive-ready').hidden=!ready;
+  if(downloadUrl){$('download-archive').href=downloadUrl;$('download-archive').hidden=false;}
+  else{$('download-archive').removeAttribute('href');$('download-archive').hidden=true;}
+  $('publish-archive').disabled=disabled||!ready||currentPublic;
+  $('publish-archive').textContent=currentPublic?'This version is published':published?'Update public version':'Publish to public game list';
+  if(ready){
+    const when=saved.generated_at?parseDate(saved.generated_at):null;
+    $('archive-details').textContent=`${saved.include_commentary?'Includes the complete conversation at generation.':'Moves only; conversation omitted.'}${when&&!Number.isNaN(when.getTime())?' Generated '+when.toLocaleString()+'.':''}`;
+  }
+  $('archive-new-version-note').hidden=!published;
+  $('archive-publication').hidden=!published;
+  if(publicUrl){$('open-archive-public').href=publicUrl;$('open-archive-public').hidden=false;}
+  else{$('open-archive-public').removeAttribute('href');$('open-archive-public').hidden=true;}
+  const publicChat=typeof saved?.public_include_commentary==='boolean'?(saved.public_include_commentary?' Includes the conversation saved in that version.':' Conversation is omitted.'):'';
+  $('archive-public-details').textContent=(currentPublic?'Your current replay is public.':published&&saved.published_archive_id&&ready?'An earlier version is public.':'Your published replay is available to everyone.')+publicChat;
+  $('remove-archive-public').disabled=disabled||!published;
+}
+async function archiveRequest(action='status'){
+  const session=archiveUI.session,gameId=archiveUI.gameId;
+  if(!archiveCurrent(session,gameId)||archiveUI.busy)return;
+  clearTimeout(archiveUI.timer);archiveUI.timer=null;
+  archiveUI.busy=action;archiveUI.error=null;renderArchive();
+  const controller=new AbortController();archiveUI.controller=controller;
+  const timeout=setTimeout(()=>controller.abort(),15000);
+  let path=`/api/games/${encodeURIComponent(gameId)}/archive`,method='GET',body;
+  if(action==='generate'){method='POST';body={include_commentary:$('archive-commentary').checked};}
+  if(action==='publish'){path+='/publish';method='POST';body={archive_id:archiveUI.status.archive_id};}
+  if(action==='remove'){path+='/publication';method='DELETE';}
+  try{
+    const result=await api(path,{method,body,signal:controller.signal});
+    if(!archiveCurrent(session,gameId))return;
+    if(!['none','building','ready','error'].includes(result.state))throw new Error('The server returned an unexpected replay status. Check again.');
+    archiveUI.status=result;archiveUI.uncertain=false;
+    // Restore an existing archive's choice once, without overwriting later edits while polling.
+    if(!archiveUI.loaded&&result.state!=='none')$('archive-commentary').checked=result.include_commentary===true;
+    archiveUI.loaded=true;
+  }catch(error){
+    if(!archiveCurrent(session,gameId))return;
+    archiveUI.uncertain=true;
+    archiveUI.error=error.name==='AbortError'?'The replay request timed out. Check again to confirm its status.':`${error.message||'Could not reach the server.'} Check again to confirm the replay status.`;
+  }finally{
+    clearTimeout(timeout);
+    if(archiveCurrent(session,gameId)){
+      archiveUI.busy=null;archiveUI.controller=null;renderArchive();
+      if(archiveUI.status?.state==='building'||archiveUI.uncertain){
+        archiveUI.timer=setTimeout(()=>{if(archiveCurrent(session,gameId))archiveRequest();},archiveUI.uncertain?5000:2000);
+      }
+    }
+  }
+}
+$('save-replay').addEventListener('click',()=>{
+  if(state.game?.status!=='finished'||!state.user)return;
+  resetArchiveSession();archiveUI.gameId=state.game.id;
+  archiveUI.error=null;archiveUI.uncertain=false;archiveUI.loaded=false;
+  $('archive-commentary').checked=false;renderArchive();openDialog('archive-dialog');archiveRequest();
+});
+$('archive-dialog').addEventListener('close',()=>{if(!$('archive-dialog').open)resetArchiveSession();});
+$('generate-archive').addEventListener('click',()=>archiveRequest('generate'));
+$('publish-archive').addEventListener('click',()=>archiveRequest('publish'));
+$('remove-archive-public').addEventListener('click',()=>archiveRequest('remove'));
+$('refresh-archive').addEventListener('click',()=>archiveRequest());
 $('share-game').addEventListener('click',()=>{$('share-commentary').checked=false;$('share-result').hidden=true;$('share-error').hidden=true;openDialog('share-dialog');});
 $('create-share').addEventListener('click',async()=>{
   if(!state.game)return;

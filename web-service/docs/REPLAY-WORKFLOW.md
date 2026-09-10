@@ -1,0 +1,112 @@
+# Saving and publishing game replays
+
+Every finished game, including games completed before this feature was added,
+has a **Save replay** button. Signing into a protected account in another browser
+restores access through **Your games**. Guest access follows the existing browser
+session; knowing a player's name or game URL does not grant ownership.
+
+## Player controls
+
+1. Open a finished game and choose **Save replay**.
+2. Choose whether to include chat. New archives default to no chat. Inclusion
+   covers the entire public conversation captured at generation time, including
+   post-game discussion; it never includes private model reasoning or tools.
+3. Choose **Generate replay**. The dialog shows construction progress and
+   reports when the standalone HTML is ready.
+4. **Download HTML** saves a file that works offline. **Publish to public game
+   list** places a separate copy in `/games/`. These actions are independent:
+   use either or both, in any order.
+5. **Remove from public list** removes the entry and revokes its public replay
+   URL. It retains the private archive and original game. Copies someone has
+   already downloaded remain outside the service's control.
+
+Regenerating captures newer discussion or a different chat-inclusion choice.
+It changes the private archive only. Publishing the newly generated version is
+another explicit action; the dialog distinguishes it from an older public copy.
+An archive snapshot remains available after reloading or signing in again.
+The earlier **Share replay** link feature remains separate and is not silently
+added to the public list. Its existing revocation control manages those links.
+
+## Preserved first-human-game workflow
+
+The original September 9 human replay and its sanitized source remain in
+[`replays/`](../replays/README.md). The same machinery builds new user archives:
+
+| Resource | Purpose |
+| --- | --- |
+| [`astra_web/replay_archive.py`](../astra_web/replay_archive.py) | Validate saved moves, SAN, FENs, result, message chronology and historical evaluations; build standalone HTML. |
+| [`templates/replay.template.html`](../templates/replay.template.html) | Animated chessboard, controls, PGN download, evaluations and move-synchronized conversation. |
+| [`build_replay.py`](../../build_replay.py) | Shared original experiment renderer and rules/notation checks. |
+| [`export_replay.py`](../export_replay.py) | Offline command-line export and rebuild from sanitized records. |
+| [`astra_web/replay_library.py`](../astra_web/replay_library.py) | Owner-only construction/download, separate publication snapshots and public list. |
+| [`prompts/player.md`](../prompts/player.md) | Guidance included in deployed Astra sessions so they can explain replay controls. |
+
+Forward navigation reveals chat committed through the selected board position;
+backward navigation retracts later messages. The final position includes the
+captured post-game conversation. Scores come from the original saved searches
+for Astra's chosen moves; unavailable evidence stays missing. The builder never
+runs new chess analysis, invokes Codex, consumes the model's game allowance or
+modifies the board or chess clock.
+
+The repository and template remain readable to the host service in its systemd
+filesystem view. Player instances learn the procedure through their instructions;
+the feature does not give the model a filesystem, publishing or shell tool.
+
+## Hosting and persistence
+
+`/games/` is the public user-game index. Its entries are derived from explicitly
+published snapshots, and the service maintains a generated
+`public-replays/index.html` under `ASTRA_DATA_DIR`. This file is an output, not
+an operator-edited source of truth. Back up the private SQLite database together
+with `replay-archives/` and `public-replays/` under `ASTRA_DATA_DIR`: SQLite owns
+archive/publication metadata, and the HTML snapshots reside in these directories.
+Never expose the entire data directory via the reverse proxy or a static-files mount.
+
+`/experiments/` mirrors the ten already-public experiment replays, including the
+first hosted human game, using an explicit list of tracked HTML files. Its links
+stay on this domain; the original repository index and Netlify deployments are
+preserved. The bottom of the new public game list links to this collection.
+
+Archive requests require the game owner and the existing Origin/CSRF checks.
+Public readers receive only opted-in snapshots. Private records, account data,
+query files and model transcripts are never served by the archive routes.
+Generated HTML safely embeds player text as data. A dedicated content-security
+policy allows the trusted embedded script by hash, without permitting arbitrary
+inline scripts. Public pages are not cached so removal takes effect immediately.
+
+Construction runs in a bounded background queue separate from the Astra worker.
+An interrupted construction is reported as retryable after restart. An update
+must still wait for active chess responses to finish before restarting the
+application. Existing archive tables are added without rewriting game records.
+
+## Offline operator reconstruction
+
+From `web-service`, using the application's virtual environment:
+
+```sh
+.venv/bin/python export_replay.py --game GAME_ID --data-dir /path/to/private/data --output /path/to/private/replay.html --omit-commentary
+.venv/bin/python export_replay.py --from-record /path/to/private/replay.json --output /path/to/private/rebuilt.html
+```
+
+Omit `--omit-commentary` only when including the saved conversation is intended.
+The first command writes a sanitized companion JSON by default. Use distinct
+source and output paths. Neither command publishes anything; public listing is
+an owner-controlled web action. Generated private exports and user publications
+belong in runtime storage, not in the public source repository.
+
+## Validation checkpoint — September 10, 2026
+
+The Windows service suite passed 180 tests with two platform-related symlink
+skips. The new coverage includes 14 archive-library tests, five historical-route
+tests and CLI chat omission. Full HTTP/browser checks against an isolated local
+fixture passed both chat choices, actual downloads before/after publication and
+removal, immutable public versions, revoked URLs, reload, offline playback,
+chat advancement/retraction, escaped hostile text, script-hash CSP, and desktop
+and narrow layouts. The original human replay and Li draw also played through
+their new routes; all ten historical links resolved.
+
+A private temporary reconstruction of the operator's completed September 10
+game on Lightsail succeeded with the existing `chess==1.11.2` installation:
+33 plies and 45 messages, approximately 0.35 seconds. That check ran no model
+request and did not publish the game. Live rollout is recorded separately in
+[the deployment checkpoint](LIGHTSAIL-DEPLOYMENT.md).
