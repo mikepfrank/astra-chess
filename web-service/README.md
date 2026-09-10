@@ -70,6 +70,9 @@ the game saved with a retry status.
 
 ## Linux
 
+The [Lightsail dependency inventory](docs/LIGHTSAIL-DEPENDENCIES.md) records
+the existing host packages and the proposed additions awaiting operator review.
+
 ```sh
 python3.12 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
