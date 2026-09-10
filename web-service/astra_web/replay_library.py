@@ -117,19 +117,35 @@ class ReplayLibrary:
                     game_id TEXT PRIMARY KEY, token TEXT NOT NULL UNIQUE,
                     archive_id TEXT NOT NULL, include_commentary INTEGER NOT NULL,
                     published_at REAL NOT NULL, metadata TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS replay_versions(
+                    game_id TEXT NOT NULL, archive_id TEXT NOT NULL UNIQUE,
+                    state TEXT NOT NULL, include_commentary INTEGER NOT NULL,
+                    generated_at REAL, error TEXT, created_at REAL NOT NULL,
+                    PRIMARY KEY(game_id,include_commentary));
+                CREATE TABLE IF NOT EXISTS replay_variant_jobs(
+                    game_id TEXT NOT NULL, include_commentary INTEGER NOT NULL,
+                    archive_id TEXT NOT NULL, state TEXT NOT NULL,
+                    error TEXT, created_at REAL NOT NULL,
+                    PRIMARY KEY(game_id,include_commentary));
+                CREATE TABLE IF NOT EXISTS replay_variant_shares(
+                    game_id TEXT NOT NULL, token TEXT NOT NULL UNIQUE,
+                    archive_id TEXT NOT NULL, include_commentary INTEGER NOT NULL,
+                    published_at REAL NOT NULL, metadata TEXT NOT NULL,
+                    listed INTEGER NOT NULL,
+                    PRIMARY KEY(game_id,include_commentary));
+                CREATE TABLE IF NOT EXISTS replay_library_migrations(
+                    name TEXT PRIMARY KEY, applied_at REAL NOT NULL);
             ''')
 
-    def recover(self):
-        """Call under the service process lock; interrupted builds need a retry."""
-        with self.lock, self.store.connection() as db:
-            db.execute("UPDATE replay_archives SET state='error', error=? WHERE state='building'", (INTERRUPTED,))
-        self._write_index()
+    @staticmethod
+    def _variant(value):
+        if value not in ('moves', 'chat'):
+            raise HTTPException(400, 'Choose the moves or chat replay variant.')
+        return value == 'chat'
 
-    async def close(self):
-        """Drain the bounded queue instead of abandoning live file writes."""
-        self.closing = True
-        if self.tasks:
-            await asyncio.gather(*list(self.tasks.values()), return_exceptions=True)
+    @staticmethod
+    def _name(include_commentary):
+        return 'chat' if include_commentary else 'moves'
 
     @staticmethod
     def _check_token(value):
@@ -137,41 +153,118 @@ class ReplayLibrary:
             raise HTTPException(404, 'Replay not found.')
         return value
 
-    def _private_path(self, game_id, archive_id):
-        return self.private_dir / self._check_token(game_id) / (self._check_token(archive_id) + '.html')
+    def _private_path(self, game_id, archive_id, include_commentary):
+        return (self.private_dir / self._check_token(game_id) / self._name(include_commentary)
+                / (self._check_token(archive_id) + '.html'))
 
     def _public_path(self, token):
         return self.public_dir / (self._check_token(token) + '.html')
 
-    @staticmethod
-    def _shared(db, game_id):
-        # Existing publications remain listed with no destructive migration.
-        # Keep unlisted snapshots in a separate additive table so an older
-        # application rollback cannot inadvertently put them in its public list.
-        return db.execute('''SELECT *, 1 AS listed FROM replay_publications WHERE game_id=?
-            UNION ALL SELECT *, 0 AS listed FROM replay_unlisted WHERE game_id=?''',
-                          (game_id, game_id)).fetchone()
+    def _migrate_variants(self, db):
+        if db.execute("SELECT 1 FROM replay_library_migrations WHERE name='independent-variants-v1'").fetchone():
+            if any(db.execute('SELECT 1 FROM ' + table + ' LIMIT 1').fetchone() is not None
+                   for table in ('replay_archives', 'replay_publications', 'replay_unlisted')):
+                raise RuntimeError('Replay metadata was changed by an older service release after variant migration. '
+                                   'Reconcile the retired replay tables before restarting; automatic import could restore revoked links.')
+            return
+        now = time.time()
+        for row in db.execute('SELECT * FROM replay_archives').fetchall():
+            game_id, archive_id, include = row['game_id'], row['archive_id'], bool(row['include_commentary'])
+            old_path = self.private_dir / self._check_token(game_id) / (self._check_token(archive_id) + '.html')
+            if row['state'] == 'ready' and old_path.is_file():
+                _atomic_write(self._private_path(game_id, archive_id, include), self._read_page(old_path))
+                db.execute('INSERT OR IGNORE INTO replay_versions VALUES(?,?,?,?,?,?,?)',
+                           (game_id, archive_id, 'ready', int(include), row['generated_at'], None, row['generated_at'] or now))
+            else:
+                db.execute('INSERT OR IGNORE INTO replay_variant_jobs VALUES(?,?,?,?,?,?)',
+                           (game_id, int(include), archive_id, 'error', row['error'] or INTERRUPTED, now))
+        old_links = db.execute('''SELECT *,1 AS listed FROM replay_publications
+            UNION ALL SELECT *,0 AS listed FROM replay_unlisted''').fetchall()
+        for row in old_links:
+            db.execute('INSERT OR IGNORE INTO replay_variant_shares VALUES(?,?,?,?,?,?,?)', tuple(row))
+            game_id, archive_id, include = row['game_id'], row['archive_id'], bool(row['include_commentary'])
+            current = db.execute('SELECT 1 FROM replay_versions WHERE game_id=? AND include_commentary=?',
+                                 (game_id, int(include))).fetchone()
+            if current is None and self._public_path(row['token']).is_file():
+                # A previously shared opposite variant is still an owned replay.
+                # Restore its private download from exactly those immutable bytes.
+                _atomic_write(self._private_path(game_id, archive_id, include), self._read_page(self._public_path(row['token'])))
+                db.execute('INSERT INTO replay_versions VALUES(?,?,?,?,?,?,?)',
+                           (game_id, archive_id, 'ready', int(include), row['published_at'], None, row['published_at']))
+        # Leave original file bytes intact, but retire old metadata atomically.
+        # Prior-release rollback fails closed rather than resurrecting a link
+        # that the owner subsequently revokes or deletes in this release.
+        db.execute('DELETE FROM replay_archives')
+        db.execute('DELETE FROM replay_publications')
+        db.execute('DELETE FROM replay_unlisted')
+        db.execute("INSERT INTO replay_library_migrations VALUES('independent-variants-v1',?)", (now,))
 
-    def status(self, game_id):
+    def recover(self):
+        # Run only while holding the service process lock.
+        with self.lock, self.store.connection() as db:
+            db.execute('BEGIN IMMEDIATE')
+            self._migrate_variants(db)
+            db.execute("UPDATE replay_variant_jobs SET state='error', error=? WHERE state='building'", (INTERRUPTED,))
+        self._write_index()
+
+    async def close(self):
+        self.closing = True
+        if self.tasks:
+            await asyncio.gather(*list(self.tasks.values()), return_exceptions=True)
+
+    @staticmethod
+    def _scope(db, game_id, variant):
+        if variant is not None:
+            return ReplayLibrary._variant(variant)
+        rows = db.execute('''SELECT include_commentary FROM replay_versions WHERE game_id=?
+            UNION SELECT include_commentary FROM replay_variant_jobs WHERE game_id=?
+            UNION SELECT include_commentary FROM replay_variant_shares WHERE game_id=?''',
+                          (game_id, game_id, game_id)).fetchall()
+        if len(rows) > 1:
+            raise HTTPException(409, 'Choose which replay variant to change: moves or chat.')
+        return bool(rows[0][0]) if rows else False
+
+    def status(self, game_id, variant=None, *, strict_selection=False):
+        if variant is not None:
+            selected = self._variant(variant)
         with self.store.connection() as db:
-            row = db.execute('SELECT * FROM replay_archives WHERE game_id=?', (game_id,)).fetchone()
-            shared = self._shared(db, game_id)
+            db.execute('BEGIN')
+            versions = {bool(r['include_commentary']): r for r in db.execute('SELECT * FROM replay_versions WHERE game_id=?', (game_id,))}
+            jobs = {bool(r['include_commentary']): r for r in db.execute('SELECT * FROM replay_variant_jobs WHERE game_id=?', (game_id,))}
+            shares = {bool(r['include_commentary']): r for r in db.execute('SELECT * FROM replay_variant_shares WHERE game_id=?', (game_id,))}
             legacy = db.execute('SELECT token FROM shares WHERE game_id=?', (game_id,)).fetchone()
-        published = shared if shared is not None and shared['listed'] else None
-        ready = row is not None and row['state'] == 'ready'
-        return dict(state=row['state'] if row else 'none', archive_id=row['archive_id'] if row else None,
-                    include_commentary=bool(row['include_commentary']) if row else None,
-                    generated_at=row['generated_at'] if row else None, error=row['error'] if row else None,
-                    download_url=f"/api/games/{game_id}/archive/download?archive_id={row['archive_id']}" if ready else None,
-                    published=published is not None,
-                    public_url=f"/games/{published['token']}.html" if published else None,
-                    published_archive_id=published['archive_id'] if published else None,
-                    public_include_commentary=bool(published['include_commentary']) if published else None,
-                    shared=shared is not None, listed=published is not None,
-                    share_url=f"/games/{shared['token']}.html" if shared else None,
-                    shared_archive_id=shared['archive_id'] if shared else None,
-                    shared_include_commentary=bool(shared['include_commentary']) if shared else None,
-                    legacy_share_url=f"/replay/{legacy['token']}" if legacy else None)
+            if variant is None and strict_selection and len(set(versions) | set(jobs) | set(shares)) > 1:
+                # Older clients carry only their visible chat checkbox and poll
+                # without a variant. Never silently replace their selected ID
+                # with an opposite variant generated in another browser tab.
+                raise HTTPException(409, 'This game has multiple replay versions. Reload the page to choose Moves only or With chat.')
+        if variant is None:
+            activity = [(r['created_at'], k) for mapping in (versions, jobs) for k, r in mapping.items()]
+            selected = max(activity)[1] if activity else next(iter(shares), False)
+        variants = {}
+        for include in (False, True):
+            row, job, shared = versions.get(include), jobs.get(include), shares.get(include)
+            ready = row is not None and row['state'] == 'ready'
+            published = shared if shared is not None and shared['listed'] else None
+            state = 'building' if job is not None and job['state'] == 'building' else 'ready' if ready else 'error' if job else 'none'
+            variants[self._name(include)] = dict(
+                variant=self._name(include), state=state,
+                archive_id=row['archive_id'] if ready else job['archive_id'] if job else None,
+                include_commentary=include, generated_at=row['generated_at'] if ready else None,
+                error=job['error'] if job else None,
+                pending_archive_id=job['archive_id'] if job is not None and job['state'] == 'building' else None,
+                download_url=f"/api/games/{game_id}/archive/download?archive_id={row['archive_id']}" if ready else None,
+                published=published is not None,
+                public_url=f"/games/{published['token']}.html" if published else None,
+                published_archive_id=published['archive_id'] if published else None,
+                public_include_commentary=bool(published['include_commentary']) if published else None,
+                shared=shared is not None, listed=published is not None,
+                share_url=f"/games/{shared['token']}.html" if shared else None,
+                shared_archive_id=shared['archive_id'] if shared else None,
+                shared_include_commentary=bool(shared['include_commentary']) if shared else None,
+                legacy_share_url=f"/replay/{legacy['token']}" if legacy else None)
+        name = self._name(selected)
+        return dict(variants[name], selected_variant=name, variants=variants)
 
     def start(self, state, include_commentary):
         if self.closing:
@@ -179,20 +272,20 @@ class ReplayLibrary:
         if state['status'] != 'finished':
             raise HTTPException(409, 'Finish the game before constructing a replay.')
         game_id = self._check_token(state['id'])
-        if game_id in self.tasks:
-            raise HTTPException(409, 'A replay is already being constructed for this game.')
+        key = (game_id, bool(include_commentary))
+        if key in self.tasks:
+            raise HTTPException(409, 'This replay variant is already being constructed.')
         if len(self.tasks) >= MAX_PENDING_BUILDS:
             raise HTTPException(503, 'Replay construction is busy. Please try again shortly.', headers={'Retry-After': '10'})
         archive_id = secrets.token_hex(16)
         snapshot = deepcopy(state)
         with self.lock, self.store.connection() as db:
-            db.execute('''INSERT INTO replay_archives VALUES(?,?,'building',?,NULL,NULL)
-                ON CONFLICT(game_id) DO UPDATE SET archive_id=excluded.archive_id, state='building',
-                include_commentary=excluded.include_commentary, generated_at=NULL, error=NULL''',
-                       (game_id, archive_id, int(include_commentary)))
-        # Register before returning; no await separates admission from registration.
-        self.tasks[game_id] = asyncio.create_task(self._build(snapshot, archive_id, include_commentary))
-        return self.status(game_id)
+            db.execute('''INSERT INTO replay_variant_jobs VALUES(?,?,?,'building',NULL,?)
+                ON CONFLICT(game_id,include_commentary) DO UPDATE SET archive_id=excluded.archive_id,
+                state='building',error=NULL,created_at=excluded.created_at''',
+                       (game_id, int(include_commentary), archive_id, time.time()))
+        self.tasks[key] = asyncio.create_task(self._build(snapshot, archive_id, include_commentary))
+        return self.status(game_id, self._name(include_commentary))
 
     async def _build(self, snapshot, archive_id, include_commentary):
         game_id = snapshot['id']
@@ -201,35 +294,39 @@ class ReplayLibrary:
                 await asyncio.to_thread(self._construct, snapshot, archive_id, include_commentary)
         except Exception:
             with self.store.connection() as db:
-                db.execute("UPDATE replay_archives SET state='error', error=? WHERE game_id=? AND archive_id=?",
+                db.execute("UPDATE replay_variant_jobs SET state='error',error=? WHERE game_id=? AND archive_id=?",
                            (BUILD_ERROR, game_id, archive_id))
         finally:
-            self.tasks.pop(game_id, None)
+            self.tasks.pop((game_id, bool(include_commentary)), None)
 
     def _construct(self, snapshot, archive_id, include_commentary):
         game_id = snapshot['id']
         if not include_commentary:
-            # Exclude chat before validation or serialization, including malformed
-            # legacy chat that is irrelevant to a moves-only archive.
             snapshot['messages'] = []
         record = replay_archive.make_record(snapshot, self.config.data_dir)
-        # The public artifact needs a stable opaque identity, not the private
-        # application's game identifier or any account/authentication metadata.
         record['game']['id'] = archive_id
-        output = self._private_path(game_id, archive_id)
+        output = self._private_path(game_id, archive_id, include_commentary)
         temporary = output.with_suffix('.building')
         try:
             replay_archive.build_archive(record, temporary)
             if temporary.stat().st_size > MAX_HTML_BYTES:
                 raise ValueError('Replay is too large.')
-            page = temporary.read_text(encoding='utf-8')
-            standalone_csp(page)  # Fail before marking an unsupported artifact ready.
-            temporary.replace(output)
+            standalone_csp(temporary.read_text(encoding='utf-8'))
             with self.lock, self.store.connection() as db:
-                db.execute("UPDATE replay_archives SET state='ready', generated_at=?, error=NULL WHERE game_id=? AND archive_id=?",
-                           (record['game']['exported_at'], game_id, archive_id))
-            # Only the current private download is retained. Public copies have
-            # their own paths and remain unchanged by this cleanup.
+                db.execute('BEGIN IMMEDIATE')
+                job = db.execute("SELECT * FROM replay_variant_jobs WHERE game_id=? AND include_commentary=? AND archive_id=? AND state='building'",
+                                 (game_id, int(include_commentary), archive_id)).fetchone()
+                if job is None:
+                    raise ValueError('Replay construction no longer owns its pending revision.')
+                temporary.replace(output)
+                db.execute('''INSERT INTO replay_versions VALUES(?,?,'ready',?,?,NULL,?)
+                    ON CONFLICT(game_id,include_commentary) DO UPDATE SET archive_id=excluded.archive_id,
+                    state='ready',generated_at=excluded.generated_at,error=NULL,created_at=excluded.created_at''',
+                           (game_id, archive_id, int(include_commentary), record['game']['exported_at'], job['created_at']))
+                db.execute('DELETE FROM replay_variant_jobs WHERE game_id=? AND include_commentary=? AND archive_id=?',
+                           (game_id, int(include_commentary), archive_id))
+            # The directory belongs to this variant, never its opposite or a
+            # shared snapshot. Delete superseded private bytes only after commit.
             for old in output.parent.glob('*.html'):
                 if old != output:
                     old.unlink(missing_ok=True)
@@ -238,8 +335,8 @@ class ReplayLibrary:
 
     def _ready(self, db, game_id, archive_id):
         self._check_token(archive_id)
-        row = db.execute('SELECT * FROM replay_archives WHERE game_id=?', (game_id,)).fetchone()
-        if row is None or row['state'] != 'ready' or row['archive_id'] != archive_id:
+        row = db.execute("SELECT * FROM replay_versions WHERE game_id=? AND archive_id=? AND state='ready'", (game_id, archive_id)).fetchone()
+        if row is None:
             raise HTTPException(409, 'This replay revision is no longer ready. Refresh the replay dialog.')
         return row
 
@@ -254,87 +351,91 @@ class ReplayLibrary:
 
     def download(self, game_id, archive_id):
         with self.lock, self.store.connection() as db:
-            self._ready(db, game_id, archive_id)
-            return self._read_page(self._private_path(game_id, archive_id))
+            row = self._ready(db, game_id, archive_id)
+            return self._read_page(self._private_path(game_id, archive_id, bool(row['include_commentary'])))
 
     def publish(self, state, archive_id):
-        """Compatibility for existing tabs: publishing explicitly lists a replay."""
         return self.share(state, archive_id, listed=True)
 
-    @staticmethod
-    def _set_link(db, values, *, listed):
-        game_id = values[0]
-        db.execute('DELETE FROM replay_publications WHERE game_id=?', (game_id,))
-        db.execute('DELETE FROM replay_unlisted WHERE game_id=?', (game_id,))
-        if listed:
-            db.execute('INSERT INTO replay_publications VALUES(?,?,?,?,?,?)', values)
-        else:
-            db.execute('INSERT INTO replay_unlisted VALUES(?,?,?,?,?,?)', values)
-
     def share(self, state, archive_id, *, listed=False):
-        """Share an exact snapshot; visibility toggles preserve its URL and bytes."""
         self._check_token(archive_id)
         if type(listed) is not bool:
             raise HTTPException(400, 'Choose whether to list the replay publicly.')
-        game_id = state['id']
-        previous_token = None
+        game_id, previous_token = state['id'], None
         with self.lock:
             with self.store.connection() as db:
                 db.execute('BEGIN IMMEDIATE')
-                previous = self._shared(db, game_id)
-                if previous is not None and previous['archive_id'] == archive_id:
-                    # This immutable snapshot can still be listed/unlisted after
-                    # a newer private replay has been generated. Never substitute
-                    # the newer replay's chat selection while changing visibility.
-                    self._read_page(self._public_path(previous['token']))
-                    values = tuple(previous[key] for key in ('game_id', 'token', 'archive_id',
-                                   'include_commentary', 'published_at', 'metadata'))
+                existing = db.execute('SELECT * FROM replay_variant_shares WHERE game_id=? AND archive_id=?', (game_id, archive_id)).fetchone()
+                if existing is not None:
+                    include = bool(existing['include_commentary'])
+                    self._read_page(self._public_path(existing['token']))
+                    db.execute('UPDATE replay_variant_shares SET listed=? WHERE game_id=? AND include_commentary=?',
+                               (int(listed), game_id, int(include)))
                 else:
                     archive = self._ready(db, game_id, archive_id)
-                    # Explicitly sharing a new revision revokes the old link;
-                    # changing visibility of this revision never rotates it.
+                    include = bool(archive['include_commentary'])
+                    previous = db.execute('SELECT token FROM replay_variant_shares WHERE game_id=? AND include_commentary=?',
+                                          (game_id, int(include))).fetchone()
                     token = secrets.token_hex(16)
-                    page = self._read_page(self._private_path(game_id, archive_id))
+                    page = self._read_page(self._private_path(game_id, archive_id, include))
                     _atomic_write(self._public_path(token), page)
                     metadata = dict(name=state['name'], human_side=state['human_side'], astra_side=state['astra_side'],
-                                    result=state['result'], termination=state['termination'],
-                                    created_at=state['created_at'], plies=len(state['moves']))
-                    values = (game_id, token, archive_id, archive['include_commentary'], time.time(), json.dumps(metadata))
+                                    result=state['result'], termination=state['termination'], created_at=state['created_at'], plies=len(state['moves']))
+                    db.execute('''INSERT INTO replay_variant_shares VALUES(?,?,?,?,?,?,?)
+                        ON CONFLICT(game_id,include_commentary) DO UPDATE SET token=excluded.token,
+                        archive_id=excluded.archive_id,published_at=excluded.published_at,metadata=excluded.metadata,listed=excluded.listed''',
+                               (game_id, token, archive_id, int(include), time.time(), json.dumps(metadata), int(listed)))
                     previous_token = previous['token'] if previous is not None else None
-                self._set_link(db, values, listed=listed)
             if previous_token is not None:
                 self._public_path(previous_token).unlink(missing_ok=True)
             self._write_index()
-        return self.status(game_id)
+        return self.status(game_id, self._name(include))
 
-    def unlist(self, game_id):
-        """Remove discovery through the library while retaining the shared URL."""
+    def unlist(self, game_id, variant=None):
         with self.lock:
             with self.store.connection() as db:
                 db.execute('BEGIN IMMEDIATE')
-                row = db.execute('SELECT * FROM replay_publications WHERE game_id=?', (game_id,)).fetchone()
-                if row is not None:
-                    self._set_link(db, tuple(row), listed=False)
+                include = self._scope(db, game_id, variant)
+                db.execute('UPDATE replay_variant_shares SET listed=0 WHERE game_id=? AND include_commentary=?', (game_id, int(include)))
             self._write_index()
-        return self.status(game_id)
+        return self.status(game_id, self._name(include))
 
-    def revoke(self, game_id):
+    def revoke(self, game_id, variant=None):
         with self.lock:
             with self.store.connection() as db:
                 db.execute('BEGIN IMMEDIATE')
-                row = self._shared(db, game_id)
-                db.execute('DELETE FROM replay_publications WHERE game_id=?', (game_id,))
-                db.execute('DELETE FROM replay_unlisted WHERE game_id=?', (game_id,))
+                include = self._scope(db, game_id, variant)
+                row = db.execute('SELECT token FROM replay_variant_shares WHERE game_id=? AND include_commentary=?', (game_id, int(include))).fetchone()
+                db.execute('DELETE FROM replay_variant_shares WHERE game_id=? AND include_commentary=?', (game_id, int(include)))
             if row is not None:
                 self._public_path(row['token']).unlink(missing_ok=True)
             self._write_index()
-        return self.status(game_id)
+        return self.status(game_id, self._name(include))
+
+    def delete_variant(self, game_id, variant=None):
+        with self.lock:
+            with self.store.connection() as db:
+                db.execute('BEGIN IMMEDIATE')
+                include = self._scope(db, game_id, variant)
+                job = db.execute('SELECT state FROM replay_variant_jobs WHERE game_id=? AND include_commentary=?', (game_id, int(include))).fetchone()
+                if (game_id, include) in self.tasks or job is not None and job['state'] == 'building':
+                    raise HTTPException(409, 'Wait for this replay variant to finish constructing before removing it.')
+                row = db.execute('SELECT token FROM replay_variant_shares WHERE game_id=? AND include_commentary=?', (game_id, int(include))).fetchone()
+                db.execute('DELETE FROM replay_variant_shares WHERE game_id=? AND include_commentary=?', (game_id, int(include)))
+                db.execute('DELETE FROM replay_versions WHERE game_id=? AND include_commentary=?', (game_id, int(include)))
+                db.execute('DELETE FROM replay_variant_jobs WHERE game_id=? AND include_commentary=?', (game_id, int(include)))
+            if row is not None:
+                self._public_path(row['token']).unlink(missing_ok=True)
+            folder = self.private_dir / self._check_token(game_id) / self._name(include)
+            for path in folder.glob('*.html'):
+                path.unlink(missing_ok=True)
+            self._write_index()
+        return self.status(game_id, self._name(include))
 
     def public_page(self, token, *, with_visibility=False):
         self._check_token(token)
         with self.lock, self.store.connection() as db:
-            row = db.execute('''SELECT token, 1 AS listed FROM replay_publications WHERE token=?
-                UNION ALL SELECT token, 0 AS listed FROM replay_unlisted WHERE token=?''', (token, token)).fetchone()
+            row = db.execute('SELECT listed FROM replay_variant_shares WHERE token=?', (token,)).fetchone()
             if row is None:
                 raise HTTPException(404, 'This replay is not publicly available.')
             page = self._read_page(self._public_path(token))
@@ -343,9 +444,16 @@ class ReplayLibrary:
     def public_entries(self, page=1):
         if type(page) is not int or not 1 <= page <= 1_000_000:
             raise HTTPException(400, 'Invalid library page.')
+        # Filter visibility before preferring chat. An unlisted chat variant
+        # cannot hide or replace the owner's explicitly listed moves variant.
+        selection = '''FROM replay_variant_shares AS candidate WHERE candidate.listed=1
+            AND (candidate.include_commentary=1 OR NOT EXISTS(
+                SELECT 1 FROM replay_variant_shares AS chat WHERE chat.game_id=candidate.game_id
+                AND chat.include_commentary=1 AND chat.listed=1))'''
         with self.store.connection() as db:
-            total = db.execute('SELECT COUNT(*) FROM replay_publications').fetchone()[0]
-            rows = db.execute('SELECT * FROM replay_publications ORDER BY published_at DESC, token LIMIT ? OFFSET ?',
+            db.execute('BEGIN')
+            total = db.execute('SELECT COUNT(*) ' + selection).fetchone()[0]
+            rows = db.execute('SELECT candidate.* ' + selection + ' ORDER BY published_at DESC,token LIMIT ? OFFSET ?',
                               (PAGE_SIZE, (page - 1) * PAGE_SIZE)).fetchall()
         entries = [dict(**json.loads(row['metadata']), include_commentary=bool(row['include_commentary']),
                         published_at=row['published_at'], public_url=f"/games/{row['token']}.html") for row in rows]
@@ -398,9 +506,9 @@ def install_replay_library(app, config, store, owned, body):
     library = ReplayLibrary(config, store)
 
     @app.get('/api/games/{game_id}/archive')
-    async def archive_status(request: Request, game_id: str):
+    async def archive_status(request: Request, game_id: str, variant: str | None = None):
         owned(request, game_id)
-        return library.status(game_id)
+        return library.status(game_id, variant, strict_selection=True)
 
     @app.post('/api/games/{game_id}/archive', status_code=202)
     async def archive_create(request: Request, game_id: str):
@@ -438,14 +546,19 @@ def install_replay_library(app, config, store, owned, body):
         return await asyncio.to_thread(library.share, state, data['archive_id'], listed=data.get('listed', False))
 
     @app.delete('/api/games/{game_id}/archive/listing')
-    async def archive_unlist(request: Request, game_id: str):
+    async def archive_unlist(request: Request, game_id: str, variant: str | None = None):
         owned(request, game_id)
-        return await asyncio.to_thread(library.unlist, game_id)
+        return await asyncio.to_thread(library.unlist, game_id, variant)
 
     @app.delete('/api/games/{game_id}/archive/publication')
-    async def archive_revoke(request: Request, game_id: str):
+    async def archive_revoke(request: Request, game_id: str, variant: str | None = None):
         owned(request, game_id)
-        return await asyncio.to_thread(library.revoke, game_id)
+        return await asyncio.to_thread(library.revoke, game_id, variant)
+
+    @app.delete('/api/games/{game_id}/archive')
+    async def archive_delete(request: Request, game_id: str, variant: str | None = None):
+        owned(request, game_id)
+        return await asyncio.to_thread(library.delete_variant, game_id, variant)
 
     @app.get('/games/')
     async def library_index(page: int = 1):

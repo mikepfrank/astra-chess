@@ -2,7 +2,7 @@ import {BoardView, START_FEN, pieceImage, pieceNames, renderCaptures, formatCloc
 
 const $=id=>document.getElementById(id);
 const state={user:null,csrf:null,config:null,game:null,gameId:null,pending:false,mode:'register',next:null,polling:false,resetToken:null,messageKey:null,availabilityChecking:false,availabilityError:null,lastAvailabilityCheck:0};
-const archiveUI={session:0,gameId:null,status:null,busy:null,error:null,uncertain:false,loaded:false,timer:null,controller:null};
+const archiveUI={session:0,gameId:null,variant:'moves',variants:{},status:null,busy:null,error:null,uncertain:false,loaded:false,deleteConfirm:false,timer:null,controller:null};
 let toastTimer, pollTimer, promotionResolve, confirmResolve;
 const titleCase=text=>String(text||'').replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
 const parseDate=value=>new Date(typeof value==='number'&&value<1e12?value*1000:value);
@@ -510,9 +510,9 @@ function closeArchiveDialog(){
   resetArchiveSession();
   if($('archive-dialog').open)$('archive-dialog').close();
 }
-function archiveCurrent(session,gameId){
+function archiveCurrent(session,gameId,variant=archiveUI.variant){
   return archiveUI.session===session&&archiveUI.gameId===gameId&&$('archive-dialog').open
-    &&state.user&&state.gameId===gameId&&state.game?.status==='finished';
+    &&archiveUI.variant===variant&&state.user&&state.gameId===gameId&&state.game?.status==='finished';
 }
 function archiveUrl(value){
   if(typeof value!=='string'||!value)return null;
@@ -530,17 +530,30 @@ function archiveShareState(saved){
 function renderArchive(){
   const saved=archiveUI.status;
   const building=saved?.state==='building';
-  const ready=saved?.state==='ready'&&typeof saved.archive_id==='string';
+  const ready=['ready','building'].includes(saved?.state)&&typeof saved.archive_id==='string'&&!!archiveUrl(saved.download_url);
   const disabled=!!archiveUI.busy||!archiveUI.loaded||archiveUI.uncertain;
   const share=archiveShareState(saved);
+  const chatShare=archiveShareState(archiveUI.variants.chat),movesShare=archiveShareState(archiveUI.variants.moves);
+  const listedChat=chatShare.shared&&chatShare.listed,listedMoves=movesShare.shared&&movesShare.listed;
+  const chatPreferred=share.listed&&archiveUI.variant==='moves'&&listedChat;
   const currentShared=share.shared&&ready&&share.archiveId===saved.archive_id;
   const downloadUrl=ready?archiveUrl(saved.download_url):null;
   const sharedUrl=share.shared?share.url:null;
   const legacyUrl=archiveUrl(saved?.legacy_share_url);
-  $('archive-commentary').disabled=disabled||building;
-  $('archive-listed').disabled=disabled||!ready;
+  for(const variant of ['moves','chat']){
+    const selected=archiveUI.variant===variant,button=$('archive-variant-'+variant),summary=archiveUI.variants[variant];
+    button.setAttribute('aria-selected',String(selected));button.tabIndex=selected?0:-1;
+    button.disabled=!!archiveUI.busy&&archiveUI.busy!=='status';
+    let label=!summary?'Checking…':summary.state==='building'?'Generating…':summary.state==='ready'?'Saved':summary.state==='error'?'Generation failed':'Not saved';
+    const shared=archiveShareState(summary);
+    if(shared.shared)label+=shared.listed?(variant==='moves'&&listedChat?' · Listing enabled':' · Listed'):' · Shared by link';
+    if($('archive-variant-'+variant+'-status').textContent!==label)$('archive-variant-'+variant+'-status').textContent=label;
+  }
+  $('archive-variant-panel').setAttribute('aria-labelledby','archive-variant-'+archiveUI.variant);
+  $('archive-variant-description').textContent=archiveUI.variant==='chat'?'Includes all conversation through the moment you generate this version, including post-game discussion. Update this version later to include new messages.':'Saves the game and its evaluations without the conversation. Your version with chat stays separate.';
+  $('archive-listed').disabled=disabled||!ready||building;
   $('generate-archive').disabled=disabled||building;
-  $('generate-archive').textContent=ready?'Generate again':'Generate replay';
+  $('generate-archive').textContent=ready?'Update this version':'Generate replay';
   let status='Generate a replay to keep or share.';
   if(archiveUI.busy==='generate')status='Starting your replay…';
   else if(archiveUI.busy==='share')status='Saving your sharing choices…';
@@ -548,33 +561,36 @@ function renderArchive(){
   else if(archiveUI.busy==='unlist')status='Removing the replay from the public list…';
   else if(archiveUI.busy==='disable')status='Disabling this shared link…';
   else if(archiveUI.busy==='disable-legacy')status='Disabling the earlier share link…';
+  else if(archiveUI.busy==='delete')status='Deleting this saved version…';
   else if(!saved)status=archiveUI.error?'Saved replay status is unavailable.':'Loading your saved replay…';
   else if(building)status='Constructing your replay… You can close this window and return later.';
   else if(ready)status='Replay ready. Download it, share it, or do both.';
   else if(saved.state==='error')status='The replay could not be generated. You can try generating again.';
   if($('archive-status').textContent!==status)$('archive-status').textContent=status;
   $('archive-status').classList.toggle('building',building||archiveUI.busy==='generate');
-  const error=archiveUI.error||(saved?.state==='error'?(saved.error||'Replay generation failed. Please try again.'):'');
+  const error=archiveUI.error||saved?.error||(saved?.state==='error'?'Replay generation failed. Please try again.':'');
   $('archive-error').hidden=!error;$('archive-error').textContent=error;
   $('refresh-archive').hidden=!archiveUI.error;
   $('refresh-archive').disabled=!!archiveUI.busy;
   $('archive-ready').hidden=!ready;
+  $('archive-ready-title').textContent=building?'Your saved version is still available.':'Your replay is ready.';
   if(downloadUrl){$('download-archive').href=downloadUrl;$('download-archive').hidden=false;}
   else{$('download-archive').removeAttribute('href');$('download-archive').hidden=true;}
-  $('share-archive').disabled=disabled||!ready;
+  $('share-archive').disabled=disabled||!ready||building;
   if(ready){
     const when=saved.generated_at?parseDate(saved.generated_at):null;
     $('archive-details').textContent=`${saved.include_commentary?'Includes the complete conversation at generation.':'Moves only; conversation omitted.'}${when&&!Number.isNaN(when.getTime())?' Generated '+when.toLocaleString()+'.':''}`;
   }
   $('archive-new-version-note').hidden=!share.shared;
   $('archive-publication').hidden=!share.shared;
-  $('archive-publication-title').textContent=share.listed?'Shared and publicly listed':'Shared by link · Unlisted';
+  $('archive-publication-title').textContent=chatPreferred?'Shared · Listing enabled':share.listed?'Shared and publicly listed':'Shared by link · Unlisted';
   if($('archive-share-url').value!==(sharedUrl||''))$('archive-share-url').value=sharedUrl||'';
   if(sharedUrl){$('open-archive-public').href=sharedUrl;$('open-archive-public').hidden=false;}
   else{$('open-archive-public').removeAttribute('href');$('open-archive-public').hidden=true;}
   const sharedVersion=currentShared?'This is your current replay.':share.shared&&share.archiveId&&ready?'This is an earlier replay version.':'Your shared replay remains available.';
   const sharedChat=typeof share.commentary==='boolean'?(share.commentary?' Includes the conversation saved in that version.':' Conversation is omitted.'):'';
-  $('archive-public-details').textContent=`Anyone with this link can view the replay.${share.listed?' It also appears on the public game list.':' It does not appear on the public game list.'} ${sharedVersion}${sharedChat}`;
+  const listingDescription=chatPreferred?' Listing is enabled, but the public game list currently shows your With chat version.':share.listed?' It also appears on the public game list.':' It does not appear on the public game list.';
+  $('archive-public-details').textContent=`Anyone with this link can view the replay.${listingDescription} ${sharedVersion}${sharedChat}`;
   $('copy-archive-link').disabled=!sharedUrl;
   $('list-archive-public').hidden=share.listed;
   $('list-archive-public').disabled=disabled||!share.shared||!share.archiveId;
@@ -587,44 +603,58 @@ function renderArchive(){
   else $('open-archive-legacy').removeAttribute('href');
   $('copy-archive-legacy').disabled=!legacyUrl;
   $('disable-archive-legacy').disabled=disabled||!legacyUrl;
+  const deletable=saved&&(saved.state!=='none'||share.shared);
+  $('archive-delete-section').hidden=!deletable;
+  $('delete-archive').hidden=archiveUI.deleteConfirm;
+  $('delete-archive').disabled=disabled||building;
+  $('archive-delete-confirmation').hidden=!archiveUI.deleteConfirm;
+  $('confirm-delete-archive').disabled=disabled||building;
+  $('cancel-delete-archive').disabled=!!archiveUI.busy;
+  $('archive-delete-question').textContent=`Delete the ${archiveUI.variant==='chat'?'With chat':'Moves only'} version? Its saved download, shared link and listing will be removed. The other version, your game, conversation and earlier share link stay unchanged. Downloaded copies cannot be recalled.`;
+  $('archive-list-preference').textContent=listedChat?'The public game list currently shows With chat. If both versions are listed, that version takes priority.':listedMoves?'The public game list currently shows Moves only. If both versions are listed, the version with chat takes priority.':'If both versions are listed, the public game list shows the version with chat.';
 }
 async function archiveRequest(action='status'){
-  const session=archiveUI.session,gameId=archiveUI.gameId;
-  if(!archiveCurrent(session,gameId)||archiveUI.busy)return;
+  const session=archiveUI.session,gameId=archiveUI.gameId,variant=archiveUI.variant;
+  if(!archiveCurrent(session,gameId,variant)||archiveUI.busy)return;
   clearTimeout(archiveUI.timer);archiveUI.timer=null;
+  if(action!=='status')archiveUI.deleteConfirm=false;
   archiveUI.busy=action;archiveUI.error=null;renderArchive();
   const controller=new AbortController();archiveUI.controller=controller;
   const timeout=setTimeout(()=>controller.abort(),15000);
-  let path=`/api/games/${encodeURIComponent(gameId)}/archive`,method='GET',body;
-  if(action==='generate'){method='POST';body={include_commentary:$('archive-commentary').checked};}
-  if(action==='share'){path+='/share';method='POST';body={archive_id:archiveUI.status.archive_id,listed:$('archive-listed').checked};}
-  if(action==='list'){path+='/share';method='POST';body={archive_id:archiveShareState(archiveUI.status).archiveId,listed:true};}
-  if(action==='unlist'){path+='/listing';method='DELETE';}
-  if(action==='disable'){path+='/publication';method='DELETE';}
+  const base=`/api/games/${encodeURIComponent(gameId)}/archive`,query=`?variant=${variant}`;
+  let path=base+query,method='GET',body;
+  if(action==='generate'){path=base;method='POST';body={include_commentary:variant==='chat'};}
+  if(action==='share'){path=base+'/share';method='POST';body={archive_id:archiveUI.status.archive_id,listed:$('archive-listed').checked};}
+  if(action==='list'){path=base+'/share';method='POST';body={archive_id:archiveShareState(archiveUI.status).archiveId,listed:true};}
+  if(action==='unlist'){path=base+'/listing'+query;method='DELETE';}
+  if(action==='disable'){path=base+'/publication'+query;method='DELETE';}
+  if(action==='delete'){method='DELETE';}
   if(action==='disable-legacy'){path=`/api/games/${encodeURIComponent(gameId)}/share`;method='DELETE';}
   try{
     let result=await api(path,{method,body,signal:controller.signal});
-    if(!archiveCurrent(session,gameId))return;
-    if(action==='disable-legacy')result=await api(`/api/games/${encodeURIComponent(gameId)}/archive`,{signal:controller.signal});
-    if(!archiveCurrent(session,gameId))return;
+    if(!archiveCurrent(session,gameId,variant))return;
+    if(action==='disable-legacy')result=await api(base+query,{signal:controller.signal});
+    if(!archiveCurrent(session,gameId,variant))return;
     if(!['none','building','ready','error'].includes(result.state))throw new Error('The server returned an unexpected replay status. Check again.');
+    if(result.selected_variant!==variant)throw new Error('The server returned a different replay version. Check again.');
     archiveUI.status=result;archiveUI.uncertain=false;
-    // Restore an existing archive's choice once, without overwriting later edits while polling.
-    if(!archiveUI.loaded&&result.state!=='none')$('archive-commentary').checked=result.include_commentary===true;
-    if(!archiveUI.loaded||['share','list','unlist','disable'].includes(action)){
+    archiveUI.variants=result.variants||{...archiveUI.variants,[variant]:result};
+    // Restore this version's listing choice once without overwriting later edits while polling.
+    if(!archiveUI.loaded||['share','list','unlist','disable','delete'].includes(action)){
       const share=archiveShareState(result);$('archive-listed').checked=share.shared&&share.listed;
     }
     archiveUI.loaded=true;
+    if(action==='delete')toast(`${variant==='chat'?'With chat':'Moves only'} replay deleted. Your other version and game are unchanged.`);
   }catch(error){
-    if(!archiveCurrent(session,gameId))return;
+    if(!archiveCurrent(session,gameId,variant))return;
     archiveUI.uncertain=true;
     archiveUI.error=error.name==='AbortError'?'The replay request timed out. Check again to confirm its status.':`${error.message||'Could not reach the server.'} Check again to confirm the replay status.`;
   }finally{
     clearTimeout(timeout);
-    if(archiveCurrent(session,gameId)){
+    if(archiveCurrent(session,gameId,variant)){
       archiveUI.busy=null;archiveUI.controller=null;renderArchive();
-      if(archiveUI.status?.state==='building'||archiveUI.uncertain){
-        archiveUI.timer=setTimeout(()=>{if(archiveCurrent(session,gameId))archiveRequest();},archiveUI.uncertain?5000:2000);
+      if(Object.values(archiveUI.variants).some(saved=>saved.state==='building')||archiveUI.uncertain){
+        archiveUI.timer=setTimeout(()=>{if(archiveCurrent(session,gameId,variant))archiveRequest();},archiveUI.uncertain?5000:2000);
       }
     }
   }
@@ -632,9 +662,25 @@ async function archiveRequest(action='status'){
 $('save-replay').addEventListener('click',()=>{
   if(state.game?.status!=='finished'||!state.user)return;
   resetArchiveSession();archiveUI.gameId=state.game.id;
+  archiveUI.variant='moves';archiveUI.variants={};archiveUI.deleteConfirm=false;
   archiveUI.error=null;archiveUI.uncertain=false;archiveUI.loaded=false;
-  $('archive-commentary').checked=false;$('archive-listed').checked=false;renderArchive();openDialog('archive-dialog');archiveRequest();
+  $('archive-listed').checked=false;renderArchive();openDialog('archive-dialog');archiveRequest();
 });
+function selectArchiveVariant(variant){
+  if(variant===archiveUI.variant||!['moves','chat'].includes(variant)||!$('archive-dialog').open||(archiveUI.busy&&archiveUI.busy!=='status'))return;
+  const gameId=archiveUI.gameId;
+  resetArchiveSession();archiveUI.gameId=gameId;archiveUI.variant=variant;
+  archiveUI.error=null;archiveUI.uncertain=false;archiveUI.loaded=false;archiveUI.deleteConfirm=false;
+  $('archive-listed').checked=false;renderArchive();archiveRequest();
+}
+for(const variant of ['moves','chat']){
+  $('archive-variant-'+variant).addEventListener('click',()=>selectArchiveVariant(variant));
+  $('archive-variant-'+variant).addEventListener('keydown',event=>{
+    if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+    event.preventDefault();const next=event.key==='Home'?'moves':event.key==='End'?'chat':variant==='moves'?'chat':'moves';
+    selectArchiveVariant(next);$('archive-variant-'+next).focus();
+  });
+}
 $('archive-dialog').addEventListener('close',()=>{if(!$('archive-dialog').open)resetArchiveSession();});
 $('generate-archive').addEventListener('click',()=>archiveRequest('generate'));
 $('share-archive').addEventListener('click',()=>archiveRequest('share'));
@@ -642,6 +688,9 @@ $('list-archive-public').addEventListener('click',()=>archiveRequest('list'));
 $('remove-archive-public').addEventListener('click',()=>archiveRequest('unlist'));
 $('disable-archive-link').addEventListener('click',()=>archiveRequest('disable'));
 $('disable-archive-legacy').addEventListener('click',()=>archiveRequest('disable-legacy'));
+$('delete-archive').addEventListener('click',()=>{archiveUI.deleteConfirm=true;renderArchive();$('cancel-delete-archive').focus();});
+$('cancel-delete-archive').addEventListener('click',()=>{archiveUI.deleteConfirm=false;renderArchive();$('delete-archive').focus();});
+$('confirm-delete-archive').addEventListener('click',()=>archiveRequest('delete'));
 $('refresh-archive').addEventListener('click',()=>archiveRequest());
 async function copyArchiveLink(inputId){
   const session=archiveUI.session,gameId=archiveUI.gameId,input=$(inputId),url=input.value;

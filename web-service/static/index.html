@@ -77,9 +77,13 @@
   <dialog id="archive-dialog" aria-labelledby="archive-title" aria-describedby="archive-description">
     <button class="dialog-close" data-close type="button" aria-label="Close save/share replay">×</button>
     <p class="eyebrow">A GAME TO KEEP</p><h2 id="archive-title">Save or share your replay.</h2>
-    <p id="archive-description" class="muted">Create a standalone replay page, then download it, share a link, or do both.</p>
-    <label class="check-label"><input id="archive-commentary" type="checkbox" disabled> Include the complete conversation</label>
-    <p class="field-note">Includes all chat through the moment you generate the replay, including post-game discussion. Later messages are included only if you generate again.</p>
+    <p id="archive-description" class="muted">Keep separate versions with and without chat. Download either version, share it, or do both.</p>
+    <div class="archive-variants" role="tablist" aria-label="Replay version">
+      <button id="archive-variant-moves" type="button" role="tab" aria-selected="true" aria-controls="archive-variant-panel"><strong>Moves only</strong><span id="archive-variant-moves-status">Checking…</span></button>
+      <button id="archive-variant-chat" type="button" role="tab" aria-selected="false" aria-controls="archive-variant-panel" tabindex="-1"><strong>With chat</strong><span id="archive-variant-chat-status">Checking…</span></button>
+    </div>
+    <section id="archive-variant-panel" role="tabpanel" aria-labelledby="archive-variant-moves">
+    <p id="archive-variant-description" class="field-note">Save the game and its evaluations without the conversation.</p>
     <button id="generate-archive" type="button" class="primary wide" disabled>Generate replay</button>
     <p id="archive-status" class="archive-status" role="status" aria-live="polite">Loading your saved replay…</p>
     <p id="archive-error" class="form-error" role="alert" hidden></p>
@@ -92,7 +96,7 @@
       <label class="check-label"><input id="archive-listed" type="checkbox" disabled> Also publish to public game list</label>
       <p class="field-note">When you press Share, anyone with the link can view your name, the game and any included chat. The checkbox also makes the replay discoverable on the public game list.</p>
       <button id="share-archive" type="button" class="primary wide">Share</button>
-      <p id="archive-new-version-note" class="field-note" hidden>Generating again changes only your private replay. Press Share to replace the shared version; sharing a new version disables its previous link.</p>
+      <p id="archive-new-version-note" class="field-note" hidden>Updating this version changes its private download only. Sharing the update replaces this version’s earlier link.</p>
     </section>
     <section id="archive-publication" class="archive-section" aria-labelledby="archive-publication-title" hidden>
       <h3 id="archive-publication-title">Your shared replay</h3>
@@ -104,12 +108,21 @@
       <button id="disable-archive-link" type="button" class="text-button small">Disable shared link</button>
       <p class="field-note">Removing the listing keeps the link working. Disabling the link also removes the listing. Your private download stays available; downloaded copies cannot be recalled.</p>
     </section>
+    <section id="archive-delete-section" class="archive-section" hidden>
+      <button id="delete-archive" type="button" class="text-button small">Delete this version</button>
+      <div id="archive-delete-confirmation" role="group" aria-labelledby="archive-delete-question" hidden>
+        <p id="archive-delete-question" class="field-note"></p>
+        <div class="archive-actions"><button id="cancel-delete-archive" type="button" class="outline">Keep this version</button><button id="confirm-delete-archive" type="button" class="outline danger">Delete this version</button></div>
+      </div>
+    </section>
+    </section>
     <section id="archive-legacy" class="archive-section" aria-labelledby="archive-legacy-title" hidden>
       <h3 id="archive-legacy-title">Earlier share link</h3>
       <p class="field-note">This earlier replay link stays available until you disable it separately.</p>
       <label class="sr-only" for="archive-legacy-url">Earlier replay link</label><input id="archive-legacy-url" readonly>
       <div class="archive-legacy-actions"><a id="open-archive-legacy" class="text-button small" target="_blank" rel="noopener">Open ↗</a><button id="copy-archive-legacy" type="button" class="text-button small">Copy</button><button id="disable-archive-legacy" type="button" class="text-button small">Disable</button></div>
     </section>
+    <p id="archive-list-preference" class="field-note archive-list-note">If both versions are listed, the public game list shows the version with chat.</p>
     <a class="archive-list-link text-button small" href="/games/" target="_blank" rel="noopener">Browse public games ↗</a>
   </dialog>
 </body>

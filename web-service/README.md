@@ -129,16 +129,18 @@ prevents two schedulers from owning the same games.
   subsequent games. Memories are opt-in, user-managed, and never available for
   guest accounts. Automatic model-authored memory extraction is not included.
 - Private records by default. **Save/share replay** on any finished game
-  constructs a standalone interactive HTML archive with chat included only when
-  selected. Download it, share it, or do both. Sharing creates an unlisted link
+  keeps independent **Moves only** and **With chat** versions. Download either,
+  share either, or do both. Sharing creates an unlisted link
   unless **Also publish to public game list** is checked. Remove a listing
-  while retaining the link, or disable the link entirely; the private download
-  remains available. Earlier share links keep working and can be managed in
+  while retaining the link, disable the link, or delete the selected version.
+  The other version and original game remain saved. The public list shows one
+  entry per game, preferring With chat only when both versions are explicitly
+  listed. Earlier share links keep working and can be managed in
   the same dialog. Revocation cannot remove copies others already saved.
 - Replay chat follows the selected move; the final frame includes post-game
   discussion captured at generation time. Later messages stay private unless
   included in a newly generated version. Rebuilding a private replay does not
-  silently replace a shared version. The [replay workflow](docs/REPLAY-WORKFLOW.md)
+  silently replace a shared version or its counterpart. The [replay workflow](docs/REPLAY-WORKFLOW.md)
   covers the preserved template, recorded evaluations and privacy choices.
 - **Public games** at `/games/` links to the earlier ten experiment replays at
   `/experiments/`, all hosted on this domain. Earlier Netlify copies remain

@@ -820,6 +820,36 @@ dialog>p.muted {
 #archive-dialog {
   max-width:min(560px,calc(100vw - 28px));
 }
+.archive-variants {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin:18px 0 12px;
+}
+.archive-variants button {
+  min-width:0;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:6px;
+  text-align:left;
+  background:#121e27;
+}
+.archive-variants button[aria-selected="true"] {
+  border-color:var(--accent);
+  background:var(--accent-dark);
+}
+.archive-variants strong,.archive-variants span {
+  display:block;
+}
+.archive-variants strong {
+  font-size:15px;
+}
+.archive-variants span {
+  margin-top:4px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+}
 .archive-status {
   margin-top:16px;
   color:var(--muted);
@@ -852,6 +882,18 @@ dialog>p.muted {
 }
 .archive-list-link {
   margin-top:18px;
+}
+.archive-list-note {
+  margin-top:18px;
+}
+#archive-delete-confirmation {
+  padding:12px;
+  border:1px solid #89544e;
+  border-radius:6px;
+}
+#confirm-delete-archive {
+  color:var(--danger);
+  border-color:#89544e;
 }
 #generate-archive,#share-archive {
   margin-top:16px;

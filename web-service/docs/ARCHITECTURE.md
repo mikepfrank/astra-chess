@@ -110,16 +110,26 @@ old URL. Previously issued legacy links remain available and owner-manageable
 inside the unified **Save/share replay** dialog.
 
 The standalone archive library reuses the original replay builder and hosted
-conversation template. A bounded background queue builds a private HTML snapshot
-from a finished game's saved evidence. Owner-authenticated downloads and explicit
-sharing are independent. Sharing copies the exact ready revision to a separate
-file; the owner chooses an unlisted link or an additional public listing.
-Private regeneration cannot change that shared copy. Listed and unlisted
-metadata occupy separate SQLite tables, so older code cannot accidentally list
-an unlisted replay after rollback. Removing a listing preserves its URL;
-disabling the shared link revokes access. Both preserve the private download.
-Sharing a different archive revision replaces the previous standalone URL;
-changing only its listing preserves that URL. No archive operation invokes a model, runs
+conversation template. It retains two independently managed versions per game:
+Moves only and With chat. A bounded background queue builds private HTML from
+the saved evidence. A refresh retains the previous download until the new one
+is ready; failure does not erase a previously saved version. Owner-authenticated
+downloads and explicit sharing are independent. Sharing copies the exact ready
+revision to a separate file; the owner chooses an unlisted link or an additional
+public listing for that version. Regenerating one version cannot change its
+shared copy or the other version.
+
+Variant metadata migrates once from the original tables, retaining existing
+tokens and listing choices. Old metadata is retired to prevent removed links
+from reappearing; older releases cannot serve the migrated standalone links.
+The public list deduplicates games after filtering explicitly listed variants,
+preferring With chat when both are listed. Unlisting that variant reveals Moves
+only only if it was also listed. Unlisted chat cannot enter this selection.
+Removing a listing preserves its URL; disabling a shared link revokes access
+but preserves its private download. Deleting a selected version removes its
+download and link, leaving the other version and original game intact. Sharing
+a different revision replaces only that version's previous URL; changing only
+its listing preserves that URL. No archive operation invokes a model, runs
 the tactical engine or changes game/clock state. See
 [REPLAY-WORKFLOW.md](REPLAY-WORKFLOW.md) for storage, routes and reconstruction.
 

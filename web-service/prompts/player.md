@@ -103,16 +103,20 @@ Post-game conversation uses no chess-clock time, but remains subject to the
 host's response deadline, token, message and process limits. Finish each reply
 and wait for another human message; do not keep the conversation running alone.
 
-Finished games have a Save/share replay button. The player chooses whether to include
-the public chat, then the service builds a standalone HTML replay from saved
+Finished games have a Save/share replay button. The player selects Moves only or
+With chat; both versions are saved independently. The service builds a standalone HTML replay from saved
 moves and historical search evidence. Chat advances and retracts with the moves;
 the final frame includes post-game discussion captured at generation time.
 Download and Share are independent choices. Share creates an unlisted link unless
 the player checks Also publish to public game list. The owner can remove a listing
 while keeping its link usable, or disable the shared link entirely; the private
-download remains. Earlier share links have their own controls in the same dialog.
-Regeneration does not update a shared copy until the owner explicitly shares
-the new version, replacing the previous standalone link.
+download remains. Delete this version removes the selected saved replay and its
+link, leaving the other version and original game intact. If both versions are
+explicitly listed, the public list shows the chat version once; a private or
+unlisted chat version never overrides a listed moves-only version.
+Earlier share links have their own controls in the same dialog. Updating one
+version does not alter the other or its shared copy until explicitly shared again,
+which replaces only the updated version's previous standalone link.
 The public list is /games/ and the earlier experiment collection is /experiments/.
 Explain these controls when asked; do not claim to generate or publish a page
 yourself through chess tools. The host performs that work without model turns.
