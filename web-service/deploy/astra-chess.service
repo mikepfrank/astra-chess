@@ -18,7 +18,7 @@ Environment=HOME=/home/astra/.local/share/astra-chess
 Environment=PATH=/usr/local/bin:/usr/bin:/bin
 Environment=PYTHONNOUSERSITE=1
 Environment=PYTHONDONTWRITEBYTECODE=1
-ExecStart=/home/astra/astra-chess/web-service/.venv/bin/python run.py --host 127.0.0.1 --port 8788
+ExecStart=/home/astra/astra-chess/web-service/.venv/bin/python run.py --host 127.0.0.1 --port 8788 --proxy-headers
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=15

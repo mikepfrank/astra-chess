@@ -57,6 +57,24 @@ belonging to other users where the kernel supports it. These are service
 restrictions, not a claim of isolation from every other process sharing the
 `astra` UID; keep operator activity under that account trusted.
 
+The public configuration uses `--proxy-headers`, which trusts forwarded client
+addresses and schemes only from `127.0.0.1`. Caddy sets these headers and ignores
+untrusted incoming values by default. Direct CLI launches leave this opt-in off.
+Do not widen the trusted address list when adding a CDN or another proxy without
+reviewing the new request path. See the
+[Caddy proxy defaults](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy#defaults).
+
+`astra-caddy.service` runs the account-local Caddy binary with only the privilege
+needed to bind ports 80 and 443. Its configuration is the individually mounted
+`/home/astra/.config/astra-chess/Caddyfile`; certificate state is private under
+`/home/astra/.local/share/astra-caddy`. It has no access to the application API
+key or game-data mount. Install its small unit in `/etc/systemd/system` after
+validating the Caddyfile. Configuration updates use a controlled service restart
+because the Caddy administration listener is disabled. The example serves
+`astraplayschess.com` and redirects `www` to the canonical HTTPS address; set
+`ASTRA_ORIGIN=https://astraplayschess.com` before public traffic. Inbound TCP 80
+and 443 must reach Caddy; the application remains loopback-only.
+
 Limits cover the web process and all descendants together: `CPUQuota=100%`,
 `MemoryMax=2G`, `TasksMax=64`, and `LimitNOFILE=1024`. The CPU quota is one logical
 CPU of aggregate time. It does not reserve a core or set a per-game allowance.

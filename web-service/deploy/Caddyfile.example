@@ -1,4 +1,17 @@
-# Replace this hostname and configure ASTRA_ORIGIN to exactly match it.
-chess.example.com {
+{
+    # Configuration changes use a controlled service restart.
+    admin off
+    servers {
+        protocols h1 h2
+    }
+}
+
+# ASTRA_ORIGIN must be https://astraplayschess.com for this public configuration.
+astraplayschess.com {
+    encode gzip
     reverse_proxy 127.0.0.1:8788
+}
+
+www.astraplayschess.com {
+    redir https://astraplayschess.com{uri} permanent
 }
