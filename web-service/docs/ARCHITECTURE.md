@@ -123,11 +123,16 @@ search deadlines, cumulative thinking allowance and daily token reservations.
 The model cannot change these settings by agreeing to an opponent's request.
 
 These controls reduce exposure; they are **not a claim of proven multi-tenant
-isolation on Amazon Linux**. The dedicated OS account, read-only code, process
-and memory limits, secret provisioning, egress policy, TLS proxy, backups and
-restart behavior must be checked on the chosen host. The sample systemd unit
-is a starting point. No firewall, AWS configuration or deployment changes have
-been made. The [capacity assessment](../benchmarks/README.md) used read-only SSH
+isolation on Amazon Linux**. The deployed `astra` account, read-only runtime
+mounts, hidden operator files, process/memory/CPU limits and public TLS proxy
+have passed the checks recorded in
+[LIGHTSAIL-DEPLOYMENT.md](LIGHTSAIL-DEPLOYMENT.md), including two real model turns
+inside the application service's exact sandbox. The application remains bound
+to loopback behind Caddy; public HTTPS is reachable after the Lightsail firewall
+change. These checks do not establish an outbound destination allowlist or
+complete tenant isolation. Full Linux games, live Linux compaction, heavy load,
+offsite backups and startup after reboot remain unverified or unconfigured.
+The earlier [capacity assessment](../benchmarks/README.md) used read-only SSH
 inspection and bounded engine benchmarks loaded entirely in memory.
 
 ## Deliberate initial limits
@@ -144,6 +149,7 @@ inspection and bounded engine benchmarks loaded entirely in memory.
   ratings, leaderboards, spectator lobby or cross-game strategy database.
 - Failed/cancelled paid requests may use tokens before usage is reported. Local
   reservations are conservative accounting, not an exact dollar circuit breaker.
-- Trusted-proxy client IP integration and host-level isolation/load testing are
-  deployment work. With the current loopback proxy setup, IP rate limits act
-  conservatively across all visitors sharing that proxy address.
+- The deployed launcher trusts forwarded client addresses and scheme only from
+  Caddy at `127.0.0.1`. IP rate limits therefore use the forwarded client address;
+  visitors sharing a public address still share those limits. Heavy-load and
+  comprehensive host-isolation testing remain deployment work.

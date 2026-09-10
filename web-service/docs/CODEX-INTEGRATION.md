@@ -61,8 +61,10 @@ and rejection of any unregistered host tool remain necessary together.
 This audit sent no `turn/start`, model request or credentials. Immediately
 resuming a newly created thread before its first turn returned "no rollout
 found"; an empty no-turn thread is not a durable-resume test. First-turn
-materialization, subsequent resume, actual code-mode execution and the final
-Linux service sandbox still require the deployment's authenticated smoke test.
+materialization and subsequent resume require an authenticated smoke test,
+separately from that no-key audit. The later Lightsail smoke test completed two
+real model turns in the same thread under the final service sandbox settings;
+see the verification status below.
 The CLI reported that system bubblewrap was absent from PATH and used its
 bundled bubblewrap; preserve access to the complete installed release bundle.
 
@@ -225,9 +227,11 @@ at most eight processes and 1 GiB of committed memory for the app-server/runtime
 tree; closing it terminates descendants even if app-server exited first. A local
 fake-runtime descendant test verifies timeout cleanup. These limits bound
 runtime resource use, not every possible runtime or OS vulnerability.
-Production Linux deployment should enforce
-service-user filesystem permissions, process/memory/CPU limits and outbound
-network policy independently of Codex. A dedicated game home is useful
+The deployed Linux systemd unit enforces service-user filesystem permissions
+and process/memory/CPU limits independently of Codex. Its exact settings passed
+preflight and two real model turns; see
+[LIGHTSAIL-DEPLOYMENT.md](LIGHTSAIL-DEPLOYMENT.md). An outbound destination
+allowlist is not established by these checks. A dedicated game home is useful
 separation, not an OS sandbox between mutually untrusted processes.
 
 ## Verification status
@@ -239,11 +243,11 @@ approval denial, configuration/version rejection, cancellation and timeout
 cleanup. Simulated automatic-compaction tests cover pre-turn ordering,
 duplicates, unmatched completions, invalid thread/turn IDs, summary privacy,
 mid-compaction failures and cancellation while preserving token accounting.
-The tests and no-key configuration checks do not
-establish that the revised 400,000-context/300,000-compaction policy completes a
-live turn; they do not
-call a model or use real credentials. The earlier 20,000-token policy did compact
-live, exposing the repeated-work problem described above.
+These tests and no-key configuration checks do not call a model or use real
+credentials. Separate real turns have completed with the revised
+400,000-context/300,000-compaction configuration; the short Linux smoke test
+did not reach the compaction threshold. The earlier 20,000-token policy did
+compact live, exposing the repeated-work problem described above.
 
 Real Astra/Ultra actions have now submitted legal moves using the local tactical
 engine. The completed HTTP integration check played e4/e5, resumed the same
@@ -252,9 +256,14 @@ sharing and revocation. It used a separate guest account and left the user's
 browser identity intact. See [LIVE-VALIDATION.md](LIVE-VALIDATION.md) for the
 earlier failures, measured usage and the checks actually completed.
 
-The no-key Lightsail 0.154.0 protocol/configuration audit above is complete;
-authenticated play under the production service's hard OS limits remains a
-separate validation step.
-A full live game and a deliberately observed live automatic-compaction cycle
-are not claimed by these short checks. Fake-process tests do not establish live
-playing strength or complete runtime sandbox isolation.
+The no-key Lightsail 0.154.0 protocol/configuration audit above and the separate
+authenticated check under the service's hard OS limits are complete. Astra
+played `e4`, received `a6`, then played `d4` in the same Codex thread. The
+deployed application revision is `923ce41`; its final Linux suite completed 160 tests: OK,
+with three Windows-only skips. Public HTTPS and web integration results are in
+[LIGHTSAIL-DEPLOYMENT.md](LIGHTSAIL-DEPLOYMENT.md).
+
+A full Linux game, a deliberately observed live Linux automatic-compaction
+cycle and heavy-load behavior are not claimed by these short checks.
+Fake-process tests do not establish live playing strength or complete runtime
+sandbox isolation.

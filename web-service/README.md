@@ -70,8 +70,10 @@ the game saved with a retry status.
 
 ## Linux
 
-The [Lightsail dependency inventory](docs/LIGHTSAIL-DEPENDENCIES.md) records
-the existing host packages and the proposed additions awaiting operator review.
+The [Lightsail deployment checkpoint](docs/LIGHTSAIL-DEPLOYMENT.md) records
+the installed private runtime, sandbox checks, pending validation and operator
+commands. The [dependency inventory](docs/LIGHTSAIL-DEPENDENCIES.md) preserves
+the earlier pre-installation review.
 
 ```sh
 python3.12 -m venv .venv
@@ -80,10 +82,10 @@ python3.12 -m venv .venv
 ```
 
 The application binds to loopback by default. A service unit and reverse-proxy
-example are under [deploy/](deploy/). They are preparation for the later AWS
-session, not evidence of an Amazon Linux deployment. Do not use Uvicorn reload
-or multiple workers for this version. An OS-held data-directory lock prevents
-two schedulers from owning the same games.
+example are under [deploy/](deploy/); see the deployment checkpoint for what has
+actually been installed and validated on Amazon Linux. Do not use Uvicorn
+reload or multiple workers for this version. An OS-held data-directory lock
+prevents two schedulers from owning the same games.
 
 ## Features
 
