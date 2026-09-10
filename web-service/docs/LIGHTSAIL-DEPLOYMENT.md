@@ -186,11 +186,20 @@ recorded usage remains charged.
 Later that day, the operator authorized lowering automatic compaction from
 300,000 to 250,000 total-context tokens while retaining the 400,000-token
 window. The [current policy](CODEX-INTEGRATION.md) explains the pricing margin
-and why the threshold is soft. **Live rollout is pending at this checkpoint**;
-do not infer that a running game already uses the new value. Apply it at an idle
-service boundary without interrupting active players, then record the deployed
-revision and validation result here. The original 300,000 validation above
-remains a historical record of the settings actually checked.
+and why the threshold is soft. Revision `73040c0` was deployed on September 10
+at 17:56 UTC after all responses were idle. All 29 bridge tests passed locally;
+the installed Codex 0.154.0 also passed the strict configuration and thread-start
+protocol check under the service's systemd restrictions, confirming the 400,000
+window and 250,000 threshold without credentials or a model request.
+
+The deployment preserved all 11 saved game records, including moves, messages,
+thread identifiers and clock accounting. The public configuration endpoint
+confirmed Astra/Ultra was available after restart. Existing games receive the
+new setting on their next Astra response; no manual compaction was forced.
+The private operator audit is stored at
+`/home/astra/.local/share/astra-chess/operator-checks/compaction-policy-250k-2026-09-10.json`.
+The original 300,000 validation above remains a historical record of the
+settings actually checked.
 
 ## Remaining limits and checks
 
