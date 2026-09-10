@@ -251,6 +251,9 @@ live-integration gates. The fake Codex fixtures are test infrastructure only;
 they are not playing-strength evidence. See [ARCHITECTURE.md](docs/ARCHITECTURE.md)
 for ownership, recovery and security boundaries.
 
+[Manual QA helpers](tests/MANUAL-QA.md) preserve the isolated evaluation/status
+and post-game chat fixtures, plus the coordinated development restart check.
+
 An explicit paid integration check is available separately from the test suite:
 
 ```powershell
