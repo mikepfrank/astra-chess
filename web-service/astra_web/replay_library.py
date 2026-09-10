@@ -1,4 +1,4 @@
-"""Owner-created offline replays and an explicitly published, revocable library.
+"""Owner-created offline replays, unlisted links, and an opt-in public library.
 
 Generation reuses the first hosted-game archive workflow: validated saved moves,
 recorded evaluations, and optional public chat. It never invokes a player or an
@@ -113,6 +113,10 @@ class ReplayLibrary:
                     game_id TEXT PRIMARY KEY, token TEXT NOT NULL UNIQUE,
                     archive_id TEXT NOT NULL, include_commentary INTEGER NOT NULL,
                     published_at REAL NOT NULL, metadata TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS replay_unlisted(
+                    game_id TEXT PRIMARY KEY, token TEXT NOT NULL UNIQUE,
+                    archive_id TEXT NOT NULL, include_commentary INTEGER NOT NULL,
+                    published_at REAL NOT NULL, metadata TEXT NOT NULL);
             ''')
 
     def recover(self):
@@ -139,10 +143,21 @@ class ReplayLibrary:
     def _public_path(self, token):
         return self.public_dir / (self._check_token(token) + '.html')
 
+    @staticmethod
+    def _shared(db, game_id):
+        # Existing publications remain listed with no destructive migration.
+        # Keep unlisted snapshots in a separate additive table so an older
+        # application rollback cannot inadvertently put them in its public list.
+        return db.execute('''SELECT *, 1 AS listed FROM replay_publications WHERE game_id=?
+            UNION ALL SELECT *, 0 AS listed FROM replay_unlisted WHERE game_id=?''',
+                          (game_id, game_id)).fetchone()
+
     def status(self, game_id):
         with self.store.connection() as db:
             row = db.execute('SELECT * FROM replay_archives WHERE game_id=?', (game_id,)).fetchone()
-            published = db.execute('SELECT * FROM replay_publications WHERE game_id=?', (game_id,)).fetchone()
+            shared = self._shared(db, game_id)
+            legacy = db.execute('SELECT token FROM shares WHERE game_id=?', (game_id,)).fetchone()
+        published = shared if shared is not None and shared['listed'] else None
         ready = row is not None and row['state'] == 'ready'
         return dict(state=row['state'] if row else 'none', archive_id=row['archive_id'] if row else None,
                     include_commentary=bool(row['include_commentary']) if row else None,
@@ -151,7 +166,12 @@ class ReplayLibrary:
                     published=published is not None,
                     public_url=f"/games/{published['token']}.html" if published else None,
                     published_archive_id=published['archive_id'] if published else None,
-                    public_include_commentary=bool(published['include_commentary']) if published else None)
+                    public_include_commentary=bool(published['include_commentary']) if published else None,
+                    shared=shared is not None, listed=published is not None,
+                    share_url=f"/games/{shared['token']}.html" if shared else None,
+                    shared_archive_id=shared['archive_id'] if shared else None,
+                    shared_include_commentary=bool(shared['include_commentary']) if shared else None,
+                    legacy_share_url=f"/replay/{legacy['token']}" if legacy else None)
 
     def start(self, state, include_commentary):
         if self.closing:
@@ -238,28 +258,63 @@ class ReplayLibrary:
             return self._read_page(self._private_path(game_id, archive_id))
 
     def publish(self, state, archive_id):
+        """Compatibility for existing tabs: publishing explicitly lists a replay."""
+        return self.share(state, archive_id, listed=True)
+
+    @staticmethod
+    def _set_link(db, values, *, listed):
+        game_id = values[0]
+        db.execute('DELETE FROM replay_publications WHERE game_id=?', (game_id,))
+        db.execute('DELETE FROM replay_unlisted WHERE game_id=?', (game_id,))
+        if listed:
+            db.execute('INSERT INTO replay_publications VALUES(?,?,?,?,?,?)', values)
+        else:
+            db.execute('INSERT INTO replay_unlisted VALUES(?,?,?,?,?,?)', values)
+
+    def share(self, state, archive_id, *, listed=False):
+        """Share an exact snapshot; visibility toggles preserve its URL and bytes."""
+        self._check_token(archive_id)
+        if type(listed) is not bool:
+            raise HTTPException(400, 'Choose whether to list the replay publicly.')
         game_id = state['id']
+        previous_token = None
         with self.lock:
             with self.store.connection() as db:
                 db.execute('BEGIN IMMEDIATE')
-                archive = self._ready(db, game_id, archive_id)
-                previous = db.execute('SELECT * FROM replay_publications WHERE game_id=?', (game_id,)).fetchone()
+                previous = self._shared(db, game_id)
                 if previous is not None and previous['archive_id'] == archive_id:
-                    return self.status(game_id)
-                # A new revision receives a new public URL. Replacing a listed
-                # revision revokes the prior URL, rather than changing its bytes.
-                token = secrets.token_hex(16)
-                page = self._read_page(self._private_path(game_id, archive_id))
-                _atomic_write(self._public_path(token), page)
-                metadata = dict(name=state['name'], human_side=state['human_side'], astra_side=state['astra_side'],
-                                result=state['result'], termination=state['termination'],
-                                created_at=state['created_at'], plies=len(state['moves']))
-                db.execute('''INSERT INTO replay_publications VALUES(?,?,?,?,?,?)
-                    ON CONFLICT(game_id) DO UPDATE SET token=excluded.token, archive_id=excluded.archive_id,
-                    include_commentary=excluded.include_commentary, published_at=excluded.published_at, metadata=excluded.metadata''',
-                           (game_id, token, archive_id, archive['include_commentary'], time.time(), json.dumps(metadata)))
-            if previous is not None:
-                self._public_path(previous['token']).unlink(missing_ok=True)
+                    # This immutable snapshot can still be listed/unlisted after
+                    # a newer private replay has been generated. Never substitute
+                    # the newer replay's chat selection while changing visibility.
+                    self._read_page(self._public_path(previous['token']))
+                    values = tuple(previous[key] for key in ('game_id', 'token', 'archive_id',
+                                   'include_commentary', 'published_at', 'metadata'))
+                else:
+                    archive = self._ready(db, game_id, archive_id)
+                    # Explicitly sharing a new revision revokes the old link;
+                    # changing visibility of this revision never rotates it.
+                    token = secrets.token_hex(16)
+                    page = self._read_page(self._private_path(game_id, archive_id))
+                    _atomic_write(self._public_path(token), page)
+                    metadata = dict(name=state['name'], human_side=state['human_side'], astra_side=state['astra_side'],
+                                    result=state['result'], termination=state['termination'],
+                                    created_at=state['created_at'], plies=len(state['moves']))
+                    values = (game_id, token, archive_id, archive['include_commentary'], time.time(), json.dumps(metadata))
+                    previous_token = previous['token'] if previous is not None else None
+                self._set_link(db, values, listed=listed)
+            if previous_token is not None:
+                self._public_path(previous_token).unlink(missing_ok=True)
+            self._write_index()
+        return self.status(game_id)
+
+    def unlist(self, game_id):
+        """Remove discovery through the library while retaining the shared URL."""
+        with self.lock:
+            with self.store.connection() as db:
+                db.execute('BEGIN IMMEDIATE')
+                row = db.execute('SELECT * FROM replay_publications WHERE game_id=?', (game_id,)).fetchone()
+                if row is not None:
+                    self._set_link(db, tuple(row), listed=False)
             self._write_index()
         return self.status(game_id)
 
@@ -267,20 +322,23 @@ class ReplayLibrary:
         with self.lock:
             with self.store.connection() as db:
                 db.execute('BEGIN IMMEDIATE')
-                row = db.execute('SELECT token FROM replay_publications WHERE game_id=?', (game_id,)).fetchone()
+                row = self._shared(db, game_id)
                 db.execute('DELETE FROM replay_publications WHERE game_id=?', (game_id,))
+                db.execute('DELETE FROM replay_unlisted WHERE game_id=?', (game_id,))
             if row is not None:
                 self._public_path(row['token']).unlink(missing_ok=True)
             self._write_index()
         return self.status(game_id)
 
-    def public_page(self, token):
+    def public_page(self, token, *, with_visibility=False):
         self._check_token(token)
         with self.lock, self.store.connection() as db:
-            row = db.execute('SELECT token FROM replay_publications WHERE token=?', (token,)).fetchone()
+            row = db.execute('''SELECT token, 1 AS listed FROM replay_publications WHERE token=?
+                UNION ALL SELECT token, 0 AS listed FROM replay_unlisted WHERE token=?''', (token, token)).fetchone()
             if row is None:
                 raise HTTPException(404, 'This replay is not publicly available.')
-            return self._read_page(self._public_path(token))
+            page = self._read_page(self._public_path(token))
+            return (page, bool(row['listed'])) if with_visibility else page
 
     def public_entries(self, page=1):
         if type(page) is not int or not 1 <= page <= 1_000_000:
@@ -317,7 +375,7 @@ ul{list-style:none;padding:0}li{padding:1.2rem 0;border-bottom:1px solid #2c424e
 li span{color:#a9bdc7}nav{display:flex;gap:2rem;padding:1rem 0}footer{border-top:1px solid #2c424e;margin-top:2.5rem;padding-top:1.5rem}
 </style><main><a href="/">← Play Astra</a><p class="eyebrow">Shared by the players</p><h1>Public game replays</h1>
 <p>Explore completed games, move by move. Players choose whether to include their conversation and can remove their replay from this library.</p>''' + (
-            '<ul>' + ''.join(rows) + '</ul>' if rows else '<p>No games have been shared yet.</p>') + (
+            '<ul>' + ''.join(rows) + '</ul>' if rows else '<p>No games have been published to this list yet.</p>') + (
             '<nav aria-label="Library pages">' + ''.join(navigation) + '</nav>' if navigation else '') + '''
 <footer><a href="/experiments/">Explore Astra’s earlier chess experiments →</a></footer></main></html>'''
 
@@ -368,6 +426,22 @@ def install_replay_library(app, config, store, owned, body):
             raise HTTPException(400, 'Choose the ready replay revision to publish.')
         return await asyncio.to_thread(library.publish, state, data['archive_id'])
 
+    @app.post('/api/games/{game_id}/archive/share')
+    async def archive_share(request: Request, game_id: str):
+        state = owned(request, game_id)
+        if state['status'] != 'finished':
+            raise HTTPException(409, 'Only finished games can be shared.')
+        data = await body(request)
+        if (set(data) - {'archive_id', 'listed'} or not isinstance(data.get('archive_id'), str)
+                or type(data.get('listed', False)) is not bool):
+            raise HTTPException(400, 'Choose a replay revision and whether to list it publicly.')
+        return await asyncio.to_thread(library.share, state, data['archive_id'], listed=data.get('listed', False))
+
+    @app.delete('/api/games/{game_id}/archive/listing')
+    async def archive_unlist(request: Request, game_id: str):
+        owned(request, game_id)
+        return await asyncio.to_thread(library.unlist, game_id)
+
     @app.delete('/api/games/{game_id}/archive/publication')
     async def archive_revoke(request: Request, game_id: str):
         owned(request, game_id)
@@ -384,7 +458,12 @@ def install_replay_library(app, config, store, owned, body):
 
     @app.get('/games/{token}.html')
     async def public_replay(token: str):
-        page = await asyncio.to_thread(library.public_page, token)
-        return standalone_response(page)
+        page, listed = await asyncio.to_thread(library.public_page, token, with_visibility=True)
+        response = standalone_response(page)
+        # An unlisted URL is a bearer link, not an account-private resource.
+        # Ask search engines not to index it even if someone links it elsewhere.
+        if not listed:
+            response.headers['X-Robots-Tag'] = 'noindex, nofollow, noarchive'
+        return response
 
     return library

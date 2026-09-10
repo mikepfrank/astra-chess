@@ -853,15 +853,25 @@ dialog>p.muted {
 .archive-list-link {
   margin-top:18px;
 }
-#generate-archive {
+#generate-archive,#share-archive {
   margin-top:16px;
 }
-#open-archive-public {
-  margin-top:8px;
+.archive-download {
+  margin-top:14px;
 }
-#remove-archive-public {
+#archive-share-url,#archive-legacy-url {
+  margin-top:10px;
+  font-size:12px;
+}
+#list-archive-public,#remove-archive-public,#disable-archive-link {
   display:block;
   text-align:left;
+}
+.archive-legacy-actions {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 16px;
+  margin-top:8px;
 }
 .tabs {
   display:flex;

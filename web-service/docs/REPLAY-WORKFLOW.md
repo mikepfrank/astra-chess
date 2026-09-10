@@ -1,31 +1,40 @@
 # Saving and publishing game replays
 
 Every finished game, including games completed before this feature was added,
-has a **Save replay** button. Signing into a protected account in another browser
+has a **Save/share replay** button. Signing into a protected account in another browser
 restores access through **Your games**. Guest access follows the existing browser
 session; knowing a player's name or game URL does not grant ownership.
 
 ## Player controls
 
-1. Open a finished game and choose **Save replay**.
+1. Open a finished game and choose **Save/share replay**.
 2. Choose whether to include chat. New archives default to no chat. Inclusion
    covers the entire public conversation captured at generation time, including
    post-game discussion; it never includes private model reasoning or tools.
 3. Choose **Generate replay**. The dialog shows construction progress and
    reports when the standalone HTML is ready.
-4. **Download HTML** saves a file that works offline. **Publish to public game
-   list** places a separate copy in `/games/`. These actions are independent:
-   use either or both, in any order.
-5. **Remove from public list** removes the entry and revokes its public replay
-   URL. It retains the private archive and original game. Copies someone has
-   already downloaded remain outside the service's control.
+4. **Download HTML** saves a file that works offline. **Share** creates a link
+   to the same standalone replay. Leave **Also publish to public game list**
+   unchecked for an unlisted link, or check it to add the replay to `/games/`.
+   Downloading and sharing are independent: use either or both, in any order.
+5. Copy the link or open the shared replay from this same dialog. An unlisted
+   replay is accessible to anyone with its link, but absent from the public list.
+6. **Remove from public list** makes a listed replay unlisted while keeping its
+   link usable. **Disable shared link** removes both access through that link
+   and any listing. Both retain the private download and original game. Copies
+   someone has already downloaded remain outside the service's control.
 
 Regenerating captures newer discussion or a different chat-inclusion choice.
-It changes the private archive only. Publishing the newly generated version is
-another explicit action; the dialog distinguishes it from an older public copy.
+It changes the private archive only. Sharing the newly generated version is
+another explicit action; the dialog distinguishes it from an older shared copy.
+Sharing a new version replaces the old link. Changing the listing choice for
+the same version preserves the link. The checkbox reflects an existing replay's
+listing when the dialog opens; new shares default to unlisted.
 An archive snapshot remains available after reloading or signing in again.
-The earlier **Share replay** link feature remains separate and is not silently
-added to the public list. Its existing revocation control manages those links.
+Links created with the earlier separate **Share link** button keep working and
+are never silently added to the public list. Owners can open, copy or disable
+an **Earlier share link** inside the unified dialog. Generating or sharing a
+standalone replay does not revoke an earlier link automatically.
 
 ## Preserved first-human-game workflow
 
@@ -38,7 +47,7 @@ The original September 9 human replay and its sanitized source remain in
 | [`templates/replay.template.html`](../templates/replay.template.html) | Animated chessboard, controls, PGN download, evaluations and move-synchronized conversation. |
 | [`build_replay.py`](../../build_replay.py) | Shared original experiment renderer and rules/notation checks. |
 | [`export_replay.py`](../export_replay.py) | Offline command-line export and rebuild from sanitized records. |
-| [`astra_web/replay_library.py`](../astra_web/replay_library.py) | Owner-only construction/download, separate publication snapshots and public list. |
+| [`astra_web/replay_library.py`](../astra_web/replay_library.py) | Owner-only construction/download, listed or unlisted shared snapshots and public list. |
 | [`prompts/player.md`](../prompts/player.md) | Guidance included in deployed Astra sessions so they can explain replay controls. |
 
 Forward navigation reveals chat committed through the selected board position;
@@ -61,6 +70,23 @@ an operator-edited source of truth. Back up the private SQLite database together
 with `replay-archives/` and `public-replays/` under `ASTRA_DATA_DIR`: SQLite owns
 archive/publication metadata, and the HTML snapshots reside in these directories.
 Never expose the entire data directory via the reverse proxy or a static-files mount.
+
+Listed snapshots remain in `replay_publications`; unlisted snapshots use the
+additive `replay_unlisted` table. Listing or unlisting moves their metadata
+between these tables without changing the HTML or token. Existing publications
+remain listed after upgrade. Older application versions do not discover the new
+unlisted table, so rollback cannot accidentally expose its entries in the index.
+The legacy `shares` table remains available for previously issued `/replay/` links.
+
+Owner routes under `/api/games/{id}/archive` provide status, construction and
+download. `POST /share` accepts the ready `archive_id` and an optional `listed`
+boolean, defaulting to false. `DELETE /listing` removes only the listing;
+`DELETE /publication` disables the standalone shared link. The older `POST
+/publish` remains compatible with already-open clients and explicitly lists
+the selected archive. Owner status also reports any legacy share link, which
+can be disabled with the existing `DELETE /api/games/{id}/share` route. Unlisted
+HTML responses also ask search engines not to index them; possession of the link
+still grants access.
 
 `/experiments/` mirrors the ten already-public experiment replays, including the
 first hosted human game, using an explicit list of tracked HTML files. Its links
@@ -112,3 +138,16 @@ request and did not publish the game. The Linux suite subsequently passed all
 180 tests with three platform-related skips. The feature is live on Lightsail;
 the [deployment checkpoint](LIGHTSAIL-DEPLOYMENT.md#standalone-replay-library--september-10-2026)
 records the applied revision, public-browser verification and preserved games.
+
+## Unified sharing follow-up — September 10, 2026
+
+The two top-level replay controls are now one **Save/share replay** dialog.
+The Windows suite passed 186 tests (two platform-related skips), including
+20 archive-library tests. Browser checks against a disposable game verified
+the single entry point, default unlisted sharing, explicit public listing,
+independent downloads, same-URL listing changes, revocation, both chat choices,
+reload, offline playback, synchronized conversation, CSP and desktop/mobile
+layouts. A separate browser check verified that an older shared snapshot can
+be relisted without exposing a newer private conversation, and that disabling
+standalone and legacy links is independent. No model requests or live game
+mutations were used for these checks.

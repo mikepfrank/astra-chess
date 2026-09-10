@@ -84,6 +84,14 @@ class ReplayLibraryTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200, response.text)
         return response.json()
 
+    def share(self, ready, listed=None):
+        payload = {'archive_id': ready['archive_id']}
+        if listed is not None:
+            payload['listed'] = listed
+        response = self.client.post(self.endpoint + '/share', json=payload)
+        self.assertEqual(response.status_code, 200, response.text)
+        return response.json()
+
     def test_moves_only_download_is_standalone_private_and_does_not_change_game_or_clock(self):
         before = deepcopy(self.app.state.store.get(self.game_id))
         with self.app.state.store.connection() as db:
@@ -199,15 +207,19 @@ class ReplayLibraryTests(unittest.TestCase):
             ('get', self.endpoint, None), ('get', ready['download_url'], None),
             ('post', self.endpoint, {'include_commentary': False}),
             ('post', self.endpoint + '/publish', {'archive_id': ready['archive_id']}),
+            ('post', self.endpoint + '/share', {'archive_id': ready['archive_id'], 'listed': False}),
+            ('delete', self.endpoint + '/listing', None),
             ('delete', self.endpoint + '/publication', None),
         ):
             arguments = {} if body is None else {'json': body}
             self.assertEqual(getattr(other, method)(url, **arguments).status_code, 404, url)
         for url, body in ((self.endpoint, {'include_commentary': False}),
-                          (self.endpoint + '/publish', {'archive_id': ready['archive_id']})):
+                          (self.endpoint + '/publish', {'archive_id': ready['archive_id']}),
+                          (self.endpoint + '/share', {'archive_id': ready['archive_id'], 'listed': False})):
             self.assertEqual(self.client.post(url, json=body, headers={'X-CSRF-Token': 'wrong'}).status_code, 403)
             self.assertEqual(self.client.post(url, json=body, headers={'Origin': 'https://evil.invalid'}).status_code, 403)
         self.assertEqual(self.client.delete(self.endpoint + '/publication', headers={'X-CSRF-Token': 'wrong'}).status_code, 403)
+        self.assertEqual(self.client.delete(self.endpoint + '/listing', headers={'X-CSRF-Token': 'wrong'}).status_code, 403)
         self.assertEqual(self.client.get(self.endpoint + '/download?archive_id=../../other').status_code, 404)
 
     def test_only_finished_games_and_explicit_boolean_chat_option_are_accepted(self):
@@ -291,6 +303,140 @@ class ReplayLibraryTests(unittest.TestCase):
         page = self.client.get(ready['download_url']).text
         self.assertNotIn('private-internal-role', page)
         self.assertEqual(EmbeddedReplay(page).value()['messages'], [])
+
+    def test_standalone_share_defaults_unlisted_and_matches_the_download_exactly(self):
+        before = deepcopy(self.app.state.store.get(self.game_id))
+        ready = self.generate(False)
+        shared = self.share(ready)
+        self.assertTrue(shared['shared'])
+        self.assertFalse(shared['listed'])
+        self.assertFalse(shared['published'])
+        self.assertIsNone(shared['public_url'])
+        self.assertIsNone(shared['published_archive_id'])
+        self.assertEqual(shared['shared_archive_id'], ready['archive_id'])
+        self.assertFalse(shared['shared_include_commentary'])
+        page = self.client.get(shared['share_url'])
+        self.assertEqual(page.status_code, 200)
+        self.assertEqual(page.text, self.client.get(ready['download_url']).text)
+        self.assertIn('noindex', page.headers['x-robots-tag'])
+        self.assertEqual(self.client.get('/api/public-replays').json()['total'], 0)
+        self.assertNotIn(shared['share_url'], self.client.get('/games/').text)
+        self.assertNotIn(shared['share_url'], (self.folder / 'public-replays/index.html').read_text(encoding='utf-8'))
+        # Old service code queries only this table; rollback cannot list the link.
+        with self.app.state.store.connection() as db:
+            self.assertEqual(db.execute('SELECT COUNT(*) FROM replay_publications').fetchone()[0], 0)
+            self.assertEqual(db.execute('SELECT COUNT(*) FROM replay_unlisted').fetchone()[0], 1)
+        self.assertEqual(self.app.state.store.get(self.game_id), before)
+        self.assertEqual(self.share(ready)['share_url'], shared['share_url'])
+
+    def test_listing_and_unlisting_same_shared_snapshot_keep_url_after_private_rebuild(self):
+        original = self.generate(False)
+        shared = self.share(original)
+        url = shared['share_url']
+        original_bytes = self.client.get(url).content
+        newer = self.generate(True)
+        self.assertEqual(newer['shared_archive_id'], original['archive_id'])
+        # The user may list the old immutable snapshot without publishing the
+        # newer private version, including while that private version has failed.
+        with self.app.state.store.connection() as db:
+            db.execute("UPDATE replay_archives SET state='error' WHERE game_id=?", (self.game_id,))
+        listed = self.share(original, True)
+        self.assertEqual(listed['share_url'], url)
+        self.assertTrue(listed['listed'])
+        self.assertEqual(listed['public_url'], url)
+        self.assertEqual(listed['published_archive_id'], original['archive_id'])
+        self.assertFalse(listed['public_include_commentary'])
+        self.assertEqual(self.client.get('/api/public-replays').json()['total'], 1)
+        self.assertEqual(self.client.get(url).content, original_bytes)
+        self.assertNotIn('x-robots-tag', self.client.get(url).headers)
+        unlisted = self.client.delete(self.endpoint + '/listing').json()
+        self.assertTrue(unlisted['shared'])
+        self.assertFalse(unlisted['listed'])
+        self.assertEqual(unlisted['share_url'], url)
+        self.assertEqual(self.client.get(url).content, original_bytes)
+        self.assertIn('noindex', self.client.get(url).headers['x-robots-tag'])
+        self.assertEqual(self.client.get('/api/public-replays').json()['total'], 0)
+        self.assertEqual(self.client.delete(self.endpoint + '/listing').json()['share_url'], url)
+        # Old tabs' Publish button migrates the same unlisted row back to listed.
+        self.assertEqual(self.publish(original)['public_url'], url)
+        self.assertEqual(self.share(original, False)['share_url'], url)
+        self.assertEqual(self.client.get(url).content, original_bytes)
+
+    def test_unlisted_share_and_revocation_survive_restart_and_keep_private_download(self):
+        ready = self.generate(True)
+        shared = self.share(ready)
+        token = shared['share_url'].split('/')[-1][:-5]
+        manager = ReplayLibrary(self.config, self.app.state.store)
+        manager.recover()
+        self.assertEqual(manager.status(self.game_id)['share_url'], shared['share_url'])
+        self.assertFalse(manager.status(self.game_id)['listed'])
+        self.assertIn('UNIQUE PRIVATE CHAT', manager.public_page(token))
+        self.assertEqual(manager.public_entries()['total'], 0)
+        self.assertNotIn(shared['share_url'], (self.folder / 'public-replays/index.html').read_text(encoding='utf-8'))
+        disabled = self.client.delete(self.endpoint + '/publication')
+        self.assertEqual(disabled.status_code, 200)
+        self.assertFalse(disabled.json()['shared'])
+        self.assertEqual(self.client.get(shared['share_url']).status_code, 404)
+        self.assertEqual(self.client.get(ready['download_url']).status_code, 200)
+        restarted = ReplayLibrary(self.config, self.app.state.store)
+        restarted.recover()
+        self.assertFalse(restarted.status(self.game_id)['shared'])
+        self.assertEqual(restarted.public_entries()['total'], 0)
+
+    def test_existing_publications_remain_listed_with_original_schema_and_url(self):
+        ready = self.generate(False)
+        original = self.publish(ready)
+        with self.app.state.store.connection() as db:
+            db.execute('DROP TABLE replay_unlisted')
+            saved = tuple(db.execute('SELECT * FROM replay_publications').fetchone())
+            self.assertEqual(len(saved), 6)
+            # The old release's positional INSERT remains valid after upgrade.
+            db.execute('DELETE FROM replay_publications')
+            db.execute('INSERT INTO replay_publications VALUES(?,?,?,?,?,?)', saved)
+        upgraded = ReplayLibrary(self.config, self.app.state.store)
+        upgraded.recover()
+        status = upgraded.status(self.game_id)
+        self.assertTrue(status['shared'])
+        self.assertTrue(status['listed'])
+        self.assertEqual(status['share_url'], original['public_url'])
+        self.assertEqual(upgraded.public_entries()['total'], 1)
+
+    def test_legacy_share_link_is_reported_and_changes_to_new_links_do_not_revoke_it(self):
+        legacy = self.client.post(f'/api/games/{self.game_id}/share', json={'include_commentary': False})
+        self.assertEqual(legacy.status_code, 200)
+        legacy_url = legacy.json()['url'].replace(self.config.origin, '')
+        legacy_token = legacy_url.split('/')[-1]
+        self.assertEqual(self.client.get(self.endpoint).json()['legacy_share_url'], legacy_url)
+        ready = self.generate(True)
+        shared = self.share(ready)
+        self.assertEqual(shared['legacy_share_url'], legacy_url)
+        self.assertEqual(self.client.get('/api/replays/' + legacy_token).status_code, 200)
+        self.client.delete(self.endpoint + '/publication')
+        self.assertEqual(self.client.get('/api/replays/' + legacy_token).status_code, 200)
+        self.assertEqual(self.client.get(self.endpoint).json()['legacy_share_url'], legacy_url)
+        self.share(ready)
+        self.assertEqual(self.client.delete(f'/api/games/{self.game_id}/share').status_code, 200)
+        status = self.client.get(self.endpoint).json()
+        self.assertIsNone(status['legacy_share_url'])
+        self.assertTrue(status['shared'])
+        self.assertEqual(self.client.get(status['share_url']).status_code, 200)
+        self.assertEqual(self.client.get('/api/replays/' + legacy_token).status_code, 404)
+
+    def test_share_rejects_stale_revision_and_non_boolean_visibility(self):
+        ready = self.generate()
+        for payload in ({}, {'archive_id': ready['archive_id'], 'listed': 'false'},
+                        {'archive_id': ready['archive_id'], 'listed': 0},
+                        {'archive_id': ready['archive_id'], 'listed': None},
+                        {'archive_id': ready['archive_id'], 'other': True}):
+            self.assertEqual(self.client.post(self.endpoint + '/share', json=payload).status_code, 400)
+        newer = self.generate(True)
+        self.assertEqual(self.client.post(self.endpoint + '/share', json={'archive_id': ready['archive_id']}).status_code, 409)
+        current = self.share(newer)
+        final = self.generate(False)
+        replacement = self.share(final)
+        self.assertNotEqual(current['share_url'], replacement['share_url'])
+        self.assertEqual(self.client.get(current['share_url']).status_code, 404)
+        self.assertNotIn('UNIQUE PRIVATE CHAT', self.client.get(replacement['share_url']).text)
 
 
 class ReplayCspTests(unittest.TestCase):

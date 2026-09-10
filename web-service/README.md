@@ -128,20 +128,17 @@ prevents two schedulers from owning the same games.
   email. Password accounts can enable/edit private notes supplied to Astra in
   subsequent games. Memories are opt-in, user-managed, and never available for
   guest accounts. Automatic model-authored memory extraction is not included.
-- Private records by default. After a game, the owner can generate a public
-  replay link, explicitly choose whether to include the exchanged commentary,
-  and revoke the link. Generating another link replaces the previous link.
-  A replay captures the conversation at sharing time; later post-game messages
-  stay private unless the owner generates a new replay including commentary.
-  Its sidebar shows the conversation through the selected move. Advancing
-  reveals messages and going back hides later ones; the final position includes
-  the shared post-game discussion.
-  Revocation stops service access; it cannot remove copies others already saved.
-- **Save replay** on any finished game constructs a standalone interactive
-  HTML archive, with chat included only when selected. Download it, publish it
-  to the site's **Public games** list, or do both. Publication and removal are
-  separate from the private download. Rebuilding a private replay does not
-  silently replace a published version. The [replay workflow](docs/REPLAY-WORKFLOW.md)
+- Private records by default. **Save/share replay** on any finished game
+  constructs a standalone interactive HTML archive with chat included only when
+  selected. Download it, share it, or do both. Sharing creates an unlisted link
+  unless **Also publish to public game list** is checked. Remove a listing
+  while retaining the link, or disable the link entirely; the private download
+  remains available. Earlier share links keep working and can be managed in
+  the same dialog. Revocation cannot remove copies others already saved.
+- Replay chat follows the selected move; the final frame includes post-game
+  discussion captured at generation time. Later messages stay private unless
+  included in a newly generated version. Rebuilding a private replay does not
+  silently replace a shared version. The [replay workflow](docs/REPLAY-WORKFLOW.md)
   covers the preserved template, recorded evaluations and privacy choices.
 - **Public games** at `/games/` links to the earlier ten experiment replays at
   `/experiments/`, all hosted on this domain. Earlier Netlify copies remain
