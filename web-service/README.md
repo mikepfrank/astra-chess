@@ -117,6 +117,9 @@ prevents two schedulers from owning the same games.
   the final board, result and chess clock stay fixed. Interrupted replies can
   be retried. Each post-game response has the ordinary response time allocation
   and existing token/resource limits, without using any chess-clock time.
+- An **Emoji** button below the chat box opens a small keyboard-accessible
+  palette. Choosing an emoji inserts it at the cursor (or replaces selected
+  text), respects the message length limit and leaves sending up to the player.
 - Browser-bound guest names; optional password protection and optional recovery
   email. Password accounts can enable/edit private notes supplied to Astra in
   subsequent games. Memories are opt-in, user-managed, and never available for

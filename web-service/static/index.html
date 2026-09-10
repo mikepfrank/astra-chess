@@ -40,7 +40,15 @@
       <aside class="conversation-column">
         <section class="chat-card" aria-labelledby="chat-title"><div class="card-heading"><div><p class="eyebrow">ACROSS THE BOARD</p><h2 id="chat-title">The conversation</h2></div><span id="connection-status" class="connection"><i></i>Connecting</span></div>
           <div id="messages" class="messages" role="log" aria-live="polite" aria-relevant="additions"><div class="conversation-empty"><span class="conversation-symbol" aria-hidden="true">“</span><p>More than a silent opponent.</p><span>Ask about an idea, talk through the last move, or simply enjoy the game.</span></div></div>
-          <form id="message-form" class="composer"><label class="sr-only" for="message-input">Message to Astra</label><textarea id="message-input" rows="2" maxlength="2000" placeholder="Say something to Astra…" disabled></textarea><div class="composer-footer"><span id="message-count">0 / 2000</span><button id="send-message" type="submit" class="primary small" disabled>Send <span aria-hidden="true">↑</span></button></div></form>
+          <form id="message-form" class="composer">
+            <label class="sr-only" for="message-input">Message to Astra</label>
+            <textarea id="message-input" rows="2" maxlength="2000" placeholder="Say something to Astra…" disabled></textarea>
+            <div class="composer-footer">
+              <div class="composer-tools"><button id="emoji-toggle" type="button" class="text-button small" aria-expanded="false" aria-controls="emoji-picker" disabled><span aria-hidden="true">☺</span> Emoji</button><span id="message-count">0 / 2000</span></div>
+              <button id="send-message" type="submit" class="primary small" disabled>Send <span aria-hidden="true">↑</span></button>
+            </div>
+            <div id="emoji-picker" class="emoji-picker" role="group" aria-label="Choose an emoji" hidden></div>
+          </form>
           <p class="discretion">Games and messages are logged. Please keep personal or sensitive information out of the conversation. Replays stay private unless you share them.</p>
         </section>
         <section class="moves-card" aria-labelledby="moves-title"><div class="card-heading"><h2 id="moves-title">The scoresheet</h2><span id="move-count" class="muted">No moves yet</span></div><div class="moves-head"><span>#</span><span>White</span><span>Black</span></div><div id="moves" class="move-list"><p class="empty-note">The first move is still ahead.</p></div></section>

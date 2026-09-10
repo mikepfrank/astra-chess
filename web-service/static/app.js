@@ -181,6 +181,7 @@ function playerStatusText(game,side){
   return turn===side?'ASTRA’S MOVE':'';
 }
 function renderGame(game){
+  if(game.id!==state.game?.id)closeEmojiPicker();
   if(state.game?.id===game.id&&Number(game.version)<Number(state.game.version))return;
   const boardChanged=state.game?.fen!==game.fen;
   const oldPly=state.game?.ply;
@@ -232,9 +233,8 @@ function renderGame(game){
   $('retry-worker').textContent=game.status==='finished'?'Retry reply':'Retry Astra';
   $('share-game').hidden=game.status!=='finished';
   $('download-pgn').hidden=false;$('download-pgn').href=`/api/games/${encodeURIComponent(game.id)}/pgn`;
-  $('message-input').disabled=!canChat(game)||state.pending;
+  updateComposer();
   $('message-input').placeholder=game.status==='finished'?'Discuss the game with Astra…':'Say something to Astra…';
-  $('send-message').disabled=!canChat(game)||state.pending||!$('message-input').value.trim();
   for(const id of ['accept-draw','decline-draw','claim-draw','resume-game','retry-worker'])$(id).disabled=state.pending;
   if(game.status==='finished')$('board-hint').textContent='Game complete. You can discuss it with Astra.';
   else if(boardChanged)$('board-hint').textContent=humanTurn?'Your move: select a piece, then a highlighted square.':'You can inspect the board while you wait.';
@@ -276,7 +276,7 @@ function clearPrivateView(){
   $('astra-clock').classList.remove('paused');$('astra-clock').title='Astra’s remaining thinking time';$('astra-clock').removeAttribute('aria-label');
   for(const id of ['top-status','bottom-status'])$(id).classList.remove('compacting','active');
   $('game-status-text').textContent='A fresh game, at your own pace.';$('game-status').className='game-status';
-  $('message-input').value='';$('message-input').disabled=true;$('send-message').disabled=true;
+  $('message-input').value='';updateComposer();
   $('offer-draw').disabled=true;$('resign').disabled=true;
   for(const id of ['draw-banner','claim-draw','resume-game','retry-worker','share-game','download-pgn'])$(id).hidden=true;
   renderAstraEvaluation(null);
@@ -436,7 +436,62 @@ $('decline-draw').addEventListener('click',()=>act('decline_draw'));
 $('claim-draw').addEventListener('click',()=>act('claim_draw'));
 $('resume-game').addEventListener('click',()=>act('resume'));
 $('retry-worker').addEventListener('click',()=>act('retry'));
-$('message-input').addEventListener('input',()=>{$('message-count').textContent=`${$('message-input').value.length} / 2000`;$('send-message').disabled=state.pending||!$('message-input').value.trim()||!canChat(state.game);});
+function closeEmojiPicker(){
+  $('emoji-picker').hidden=true;
+  $('emoji-toggle').setAttribute('aria-expanded','false');
+}
+function updateComposer(){
+  const input=$('message-input');
+  input.disabled=state.pending||!canChat(state.game);
+  $('emoji-toggle').disabled=input.disabled;
+  if(input.disabled)closeEmojiPicker();
+  $('message-count').textContent=`${input.value.length} / ${input.maxLength}`;
+  $('send-message').disabled=input.disabled||!input.value.trim();
+}
+const emojis=[
+  ['🙂','Smile'],['😄','Grin'],['😂','Laughing'],['😉','Wink'],
+  ['🤔','Thinking'],['😅','Nervous smile'],['😮','Surprised'],['😬','Grimace'],
+  ['😭','Crying'],['😎','Cool'],['🥳','Celebrating'],['😴','Sleepy'],
+  ['👍','Thumbs up'],['👎','Thumbs down'],['👏','Applause'],['🙌','Hands raised'],
+  ['🤝','Handshake'],['👋','Wave'],['❤️','Heart'],['✨','Sparkles'],
+  ['🔥','Fire'],['🎉','Party popper'],['🏆','Trophy'],['♟️','Chess pawn']
+];
+for(const [emoji,label] of emojis){
+  const button=document.createElement('button');
+  button.type='button';button.className='emoji-choice';button.textContent=emoji;
+  button.title=label;button.setAttribute('aria-label',label);
+  button.addEventListener('click',()=>{
+    const input=$('message-input');
+    if(input.disabled)return;
+    // Textareas retain their selection when a picker button takes focus.
+    // setRangeText bypasses maxlength, so check the complete emoji first.
+    const start=input.selectionStart,end=input.selectionEnd;
+    if(input.value.length-(end-start)+emoji.length>input.maxLength){
+      toast('This emoji won’t fit. Shorten your message or select text to replace.');
+    }else{
+      input.setRangeText(emoji,start,end,'end');
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+    }
+    closeEmojiPicker();input.focus();
+  });
+  $('emoji-picker').append(button);
+}
+$('emoji-toggle').addEventListener('click',()=>{
+  if(!$('emoji-picker').hidden){closeEmojiPicker();return;}
+  if($('message-input').disabled)return;
+  $('emoji-picker').hidden=false;
+  $('emoji-toggle').setAttribute('aria-expanded','true');
+  $('emoji-picker').querySelector('button').focus();
+});
+$('message-form').addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&!$('emoji-picker').hidden){
+    event.preventDefault();closeEmojiPicker();$('emoji-toggle').focus();
+  }
+});
+for(const eventName of ['pointerdown','focusin'])document.addEventListener(eventName,event=>{
+  if(!$('emoji-picker').contains(event.target)&&!$('emoji-toggle').contains(event.target))closeEmojiPicker();
+});
+$('message-input').addEventListener('input',updateComposer);
 $('message-input').addEventListener('keydown',event=>{if(event.key==='Enter'&&(event.ctrlKey||event.metaKey)){event.preventDefault();$('message-form').requestSubmit();}});
 $('message-form').addEventListener('submit',async event=>{
   event.preventDefault();const text=$('message-input').value.trim();if(!text)return;

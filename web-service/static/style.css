@@ -650,6 +650,43 @@ textarea::placeholder,input::placeholder {
   color:var(--muted);
   font-size:12px;
 }
+.composer-tools {
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+#emoji-toggle {
+  gap:5px;
+}
+#emoji-toggle>span {
+  font-size:21px;
+  line-height:1;
+  color:var(--accent);
+}
+#emoji-toggle[aria-expanded="true"] {
+  color:var(--accent);
+}
+.emoji-picker {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(44px,1fr));
+  gap:3px;
+  margin-top:10px;
+  padding:7px;
+  border:1px solid var(--line);
+  border-radius:6px;
+  background:#121e27;
+}
+.emoji-choice {
+  min-height:44px;
+  padding:5px;
+  border-radius:5px;
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  font-size:23px;
+  line-height:1;
+}
+.emoji-choice:hover,.emoji-choice:focus-visible {
+  background:var(--panel-raised);
+}
 .discretion {
   margin:0;
   padding:10px 17px 13px;
