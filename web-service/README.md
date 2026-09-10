@@ -55,6 +55,10 @@ sets this laptop's daily allowance across restarts. It maps to
 The current local testing allowance is 100,000,000 tokens per day. The shared
 configuration default remains 20,000,000 for a separately configured deployment.
 
+The live Lightsail host also uses a 100,000,000-token daily allowance as of
+September 10, 2026. See the [dated host overrides](docs/LIGHTSAIL-DEPLOYMENT.md#operator-policy-changes)
+for its applied settings and verification record.
+
 Alternatively, configure `OPENAI_API_KEY` in the service process's
 environment using your normal secret-management mechanism, then:
 

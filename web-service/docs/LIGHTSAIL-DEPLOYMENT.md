@@ -178,8 +178,9 @@ This is a unit rollback, not a data deletion or a Python rollback.
 ## Operator policy changes
 
 On September 10, 2026, the operator doubled this host's daily token allowance
-from 20,000,000 to 40,000,000 using `ASTRA_MAX_DAILY_TOKENS=40000000`. That change
-is applied. The repository default remains 20,000,000; the separate 3,000,000
+from 20,000,000 to 40,000,000 using `ASTRA_MAX_DAILY_TOKENS=40000000`. This was
+the first increase; the current override is recorded below. The repository
+default remains 20,000,000; the separate 3,000,000
 per-action reservation and 500-action daily limit are unchanged. Previously
 recorded usage remains charged.
 
@@ -200,6 +201,25 @@ The private operator audit is stored at
 `/home/astra/.local/share/astra-chess/operator-checks/compaction-policy-250k-2026-09-10.json`.
 The original 300,000 validation above remains a historical record of the
 settings actually checked.
+
+At 19:31 UTC on September 10, the operator raised this host's daily allowance
+again, from 40,000,000 to **100,000,000 tokens**, using
+`ASTRA_MAX_DAILY_TOKENS=100000000` in the private service environment file.
+The running process's environment was checked after restarting at an idle
+boundary, with zero outstanding reservations. All 11 saved game records and
+their clock accounting were preserved, along with the daily ledger's 63
+admitted actions and 30,554,740 charged tokens. Increasing the allowance did
+not reset usage. The 500-action daily limit, 3,000,000-token per-action
+reservation, 400,000 context window and 250,000 compaction threshold remain
+unchanged. This is the current Lightsail override; the generic installation
+default remains 20,000,000 tokens per UTC day.
+
+The private audit is stored at
+`/home/astra/.local/share/astra-chess/operator-checks/daily-limit-100m-2026-09-10.json`.
+The initial attempt rolled back because its loopback health request lacked
+the public Host header. For this deployed configuration, loopback probes must
+use `Host: astraplayschess.com` and `X-Forwarded-Proto: https`; the corrected
+probe confirmed Astra/Ultra was available. Public HTTPS was also checked.
 
 ## Remaining limits and checks
 
