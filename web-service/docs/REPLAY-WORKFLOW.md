@@ -108,5 +108,7 @@ their new routes; all ten historical links resolved.
 A private temporary reconstruction of the operator's completed September 10
 game on Lightsail succeeded with the existing `chess==1.11.2` installation:
 33 plies and 45 messages, approximately 0.35 seconds. That check ran no model
-request and did not publish the game. Live rollout is recorded separately in
-[the deployment checkpoint](LIGHTSAIL-DEPLOYMENT.md).
+request and did not publish the game. The Linux suite subsequently passed all
+180 tests with three platform-related skips. The feature is live on Lightsail;
+the [deployment checkpoint](LIGHTSAIL-DEPLOYMENT.md#standalone-replay-library--september-10-2026)
+records the applied revision, public-browser verification and preserved games.

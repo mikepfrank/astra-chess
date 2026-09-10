@@ -221,6 +221,41 @@ the public Host header. For this deployed configuration, loopback probes must
 use `Host: astraplayschess.com` and `X-Forwarded-Proto: https`; the corrected
 probe confirmed Astra/Ultra was available. Public HTTPS was also checked.
 
+## Standalone replay library — September 10, 2026
+
+Revision `15881ae` was deployed at 22:25 UTC. Finished games now offer **Save
+replay** with optional conversation, independent HTML download and public
+listing, and owner-controlled removal. The public list is `/games/`; the ten
+already-published experiment replays and their index are mirrored at
+`/experiments/`. The original tracked archives and their Netlify copies remain
+unchanged. [REPLAY-WORKFLOW.md](REPLAY-WORKFLOW.md) preserves the template,
+procedure, endpoints and backup requirements; player instructions explain the
+controls without adding model tools or publishing authority.
+
+The full suite passed 180 tests on Windows (two platform-related skips) and on
+Linux (three platform-related skips). Linux tests ran from a separate staged
+copy before changing the live checkout. Isolated HTTP/browser checks exercised
+generation with and without chat, actual offline HTML downloads, independent
+publication/removal, immutable public versions, revoked links, account ownership,
+reload, synchronized chat, hostile-text escaping, script-hash CSP and narrow
+layouts. Public HTTPS browser checks confirmed the new index, all ten historical
+pages, the first human replay's 71-message timeline and the Li draw's final frame.
+
+Both deployment attempts waited for zero active responses and reservations. The
+first restored the previous revision because the operator's HTTP-header check
+used case-sensitive lookup; the corrected check passed. The final deployment
+preserved all 13 games, clock records and the complete usage ledger. The running
+daily allowance remains 100,000,000 tokens. No user game was published by these
+checks, and no model request was needed. Players make their own download and
+publication choices after refreshing the page.
+
+Private operator evidence is under
+`/home/astra/.local/share/astra-chess/operator-checks/`: the staged release and
+Linux log in `replay-release-15881ae/`, database backup in
+`before-replay-library-2026-09-10-retry.sqlite3`, and deployment audit in
+`replay-library-deployment-2026-09-10.json`. The new archive/publication tables
+are additive; the backup and original game records were retained.
+
 ## Remaining limits and checks
 
 - A full game on Linux, an observed live Linux automatic-compaction cycle and
