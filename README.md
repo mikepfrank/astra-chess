@@ -9,6 +9,17 @@ New assistant sessions and spin-off development should start with
 [HANDOFF.md](HANDOFF.md) for the experimental intent, current state, lessons,
 parallel-work boundaries, and portable context not captured by the API reference.
 
+## Host an interactive Astra game
+
+**[Deployment walkthrough: host your own Astra Chess service](web-service/DEPLOYMENT.md)**
+covers the path from the local Windows application to a Linux server with
+per-game Codex sessions, private persistence and public HTTPS. The hosted
+application is on the `codex/hosted-chess` branch.
+
+See the [application README](web-service/README.md) for local setup and features,
+or the [first deployment record](web-service/docs/LIGHTSAIL-DEPLOYMENT.md) for
+the tested environment and verification results.
+
 ## Repository layout
 
 | Directory | Contents |
@@ -24,6 +35,7 @@ parallel-work boundaries, and portable context not captured by the API reference
 | [images/replays/](images/replays/) | Replay screenshots |
 | [skills/](skills/) | Canonical assistant play and archive procedures |
 | [tests/](tests/) | Rules, tooling and browser checks |
+| [web-service/](web-service/) | Interactive chess application, deployment walkthrough, service units and integration checks |
 | [scratch/](scratch/) | Ignored temporary analysis, including the default scratchpad state |
 
 Keep future replay builds and collection edits in `replays/`. The builder defaults

@@ -1,10 +1,14 @@
 # Astra Chess web service
 
-A local alpha implementation of the planned **public beta**: people play White
+A **public beta** chess service: people play White
 or Black against a per-game Codex session using Astra/Ultra and the unchanged
 from-scratch tactical engine. Human turns are untimed; games can continue over
 several days. The original playing checkout and its experiment records are not
 modified by this application.
+
+**Hosting your own instance? Start with the [deployment walkthrough](DEPLOYMENT.md).**
+It covers the tested path from local Windows development to Linux, including
+runtime installation, credentials, private preview, DNS, HTTPS and operations.
 
 The durable player workflow lives in [prompts/player.md](prompts/player.md).
 Its finishing guidance is to seek a short, verified finish early when
@@ -69,6 +73,9 @@ model access at that time; later authentication or service failures still leave
 the game saved with a retry status.
 
 ## Linux
+
+Follow the [deployment walkthrough](DEPLOYMENT.md) for the complete installation
+sequence. The short commands below only launch an application environment.
 
 The [Lightsail deployment checkpoint](docs/LIGHTSAIL-DEPLOYMENT.md) records
 the installed private runtime, sandbox checks, pending validation and operator

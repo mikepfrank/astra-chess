@@ -1,5 +1,9 @@
 # Home-directory Linux service
 
+For an ordered installation guide, start with the
+[deployment walkthrough](../DEPLOYMENT.md). This file explains the unit design;
+the [deployment checkpoint](../docs/LIGHTSAIL-DEPLOYMENT.md) records the tested host.
+
 The system unit runs as `astra:astra`. Application files remain under
 `/home/astra`; the small unit file belongs in
 `/etc/systemd/system/astra-chess.service`. A system unit is preferred here
@@ -93,5 +97,6 @@ The directives were checked against the
 [systemd 252 execution manual](https://manpages.debian.org/bookworm/systemd/systemd.exec.5.en.html#ProtectHome=):
 it documents selective bind mounts with `ProtectHome=tmpfs`, system-manager
 reading of `EnvironmentFile=` before mount setup, and the JIT limitation of
-`MemoryDenyWriteExecute=`. This is a source-reviewed template; installing and
-validating it on Amazon Linux is a separate step.
+`MemoryDenyWriteExecute=`. The first Amazon Linux deployment passed the checks
+recorded in the deployment checkpoint. Validate these restrictions again on
+your own host rather than assuming that installation alone establishes them.

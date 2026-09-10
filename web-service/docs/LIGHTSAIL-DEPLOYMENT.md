@@ -1,5 +1,9 @@
 # Lightsail deployment checkpoint
 
+For instructions to reproduce this deployment on your own host, start with the
+[deployment walkthrough](../DEPLOYMENT.md). This checkpoint preserves the
+first installation's settings and observed results.
+
 Updated on 2026-09-10 for the Linux alpha, whose player interface is labeled
 public beta. [Astra Plays Chess](https://astraplayschess.com/) is reachable over
 verified public HTTPS on the existing Amazon Linux 2023 host, under the `astra`
