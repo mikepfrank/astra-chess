@@ -189,3 +189,27 @@ a separate staged checkout. Revision `5cb1a2d` was deployed at 22:57 UTC;
 read-only HTTPS browser checks confirmed the single entry point and public
 library. All 14 saved games, clock records, usage rows, existing replay metadata
 and HTML files were preserved. See the [deployment checkpoint](LIGHTSAIL-DEPLOYMENT.md#unified-replay-sharing--september-10-2026).
+
+## Independent versions follow-up — September 10, 2026
+
+Revision `bec65c2` adds separately retained Moves only and With chat versions.
+Browser checks on a disposable game verified both private downloads and shared
+URLs, chat opt-in, one-entry public listing with chat precedence and moves-only
+fallback, refresh isolation, cancellation and confirmation of scoped deletion,
+reload, the preserved original game, offline playback, synchronized chat and
+desktop/mobile layouts. Additional synthetic-response browser checks verified
+that delayed status responses cannot switch variants, mutation requests disable
+tab switching, and pending or failed refreshes preserve the previous download.
+
+The Windows full suite passed 193 tests with two platform skips before the final
+older-client ambiguity guard was added. The final Linux suite passed all 194
+tests with three platform skips. All 28 replay-library tests also passed together
+on Windows after the guard was added. A private-copy rehearsal using the deployed
+database preserved its existing replay download and all 16 game records, then
+confirmed a second migration pass was idempotent. Fixture migration tests also
+cover an existing private/chat and shared/moves split with stable old URLs.
+
+Deployment at 23:57 UTC preserved all 16 games, clocks, usage rows, original
+replay HTML and sharing choices. Read-only HTTPS browser checks confirmed the
+two tabs, per-version deletion controls and public library; no live player
+replay was generated, listed or removed by validation.

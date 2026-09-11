@@ -280,6 +280,39 @@ includes the `unified-replay-release-5cb1a2d/` staging directory and Linux test 
 `before-unified-replay-20260910T225727Z.sqlite3` backup, and
 `unified-replay-deployment-20260910T225727Z.json` audit.
 
+## Independent replay versions — September 10, 2026
+
+Revision `bec65c2` was deployed at 23:57 UTC. The replay dialog retains independent
+Moves only and With chat versions, with scoped updates, sharing and deletion.
+The public index contains one entry per game and prefers chat only when both
+versions are explicitly listed. Previously generated downloads and shared
+snapshots migrate with their IDs, bytes, URLs and visibility preserved.
+
+The final Linux release passed 194 tests (three platform skips) in
+`operator-checks/replay-variants-release-bec65c2/`. The Windows full run passed
+193 tests (two platform skips) before the final older-client ambiguity guard;
+it took approximately ten minutes. All 28 final replay-library tests then passed
+together on Windows, including that guard. Complete disposable-game browser checks
+covered both variants, offline downloads, public-list priority/fallback,
+unlisted-chat privacy, update isolation, independent deletion and reload.
+
+A private-copy rehearsal in `operator-checks/replay-variants-migration-*/`
+verified migration and repeat-start behavior against the host's actual saved
+data without live writes. Deployment waited for zero active responses, replay
+builds and reservations. All 16 games, clocks, usage rows and original replay
+contents were preserved; the running daily allowance remains 100,000,000 tokens.
+Public HTTPS checks verified the served controls. Backup and audit files are
+`before-replay-variants-20260910T235714Z.sqlite3` and
+`replay-variants-deployment-20260910T235714Z.json` under `operator-checks/`.
+
+The one-time migration retires old standalone replay metadata to prevent deleted
+links from being resurrected. Rolling back application code alone makes migrated
+standalone links unavailable until this version is restored. If the old release
+accepts new replay writes, the next upgrade refuses startup pending operator
+reconciliation. Prefer a forward fix after accepting writes; never restore an
+old complete database over newer player activity. The replay workflow documents
+the current storage and variant-scoped routes.
+
 ## Remaining limits and checks
 
 - A full game on Linux, an observed live Linux automatic-compaction cycle and
