@@ -272,12 +272,14 @@ earlier failures, measured usage and the checks actually completed.
 
 The no-key Lightsail 0.154.0 protocol/configuration audit above and the separate
 authenticated check under the service's hard OS limits are complete. Astra
-played `e4`, received `a6`, then played `d4` in the same Codex thread. The
-deployed application revision is `923ce41`; its final Linux suite completed 160 tests: OK,
-with three Windows-only skips. Public HTTPS and web integration results are in
-[LIGHTSAIL-DEPLOYMENT.md](LIGHTSAIL-DEPLOYMENT.md).
+played `e4`, received `a6`, then played `d4` in the same Codex thread. That initial
+deployment used application revision `923ce41`; its Linux suite completed 160
+tests: OK, with three Windows-only skips. Later deployed revisions and public
+HTTPS/web integration results are in
+[LIGHTSAIL-DEPLOYMENT.md](LIGHTSAIL-DEPLOYMENT.md) and the
+[hosted-service handoff](../HANDOFF.md).
 
-A full Linux game, a deliberately observed live Linux automatic-compaction
-cycle and heavy-load behavior are not claimed by these short checks.
-Fake-process tests do not establish live playing strength or complete runtime
-sandbox isolation.
+Human players have since completed Linux games. A deliberately observed live
+Linux automatic-compaction cycle and heavy-load behavior are not established
+by these short checks. Fake-process tests do not establish live playing strength
+or complete runtime sandbox isolation.

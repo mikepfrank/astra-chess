@@ -10,6 +10,10 @@ modified by this application.
 It covers the tested path from local Windows development to Linux, including
 runtime installation, credentials, private preview, DNS, HTTPS and operations.
 
+**Continuing development or starting a fork? Read the [hosted-service handoff](HANDOFF.md).**
+It records the September 11 checkpoint, design decisions, current operating
+policy, reusable checks and boundaries for future capability, cost or driver work.
+
 The durable player workflow lives in [prompts/player.md](prompts/player.md).
 Its finishing guidance is to seek a short, verified finish early when
 overwhelmingly ahead, collect material only when it helps secure that finish,

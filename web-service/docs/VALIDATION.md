@@ -1,8 +1,9 @@
 # Validation history
 
-**Current status:** real Astra/Ultra play, chat and replay sharing work locally.
-See [LIVE-VALIDATION.md](LIVE-VALIDATION.md) for the subsequent integration
-checks and remaining deployment work.
+**Current status:** real Astra/Ultra games, chat and replay sharing work locally
+and on the deployed Linux service. Start with the [hosted-service handoff](../HANDOFF.md)
+for the latest checkpoint, then [LIVE-VALIDATION.md](LIVE-VALIDATION.md) and
+[LIGHTSAIL-DEPLOYMENT.md](LIGHTSAIL-DEPLOYMENT.md) for dated checks and remaining limits.
 
 The rest of this document preserves the initial `2372364` checkpoint, before
 credentials and live integration were configured. Its outstanding API and

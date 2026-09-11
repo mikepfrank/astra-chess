@@ -36,7 +36,9 @@ Only the score, mate attribution and chosen-move metadata enter the owner-facing
 snapshot; private query paths and analysis remain private. Positive scores
 favor Astra for either color. The label describes its last move and persists
 through a human reply, as requested; it does not reevaluate the current board.
-Mate distances count from before that Astra move. Existing games use their
+Verified goal-search mates take precedence over heuristic pawn scores. Displayed
+winning mate distances count from after that Astra move, matching the note
+"Mate-in count = your maximum remaining turns." Existing games use their
 original evidence without another search or a database migration.
 
 ## Recovery and time
@@ -157,8 +159,10 @@ have passed the checks recorded in
 inside the application service's exact sandbox. The application remains bound
 to loopback behind Caddy; public HTTPS is reachable after the Lightsail firewall
 change. These checks do not establish an outbound destination allowlist or
-complete tenant isolation. Full Linux games, live Linux compaction, heavy load,
-offsite backups and startup after reboot remain unverified or unconfigured.
+complete tenant isolation. Human players have since completed Linux games; an
+explicitly observed live Linux compaction cycle, heavy load, offsite backups and
+startup after reboot remain unverified or unconfigured. See the
+[hosted-service handoff](../HANDOFF.md) for the later checkpoint.
 The earlier [capacity assessment](../benchmarks/README.md) used read-only SSH
 inspection and bounded engine benchmarks loaded entirely in memory.
 

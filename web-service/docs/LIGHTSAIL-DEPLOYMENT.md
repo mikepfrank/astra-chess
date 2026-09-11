@@ -315,8 +315,9 @@ the current storage and variant-scoped routes.
 
 ## Remaining limits and checks
 
-- A full game on Linux, an observed live Linux automatic-compaction cycle and
-  heavy-load/concurrent-user behavior have not yet been exercised.
+- Human players have completed Linux games since initial deployment. An
+  explicitly observed live Linux automatic-compaction cycle and heavy-load
+  behavior remain unverified; see the [September 11 handoff](../HANDOFF.md).
 - Both services are enabled, but a host reboot has not been performed to verify
   startup after reboot.
 - SMTP and offsite backups are not configured. Optional password resets use an
