@@ -18,6 +18,10 @@ An optional [hourly new-game email monitor](docs/GAME-NOTIFICATIONS.md) runs as 
 separate host service, with no model calls. It requires its own configured mail
 sender and sends a digest only when new games have started.
 
+The [password-recovery guide](docs/PASSWORD-RECOVERY.md) covers verified recovery
+addresses, account management, SMTP, SES approval and delivery feedback. Recovery
+mail has separate configuration from the operator-notification monitor.
+
 The durable player workflow lives in [prompts/player.md](prompts/player.md).
 Its finishing guidance is to seek a short, verified finish early when
 overwhelmingly ahead, collect material only when it helps secure that finish,
@@ -132,8 +136,9 @@ prevents two schedulers from owning the same games.
 - An **Emoji** button below the chat box opens a small keyboard-accessible
   palette. Choosing an emoji inserts it at the cursor (or replaces selected
   text), respects the message length limit and leaves sending up to the player.
-- Browser-bound guest names; optional password protection and optional recovery
-  email. Password accounts can enable/edit private notes supplied to Astra in
+- Browser-bound guest names; optional password protection and optional verified
+  recovery email. Protected accounts can add, change or remove their recovery
+  address in **Your account**. Password accounts can enable/edit private notes supplied to Astra in
   subsequent games. Memories are opt-in, user-managed, and never available for
   guest accounts. Automatic model-authored memory extraction is not included.
 - Private records by default. **Save/share replay** on any finished game
@@ -215,6 +220,7 @@ All optional environment variables are listed here; `config.py` contains limits.
 | `ASTRA_SMTP_PORT` | `587` | STARTTLS; port 465 uses implicit TLS |
 | `ASTRA_SMTP_FROM` | absent | Recovery sender address |
 | `ASTRA_SMTP_USER`, `ASTRA_SMTP_PASSWORD` | absent | Optional SMTP authentication |
+| `ASTRA_SMTP_FEEDBACK_ADDRESS` | absent | Monitored bare email address for SES bounce/complaint forwarding via Return-Path |
 
 The player uses a 400,000-token context window (380,000 usable) and requests
 automatic compaction at 250,000 total-context tokens. Both values are enforced

@@ -8,7 +8,6 @@ import hashlib
 import json
 import os
 from pathlib import Path
-import pwd
 import sqlite3
 import subprocess
 import sys
@@ -18,11 +17,26 @@ import tempfile
 APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 from astra_web.config import Config
+from astra_web.codex_bridge import _child_environment
+
+
+def _codex_version(config):
+    # The diagnostic executable needs neither provider nor SMTP/cloud secrets.
+    # Match gameplay's allowlist and keep Codex's home outside operator profiles.
+    with tempfile.TemporaryDirectory(prefix="codex-version-probe-", dir=config.data_dir) as scratch:
+        root = Path(scratch)
+        for name in ("codex-home", "tmp", "appdata"):
+            (root / name).mkdir(mode=0o700)
+        safe_env = _child_environment(root, root / "codex-home", include_key=False)
+        version = subprocess.run([config.codex_bin, "--version"], env=safe_env, cwd=root,
+                                 text=True, capture_output=True, timeout=15, check=True)
+        return version.stdout.strip()
 
 
 def main():
     if sys.platform != "linux":
         raise SystemExit("This check requires Linux and the deployed service namespace.")
+    import pwd
     config = Config()
     checks = {}
     checks["service_user"] = pwd.getpwuid(os.getuid()).pw_name == "astra"
@@ -63,12 +77,10 @@ def main():
     checks["process_limit"] = limits["pids.max"] == "64"
     quota, period = limits["cpu.max"].split()
     checks["cpu_limit"] = quota != "max" and int(quota) <= int(period)
-    safe_env = {name: value for name, value in os.environ.items() if name != "OPENAI_API_KEY"}
-    version = subprocess.run([config.codex_bin, "--version"], env=safe_env,
-                             text=True, capture_output=True, timeout=15, check=True)
+    version = _codex_version(config)
     print(json.dumps({"checks": checks, "limits": limits,
                       "python": sys.version.split()[0], "sqlite": sqlite3.sqlite_version,
-                      "codex": version.stdout.strip()}, indent=2))
+                      "codex": version}, indent=2))
     return 0 if all(checks.values()) else 1
 
 

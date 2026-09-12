@@ -1,6 +1,6 @@
 # Browser QA sources
 
-These optional development checks exercise the current chat and replay UI.
+These optional development checks exercise the account, chat and replay UI.
 They are not imported by the service or collected by `unittest`. Run commands
 from the `web-service` directory. Python 3.12 and the application requirements,
 Node.js 20 or newer, Playwright, and a browser are needed on the QA machine.
@@ -15,6 +15,7 @@ production server merely to run the web service.
 | `emoji.cjs` | Loads freshly generated synthetic board data; all browser requests are intercepted. Checks caret/selection insertion, message limits, keyboard control, dismissal, post-game and suspended states, and desktop/mobile layout. No messages are sent. |
 | `public_readonly.cjs` | Explicit-origin GET-only deployment check: unified UI, availability flag, public index, historical replay links/CSP, first-human-game chat navigation, and Li's draw. Creates no accounts, games, archives or links. |
 | `support.cjs` | Portable dependency loading, fixture identity check, output paths and bounded waits. |
+| `recovery.cjs` | Fully intercepted account/recovery requests: add/change/resend/remove, explicit verification, expired links, fragment cleanup, cross-browser reset, stale responses after close/logout, and desktop/mobile layout. No server, mail or real account is used. |
 
 All generated access cookies, synthetic fixtures, databases, screenshots,
 downloads and any redirected logs belong in ignored `web-service/var/browser-qa/`.
@@ -106,6 +107,12 @@ For an already installed Google Chrome, use `ASTRA_BROWSER_CHANNEL=chrome`
 and omit the Chromium-install command. Stop the fixture with **Ctrl+C**.
 
 ## Public deployment check
+
+The recovery check is independent of the fixture server. With the same Node,
+Playwright and browser settings as above, run `node tests/browser/recovery.cjs`.
+It serves the local static sources through request interception and writes only
+ignored screenshots. It does not verify SMTP or the backend lifecycle; run the
+Python recovery suite separately.
 
 Only `public_readonly.cjs` accepts a configurable origin. Supply the intended
 deployment explicitly, with no path, credentials, query or fragment:

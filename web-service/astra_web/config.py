@@ -1,10 +1,22 @@
 from dataclasses import dataclass, field
 from pathlib import Path
 import os
+import re
 
 
 APP_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = APP_ROOT.parent
+
+
+def is_bare_email(value: str) -> bool:
+    """Accept one ASCII mailbox without display names, comments or header syntax."""
+    if not isinstance(value, str) or len(value) > 254 or not re.fullmatch(
+            r"[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@"
+            r"[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)+", value):
+        return False
+    local, domain = value.rsplit("@", 1)
+    return (len(local) <= 64 and not local.startswith(".") and not local.endswith(".") and
+            ".." not in local and all(len(label) <= 63 for label in domain.split(".")))
 
 
 @dataclass
@@ -30,6 +42,7 @@ class Config:
     smtp_user: str = field(default_factory=lambda: os.getenv("ASTRA_SMTP_USER", ""))
     smtp_password: str = field(default_factory=lambda: os.getenv("ASTRA_SMTP_PASSWORD", ""))
     smtp_from: str = field(default_factory=lambda: os.getenv("ASTRA_SMTP_FROM", ""))
+    smtp_feedback_address: str = field(default_factory=lambda: os.getenv("ASTRA_SMTP_FEEDBACK_ADDRESS", ""))
     secure_cookies: bool = field(default_factory=lambda: os.getenv("ASTRA_ORIGIN", "").startswith("https://"))
 
     @property
@@ -43,4 +56,6 @@ class Config:
             raise ValueError("ASTRA_MAX_WORKERS must be between 1 and 16")
         if self.max_daily_tokens < 1 or self.max_turn_tokens < 1 or self.max_daily_turns < 1:
             raise ValueError("Resource limits must be positive")
+        if self.smtp_feedback_address and not is_bare_email(self.smtp_feedback_address):
+            raise ValueError("ASTRA_SMTP_FEEDBACK_ADDRESS must be a single bare email address")
         self.data_dir.mkdir(parents=True, exist_ok=True)

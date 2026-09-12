@@ -1439,6 +1439,25 @@ input, textarea, .composer textarea, .message-body, .conversation-empty>span:las
 .brand-sub {
   font-size:12px;
 }
+.account-section {
+  margin-top:20px;
+  padding-top:18px;
+  border-top:1px solid var(--line);
+}
+.account-section h3 {
+  font-size:18px;
+}
+#recovery-status,#recovery-pending,#recovery-message,#recovery-error {
+  overflow-wrap:anywhere;
+}
+.recovery-actions {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+#recovery-refresh {
+  margin-top:10px;
+}
 .evaluation-preference {
   display:flex;
   align-items:center;

@@ -94,8 +94,20 @@ workflow steps in that attempt.
 Guest identity comes from an HttpOnly, SameSite=Strict cookie; typing an existing
 guest name does not grant its identity. Names are normalized and unique without
 case distinctions. Passwords use salted scrypt; cookie and one-hour single-use
-reset tokens are hashed at rest. Reset revokes all sessions. Reset links carry
-their token in a URL fragment and are not logged as HTTP query strings.
+reset tokens are hashed at rest. Only verified recovery addresses can receive
+resets. Address confirmation uses a separate hashed, single-use 24-hour token
+and explicit submission; following the link does not log in. Existing stored
+addresses remain unverified after migration. Recovery settings require the
+current password, and a verified address stays active until its replacement
+is confirmed. Reset revokes all sessions and pending address changes.
+
+Confirmation and reset links carry tokens in URL fragments, removed by the UI
+before requests. They are not logged as HTTP query strings. The combined mail
+admission ledger limits each account and destination to one send per minute,
+five per hour and twenty per day; failed SMTP attempts count. SMTP calls and
+password hashing occur outside write transactions. Email appears only in
+authenticated account settings, never public user or game snapshots. See the
+[recovery and delivery guide](PASSWORD-RECOVERY.md) for setup and failure behavior.
 
 Password-protected accounts alone can opt in to user-edited memory notes.
 The model receives these as untrusted conversational context, without email,

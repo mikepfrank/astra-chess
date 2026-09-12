@@ -85,7 +85,8 @@ def create_app(config=None, player_factory=None):
                 if len(body) > 16_384:
                     return JSONResponse({'detail': 'Request is too large.'}, status_code=413)
             request._body = bytes(body)
-            exempt = path in {'/api/auth/register', '/api/auth/login', '/api/auth/forgot', '/api/auth/reset'}
+            exempt = path in {'/api/auth/register', '/api/auth/login', '/api/auth/forgot', '/api/auth/reset',
+                              '/api/auth/verify-email'}
             if not exempt and not identity.csrf_valid(request.cookies.get('astra_session'), request.headers.get('x-csrf-token')):
                 return JSONResponse({'detail': 'Session verification failed. Refresh the page.'}, status_code=403)
         if category == 'auth':

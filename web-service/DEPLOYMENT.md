@@ -539,14 +539,19 @@ and proxy TLS state separately in private operator storage. Offsite storage,
 retention and backup scheduling require an operator decision; this installation
 does not automatically provide them.
 
-For application or engine updates, coordinate a maintenance window, stop the
-application, take a backup, update the checkout as `astra`, reinstall changed
+For application or engine updates, coordinate a maintenance window. First gate
+incoming requests at the proxy while allowing the application to finish all
+active responses and replay builds. Verify its saved activity and token
+reservations are idle, then stop the application and recheck. An idle snapshot
+without gating can race with a player's next move, and current shutdown cancels
+active workers. Take a backup, update the checkout as `astra`, reinstall changed
 requirements if needed, rerun appropriate checks, and restart. Do not pull code
 into a running player's source tree. An engine fingerprint mismatch blocks
 resumption of unfinished games; retain the old engine revision until those
 games finish or you have an explicitly designed migration. Changing Codex
 versions requires the protocol and paid runtime checks again. Changes to unit
-files also need `systemctl daemon-reload` before restart.
+files also need `systemctl daemon-reload` before restart. Reopen proxy access
+after the restarted application passes its local health check.
 
 For a new Linux host, rebuild the runtimes and virtual environment, restore a
 coherent stopped-service data backup with `astra` ownership and private modes,
@@ -560,6 +565,11 @@ Password-reset email is optional. Configure an outbound SMTP provider using
 the `ASTRA_SMTP_*` settings in the [configuration table](README.md#configuration),
 including its verified sender and required DNS records, then test delivery.
 A local mail server is not required. The first deployment left SMTP unset.
+Follow the [password-recovery guide](docs/PASSWORD-RECOVERY.md) for address
+confirmation, SES production access, suppression and monitored feedback.
+Existing unverified addresses must be confirmed; migration does not enable
+recovery for them automatically. Test with disposable operator-owned data
+before enabling delivery for players.
 
 ## Troubleshooting the transition from local to hosted
 

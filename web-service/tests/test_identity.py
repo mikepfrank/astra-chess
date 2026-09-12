@@ -22,9 +22,11 @@ class IdentityTests(unittest.TestCase):
     def setUp(self):
         self.directory = tempfile.TemporaryDirectory()
         self.mail = []
+        self.verification_mail = []
         self.config = Config(data_dir=Path(self.directory.name), origin="http://testserver",
                              smtp_host="", smtp_from="", secure_cookies=False)
-        self.identity = Identity(self.config, email_sender=lambda email, url: self.mail.append((email, url)))
+        self.identity = Identity(self.config, email_sender=lambda email, url: self.mail.append((email, url)),
+                                 verification_sender=lambda email, url: self.verification_mail.append((email, url)))
         self.app = FastAPI()
         self.app.state.identity = self.identity
         self.app.include_router(router)
@@ -50,6 +52,15 @@ class IdentityTests(unittest.TestCase):
             body["email"] = email
         response = (client or self.client).post("/api/auth/register", json=body)
         self.assertEqual(response.status_code, 200, response.text)
+        return response
+
+    def cool_mail(self):
+        self.query("UPDATE auth_mail_events SET created_at=created_at-61")
+
+    def register_verified(self):
+        response = self.register(protected=True, email="player@example.org")
+        self.identity.verify_email(self.verification_mail[-1][1].split("#verify-email=")[1])
+        self.cool_mail()
         return response
 
     def test_guest_browser_persistence_unique_name_and_no_name_login(self):
@@ -123,7 +134,7 @@ class IdentityTests(unittest.TestCase):
         self.assertEqual(self.client.put("/api/auth/memory", json={"enabled": True, "text": "x" * 4001}).status_code, 422)
 
     def test_reset_is_single_use_hashed_and_revokes_every_session(self):
-        self.register(protected=True, email="player@example.org")
+        self.register_verified()
         original = self.client.cookies.get(COOKIE_NAME)
         second = self.identity.login("Mike", PASSWORD)
         forgot = self.client.post("/api/auth/forgot", json={"name": "Mike"})
@@ -147,9 +158,10 @@ class IdentityTests(unittest.TestCase):
         self.assertEqual(self.client.post("/api/auth/login", json={"name": "Mike", "password": NEW_PASSWORD}).status_code, 200)
 
     def test_new_reset_supersedes_old_and_expired_links_fail(self):
-        self.register(protected=True, email="player@example.org")
+        self.register_verified()
         self.identity.forgot("Mike")
         old = self.mail[-1][1].split("#reset=")[1]
+        self.cool_mail()
         self.identity.forgot("Mike")
         new = self.mail[-1][1].split("#reset=")[1]
         self.assertEqual(len(self.query("SELECT * FROM auth_resets")), 1)
@@ -161,7 +173,7 @@ class IdentityTests(unittest.TestCase):
             self.assertEqual(context.exception.status_code, 400)
 
     def test_simultaneous_reset_consumes_once(self):
-        self.register(protected=True, email="player@example.org")
+        self.register_verified()
         self.identity.forgot("Mike")
         token = self.mail[-1][1].split("#reset=")[1]
 
@@ -177,7 +189,7 @@ class IdentityTests(unittest.TestCase):
         self.assertEqual(sorted(results), [200, 400])
 
     def test_email_failure_does_not_leak_token_or_leave_reset(self):
-        self.register(protected=True, email="player@example.org")
+        self.register_verified()
 
         def failed_sender(recipient, reset_url):
             raise RuntimeError(reset_url)
@@ -190,6 +202,7 @@ class IdentityTests(unittest.TestCase):
 
     def test_unconfigured_email_does_not_claim_capability(self):
         self.identity._email_sender = None
+        self.identity._verification_sender = None
         self.assertFalse(self.client.get("/api/auth/me").json()["email_reset_available"])
         self.register(protected=True, email="player@example.org")
         self.assertEqual(self.client.post("/api/auth/forgot", json={"name": "Mike"}).status_code, 200)

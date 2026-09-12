@@ -4,6 +4,9 @@
 and on the deployed Linux service. Start with the [hosted-service handoff](../HANDOFF.md)
 for the latest checkpoint, then [LIVE-VALIDATION.md](LIVE-VALIDATION.md) and
 [LIGHTSAIL-DEPLOYMENT.md](LIGHTSAIL-DEPLOYMENT.md) for dated checks and remaining limits.
+The September 12 [password-recovery checkpoint](PASSWORD-RECOVERY.md#september-12-2026-validation-checkpoint)
+records isolated lifecycle, migration, browser and real SMTP checks, with live
+activation awaiting SES production approval and bounce-feedback delivery confirmation.
 
 The rest of this document preserves the initial `2372364` checkpoint, before
 credentials and live integration were configured. Its outstanding API and

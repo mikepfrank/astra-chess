@@ -1,7 +1,20 @@
 import {BoardView, START_FEN, pieceImage, pieceNames, renderCaptures, formatClock} from './pieces.js';
 
 const $=id=>document.getElementById(id);
-const state={user:null,csrf:null,config:null,game:null,gameId:null,pending:false,mode:'register',next:null,polling:false,resetToken:null,messageKey:null,availabilityChecking:false,availabilityError:null,lastAvailabilityCheck:0};
+const state={user:null,csrf:null,config:null,game:null,gameId:null,pending:false,mode:'register',next:null,polling:false,resetToken:null,verifyToken:null,recovery:null,identityVersion:0,identityLoaded:false,messageKey:null,availabilityChecking:false,availabilityError:null,lastAvailabilityCheck:0};
+const accountUI={session:0,busy:false,loaded:false,controller:null};
+const identityUI={session:0,busy:false,pendingLink:null};
+const verificationUI={session:0,busy:false,controller:null};
+// Email links carry credentials in their fragment. Remove them before any requests.
+function consumeEmailFragment(){
+  const link=new URLSearchParams(location.hash.slice(1)),verifyToken=link.get('verify-email'),resetToken=link.get('reset');
+  if(!verifyToken&&!resetToken)return null;
+  const url=new URL(location.href);url.hash='';history.replaceState(null,'',url);
+  return {verifyToken,resetToken:verifyToken?null:resetToken};
+}
+{
+  const link=consumeEmailFragment();if(link)Object.assign(state,link);
+}
 const archiveUI={session:0,gameId:null,variant:'moves',variants:{},status:null,busy:null,error:null,uncertain:false,loaded:false,deleteConfirm:false,timer:null,controller:null};
 let toastTimer, pollTimer, promotionResolve, confirmResolve;
 const titleCase=text=>String(text||'').replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
@@ -60,9 +73,15 @@ async function api(path,{method='GET',body,signal}={}){
   }
   return data;
 }
-async function refreshIdentity(){const result=await api('/api/auth/me');setIdentity(result);return result;}
+async function refreshIdentity(){const version=state.identityVersion;const result=await api('/api/auth/me');if(version===state.identityVersion)setIdentity(result);return result;}
 function setIdentity(result){
-  state.user=result.user;state.csrf=result.csrf_token||state.csrf;
+  if(state.identityLoaded&&state.user?.id!==result.user?.id){
+    state.identityVersion++;state.recovery=null;clearAccountUI();clearVerification();
+    state.game=null;state.gameId=null;clearPrivateView();
+  }
+  state.identityLoaded=true;state.user=result.user;
+  if(Object.hasOwn(result,'csrf_token'))state.csrf=result.csrf_token;
+  if(Object.hasOwn(result,'recovery'))state.recovery=result.recovery;
   if(result.email_reset_available!==undefined)state.emailResetAvailable=result.email_reset_available;
   $('account-button').textContent=state.user?state.user.name:'Take a seat';
   if(!state.game)$('bottom-name').textContent=state.user?.name||'You';
@@ -256,7 +275,7 @@ async function poll(){
   clearTimeout(pollTimer);
   if(state.polling)return;
   if(document.hidden){pollTimer=setTimeout(poll,10000);return;}
-  state.polling=true;
+  state.polling=true;const identityVersion=state.identityVersion;
   try{
     if($('new-dialog').open&&!playerReady()&&Date.now()-state.lastAvailabilityCheck>10000)await refreshAvailability();
     if(state.gameId&&state.user&&!state.pending){
@@ -266,7 +285,7 @@ async function poll(){
     }
   }catch(error){
     connection(false,'Reconnecting');
-    if(error.status===401){state.user=null;state.gameId=null;state.game=null;clearPrivateView();await refreshIdentity().catch(()=>{});toast('Your session has expired. Sign in again to return to your game.');}
+    if(error.status===401&&identityVersion===state.identityVersion&&!identityUI.busy){setIdentity({user:null,csrf_token:null});state.gameId=null;state.game=null;clearPrivateView();await refreshIdentity().catch(()=>{});toast('Your session has expired. Sign in again to return to your game.');}
   }finally{state.polling=false;pollTimer=setTimeout(poll,2000);}
 }
 function clearPrivateView(){
@@ -322,12 +341,20 @@ function finishConfirm(value){closeDialog('confirm-dialog');confirmResolve?.(val
 $('confirm-cancel').addEventListener('click',()=>finishConfirm(false));$('confirm-accept').addEventListener('click',()=>finishConfirm(true));
 $('confirm-dialog').addEventListener('cancel',event=>{event.preventDefault();finishConfirm(false);});
 
+function setIdentityBusy(busy){
+  identityUI.busy=busy;$('identity-form').setAttribute('aria-busy',String(busy));
+  for(const id of ['identity-submit','register-tab','login-tab','forgot-password','identity-name','identity-password','identity-email'])$(id).disabled=busy;
+  for(const button of $('identity-dialog').querySelectorAll('[data-close]'))button.disabled=busy;
+}
 function setIdentityMode(mode){
-  state.mode=mode;$('identity-error').hidden=true;$('identity-password').value='';
+  if(identityUI.busy)return;
+  identityUI.session++;setIdentityBusy(false);$('identity-reload').hidden=true;
+  if(mode!=='reset')state.resetToken=null;
+  state.mode=mode;$('identity-error').hidden=true;$('identity-password').value='';$('identity-email').value='';
   $('identity-tabs').hidden=!['register','login'].includes(mode);
   $('register-tab').classList.toggle('active',mode==='register');$('login-tab').classList.toggle('active',mode==='login');
   const titles={register:'What should we call you?',login:'Welcome back.',protect:'Keep your seat.',forgot:'Recover your account.',reset:'Choose a new password.'};
-  const descriptions={register:'A guest name is all you need. This browser will remember your seat.',login:'Sign in to return to your games from any device.',protect:'Add a password to keep this name across devices and enable optional memory.',forgot:'Enter your account name. If recovery is configured, a reset link will be sent to its email address.',reset:'Use at least 10 characters. This will replace your previous password.'};
+  const descriptions={register:'A guest name is all you need. This browser will remember your seat.',login:'Sign in to return to your games from any device.',protect:'Add a password to keep this name across devices and enable optional memory.',forgot:'Enter your account name. If it has a confirmed recovery email, we will send a password reset link.',reset:'Use at least 10 characters. This will replace your previous password.'};
   $('identity-title').textContent=titles[mode];$('identity-description').textContent=descriptions[mode];
   $('name-field').hidden=['protect','reset'].includes(mode);$('identity-name').required=!['protect','reset'].includes(mode);
   $('password-field').hidden=mode==='forgot';$('identity-password').required=['login','protect','reset'].includes(mode);
@@ -341,15 +368,25 @@ function setIdentityMode(mode){
   $('forgot-password').hidden=mode!=='login'||!state.emailResetAvailable;
   if(mode==='protect')$('identity-name').value=state.user?.name||'';
 }
-function showIdentity(mode='register',next=null){state.next=next;setIdentityMode(mode);openDialog('identity-dialog');}
+function showIdentity(mode='register',next=null){if(identityUI.busy)return;state.next=next;setIdentityMode(mode);openDialog('identity-dialog');}
 async function requireUser(next){if(state.user){await next();return;}showIdentity('register',next);}
 $('register-tab').addEventListener('click',()=>setIdentityMode('register'));
 $('login-tab').addEventListener('click',()=>setIdentityMode('login'));
 $('forgot-password').addEventListener('click',()=>setIdentityMode('forgot'));
 $('identity-password').addEventListener('input',()=>{$('email-field').hidden=!(state.emailResetAvailable&&['register','protect'].includes(state.mode)&&$('identity-password').value);});
 $('identity-form').addEventListener('submit',async event=>{
-  event.preventDefault();$('identity-error').hidden=true;$('identity-submit').disabled=true;
-  const mode=state.mode;
+  event.preventDefault();if(identityUI.busy)return;setIdentityBusy(true);$('identity-error').hidden=true;
+  const mode=state.mode,session=identityUI.session,changesIdentity=['register','login','protect','reset'].includes(mode);
+  // Invalidate earlier polls and initialization reads before cookies can change.
+  if(changesIdentity)state.identityVersion++;
+  const version=state.identityVersion;
+  const current=()=>identityUI.session===session&&(changesIdentity||state.identityVersion===version)&&$('identity-dialog').open;
+  let reconciled=false,locked=false;
+  const reconcile=async()=>{
+    const identity=await api('/api/auth/me');
+    if(!current())return;
+    state.identityVersion++;setIdentity(identity);reconciled=true;
+  };
   let payload={name:$('identity-name').value.trim(),password:$('identity-password').value};
   if(['register','protect'].includes(mode))payload.email=$('email-field').hidden?'':$('identity-email').value.trim();
   if(mode==='protect')delete payload.name;
@@ -357,39 +394,141 @@ $('identity-form').addEventListener('submit',async event=>{
   if(mode==='reset')payload={token:state.resetToken,password:payload.password};
   try{
     const result=await api('/api/auth/'+mode,{method:'POST',body:payload});
+    if(!current())return;
     if(mode==='forgot'){
-      $('identity-description').textContent='If that account has recovery enabled, a reset link has been sent. Check your email.';
+      $('identity-description').textContent='If that account has a confirmed recovery email, a reset link has been sent. Check your email, including your spam folder.';
       $('identity-form').reset();return;
     }
     if(mode==='reset'){
+      await reconcile();if(!current())return;
       state.resetToken=null;const url=new URL(location.href);url.hash='';history.replaceState(null,'',url);
       toast('Password updated. You can sign in with your new password.');
-      setIdentityMode('login');return;
+      const link=identityUI.pendingLink;identityUI.pendingLink=null;
+      setIdentityBusy(false);if(link)showEmailLink(link);else setIdentityMode('login');return;
     }
-    if(result.user)setIdentity(result);else await refreshIdentity();
+    await reconcile();if(!current())return;
+    if(!state.user)throw new Error('Sign-in could not be confirmed. Please try again.');
+    const next=state.next;state.next=null;
     closeDialog('identity-dialog');$('identity-form').reset();
-    toast(mode==='protect'?'Your account is now protected.':`Welcome, ${state.user.name}.`);
-    const next=state.next;state.next=null;if(next)await next();
+    const welcome=mode==='protect'?'Your account is now protected.':`Welcome, ${state.user.name}.`;
+    toast(welcome+(payload.email?' Check your email and confirm the link to enable password recovery.':''));
+    if(identityUI.pendingLink)return;
+    if(next)await next();
     else if(mode==='login')await showGames();
-  }catch(error){showError('identity-error',error);}
-  finally{$('identity-submit').disabled=false;}
+  }catch(error){
+    if(changesIdentity&&!reconciled&&current()){
+      try{await reconcile();}
+      catch{
+        locked=true;$('identity-reload').hidden=false;
+        showError('identity-error',new Error('The server could not confirm your sign-in status. Reload this page before continuing.'));return;
+      }
+    }
+    if(current())showError('identity-error',mode==='reset'?new Error(`${error.message} If this link expired or was already used, request a new link from Sign in → Forgot your password.`):error);
+  }finally{
+    if(identityUI.session===session&&!locked){
+      setIdentityBusy(false);const link=identityUI.pendingLink;identityUI.pendingLink=null;
+      if(link)showEmailLink(link);
+    }
+  }
 });
-$('account-button').addEventListener('click',async()=>{
+$('identity-dialog').addEventListener('cancel',event=>{if(identityUI.busy)event.preventDefault();});
+$('identity-reload').addEventListener('click',()=>location.reload());
+$('identity-dialog').addEventListener('close',()=>{
+  if($('identity-dialog').open)return;
+  identityUI.session++;setIdentityBusy(false);state.resetToken=null;state.next=null;
+  $('identity-form').reset();
+});
+function clearAccountUI(){
+  accountUI.session++;accountUI.controller?.abort();accountUI.controller=null;accountUI.busy=false;accountUI.loaded=false;
+  $('recovery-form').reset();$('recovery-status').textContent='Checking recovery settings…';
+  for(const id of ['recovery-pending','recovery-message','recovery-error']){$(id).textContent='';$(id).hidden=true;}
+  $('memory-text').value='';$('memory-enabled').checked=false;
+  if($('account-dialog').open)closeDialog('account-dialog');
+}
+function accountCurrent(session,userId){return accountUI.session===session&&state.user?.id===userId&&$('account-dialog').open;}
+function renderRecovery(){
+  const saved=state.recovery,loaded=accountUI.loaded&&saved;
+  const hasAddress=!!(saved?.email||saved?.pending_email);
+  $('recovery-section').hidden=!state.user?.protected;
+  $('recovery-status').textContent=!loaded?($('recovery-error').hidden?'Checking recovery settings…':'Recovery settings could not be loaded.'):saved.verified&&saved.email?`Recovery enabled: ${saved.email}`:saved.email?`Not yet confirmed: ${saved.email}. Password recovery is not enabled.`:'No confirmed recovery email. Add one to recover a forgotten password.';
+  $('recovery-pending').hidden=!loaded||!saved.pending_email;
+  if(loaded&&saved.pending_email){
+    const expired=saved.pending_expires_at&&parseDate(saved.pending_expires_at).getTime()<=Date.now();
+    $('recovery-pending').textContent=`${expired?'Confirmation expired':'Awaiting confirmation'}: ${saved.pending_email}. ${expired?'Resend the confirmation email.':'Check your email and follow the confirmation link.'}${saved.verified?' Your current confirmed address remains active until then.':''}`;
+  }
+  $('recovery-unavailable').hidden=!loaded||saved.available;
+  $('recovery-form').hidden=!loaded||(!saved.available&&!hasAddress);
+  $('recovery-email').disabled=accountUI.busy||!saved?.available;
+  $('recovery-password').disabled=accountUI.busy;
+  $('recovery-save').hidden=!!loaded&&!saved.available;
+  $('recovery-save').disabled=accountUI.busy||!loaded;
+  $('recovery-save').textContent=saved?.verified?'Confirm new email':'Send confirmation';
+  $('recovery-resend').hidden=!loaded||!saved.available||!(saved.pending_email||saved.email&&!saved.verified);
+  $('recovery-resend').disabled=accountUI.busy;
+  $('recovery-remove').hidden=!loaded||!hasAddress;
+  $('recovery-remove').disabled=accountUI.busy;
+  $('recovery-refresh').disabled=accountUI.busy;
+}
+async function recoveryRequest(action='status'){
+  const session=accountUI.session,userId=state.user?.id;
+  if(!state.user?.protected||!accountCurrent(session,userId)||accountUI.busy)return;
+  let body;
+  if(action!=='status'){
+    const email=action==='remove'?null:action==='resend'?(state.recovery?.pending_email||state.recovery?.email):$('recovery-email').value.trim();
+    if(action!=='remove'&&!email){showError('recovery-error',new Error('Enter an email address to confirm.'));$('recovery-email').focus();return;}
+    body={email,password:$('recovery-password').value};
+  }
+  accountUI.busy=true;$('recovery-error').hidden=true;$('recovery-message').hidden=true;renderRecovery();
+  const controller=new AbortController();accountUI.controller=controller;const timeout=setTimeout(()=>controller.abort(),15000);
+  try{
+    const result=await api('/api/auth/recovery',{method:action==='status'?'GET':'POST',body,signal:controller.signal});
+    if(!accountCurrent(session,userId))return;
+    state.recovery=action==='status'?result:result.recovery;accountUI.loaded=true;
+    $('recovery-email').value=state.recovery.pending_email||state.recovery.email||'';
+    if(action!=='status'){
+      $('recovery-password').value='';$('recovery-message').hidden=false;
+      $('recovery-message').textContent=result.message||(action==='remove'?'Recovery email removed.':'Check your email and confirm the link to enable recovery.');
+    }
+  }catch(error){
+    if(!accountCurrent(session,userId))return;
+    accountUI.loaded=false;
+    showError('recovery-error',new Error(error.name==='AbortError'?'The request timed out. Refresh recovery status to check whether the change was saved.':`${error.message} Refresh recovery status before trying again.`));
+  }finally{
+    clearTimeout(timeout);
+    if(accountCurrent(session,userId)){accountUI.busy=false;accountUI.controller=null;renderRecovery();}
+  }
+}
+async function showAccount(){
   if(!state.user){showIdentity();return;}
+  clearAccountUI();const session=accountUI.session,userId=state.user.id;
   $('account-title').textContent=state.user.name;
   $('account-description').textContent=state.user.protected?'Your account is protected with a password.':'A guest account, remembered by this browser. Add a password to keep access across devices.';
   $('protect-account').hidden=state.user.protected;$('memory-section').hidden=!state.user.protected;
-  if(state.user.protected)try{const memory=await api('/api/auth/memory');$('memory-enabled').checked=memory.enabled;$('memory-text').value=memory.text||'';}catch(error){toast(error.message);}
-  openDialog('account-dialog');
+  renderRecovery();openDialog('account-dialog');
+  if(state.user.protected)await Promise.allSettled([recoveryRequest(),(async()=>{
+    try{const memory=await api('/api/auth/memory');if(accountCurrent(session,userId)){$('memory-enabled').checked=memory.enabled;$('memory-text').value=memory.text||'';}}
+    catch(error){if(accountCurrent(session,userId))toast(error.message);}
+  })()]);
+}
+$('account-button').addEventListener('click',showAccount);
+$('account-dialog').addEventListener('close',()=>{if(!$('account-dialog').open)clearAccountUI();});
+$('recovery-form').addEventListener('submit',event=>{
+  event.preventDefault();
+  // Resending or removing ignores an unfinished email edit, but still requires the password.
+  if(!$('recovery-password').reportValidity())return;
+  recoveryRequest(event.submitter?.id==='recovery-remove'?'remove':event.submitter?.id==='recovery-resend'?'resend':'save');
 });
+$('recovery-refresh').addEventListener('click',()=>recoveryRequest());
 $('protect-account').addEventListener('click',()=>{closeDialog('account-dialog');showIdentity('protect');});
 $('memory-form').addEventListener('submit',async event=>{
-  event.preventDefault();const button=event.submitter;button.disabled=true;
-  try{await api('/api/auth/memory',{method:'PUT',body:{enabled:$('memory-enabled').checked,text:$('memory-text').value}});toast('Memory preferences saved.');}
-  catch(error){toast(error.message);}finally{button.disabled=false;}
+  event.preventDefault();const button=event.submitter,session=accountUI.session,userId=state.user?.id;button.disabled=true;
+  try{await api('/api/auth/memory',{method:'PUT',body:{enabled:$('memory-enabled').checked,text:$('memory-text').value}});if(accountCurrent(session,userId))toast('Memory preferences saved.');}
+  catch(error){if(accountCurrent(session,userId))toast(error.message);}finally{button.disabled=false;}
 });
 $('logout').addEventListener('click',async()=>{
+  if(!state.user)return;
   if(!state.user.protected&&!await confirmAction('Leave this guest seat?','This guest identity has no password. Signing out may lose access to its games; add a password first if you want to keep it.','Sign out'))return;
+  state.identityVersion++;clearAccountUI();clearVerification();state.resetToken=null;
   try{
     await api('/api/auth/logout',{method:'POST',body:{}});closeDialog('account-dialog');
     state.game=null;state.gameId=null;state.messageKey=null;
@@ -397,6 +536,52 @@ $('logout').addEventListener('click',async()=>{
     // A reload clears every view of the previous player's private game.
     location.reload();
   }catch(error){toast(error.message);}
+});
+function clearVerification(){
+  verificationUI.session++;verificationUI.controller?.abort();verificationUI.controller=null;verificationUI.busy=false;state.verifyToken=null;
+  if($('verify-email-dialog').open)closeDialog('verify-email-dialog');
+}
+function showVerification(){
+  verificationUI.session++;verificationUI.busy=false;
+  $('verify-email-confirm').hidden=false;$('verify-email-confirm').disabled=false;
+  $('verify-email-error').hidden=true;
+  $('verify-email-account').textContent=state.user?'Your account':'Sign in';
+  openDialog('verify-email-dialog');
+}
+$('verify-email-dialog').addEventListener('close',()=>{if(!$('verify-email-dialog').open)clearVerification();});
+$('verify-email-confirm').addEventListener('click',async()=>{
+  if(!state.verifyToken||verificationUI.busy)return;
+  const session=verificationUI.session,version=state.identityVersion;
+  const current=()=>session===verificationUI.session&&version===state.identityVersion&&$('verify-email-dialog').open;
+  const token=state.verifyToken;verificationUI.busy=true;
+  $('verify-email-confirm').disabled=true;$('verify-email-error').hidden=true;
+  const controller=new AbortController();verificationUI.controller=controller;const timeout=setTimeout(()=>controller.abort(),15000);
+  try{
+    await api('/api/auth/verify-email',{method:'POST',body:{token},signal:controller.signal});
+    if(!current())return;
+    state.verifyToken=null;$('verify-email-confirm').hidden=true;
+    $('verify-email-status').textContent='Email confirmed. Password recovery is enabled for the account that requested this link. You can sign in with its account name and password, or choose Forgot your password to reset it.';
+    $('verify-email-account').textContent=state.user?'Your account':'Sign in';
+  }catch(error){
+    if(!current())return;
+    const invalid=[400,404,410].includes(error.status);
+    if(invalid){state.verifyToken=null;$('verify-email-confirm').hidden=true;}
+    showError('verify-email-error',new Error(error.name==='AbortError'?'Confirmation timed out. You can try again, or sign in and check Password recovery in your account.':`${error.message} Sign in and open Password recovery in your account to check the address or resend confirmation.`));
+  }finally{
+    clearTimeout(timeout);if(current()){verificationUI.busy=false;verificationUI.controller=null;$('verify-email-confirm').disabled=false;}
+  }
+});
+$('verify-email-account').addEventListener('click',()=>{clearVerification();if(state.user)showAccount();else showIdentity('login');});
+function showEmailLink(link){
+  clearAccountUI();clearVerification();
+  if($('identity-dialog').open)closeDialog('identity-dialog');
+  Object.assign(state,link);
+  if(state.verifyToken)showVerification();else showIdentity('reset');
+}
+window.addEventListener('hashchange',()=>{
+  const link=consumeEmailFragment();if(!link)return;
+  if(identityUI.busy){identityUI.pendingLink=link;return;}
+  showEmailLink(link);
 });
 async function showNewGame(){$('new-error').hidden=true;openDialog('new-dialog');await refreshAvailability();}
 for(const id of ['new-game','welcome-new'])$(id).addEventListener('click',showNewGame);
@@ -708,13 +893,16 @@ for(const button of document.querySelectorAll('[data-close]'))button.addEventLis
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll();});
 window.addEventListener('online',()=>poll());
 async function initialize(){
+  const identityVersion=state.identityVersion;
+  const hasEmailLink=!!(state.verifyToken||state.resetToken);
+  if(state.verifyToken)showVerification();else if(state.resetToken)showIdentity('reset');
   try{
     const [identity,config]=await Promise.all([api('/api/auth/me'),api('/api/config')]);
-    setIdentity(identity);state.config=config;updateAvailability();connection(true,'Connected');
-    const reset=new URLSearchParams(location.hash.slice(1)).get('reset');
-    if(reset){state.resetToken=reset;showIdentity('reset');}
-    else if(!state.user)showIdentity();
-    else{
+    if(identityVersion===state.identityVersion)setIdentity(identity);
+    state.config=config;updateAvailability();connection(true,'Connected');
+    $('verify-email-account').textContent=state.user?'Your account':'Sign in';
+    if(identityVersion===state.identityVersion&&!hasEmailLink&&!state.user)showIdentity();
+    else if(identityVersion===state.identityVersion&&state.user&&!hasEmailLink){
       let id=new URL(location.href).searchParams.get('game');
       if(!id)try{id=localStorage.getItem('astra-game-'+state.user.id);}catch{}
       if(id)try{await loadGame(id);}catch(error){toast(error.message);}

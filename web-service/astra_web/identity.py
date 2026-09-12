@@ -7,9 +7,9 @@ SMTP are synchronous. No database connection is shared between operations.
 
 from contextlib import contextmanager
 from email.message import EmailMessage
+from email.utils import formatdate
 import hashlib
 import hmac
-import re
 import secrets
 import smtplib
 import sqlite3
@@ -17,16 +17,21 @@ import ssl
 import time
 import unicodedata
 from typing import Callable
+from urllib.parse import urlsplit
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
 
-from .config import Config
+from .config import Config, is_bare_email
 
 
 COOKIE_NAME = "astra_session"
 SESSION_SECONDS = 30 * 24 * 60 * 60
 RESET_SECONDS = 60 * 60
+VERIFICATION_SECONDS = 24 * 60 * 60
+MAIL_COOLDOWN_SECONDS = 60
+MAIL_HOURLY_LIMIT = 5
+MAIL_DAILY_LIMIT = 20
 PASSWORD_MIN_LENGTH = 10
 MEMORY_MAX_LENGTH = 4000
 SCRYPT_N, SCRYPT_R, SCRYPT_P = 32768, 8, 3
@@ -80,24 +85,25 @@ def _email(value: str | None) -> str | None:
     value = (value or "").strip()
     if not value:
         return None
-    if len(value) > 254 or not re.fullmatch(r"[^@\s,;<>]+@[^@\s,;<>]+\.[^@\s,;<>]+", value):
-        raise HTTPException(400, "Enter a valid email address.")
-    if not value.isascii() or any(ord(c) < 32 or ord(c) == 127 for c in value):
+    if not is_bare_email(value):
         raise HTTPException(400, "Enter a valid email address.")
     return value
 
 
 class Identity:
-    """Identity persistence; ``email_sender(recipient, reset_url)`` is injectable.
+    """Persistence with independent injectable reset and verification senders.
 
-    Session/reset bearer tokens are stored only as SHA-256 digests. Cookies last
-    30 days; reset links last one hour. User notes are never model-editable.
+    Each sender accepts ``(recipient, url)``. Session, reset and verification
+    bearer tokens are stored only as SHA-256 digests. Cookies last 30 days;
+    reset links last one hour and confirmations 24 hours. Notes are never model-editable.
     """
 
     def __init__(self, config: Config,
-                 email_sender: Callable[[str, str], None] | None = None):
+                 email_sender: Callable[[str, str], None] | None = None,
+                 verification_sender: Callable[[str, str], None] | None = None):
         self.config = config
         self._email_sender = email_sender
+        self._verification_sender = verification_sender
         self.config.data_dir.mkdir(parents=True, exist_ok=True)
         self._dummy_password_hash = _password_hash(secrets.token_urlsafe(32))
         with self._db() as db:
@@ -124,6 +130,19 @@ class Identity:
                     expires_at REAL NOT NULL
                 );
                 CREATE INDEX IF NOT EXISTS auth_resets_user ON auth_resets(user_id);
+                CREATE TABLE IF NOT EXISTS auth_email_verifications (
+                    token_hash TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL UNIQUE REFERENCES auth_users(id) ON DELETE CASCADE,
+                    email TEXT NOT NULL,
+                    expires_at REAL NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS auth_mail_events (
+                    user_id TEXT NOT NULL REFERENCES auth_users(id) ON DELETE CASCADE,
+                    destination_hash TEXT NOT NULL,
+                    created_at REAL NOT NULL
+                );
+                CREATE INDEX IF NOT EXISTS auth_mail_user ON auth_mail_events(user_id, created_at);
+                CREATE INDEX IF NOT EXISTS auth_mail_destination ON auth_mail_events(destination_hash, created_at);
                 CREATE TABLE IF NOT EXISTS auth_memory (
                     user_id TEXT PRIMARY KEY REFERENCES auth_users(id) ON DELETE CASCADE,
                     enabled INTEGER NOT NULL DEFAULT 0 CHECK(enabled IN (0, 1)),
@@ -131,6 +150,14 @@ class Identity:
                     updated_at REAL NOT NULL
                 );
             """)
+            # Serialize migrations across constructors. Existing addresses have
+            # never proved ownership; existing reset links must not grant it.
+            db.execute("BEGIN IMMEDIATE")
+            if "email_verified" not in {r[1] for r in db.execute("PRAGMA table_info(auth_users)")}:
+                db.execute("ALTER TABLE auth_users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0")
+            if "email" not in {r[1] for r in db.execute("PRAGMA table_info(auth_resets)")}:
+                db.execute("ALTER TABLE auth_resets ADD COLUMN email TEXT")
+                db.execute("DELETE FROM auth_resets")
 
     @contextmanager
     def _db(self):
@@ -146,6 +173,11 @@ class Identity:
     @property
     def email_reset_available(self) -> bool:
         return self._email_sender is not None or bool(self.config.smtp_host and self.config.smtp_from)
+
+    @property
+    def recovery_available(self) -> bool:
+        return self.email_reset_available and (self._verification_sender is not None or
+                                               bool(self.config.smtp_host and self.config.smtp_from))
 
     @staticmethod
     def _public(row) -> dict:
@@ -180,9 +212,27 @@ class Identity:
 
     def state(self, token: str | None) -> dict:
         row = self._session(token)
-        return {"user": self._public(row) if row else None,
-                "csrf_token": row["csrf_token"] if row else None,
-                "email_reset_available": self.email_reset_available}
+        result = {"user": self._public(row) if row else None,
+                  "csrf_token": row["csrf_token"] if row else None,
+                  "email_reset_available": self.email_reset_available}
+        if row and row["password_hash"]:
+            result["recovery"] = self.get_recovery(row["id"])
+        return result
+
+    def _recovery(self, db, row) -> dict:
+        pending = db.execute("SELECT email, expires_at FROM auth_email_verifications "
+                             "WHERE user_id=? AND expires_at>?", (row["id"], time.time())).fetchone()
+        return {"available": self.recovery_available, "email": row["email"],
+                "verified": bool(row["email"] and row["email_verified"]),
+                "pending_email": pending["email"] if pending else None,
+                "pending_expires_at": pending["expires_at"] if pending else None}
+
+    def get_recovery(self, user_id: str) -> dict:
+        with self._db() as db:
+            row = db.execute("SELECT * FROM auth_users WHERE id=?", (user_id,)).fetchone()
+            if not row or not row["password_hash"]:
+                raise HTTPException(403, "Set a password before managing recovery email.")
+            return self._recovery(db, row)
 
     @staticmethod
     def _new_session(db, user_id: str) -> str:
@@ -194,7 +244,8 @@ class Identity:
                    (_token_hash(token), user_id, secrets.token_urlsafe(32), now + SESSION_SECONDS))
         return token
 
-    def register(self, name: str, password: str | None = None, email: str | None = None) -> str:
+    def register(self, name: str, password: str | None = None, email: str | None = None,
+                 background_tasks: BackgroundTasks | None = None) -> str:
         name, key = _name(name)
         email = _email(email)
         password = password or None
@@ -203,12 +254,16 @@ class Identity:
         encoded = _password_hash(_new_password(password)) if password else None
         try:
             with self._db() as db:
+                db.execute("BEGIN IMMEDIATE")
                 user_id = secrets.token_hex(16)
-                db.execute("INSERT INTO auth_users VALUES (?, ?, ?, ?, ?, ?)",
+                db.execute("INSERT INTO auth_users (id, name, name_key, password_hash, email, created_at) "
+                           "VALUES (?, ?, ?, ?, ?, ?)",
                            (user_id, name, key, encoded, email, time.time()))
                 token = self._new_session(db, user_id)
+                delivery = self._prepare_verification(db, user_id, email) if email else None
         except sqlite3.IntegrityError:
             raise HTTPException(409, "That name is already taken.") from None
+        self._dispatch_verification(delivery, background_tasks)
         return token
 
     def login(self, name: str, password: str, old_token: str | None = None) -> str:
@@ -233,16 +288,126 @@ class Identity:
             with self._db() as db:
                 db.execute("DELETE FROM auth_sessions WHERE token_hash=?", (_token_hash(token),))
 
-    def protect(self, user_id: str, password: str, email: str | None = None) -> str:
+    def protect(self, user_id: str, password: str, email: str | None = None,
+                background_tasks: BackgroundTasks | None = None) -> str:
         email = _email(email)
         encoded = _password_hash(_new_password(password))
         with self._db() as db:
+            db.execute("BEGIN IMMEDIATE")
             changed = db.execute("UPDATE auth_users SET password_hash=?, email=? "
                                  "WHERE id=? AND password_hash IS NULL", (encoded, email, user_id))
             if changed.rowcount != 1:
                 raise HTTPException(409, "This account already has a password.")
             db.execute("DELETE FROM auth_sessions WHERE user_id=?", (user_id,))
-            return self._new_session(db, user_id)
+            token = self._new_session(db, user_id)
+            delivery = self._prepare_verification(db, user_id, email) if email else None
+        self._dispatch_verification(delivery, background_tasks)
+        return token
+
+    @staticmethod
+    def _admit_mail(db, user_id: str, email: str) -> bool:
+        """Call under BEGIN IMMEDIATE; count successful reservations, even failed sends.
+
+        Both axes share the reset/verification budget. Retain only one day of
+        hashes and timestamps; sending, removal and restart cannot reset it.
+        """
+        now = time.time()
+        destination = _token_hash(email.casefold())
+        db.execute("DELETE FROM auth_mail_events WHERE created_at<=?", (now - 86400,))
+        for column, key in (("user_id", user_id), ("destination_hash", destination)):
+            row = db.execute(f"SELECT MAX(created_at), SUM(created_at>?), COUNT(*) "
+                             f"FROM auth_mail_events WHERE {column}=?",
+                             (now - 3600, key)).fetchone()
+            if (row[0] is not None and row[0] > now - MAIL_COOLDOWN_SECONDS or
+                    (row[1] or 0) >= MAIL_HOURLY_LIMIT or row[2] >= MAIL_DAILY_LIMIT):
+                return False
+        db.execute("INSERT INTO auth_mail_events VALUES (?, ?, ?)", (user_id, destination, now))
+        return True
+
+    def _prepare_verification(self, db, user_id: str, email: str):
+        if not self.recovery_available or not self._admit_mail(db, user_id, email):
+            return None
+        token = secrets.token_urlsafe(32)
+        db.execute("DELETE FROM auth_email_verifications WHERE user_id=?", (user_id,))
+        db.execute("INSERT INTO auth_email_verifications VALUES (?, ?, ?, ?)",
+                   (_token_hash(token), user_id, email, time.time() + VERIFICATION_SECONDS))
+        return email, token
+
+    def _dispatch_verification(self, delivery, background_tasks):
+        if delivery:
+            if background_tasks is not None:
+                background_tasks.add_task(self._deliver_verification, *delivery)
+            else:
+                self._deliver_verification(*delivery)
+
+    def _deliver_verification(self, email: str, token: str):
+        url = self.config.origin + "/#verify-email=" + token
+        with self._db() as db:
+            row = db.execute("SELECT u.name FROM auth_email_verifications v JOIN auth_users u ON u.id=v.user_id "
+                             "WHERE v.token_hash=? AND v.email=? AND v.expires_at>?",
+                             (_token_hash(token), email, time.time())).fetchone()
+        if not row:
+            return
+        try:
+            if self._verification_sender:
+                self._verification_sender(email, url)
+            else:
+                self._send_email(email, url, verification=True, name=row["name"])
+        except Exception:
+            # Transport exceptions can contain the address, credentials or token.
+            with self._db() as db:
+                db.execute("DELETE FROM auth_email_verifications WHERE token_hash=?", (_token_hash(token),))
+
+    def manage_recovery(self, user_id: str, password: str, email: str | None,
+                        background_tasks: BackgroundTasks | None = None) -> dict:
+        email = _email(email)
+        with self._db() as db:
+            row = db.execute("SELECT * FROM auth_users WHERE id=?", (user_id,)).fetchone()
+        if not row or not row["password_hash"]:
+            raise HTTPException(403, "Set a password before managing recovery email.")
+        encoded = row["password_hash"]
+        if not _password_matches(password, encoded):
+            raise HTTPException(401, "The current password is incorrect.")
+        delivery = None
+        with self._db() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("SELECT * FROM auth_users WHERE id=?", (user_id,)).fetchone()
+            if not row or row["password_hash"] != encoded:
+                raise HTTPException(401, "The current password is incorrect.")
+            if email is None:
+                db.execute("UPDATE auth_users SET email=NULL, email_verified=0 WHERE id=?", (user_id,))
+                db.execute("DELETE FROM auth_email_verifications WHERE user_id=?", (user_id,))
+                db.execute("DELETE FROM auth_resets WHERE user_id=?", (user_id,))
+                message = "Recovery email removed."
+            elif row["email_verified"] and email.casefold() == (row["email"] or "").casefold():
+                db.execute("DELETE FROM auth_email_verifications WHERE user_id=?", (user_id,))
+                message = "Your recovery email is already verified."
+            else:
+                if not self.recovery_available:
+                    raise HTTPException(503, "Recovery email is currently unavailable. Please try again later.")
+                delivery = self._prepare_verification(db, user_id, email)
+                if delivery is None:
+                    raise HTTPException(429, "Please wait before requesting another recovery email.",
+                                        headers={"Retry-After": "60"})
+                message = "Check your email and confirm the verification link within 24 hours."
+            row = db.execute("SELECT * FROM auth_users WHERE id=?", (user_id,)).fetchone()
+            recovery = self._recovery(db, row)
+        self._dispatch_verification(delivery, background_tasks)
+        return {"ok": True, "message": message, "recovery": recovery}
+
+    def verify_email(self, token: str):
+        if not self._valid_token(token):
+            raise HTTPException(400, "This verification link is invalid or expired.")
+        with self._db() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("SELECT v.* FROM auth_email_verifications v JOIN auth_users u ON u.id=v.user_id "
+                             "WHERE v.token_hash=? AND v.expires_at>? AND u.password_hash IS NOT NULL",
+                             (_token_hash(token), time.time())).fetchone()
+            if not row:
+                raise HTTPException(400, "This verification link is invalid or expired.")
+            db.execute("UPDATE auth_users SET email=?, email_verified=1 WHERE id=?", (row["email"], row["user_id"]))
+            db.execute("DELETE FROM auth_email_verifications WHERE user_id=?", (row["user_id"],))
+            db.execute("DELETE FROM auth_resets WHERE user_id=?", (row["user_id"],))
 
     def forgot(self, name: str):
         # Uniform response for absent names, guests, missing email and SMTP errors.
@@ -257,31 +422,45 @@ class Identity:
         with self._db() as db:
             db.execute("BEGIN IMMEDIATE")
             row = db.execute("SELECT * FROM auth_users WHERE name_key=?", (key,)).fetchone()
-            if not row or not row["password_hash"] or not row["email"]:
+            if not row or not row["password_hash"] or not row["email"] or not row["email_verified"]:
+                return
+            if not self._admit_mail(db, row["id"], row["email"]):
                 return
             # Only the latest reset link remains valid.
             db.execute("DELETE FROM auth_resets WHERE user_id=?", (row["id"],))
-            db.execute("INSERT INTO auth_resets VALUES (?, ?, ?)",
-                       (hashed, row["id"], time.time() + RESET_SECONDS))
+            db.execute("INSERT INTO auth_resets (token_hash, user_id, expires_at, email) VALUES (?, ?, ?, ?)",
+                       (hashed, row["id"], time.time() + RESET_SECONDS, row["email"]))
         reset_url = self.config.origin + "/#reset=" + token
         try:
             if self._email_sender:
                 self._email_sender(row["email"], reset_url)
             else:
-                self._send_email(row["email"], reset_url)
+                self._send_email(row["email"], reset_url, name=row["name"])
         except Exception:
             # Do not print exceptions: mail transports may include message text.
             with self._db() as db:
                 db.execute("DELETE FROM auth_resets WHERE token_hash=?", (hashed,))
 
-    def _send_email(self, recipient: str, reset_url: str):
+    def _send_email(self, recipient: str, reset_url: str, *, verification: bool = False, name: str | None = None):
         message = EmailMessage()
         message["From"] = self.config.smtp_from
         message["To"] = recipient
-        message["Subject"] = "Reset your Astra chess password"
-        message.set_content("A password reset was requested for your Astra chess account.\n\n"
-                            f"Choose a new password here within one hour:\n{reset_url}\n\n"
-                            "If you did not request this, ignore this email. Your password has not changed.")
+        message["Date"] = formatdate(usegmt=True)
+        message["Message-ID"] = f"<{secrets.token_hex(16)}@{urlsplit(self.config.origin).hostname or 'astra.invalid'}>"
+        if self.config.smtp_feedback_address:
+            message["Return-Path"] = self.config.smtp_feedback_address
+        if verification:
+            message["Subject"] = "Verify your Astra chess recovery email"
+            message.set_content((f"Player account: {name}\n\n" if name else "") +
+                                "Confirm this address for recovery of your Astra chess account.\n\n"
+                                f"Open this link, then choose Confirm email within 24 hours:\n{reset_url}\n\n"
+                                "If you did not request this, ignore this email. Recovery has not been enabled for this address.")
+        else:
+            message["Subject"] = "Reset your Astra chess password"
+            message.set_content((f"Player account: {name}\n\n" if name else "") +
+                                "A password reset was requested for your Astra chess account.\n\n"
+                                f"Choose a new password here within one hour:\n{reset_url}\n\n"
+                                "If you did not request this, ignore this email. Your password has not changed.")
         context = ssl.create_default_context()
         if self.config.smtp_port == 465:
             transport = smtplib.SMTP_SSL(self.config.smtp_host, self.config.smtp_port,
@@ -304,14 +483,16 @@ class Identity:
         hashed = _token_hash(token)
         # Check before doing costly password work; recheck under lock afterwards.
         with self._db() as db:
-            row = db.execute("SELECT user_id FROM auth_resets WHERE token_hash=? AND expires_at>?",
+            row = db.execute("SELECT r.user_id FROM auth_resets r JOIN auth_users u ON u.id=r.user_id "
+                             "WHERE r.token_hash=? AND r.expires_at>? AND r.email=u.email AND u.email_verified=1",
                              (hashed, time.time())).fetchone()
         if not row:
             raise HTTPException(400, "This reset link is invalid or expired.")
         encoded = _password_hash(password)
         with self._db() as db:
             db.execute("BEGIN IMMEDIATE")
-            row = db.execute("SELECT user_id FROM auth_resets WHERE token_hash=? AND expires_at>?",
+            row = db.execute("SELECT r.user_id FROM auth_resets r JOIN auth_users u ON u.id=r.user_id "
+                             "WHERE r.token_hash=? AND r.expires_at>? AND r.email=u.email AND u.email_verified=1",
                              (hashed, time.time())).fetchone()
             if not row:
                 raise HTTPException(400, "This reset link is invalid or expired.")
@@ -319,6 +500,7 @@ class Identity:
             db.execute("UPDATE auth_users SET password_hash=? WHERE id=?", (encoded, user_id))
             db.execute("DELETE FROM auth_resets WHERE user_id=?", (user_id,))
             db.execute("DELETE FROM auth_sessions WHERE user_id=?", (user_id,))
+            db.execute("DELETE FROM auth_email_verifications WHERE user_id=?", (user_id,))
 
     def get_memory(self, user_id: str) -> dict:
         with self._db() as db:
@@ -385,6 +567,15 @@ class ResetInput(Input):
     password: str = Field(max_length=256)
 
 
+class RecoveryInput(Input):
+    password: str = Field(max_length=256)
+    email: str | None = Field(max_length=254)
+
+
+class VerifyEmailInput(Input):
+    token: str = Field(max_length=128)
+
+
 class MemoryInput(Input):
     enabled: bool
     text: str = Field(max_length=MEMORY_MAX_LENGTH)
@@ -407,11 +598,11 @@ def me(request: Request, response: Response):
 
 
 @router.post("/register")
-def register(body: RegisterInput, request: Request, response: Response):
+def register(body: RegisterInput, request: Request, response: Response, background_tasks: BackgroundTasks):
     identity = request.app.state.identity
     if identity.user_for_token(request.cookies.get(COOKIE_NAME)):
         raise HTTPException(409, "Sign out before creating a different account.")
-    return _with_cookie(identity, response, identity.register(body.name, body.password, body.email))
+    return _with_cookie(identity, response, identity.register(body.name, body.password, body.email, background_tasks))
 
 
 @router.post("/login")
@@ -431,10 +622,29 @@ def logout(request: Request, response: Response):
 
 
 @router.post("/protect")
-def protect(body: ProtectInput, request: Request, response: Response):
+def protect(body: ProtectInput, request: Request, response: Response, background_tasks: BackgroundTasks):
     identity = request.app.state.identity
     user = require_user(request)
-    return _with_cookie(identity, response, identity.protect(user["id"], body.password, body.email))
+    return _with_cookie(identity, response, identity.protect(user["id"], body.password, body.email, background_tasks))
+
+
+@router.get("/recovery")
+def recovery(request: Request, response: Response):
+    response.headers["Cache-Control"] = "no-store"
+    return request.app.state.identity.get_recovery(require_user(request)["id"])
+
+
+@router.post("/recovery")
+def manage_recovery(body: RecoveryInput, request: Request, response: Response, background_tasks: BackgroundTasks):
+    response.headers["Cache-Control"] = "no-store"
+    return request.app.state.identity.manage_recovery(require_user(request)["id"], body.password,
+                                                      body.email, background_tasks)
+
+
+@router.post("/verify-email")
+def verify_email(body: VerifyEmailInput, request: Request):
+    request.app.state.identity.verify_email(body.token)
+    return {"ok": True, "message": "Recovery email verified. You can now use it to reset your password."}
 
 
 @router.post("/forgot")

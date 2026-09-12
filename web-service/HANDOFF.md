@@ -36,6 +36,7 @@ imports the root engine, replay builder and historical replay assets.
 | Local launch, configuration and product overview | [README](README.md) |
 | Reproduce the Windows-to-Linux deployment | [Deployment walkthrough](DEPLOYMENT.md) |
 | Authority, identities, recovery and security boundaries | [Architecture](docs/ARCHITECTURE.md) |
+| Verified recovery email, SMTP and SES delivery feedback | [Password recovery](docs/PASSWORD-RECOVERY.md) |
 | Driver protocol, audited versions, context and token accounting | [Codex integration](docs/CODEX-INTEGRATION.md) |
 | Replay versions, routes, migration and privacy semantics | [Replay workflow](docs/REPLAY-WORKFLOW.md) |
 | Installed host, later policy changes and deployment evidence | [Lightsail checkpoint](docs/LIGHTSAIL-DEPLOYMENT.md) |
@@ -267,6 +268,27 @@ establish that outbound mail is configured on another host. See its guide for se
 retry semantics, SQLite sidecar permissions and the additional units to stop
 when replacing/restoring the database. It does not enable password-reset mail.
 
+September 12 recovery checkpoint: verified recovery addresses, account settings,
+confirmation and reset delivery are implemented. See the
+[recovery guide](docs/PASSWORD-RECOVERY.md) for the exact lifecycle and setup.
+Windows passed 232 tests with two platform skips; an isolated Linux staging
+copy passed 46 focused identity, recovery, service and diagnostic-environment
+tests. Browser checks cover the lifecycle and delayed authentication/cookie
+races. A coherent copy of the deployed database preserved all 15 existing
+non-reset tables through two migration passes. Existing sessions remain valid;
+old reset tokens are intentionally retired and legacy email stays unverified.
+
+Real SMTP confirmation and reset messages for a disposable operator-owned
+account were accepted by SES; confirmation, reset, session revocation and new
+login passed. The operator confirmed both recovery messages reached Gmail's
+inbox. An intentional SES mailbox-simulator bounce was submitted to verify
+forwarding; receipt of that notice remains unconfirmed. AWS production access
+has been requested and approval is still pending. Suppression for bounces/complaints and
+identity email feedback forwarding are confirmed enabled. The running web
+service has not restarted or enabled recovery mail. Complete the remaining
+provider/delivery checks and use the documented gated maintenance procedure
+before activating it; staging validation is not a live deployment claim.
+
 At runtime revision `bec65c2`, the final Linux suite passed **194 tests** with
 three platform skips. Windows passed the preceding **193-test full suite** with
 two skips, then **28 replay-library tests** after the last ambiguity guard; there
@@ -278,9 +300,9 @@ The dated replay/deployment references contain the exact checks and boundaries.
 
 Real human Linux games now work. An explicitly observed Linux automatic-compaction
 cycle, heavy-load behavior, startup after host reboot and comprehensive hostile
-tenant isolation remain separate validation gaps. Password-reset email and
-offsite backups are not configured; password reset needs its own SMTP settings
-and an end-to-end recovery test. Operator notifications have separate mail
+tenant isolation remain separate validation gaps. Offsite backups are not
+configured. Password recovery has passed isolated delivery/lifecycle checks but
+awaits live activation as described above. Operator notifications have separate mail
 configuration; their current installation evidence is in the notification guide.
 CPU benchmarks are dated measurements, not a promised concurrent-player capacity.
 
