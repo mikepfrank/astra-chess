@@ -3,12 +3,18 @@
 These tools preserve the reusable parts of the first hosted deployments. Run
 them from a checkout containing the complete repository, using the application's
 Python virtual environment. They do not start model turns, run tactical searches,
-change game clocks, restart services, update Git, or read credential files.
+change game clocks, restart services or update Git. Inventory and migration
+rehearsal do not read credentials; the optional notification sender reads its
+own explicitly configured mail credentials.
 
 | Tool | Source access | Writes |
 |---|---|---|
 | `report_games.py` | One read-only SQLite transaction | Standard output only |
 | `rehearse_replay_migration.py` | Read-only SQLite backup and replay HTML reads | A new private copy, migrated using the checkout's replay code |
+| `notify_new_games.py` | Read-only SQLite game inventory | Separate private notification state; explicitly configured operator email |
+
+The notification tool has a separate [setup and operations guide](../../docs/GAME-NOTIFICATIONS.md).
+It is an opt-in mail sender; the read-only report and migration rehearsal do not send mail.
 
 ## Read-only game and resource report
 

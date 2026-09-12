@@ -1,0 +1,14 @@
+{
+  "recipient": "operator@example.net",
+  "from_address": "notifications@example.com",
+  "timezone": "America/Chicago",
+  "subject_prefix": "Astra chess",
+  "transport": {
+    "type": "smtp",
+    "host": "email-smtp.us-west-2.amazonaws.com",
+    "port": 587,
+    "security": "starttls",
+    "username": "REPLACE_WITH_DEDICATED_SMTP_USERNAME",
+    "password": "REPLACE_WITH_DEDICATED_SMTP_PASSWORD"
+  }
+}

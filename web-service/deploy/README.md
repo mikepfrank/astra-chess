@@ -4,6 +4,10 @@ For an ordered installation guide, start with the
 [deployment walkthrough](../DEPLOYMENT.md). This file explains the unit design;
 the [deployment checkpoint](../docs/LIGHTSAIL-DEPLOYMENT.md) records the tested host.
 
+The optional [new-game email monitor](../docs/GAME-NOTIFICATIONS.md) has its own
+`astra-game-notify.service` and hourly timer. It runs as `astra` independently of
+this application unit, with separate mail configuration and reporting state.
+
 The system unit runs as `astra:astra`. Application files remain under
 `/home/astra`; the small unit file belongs in
 `/etc/systemd/system/astra-chess.service`. A system unit is preferred here

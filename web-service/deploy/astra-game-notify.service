@@ -1,0 +1,61 @@
+[Unit]
+Description=Email the Astra Chess operator about newly started games
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=astra
+Group=astra
+WorkingDirectory=/home/astra/astra-chess/web-service
+# The only mail configuration visible here is the private read-only bind below.
+# Never load the chess service's API-key environment into this unit.
+Environment=HOME=/home/astra/.local/state/astra-chess-monitor
+Environment=PATH=/usr/bin:/bin
+Environment=PYTHONNOUSERSITE=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+UnsetEnvironment=OPENAI_API_KEY CODEX_API_KEY
+ExecStart=/home/astra/astra-chess/web-service/.venv/bin/python tools/ops/notify_new_games.py --data-dir /home/astra/.local/share/astra-chess --state-dir /home/astra/.local/state/astra-chess-monitor --config /home/astra/.config/astra-chess-monitor/config.json
+TimeoutStartSec=120
+Restart=no
+UMask=0077
+LimitCORE=0
+NoNewPrivileges=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=tmpfs
+BindReadOnlyPaths=/home/astra/astra-chess
+BindReadOnlyPaths=/home/astra/.local/share/astra-chess-runtime
+BindReadOnlyPaths=/home/astra/.config/astra-chess-monitor/config.json
+# SQLite may create/lock -wal/-shm even for mode=ro when sidecars are absent.
+# Permit that metadata work, but keep the database itself read-only. The tool
+# also enforces mode=ro plus query_only and never uses immutable=1.
+BindPaths=/home/astra/.local/share/astra-chess
+ReadWritePaths=/home/astra/.local/share/astra-chess
+ReadOnlyPaths=/home/astra/.local/share/astra-chess/astra.sqlite3
+InaccessiblePaths=-/home/astra/.local/share/astra-chess/players
+InaccessiblePaths=-/home/astra/.local/share/astra-chess/games
+InaccessiblePaths=-/home/astra/.local/share/astra-chess/operator-checks
+InaccessiblePaths=-/home/astra/.local/share/astra-chess/replay-archives
+InaccessiblePaths=-/home/astra/.local/share/astra-chess/public-replays
+BindPaths=/home/astra/.local/state/astra-chess-monitor
+ReadWritePaths=/home/astra/.local/state/astra-chess-monitor
+ProtectProc=invisible
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=128M
+CPUQuota=10%
+TasksMax=16
+LimitNOFILE=128
+Nice=10

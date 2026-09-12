@@ -1,0 +1,11 @@
+[Unit]
+Description=Check hourly for new Astra Chess games
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=60
+Persistent=true
+Unit=astra-game-notify.service
+
+[Install]
+WantedBy=timers.target

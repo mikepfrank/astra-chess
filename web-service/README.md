@@ -14,6 +14,10 @@ runtime installation, credentials, private preview, DNS, HTTPS and operations.
 It records the September 11 checkpoint, design decisions, current operating
 policy, reusable checks and boundaries for future capability, cost or driver work.
 
+An optional [hourly new-game email monitor](docs/GAME-NOTIFICATIONS.md) runs as a
+separate host service, with no model calls. It requires its own configured mail
+sender and sends a digest only when new games have started.
+
 The durable player workflow lives in [prompts/player.md](prompts/player.md).
 Its finishing guidance is to seek a short, verified finish early when
 overwhelmingly ahead, collect material only when it helps secure that finish,

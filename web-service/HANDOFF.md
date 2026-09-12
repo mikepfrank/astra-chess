@@ -257,6 +257,14 @@ invariants, with migrations and recovery tests when durable state changes.
 
 ## Evidence, remaining work and preserved machinery
 
+September 12 addition: an independent [hourly new-game email monitor](docs/GAME-NOTIFICATIONS.md)
+uses no model calls and keeps its notification history outside the application
+data directory. It requires dedicated SMTP configuration and delivery testing
+before its timer is enabled. Its presence in the repository does not establish
+that outbound mail is configured on a particular host. See its guide for setup,
+retry semantics, SQLite sidecar permissions and the additional units to stop
+when replacing/restoring the database. It does not enable password-reset mail.
+
 At runtime revision `bec65c2`, the final Linux suite passed **194 tests** with
 three platform skips. Windows passed the preceding **193-test full suite** with
 two skips, then **28 replay-library tests** after the last ambiguity guard; there
