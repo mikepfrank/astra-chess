@@ -174,3 +174,24 @@ sendmail arguments and Linux dump protection. They send no real email.
 Before enabling a new installation, also verify the actual systemd namespace
 with absent and active WAL sidecars, private file visibility, game-record
 preservation and a real mail handoff to the intended operator.
+
+### September 12 Lightsail preparation checkpoint
+
+Source revision `4b32c87` was pushed and synchronized. All 13 focused tests
+passed on Windows, then all 13 passed in a private Linux staging directory.
+The unit templates passed the host's systemd 252 verifier. Its unrelated
+pre-existing `acpid.socket` legacy-path warning did not invalidate the units.
+
+Both system units were installed, with the timer **disabled pending SES setup**.
+Initialization recorded 20 existing database game IDs, including historical QA
+games, as the baseline. A dry run with dummy mail settings passed in a copy of
+the exact service namespace; it sent nothing and advanced no reporting state.
+Separate disposable probes passed for absent and active SQLite WAL sidecars.
+The application's mount namespace could not see the mail settings or monitor
+state. Temporary check units/configuration were removed and their writer exited.
+The game service retained its PID and healthy response throughout installation.
+
+No real SMTP configuration or delivery was tested at this checkpoint. The
+operator is completing Amazon SES verification separately. Do not infer that
+notifications are running from the presence of installed files; verify the
+timer's enabled/active state and a real mail handoff after credentials are set.

@@ -315,6 +315,15 @@ the current storage and variant-scoped routes.
 
 ## Remaining limits and checks
 
+The September 12 [notification-monitor preparation](GAME-NOTIFICATIONS.md#september-12-lightsail-preparation-checkpoint)
+added an independent `astra-game-notify.service` and hourly timer, running as
+`astra` with separate configuration/state and no model calls. Source `4b32c87`
+passed 13 focused Windows tests and 13 Linux tests; actual namespace and SQLite
+sidecar checks passed. The installed timer remains disabled pending SES
+verification, private SMTP settings and a real delivery test. Its initial
+baseline contains 20 existing game records. Installation did not restart the
+chess service. Stop the monitor too before replacing/restoring its database.
+
 - Human players have completed Linux games since initial deployment. An
   explicitly observed live Linux automatic-compaction cycle and heavy-load
   behavior remain unverified; see the [September 11 handoff](../HANDOFF.md).
