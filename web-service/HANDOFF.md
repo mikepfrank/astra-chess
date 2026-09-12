@@ -285,10 +285,30 @@ login passed. The operator confirmed both recovery messages reached Gmail's
 inbox. An intentional SES mailbox-simulator bounce was submitted to verify
 forwarding; receipt of that notice remains unconfirmed. AWS production access
 has been requested and approval is still pending. Suppression for bounces/complaints and
-identity email feedback forwarding are confirmed enabled. The running web
-service has not restarted or enabled recovery mail. Complete the remaining
-provider/delivery checks and use the documented gated maintenance procedure
-before activating it; staging validation is not a live deployment claim.
+identity email feedback forwarding are confirmed enabled. Recovery code was
+subsequently installed with the monitor release below; recovery mail remains
+disabled. Complete the remaining provider/delivery checks and use the documented
+gated maintenance procedure when installing private application SMTP settings.
+
+September 12 private dashboard checkpoint: runtime `ef626dd` installed
+`/monitor/`, using the existing password-account cookie and one privately
+configured immutable operator account ID. It refreshes every 30 seconds while
+visible and reads game inventory without model calls or game mutations. The
+[monitor guide](docs/OPERATOR-MONITOR.md) records authorization, field limits,
+exact fixture exclusions, refresh behavior and installation. Operator IDs and
+fixture IDs live only in private `operator.env`; the systemd `20-monitor.conf`
+drop-in loads it. A public page shell alone grants no access to the report.
+
+The full Windows suite passed 239 tests with two platform skips; 53 focused
+Linux tests and synthetic monitor/recovery browser checks passed. The proxy
+and notification timer were paused, two idle checks and process inspection
+confirmed no workers, and a coherent database plus full data backup preceded
+the restart. All 15 preexisting non-reset table digests using original columns
+matched after startup. The live browser confirmed the authorized dashboard;
+anonymous API access was denied. The hourly notifier is active again. No Astra
+turn was interrupted. Recovery schema/code is now deployed, but SMTP remains
+unset and `email_reset_available` remains false while SES approval and
+bounce-feedback delivery confirmation are pending.
 
 At runtime revision `bec65c2`, the final Linux suite passed **194 tests** with
 three platform skips. Windows passed the preceding **193-test full suite** with

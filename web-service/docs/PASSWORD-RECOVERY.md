@@ -144,6 +144,15 @@ password or email another player merely to test deployment.
   not yet confirmed. Account suppression and identity feedback forwarding are
   confirmed enabled in the console.
 
-These checks did not restart the live application or enable recovery mail for
-players. The remaining activation prerequisites are confirmed bounce-feedback
-delivery, SES production approval and a gated update with private SMTP configuration.
+These staging checks did not restart the live application or enable recovery
+mail for players.
+
+Later on September 12, the [private monitor release](OPERATOR-MONITOR.md)
+installed this recovery code and schema in the live application at `ef626dd`.
+The gated restart preserved all 15 preexisting non-reset tables, measured using
+their original columns. Private application SMTP settings remain unset and the
+live `email_reset_available` flag remains false. The remaining activation
+prerequisites are confirmed bounce-feedback delivery, SES production approval,
+a gated configuration restart with private SMTP settings, and a controlled
+operator-owned end-to-end live recovery check. There is no need to repeat the
+completed code deployment or migrate player data manually.

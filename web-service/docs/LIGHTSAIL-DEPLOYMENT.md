@@ -313,6 +313,29 @@ reconciliation. Prefer a forward fix after accepting writes; never restore an
 old complete database over newer player activity. The replay workflow documents
 the current storage and variant-scoped routes.
 
+## September 12 private dashboard and recovery-code deployment
+
+Runtime `ef626dd` adds the authenticated `/monitor/` dashboard and installs the
+verified recovery-email schema/code. Application recovery SMTP is still unset;
+SES production approval and delivery checks remain prerequisites for enabling
+player mail. See the [monitor activation record](OPERATOR-MONITOR.md) and
+[recovery guide](PASSWORD-RECOVERY.md).
+
+Validation passed 239 Windows tests (two platform skips), 53 focused Linux tests,
+and synthetic browser checks for monitoring and recovery. Deployment gated
+incoming requests, paused the hourly notifier, checked idle state twice and
+verified no child workers before stopping the app. A private full-data archive
+and coherent database backup preceded the update. All 15 original non-reset
+table digests, restricted to original columns, matched after startup. HTTPS
+health and anonymous denial passed; the operator's existing browser login
+displayed the dashboard. The proxy and notifier were resumed without interrupting
+an Astra turn. No runtime dependency was added.
+
+The private operator binding and exact fixture exclusions are in
+`/home/astra/.config/astra-chess/operator.env` (astra-owned, 0600), loaded by
+`/etc/systemd/system/astra-chess.service.d/20-monitor.conf`. Keep its IDs out of
+public docs and browser source. Preserve this drop-in when updating the unit.
+
 ## Remaining limits and checks
 
 The September 12 [notification-monitor preparation](GAME-NOTIFICATIONS.md#september-12-lightsail-preparation-checkpoint)

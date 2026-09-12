@@ -66,3 +66,30 @@ Use synthetic data for backend authorization, exclusion, response-field and
 read-only tests. The intercepted browser check is
 `node tests/browser/monitor.cjs`; see the [browser QA guide](../tests/browser/README.md)
 for optional tooling. No real game or model action is needed to test this page.
+
+## September 12, 2026 Lightsail activation
+
+Runtime revision `ef626dd` was deployed after the full Windows suite passed
+239 tests (two platform skips), 53 focused Linux tests passed, and the monitor
+and recovery browser checks passed against synthetic requests. No new runtime
+dependencies or paid model calls were required.
+
+The existing operator account is bound in the private, astra-owned 0600 file
+`/home/astra/.config/astra-chess/operator.env`, together with the exact known
+fixture exclusions. The systemd drop-in
+`/etc/systemd/system/astra-chess.service.d/20-monitor.conf` loads that file.
+Account and fixture IDs are deliberately absent from this guide.
+
+The proxy and notification timer were paused first. Two idle checks and a
+service process-tree check found no workers before the application stopped.
+A full private data archive and coherent SQLite backup were saved under
+`/home/astra/.local/state/astra-chess-backups/monitor-20260912/`. After startup,
+digests of all 15 preexisting non-reset tables, using their original columns,
+matched the backup. The proxy and hourly notification timer were then resumed.
+
+Public HTTPS checks confirmed health, no-store monitor responses and anonymous
+API denial. The live browser's existing operator login displayed all 14 player
+games, with seven known fixtures excluded. No live game, clock, player message
+or account was used as a test mutation. Recovery code was installed in this
+release, but player recovery mail remains disabled pending the separate
+[activation prerequisites](PASSWORD-RECOVERY.md).
