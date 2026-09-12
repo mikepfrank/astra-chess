@@ -79,7 +79,8 @@ function setIdentity(result){
     state.identityVersion++;state.recovery=null;clearAccountUI();clearVerification();
     state.game=null;state.gameId=null;clearPrivateView();
   }
-  state.identityLoaded=true;state.user=result.user;
+  state.identityLoaded=true;state.user=result.user;state.operator=result.operator===true;
+  $('monitor-link').hidden=!state.operator;
   if(Object.hasOwn(result,'csrf_token'))state.csrf=result.csrf_token;
   if(Object.hasOwn(result,'recovery'))state.recovery=result.recovery;
   if(result.email_reset_available!==undefined)state.emailResetAvailable=result.email_reset_available;
@@ -901,7 +902,12 @@ async function initialize(){
     if(identityVersion===state.identityVersion)setIdentity(identity);
     state.config=config;updateAvailability();connection(true,'Connected');
     $('verify-email-account').textContent=state.user?'Your account':'Sign in';
-    if(identityVersion===state.identityVersion&&!hasEmailLink&&!state.user)showIdentity();
+    const monitorRequested=new URL(location.href).searchParams.get('monitor')==='1';
+    const returnToMonitor=()=>{if(state.operator)location.assign('/monitor/');else toast('This account does not have monitor access. You can sign out from Your account and use the authorized account.');};
+    if(identityVersion===state.identityVersion&&!hasEmailLink&&monitorRequested){
+      if(state.user)returnToMonitor();else showIdentity('login',returnToMonitor);
+    }
+    else if(identityVersion===state.identityVersion&&!hasEmailLink&&!state.user)showIdentity();
     else if(identityVersion===state.identityVersion&&state.user&&!hasEmailLink){
       let id=new URL(location.href).searchParams.get('game');
       if(!id)try{id=localStorage.getItem('astra-game-'+state.user.id);}catch{}

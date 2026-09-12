@@ -37,6 +37,7 @@ imports the root engine, replay builder and historical replay assets.
 | Reproduce the Windows-to-Linux deployment | [Deployment walkthrough](DEPLOYMENT.md) |
 | Authority, identities, recovery and security boundaries | [Architecture](docs/ARCHITECTURE.md) |
 | Verified recovery email, SMTP and SES delivery feedback | [Password recovery](docs/PASSWORD-RECOVERY.md) |
+| Private table of current and past games | [Operator monitor](docs/OPERATOR-MONITOR.md) |
 | Driver protocol, audited versions, context and token accounting | [Codex integration](docs/CODEX-INTEGRATION.md) |
 | Replay versions, routes, migration and privacy semantics | [Replay workflow](docs/REPLAY-WORKFLOW.md) |
 | Installed host, later policy changes and deployment evidence | [Lightsail checkpoint](docs/LIGHTSAIL-DEPLOYMENT.md) |

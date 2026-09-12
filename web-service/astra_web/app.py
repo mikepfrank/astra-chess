@@ -16,6 +16,7 @@ from .supervisor import Supervisor
 from .evaluations import latest_astra_evaluation
 from .replay_library import install_replay_library
 from .experiment_library import install_experiment_library
+from .operator_monitor import install_operator_monitor
 from . import chess_game as game
 
 
@@ -117,6 +118,7 @@ def create_app(config=None, player_factory=None):
         return JSONResponse({'detail': 'Record not found.'}, status_code=404)
 
     app.include_router(identity_router)
+    install_operator_monitor(app, config)
 
     async def body(request):
         try:

@@ -204,6 +204,11 @@ class Identity:
         row = self._session(token)
         return self._public(row) if row else None
 
+    def is_operator(self, user: dict | None) -> bool:
+        """Authorization follows the configured immutable account, never its name."""
+        return bool(user and user.get("protected") and self.config.operator_user_id and
+                    user.get("id") == self.config.operator_user_id)
+
     def csrf_valid(self, token: str | None, header: str | None) -> bool:
         if not isinstance(header, str) or not header.isascii() or len(header) > 128:
             return False
@@ -215,6 +220,7 @@ class Identity:
         result = {"user": self._public(row) if row else None,
                   "csrf_token": row["csrf_token"] if row else None,
                   "email_reset_available": self.email_reset_available}
+        result["operator"] = self.is_operator(result["user"])
         if row and row["password_hash"]:
             result["recovery"] = self.get_recovery(row["id"])
         return result

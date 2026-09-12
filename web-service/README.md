@@ -22,6 +22,10 @@ The [password-recovery guide](docs/PASSWORD-RECOVERY.md) covers verified recover
 addresses, account management, SMTP, SES approval and delivery feedback. Recovery
 mail has separate configuration from the operator-notification monitor.
 
+The [private game monitor](docs/OPERATOR-MONITOR.md) gives one configured
+password account a live table of past and current games, refreshed every
+30 seconds. It uses existing game records without model calls.
+
 The durable player workflow lives in [prompts/player.md](prompts/player.md).
 Its finishing guidance is to seek a short, verified finish early when
 overwhelmingly ahead, collect material only when it helps secure that finish,
@@ -221,6 +225,8 @@ All optional environment variables are listed here; `config.py` contains limits.
 | `ASTRA_SMTP_FROM` | absent | Recovery sender address |
 | `ASTRA_SMTP_USER`, `ASTRA_SMTP_PASSWORD` | absent | Optional SMTP authentication |
 | `ASTRA_SMTP_FEEDBACK_ADDRESS` | absent | Monitored bare email address for SES bounce/complaint forwarding via Return-Path |
+| `ASTRA_OPERATOR_USER_ID` | absent | Existing protected account ID authorized for the private `/monitor/` page |
+| `ASTRA_MONITOR_EXCLUDED_GAME_IDS` | absent | Comma-separated known QA game IDs excluded from the monitor table and player totals |
 
 The player uses a 400,000-token context window (380,000 usable) and requests
 automatic compaction at 250,000 total-context tokens. Both values are enforced

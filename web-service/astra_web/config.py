@@ -37,6 +37,10 @@ class Config:
     max_daily_turns: int = field(default_factory=lambda: int(os.getenv("ASTRA_MAX_DAILY_TURNS", "500")))
     max_turn_tokens: int = field(default_factory=lambda: int(os.getenv("ASTRA_MAX_TURN_TOKENS", "3000000")))
     max_daily_tokens: int = field(default_factory=lambda: int(os.getenv("ASTRA_MAX_DAILY_TOKENS", "20000000")))
+    operator_user_id: str = field(default_factory=lambda: os.getenv("ASTRA_OPERATOR_USER_ID", "").strip())
+    monitor_excluded_game_ids: tuple[str, ...] = field(default_factory=lambda: tuple(
+        part.strip() for part in os.getenv("ASTRA_MONITOR_EXCLUDED_GAME_IDS", "").split(','))
+        if os.getenv("ASTRA_MONITOR_EXCLUDED_GAME_IDS", "").strip() else ())
     smtp_host: str = field(default_factory=lambda: os.getenv("ASTRA_SMTP_HOST", ""))
     smtp_port: int = field(default_factory=lambda: int(os.getenv("ASTRA_SMTP_PORT", "587")))
     smtp_user: str = field(default_factory=lambda: os.getenv("ASTRA_SMTP_USER", ""))
@@ -56,6 +60,12 @@ class Config:
             raise ValueError("ASTRA_MAX_WORKERS must be between 1 and 16")
         if self.max_daily_tokens < 1 or self.max_turn_tokens < 1 or self.max_daily_turns < 1:
             raise ValueError("Resource limits must be positive")
+        if self.operator_user_id and not re.fullmatch(r"[0-9a-f]{32}", self.operator_user_id):
+            raise ValueError("ASTRA_OPERATOR_USER_ID must be one existing 32-character lowercase hexadecimal account ID")
+        if not isinstance(self.monitor_excluded_game_ids, tuple) or any(
+                not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{32}", value)
+                for value in self.monitor_excluded_game_ids):
+            raise ValueError("ASTRA_MONITOR_EXCLUDED_GAME_IDS must contain comma-separated 32-character lowercase hexadecimal game IDs")
         if self.smtp_feedback_address and not is_bare_email(self.smtp_feedback_address):
             raise ValueError("ASTRA_SMTP_FEEDBACK_ADDRESS must be a single bare email address")
         self.data_dir.mkdir(parents=True, exist_ok=True)

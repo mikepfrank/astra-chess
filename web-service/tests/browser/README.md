@@ -16,6 +16,7 @@ production server merely to run the web service.
 | `public_readonly.cjs` | Explicit-origin GET-only deployment check: unified UI, availability flag, public index, historical replay links/CSP, first-human-game chat navigation, and Li's draw. Creates no accounts, games, archives or links. |
 | `support.cjs` | Portable dependency loading, fixture identity check, output paths and bounded waits. |
 | `recovery.cjs` | Fully intercepted account/recovery requests: add/change/resend/remove, explicit verification, expired links, fragment cleanup, cross-browser reset, stale responses after close/logout, and desktop/mobile layout. No server, mail or real account is used. |
+| `monitor.cjs` | Fully intercepted private monitor: authorization states, table escaping, refresh/stale handling, access loss and desktop/mobile layout. No real game records are used. |
 
 All generated access cookies, synthetic fixtures, databases, screenshots,
 downloads and any redirected logs belong in ignored `web-service/var/browser-qa/`.

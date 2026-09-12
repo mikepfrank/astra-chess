@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark"><meta name="robots" content="noindex, nofollow">
+  <title>Site monitor · Astra Chess</title>
+  <link rel="stylesheet" href="/static/style.css"><link rel="stylesheet" href="/static/monitor.css">
+  <script type="module" src="/static/monitor.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#monitor-table">Skip to game table</a>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Astra Chess home"><span class="brand-mark" aria-hidden="true">A</span><span>ASTRA<span class="brand-sub">CHESS CLUB</span></span></a>
+    <span class="beta-badge">PRIVATE MONITOR</span>
+    <nav aria-label="Site navigation"><a href="/">Back to the board</a></nav>
+  </header>
+  <main class="monitor-shell">
+    <div class="monitor-heading"><div><p class="eyebrow">AROUND THE TABLES</p><h1>Site monitor</h1></div><button id="monitor-refresh" class="outline small" type="button">Refresh now</button></div>
+    <p id="monitor-status" class="monitor-status" role="status" aria-live="polite">Checking access…</p>
+    <section id="monitor-access" class="monitor-access" hidden>
+      <h2 id="monitor-access-title">Sign in to view the monitor.</h2>
+      <p id="monitor-access-detail">Use your authorized player account. Site activity is private.</p>
+      <a id="monitor-sign-in" class="primary small" href="/?monitor=1">Sign in</a>
+    </section>
+    <section id="monitor-data" hidden aria-label="Private site activity">
+      <div class="monitor-summary" id="monitor-summary"></div>
+      <div class="monitor-filters">
+        <label for="monitor-search">Find a player<input id="monitor-search" type="search" placeholder="Player name" maxlength="100" autocomplete="off"></label>
+        <label for="monitor-filter">Games<select id="monitor-filter"><option value="all">All games</option><option value="unfinished">Unfinished</option><option value="finished">Finished</option></select></label>
+        <p id="monitor-count" class="muted"></p>
+      </div>
+      <div class="monitor-table-wrap" role="region" aria-label="Game inventory; scroll horizontally on smaller screens" tabindex="0">
+        <table id="monitor-table">
+          <caption>Games, newest activity first. Times use this browser’s local timezone.</caption>
+          <thead><tr><th scope="col">Player</th><th scope="col">Human side</th><th scope="col">Last move</th><th scope="col">Status</th><th scope="col">Saved replay</th></tr></thead>
+          <tbody id="monitor-rows"></tbody>
+        </table>
+      </div>
+      <p id="monitor-empty" class="monitor-empty muted" hidden>No games match these filters.</p>
+      <p id="monitor-budget" class="monitor-budget muted"></p>
+      <p id="monitor-excluded" class="muted" hidden></p>
+      <p class="monitor-note muted">Refreshes every 30 seconds while this page is visible. Unfinished games are saved games; they do not establish whether a player is currently online.</p>
+    </section>
+    <footer class="site-footer"><span>Astra Chess · Operator access</span><a href="/games/">Public games ↗</a></footer>
+  </main>
+</body>
+</html>
