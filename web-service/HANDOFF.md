@@ -260,8 +260,10 @@ invariants, with migrations and recovery tests when durable state changes.
 September 12 addition: an independent [hourly new-game email monitor](docs/GAME-NOTIFICATIONS.md)
 uses no model calls and keeps its notification history outside the application
 data directory. It requires dedicated SMTP configuration and delivery testing
-before its timer is enabled. Its presence in the repository does not establish
-that outbound mail is configured on a particular host. See its guide for setup,
+before its timer is enabled. The September 12 Lightsail activation passed a
+real SES SMTP test and first digest, then enabled its hourly timer; see the
+guide's dated activation checkpoint. Its presence in the repository does not
+establish that outbound mail is configured on another host. See its guide for setup,
 retry semantics, SQLite sidecar permissions and the additional units to stop
 when replacing/restoring the database. It does not enable password-reset mail.
 
@@ -276,8 +278,10 @@ The dated replay/deployment references contain the exact checks and boundaries.
 
 Real human Linux games now work. An explicitly observed Linux automatic-compaction
 cycle, heavy-load behavior, startup after host reboot and comprehensive hostile
-tenant isolation remain separate validation gaps. SMTP delivery and offsite
-backups are not configured; password reset needs an external SMTP provider.
+tenant isolation remain separate validation gaps. Password-reset email and
+offsite backups are not configured; password reset needs its own SMTP settings
+and an end-to-end recovery test. Operator notifications have separate mail
+configuration; their current installation evidence is in the notification guide.
 CPU benchmarks are dated measurements, not a promised concurrent-player capacity.
 
 This checkpoint promotes portable browser QA and read-only game reporting/private

@@ -59,6 +59,34 @@ supports implicit TLS and a local sendmail executable if an operator already
 has one. It refuses plaintext SMTP. Configuring this monitor does not enable
 the application's separate password-reset email settings.
 
+The September 12 SES setup used the Essentials plan. Leave the optional custom
+MAIL FROM domain blank for this setup. Virtual Deliverability Manager was
+included and enabled, with engagement tracking and automatic validation off;
+optimized shared delivery stayed enabled. Skip dedicated IPs and tenant setup.
+These selections do not replace identity
+verification or prove that the monitor can deliver mail.
+
+Verify both the operator recipient and the sending domain in the same SES
+region. For a domain hosted in GoDaddy DNS, download the SES DNS-record CSV,
+then convert the required records into BIND zone text saved with a `.txt`
+extension before using GoDaddy's import. The CSV is not the zone file accepted
+by that importer, and its upload rejected the `.zone` extension as an invalid
+media type while accepting a byte-identical `.txt` copy. Preserve existing DMARC
+policy and website records; review
+the proposed records before import and add only the required SES records.
+Wait for SES to confirm the identities before attempting the mail test.
+
+In the SES SMTP credential selector, choose the IAM user option and create a
+dedicated sending user. Download the credential CSV privately: its `SMTP user
+name` and `SMTP password` fields supply the monitor's SMTP credentials; the
+separate `IAM user name` is not the SMTP login. Keep this CSV outside Git and
+application data, and never print its rows into a terminal, chat or tool output.
+Transfer the resulting JSON configuration over an encrypted channel through
+standard input to an installer that writes the private mode-0600 file. Do not
+put credential values in command arguments or environment variables, enable
+command tracing, or echo the configuration during transfer. Write UTF-8 JSON
+without a byte-order mark and report only a sanitized installation result.
+
 ## Configure and initialize
 
 On the host, working as `astra`, keep configuration and state outside the
@@ -195,3 +223,36 @@ No real SMTP configuration or delivery was tested at this checkpoint. The
 operator is completing Amazon SES verification separately. Do not infer that
 notifications are running from the presence of installed files; verify the
 timer's enabled/active state and a real mail handoff after credentials are set.
+
+### September 12 SES activation checkpoint
+
+The operator verified the recipient and sending domain in SES US West (Oregon).
+All three Easy DKIM CNAMEs matched the downloaded records on both authoritative
+DNS servers. The existing DMARC record was preserved. SES remains in its
+sandbox, which is sufficient for this verified-recipient notification flow.
+
+Dedicated IAM SMTP credentials were transferred through encrypted SSH standard
+input into an `astra`-owned mode-0600 JSON file, in a mode-0700 directory outside
+the repository and game data. Neither credentials nor the downloaded CSV were
+added to Git. The live game service's mount namespace could not see the mail
+configuration or the monitor's private reporting state.
+
+At 20:39 UTC, SES accepted a clearly labeled synthetic test email from a
+temporary copy of the exact notification service namespace. The test left the
+20-ID baseline unchanged. At 20:41 UTC, the actual notification service sent
+its first digest containing one new game, exited successfully, and advanced
+the checkpoint to 21 reported IDs with no pending batch. The operator then
+confirmed receiving both the test and the one-new-game notification. This
+confirms receipt for these messages, not a guarantee of future inbox placement.
+
+`astra-game-notify.timer` was then enabled and active, scheduled hourly with up
+to 60 seconds of jitter; its next scheduled run at this checkpoint was 21:00:46
+UTC. Temporary test units/scripts were removed. The game service retained its
+existing PID and start time and continued returning a healthy response.
+No game state, model configuration, or password-reset SMTP settings changed.
+
+This activation exercised the installed mail path and durable first-digest
+checkpoint; the prior 13-test Windows/Linux runs remain the unit-test evidence.
+The setup documentation was updated without changing the sender implementation.
+Always refresh live timer/state status instead of treating this dated snapshot
+as proof that delivery continues to work indefinitely.

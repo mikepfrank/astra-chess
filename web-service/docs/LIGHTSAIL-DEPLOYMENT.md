@@ -319,18 +319,22 @@ The September 12 [notification-monitor preparation](GAME-NOTIFICATIONS.md#septem
 added an independent `astra-game-notify.service` and hourly timer, running as
 `astra` with separate configuration/state and no model calls. Source `4b32c87`
 passed 13 focused Windows tests and 13 Linux tests; actual namespace and SQLite
-sidecar checks passed. The installed timer remains disabled pending SES
-verification, private SMTP settings and a real delivery test. Its initial
-baseline contains 20 existing game records. Installation did not restart the
-chess service. Stop the monitor too before replacing/restoring its database.
+sidecar checks passed. Later that day, the
+[SES activation check](GAME-NOTIFICATIONS.md#september-12-ses-activation-checkpoint)
+passed in the installed service sandbox, and the timer was enabled. SES accepted
+a synthetic test and the first real digest; the initial 20-ID baseline advanced
+to 21 reported game IDs without a pending batch. The operator confirmed receiving
+both messages. Installation and activation did not restart the chess
+service. Stop the monitor too before replacing/restoring its database.
 
 - Human players have completed Linux games since initial deployment. An
   explicitly observed live Linux automatic-compaction cycle and heavy-load
   behavior remain unverified; see the [September 11 handoff](../HANDOFF.md).
 - Both services are enabled, but a host reboot has not been performed to verify
   startup after reboot.
-- SMTP and offsite backups are not configured. Optional password resets use an
-  external SMTP provider when configured; delivery has not been verified.
+- Operator-notification SMTP is configured separately. Password-reset SMTP and
+  offsite backups are not configured. Ordinary player recovery mail also needs
+  SES production access and an end-to-end reset test before general use.
 
 The completed checks establish specific working paths and enforced limits;
 they do not prove comprehensive isolation between mutually untrusted tenants.
