@@ -6,7 +6,8 @@ import unittest
 import httpx
 
 from astra_web.codex_bridge import dynamic_tools, TOOL_NAMES
-from astra_web.openrouter_gateway import OpenRouterGateway, MODEL, UPSTREAM_URL, MAX_REQUEST_BYTES, _codex_wire_schema
+from astra_web.openrouter_gateway import (OpenRouterGateway, MODEL, UPSTREAM_URL,
+    MAX_REQUEST_BYTES, MAX_SSE_EVENT_BYTES, _codex_wire_schema)
 from astra_web.openrouter_setup import OpenRouterSetupError
 
 
@@ -34,7 +35,8 @@ def sse(model='z-ai/glm-5.3-flash', *, endpoint_model=None, requested=None):
                              {'model': model if endpoint_model is None else endpoint_model,
                               'provider': 'Fixture Provider', 'selected': True},
                              {'model': 'unselected-model', 'provider': 'Other Provider', 'selected': False}]}},
-                     'output': [{'text': 'Private model output excluded from telemetry.'}]}}) + '\n\n').encode()
+                     'output': [{'type': 'message', 'role': 'assistant', 'content': [
+                         {'type': 'output_text', 'text': 'Private model output excluded from telemetry.'}]}]}}) + '\n\n').encode()
 
 
 class SlowStream(httpx.AsyncByteStream):
@@ -123,6 +125,60 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(gateway._server_task.done())
         self.assertFalse(gateway._requests)
 
+    async def test_text_only_compaction_retains_instructions_budget_and_output_cap(self):
+        instructions = 'Pinned persona and shared chess contract.'
+        async with OpenRouterGateway(KEY, transport=httpx.MockTransport(self.upstream),
+                budget_check=self.budget, expected_instructions=instructions) as gateway, self.client(gateway) as client:
+            for choice in ('auto', 'none'):
+                request = {**payload(), 'instructions': instructions, 'tools': [],
+                           'tool_choice': choice, 'max_output_tokens': 100000}
+                response = await client.post('/v1/responses', json=request)
+                self.assertNotIn('chess_gateway_upstream_interrupted', response.text)
+            bad = {**request, 'instructions': 'Changed persona.'}
+            self.assertEqual((await client.post('/v1/responses', json=bad)).json()['error']['code'], 'instructions_mismatch')
+            self.assertEqual((gateway.request_count, gateway.budget_check_count), (2, 2))
+            self.assertTrue(all(item['request_kind'] == 'compaction' and item['stream_complete']
+                                and item['instructions_verified'] for item in gateway.evidence))
+        for request in self.calls:
+            body = json.loads(request.content)
+            self.assertEqual(body['tools'], [])
+            self.assertEqual(body['instructions'], instructions)
+            self.assertEqual(body['max_output_tokens'], 8192)
+            self.assertEqual(body['model'], MODEL)
+            self.assertEqual(body['reasoning'], {'effort': 'high'})
+
+    async def test_compaction_requires_exact_empty_list_and_non_tool_choice(self):
+        bad = []
+        for tools in (None, {}, payload()['tools'][:2]):
+            bad.append({**payload(), 'tools': tools})
+        missing = payload()
+        del missing['tools']
+        bad.append(missing)
+        for choice in ('required', {'type': 'function', 'name': 'chess_status'}):
+            bad.append({**payload(), 'tools': [], 'tool_choice': choice})
+        async with self.gateway() as gateway, self.client(gateway) as client:
+            for request in bad:
+                self.assertEqual((await client.post('/v1/responses', json=request)).status_code, 400)
+        self.assertFalse(self.calls)
+        self.assertFalse(self.budgets)
+
+    async def test_compaction_cannot_return_tool_calls(self):
+        for event in (
+            {'type': 'response.output_item.added', 'item': {'type': 'function_call', 'name': 'chess_choose', 'arguments': 'private'}},
+            {'type': 'response.function_call_arguments.delta', 'delta': 'private'},
+            {'type': 'response.completed', 'response': {'model': 'z-ai/glm-5.3-flash',
+                'output': [{'type': 'function_call', 'name': 'chess_status', 'arguments': 'private'}]}},
+        ):
+            async def tool_response(request):
+                return httpx.Response(200, content=('data: ' + json.dumps(event) + '\n\n').encode(),
+                                      headers={'content-type': 'text/event-stream'})
+            async with self.gateway(handler=tool_response) as gateway, self.client(gateway) as client:
+                response = await client.post('/v1/responses', json={**payload(), 'tools': []})
+                self.assertIn('chess_gateway_upstream_interrupted', response.text)
+                self.assertNotIn('private', response.text)
+                self.assertFalse(gateway.evidence[0]['stream_complete'])
+                self.assertEqual(gateway.evidence[0]['output_rejection'], 'compaction_tool_output')
+
     async def test_nonce_and_route_are_required_before_budget_or_inference(self):
         async with self.gateway() as gateway, self.client(gateway) as client:
             for headers in ({'Authorization': 'Bearer wrong'}, {'Authorization': 'Bearer ' + KEY}):
@@ -175,11 +231,45 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_size_and_compression_bounds_precede_upstream(self):
         async with self.gateway() as gateway, self.client(gateway) as client:
-            response = await client.post('/v1/responses', content=b' ' * (MAX_REQUEST_BYTES + 1))
+            oversized = {**payload(), 'input': [{'role': 'user', 'content': 'x' * MAX_REQUEST_BYTES}]}
+            response = await client.post('/v1/responses', json=oversized)
             self.assertEqual(response.status_code, 413)
             response = await client.post('/v1/responses', content=b'compressed', headers={'Content-Encoding': 'gzip'})
             self.assertEqual(response.status_code, 415)
         self.assertEqual(self.calls, [])
+        self.assertEqual(self.budgets, [])
+
+    async def test_large_unicode_context_survives_json_escaping_above_old_request_cap(self):
+        # 250,000 Unicode units exercise actual serialized context overhead.
+        # This is a byte-bound regression, not a claim about tokenizer counts.
+        content = '\U0001d51e ' * 250_000
+        request = {**payload(), 'input': [{'role': 'user', 'content': content}],
+                   'max_output_tokens': 100000}
+        serialized = json.dumps(request, ensure_ascii=True).encode('utf-8')
+        self.assertGreater(len(serialized), 2 * 1024 * 1024)
+        self.assertLess(len(serialized), MAX_REQUEST_BYTES)
+        async with self.gateway() as gateway, self.client(gateway) as client:
+            response = await client.post('/v1/responses', content=serialized,
+                                         headers={'Content-Type': 'application/json'})
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(gateway.evidence[0]['stream_complete'])
+        forwarded = json.loads(self.calls[0].content)
+        self.assertEqual(forwarded['input'][0]['content'], content)
+        self.assertEqual(forwarded['max_output_tokens'], 8192)
+        self.assertEqual(len(self.budgets), 1)
+
+    async def test_stream_event_keeps_smaller_two_mib_bound(self):
+        event = {'type': 'response.output_text.delta', 'delta': 'x' * MAX_SSE_EVENT_BYTES}
+        wire = ('data: ' + json.dumps(event) + '\n\n').encode('utf-8')
+        self.assertGreater(len(wire), MAX_SSE_EVENT_BYTES)
+        self.assertLess(len(wire), MAX_REQUEST_BYTES)
+        async def oversized_event(request):
+            return httpx.Response(200, content=wire, headers={'content-type': 'text/event-stream'})
+        async with self.gateway(handler=oversized_event) as gateway, self.client(gateway) as client:
+            response = await client.post('/v1/responses', json=payload())
+            self.assertIn('chess_gateway_upstream_interrupted', response.text)
+            self.assertNotIn('response.output_text.delta', response.text)
+            self.assertFalse(gateway.evidence[0]['stream_complete'])
 
     async def test_budget_denial_blocks_every_model_request(self):
         def deny(key):

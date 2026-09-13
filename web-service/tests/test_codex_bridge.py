@@ -263,6 +263,31 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(instructions, [binding['prompt'], binding['prompt']])
         self.assertTrue(instructions[1].startswith('You are Arcturus,'))
 
+    async def test_glm_context_upgrade_preserves_saved_thread_and_original_identity(self):
+        from astra_web.player_profiles import new_player_binding
+        self.use_openrouter()
+        binding = new_player_binding(self.config)
+        binding['profile'].update(version=2, context_window=128_000, compact_limit=80_000)
+        with patch('astra_web.openrouter_setup.require_budget', return_value={}):
+            await self.run_fake(player_binding=binding)
+            # Direct callers may supply current identity; the audited runtime
+            # transition still retains old recovery provenance and conversation.
+            await self.run_fake(thread_id='test-thread')
+        folder = self.root / 'players/game-1'
+        saved = json.loads((folder / 'bridge-state.json').read_text())
+        self.assertEqual(saved['player_profile'], binding['profile'])
+        self.assertEqual(saved['thread_id'], 'test-thread')
+        self.assertEqual(saved['usage_total'], 40)
+        self.assertEqual(saved['runtime_context_policy'], {
+            'context_window': 1_310_720, 'compact_limit': 250_000, 'profile_version': 3})
+        resume = next(w['params'] for w in self.wires if w.get('method') == 'thread/resume')
+        self.assertEqual(resume['baseInstructions'], binding['prompt'])
+        self.assertEqual(resume['config']['model_context_window'], 1_310_720)
+        self.assertEqual(resume['config']['model_auto_compact_token_limit'], 250_000)
+        telemetry = [json.loads(p.read_text()) for p in folder.glob('provider-requests-*.json')]
+        self.assertTrue(all(t['rejections'] == [] for t in telemetry))
+        self.assertTrue(all(t['runtime_context_policy']['compact_limit'] == 250_000 for t in telemetry))
+
     async def test_openrouter_refuses_provider_url_mismatch_before_model_turn(self):
         self.use_openrouter()
         with patch('astra_web.openrouter_setup.require_budget', return_value={}):

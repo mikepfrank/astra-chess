@@ -30,7 +30,10 @@ MODEL = 'z-ai/glm-5.3-flash:nitro'
 # Routing metadata may use that dated identifier. Response.model remains
 # separately restricted to its two previously audited API response slugs.
 ENDPOINT_MODELS = (MODEL, 'z-ai/glm-5.3-flash', 'z-ai/glm-5.3-flash-20260826')
-MAX_REQUEST_BYTES = 2 * 1024 * 1024
+# Long conversation JSON needs room for escaping and tool-history overhead.
+# This byte ceiling is separate from the model's context/token accounting.
+MAX_REQUEST_BYTES = 8 * 1024 * 1024
+MAX_SSE_EVENT_BYTES = 2 * 1024 * 1024
 MAX_OUTPUT_TOKENS = 8192
 
 
@@ -89,10 +92,17 @@ def _prepare_request(payload):
             raise GatewayError('invalid_tools')
         forwarded.append({'type': 'function', 'name': name,
             'description': specs[name]['description'], 'parameters': specs[name]['inputSchema'], 'strict': False})
-    if {tool['name'] for tool in forwarded} != set(specs):
+    # Codex's audited local compaction uses the same pinned instructions and
+    # model with exactly tools: []. Missing tools and partial/extra tool sets
+    # remain invalid. This grants no model-callable host capability.
+    compaction = incoming == []
+    if not compaction and {tool['name'] for tool in forwarded} != set(specs):
         raise GatewayError('invalid_tools')
     choice = payload.get('tool_choice', 'auto')
-    if isinstance(choice, dict):
+    if compaction:
+        if choice not in ('auto', 'none'):
+            raise GatewayError('invalid_tool_choice')
+    elif isinstance(choice, dict):
         if set(choice) != {'type', 'name'} or choice.get('type') != 'function' or choice.get('name') not in specs:
             raise GatewayError('invalid_tool_choice')
     elif choice not in ('auto', 'none', 'required'):
@@ -212,6 +222,7 @@ class OpenRouterGateway:
             return
         started = False
         evidence = {'requested_model': MODEL, 'observed_model': None,
+                    'request_kind': 'compaction' if payload['tools'] == [] else 'chess',
                     'response_id': None, 'provider': None, 'usage': {}, 'stream_complete': False}
         if self._expected_instructions is not None:
             evidence['instructions_verified'] = True
@@ -237,7 +248,7 @@ class OpenRouterGateway:
                 frame, size = [], 0
                 async for line in upstream.aiter_lines():
                     size += len(line.encode('utf-8')) + 1
-                    if size > MAX_REQUEST_BYTES:
+                    if size > MAX_SSE_EVENT_BYTES:
                         raise GatewayError('upstream_event_too_large')
                     if line:
                         frame.append(line)
@@ -274,6 +285,20 @@ class OpenRouterGateway:
             raise GatewayError('invalid_upstream_event') from None
         if not isinstance(event, dict):
             raise GatewayError('invalid_upstream_event')
+        if evidence.get('request_kind') == 'compaction':
+            # A summary response may contain reasoning and assistant text, but
+            # never tool calls, even if a provider ignores the empty tool list.
+            response_items = (event.get('response') or {}).get('output', []) if isinstance(event.get('response'), dict) else []
+            items = [event['item']] if isinstance(event.get('item'), dict) else []
+            if isinstance(response_items, list):
+                items += response_items
+            event_type = event.get('type', '')
+            if ((isinstance(event_type, str) and event_type.startswith(
+                    ('response.function_call', 'response.custom_tool_call')))
+                    or any(not isinstance(item, dict) or item.get('type') not in ('message', 'reasoning')
+                           for item in items)):
+                evidence['output_rejection'] = 'compaction_tool_output'
+                raise GatewayError('compaction_tool_output')
 
         def reject_model(field, value):
             evidence['model_mismatch'] = True

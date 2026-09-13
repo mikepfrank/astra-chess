@@ -5,8 +5,8 @@ Checkpoint: September 13, 2026. Mike selected Codex CLI as the first driver,
 initial local experiment budget. This branch implements that configuration with
 the existing from-scratch chess engine and hosted supervisor.
 
-The next checkpoint separates the [shared playing contract and versioned
-personas](prompts/README.md). New GLM games select Mike's supplied Arcturus draft;
+The [shared playing contract and versioned personas](prompts/README.md) are
+stored separately. New GLM games select Mike's supplied Arcturus draft;
 existing experimental games keep their exact recorded prompt and identity. The
 gateway checks the complete pinned instructions on every provider request.
 The [isolated Linux deployment guide](docs/OPENROUTER-DEPLOYMENT.md) describes
@@ -41,15 +41,17 @@ providers are tried in throughput order. It is a routing preference for the
 selected model, not a guaranteed speed or a model substitution. See
 [provider routing](https://openrouter.ai/docs/guides/routing/provider-selection).
 
-| Setting | Initial experiment |
+| Setting | Prepared profile v3 configuration |
 | --- | --- |
 | Driver | Codex app-server, direct function tools |
 | Model | `z-ai/glm-5.3-flash:nitro` |
 | Reasoning setting | `high` |
-| Context window / compaction trigger | 128,000 / 80,000 total-context tokens |
+| Context window / compaction trigger | 1,310,720 / 250,000 total-context tokens |
 | Output ceiling | 8,192 tokens per provider request |
+| Gateway byte limits | 8 MiB per request; 2 MiB per upstream SSE event |
 | Active workers | One |
-| Cumulative token ceiling per action | At most 1,000,000, including repeated input |
+| Cumulative token ceiling per action | At most 2,000,000, including repeated input and compaction; smaller operator overrides remain effective |
+| Daily token allowance | 20,000,000 by default; unchanged by this update |
 | Chess clock | 90 minutes, +30 seconds per own move, +30 minutes after move 40 |
 | Ordinary / critical turn targets | 120 / 240 seconds, reduced by earned balance |
 
@@ -59,11 +61,24 @@ query evidence. The model still reviews counterplay and chooses its move. There
 is no automatic engine-only move or model downgrade when an action fails.
 
 New games and saved Codex recovery state bind the model profile, prompt hash and
-tool-schema hash.
-Incompatible resumes are rejected before model work, including postgame chat.
-Legacy games can resume only with their original Astra configuration. The prompt
-uses the selected model's identity and function-call interface while preserving
-the playing method. The engine source fingerprint remains separately checked.
+tool-schema hash. Profile v3 admits exactly the authorized v2 runtime upgrade
+from 128,000/80,000 to 1,310,720/250,000 context/compaction settings. All other
+saved identity fields must match, including the model, persona, prompt and tool
+schema. Original game and recovery provenance stays intact; the bridge records
+the new runtime context policy separately. Reverse, partial and unknown-version
+changes remain incompatible. Unbound legacy games still require their original
+Astra configuration. The engine source fingerprint remains separately checked.
+
+This context-compaction update is prepared in the development checkout;
+deployment and live recovery are not established by the historical smoke tests
+below. At 250,000 tokens, repeated context in the mandatory status, candidate,
+query and choose rounds can exceed the former 1,000,000-token action limit.
+The 2,000,000 ceiling leaves room for those rounds and compaction. A focused
+no-model regression completes compaction and a full move at 1,549,152 tokens;
+an explicit smaller limit still interrupts correctly. Daily admission reserves
+the configured action ceiling and settles actual complete usage; missing or
+incomplete usage remains conservatively charged. The $50 session budget and
+$5 stop threshold are unchanged.
 
 ## Observed CLI boundary and local gateway
 
@@ -77,9 +92,23 @@ The experimental profile admits that exact build with an authenticated local
 gateway. The gateway removes those observed declarations, validates the seven
 canonical chess schemas, caps output, and forwards only to the fixed OpenRouter
 Responses endpoint. Codex receives a temporary local credential; the OpenRouter
-key stays in the service. Unknown tool shapes are rejected. The forwarded tools
+key stays in the service. Unknown tool shapes are rejected. The forwarded chess tools
 are `chess_status`, `chess_candidate`, `chess_query`, `chess_query_details`,
 `chess_critical`, `chess_choose` and `chess_comment`.
+
+For automatic compaction, the gateway also accepts the audited exact `tools: []`
+request with no forced tool choice. It preserves the same complete pinned
+persona instructions, model, routing, budget check and output ceiling. Summary
+responses may contain assistant text and reasoning, but tool-call output is
+rejected. Missing tool declarations and partial chess-tool sets remain invalid.
+Compaction grants no additional host capability. Its lifecycle pauses the chess
+clock and turn allocation; tokens and the independent process timeout still
+apply.
+
+The gateway permits at most 8 MiB for each incoming and forwarded serialized
+request, while retaining a separate 2 MiB cap for each upstream SSE event.
+These are byte limits, independent of the model's token window. This permits
+larger repeated-context requests without relaxing the output-event bound.
 
 Every provider request receives a fresh budget check. The gateway disallows
 concurrent requests and does not retry HTTP requests or follow redirects. The
@@ -172,10 +201,10 @@ contains per-request cost, timing and provider metadata without credentials,
 private response IDs or model reasoning text.
 
 Linux deployment was untested at that initial checkpoint. The September 13
-Arcturus checks below supersede that limitation. Long-game context compaction
-and playing strength remain untested: the gateway accepts the audited action
-request shape, and automatic compaction must be observed and validated before
-relying on long-running games.
+Arcturus checks below superseded that limitation. Neither initial smoke test
+exercised long-game context compaction or established playing strength. The
+gateway at that checkpoint accepted the audited chess-action request shape;
+the prepared text-only compaction support is described above.
 
 ## Arcturus Linux validation, September 13
 

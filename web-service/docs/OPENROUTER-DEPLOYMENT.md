@@ -6,7 +6,10 @@ This deployment serves `arcturus.astraplayschess.com` from the separate
 new games to the Arcturus persona. The original Astra account, application
 unit, repository and game data remain independently operated.
 
-## Validated deployment: September 13, 2026
+## Initial validated deployment: September 13, 2026
+
+This is the original activation record. It does not certify deployment of the
+prepared context-compaction update described below.
 
 The experimental service is enabled and serving HTTPS at
 [arcturus.astraplayschess.com](https://arcturus.astraplayschess.com). Application
@@ -30,6 +33,35 @@ paid operator checks use the same private host ledger. Long-game compaction and
 playing strength remain untested. The following sections document the installed
 layout and reproducible operator procedure; do not rerun hostname activation on
 an already active configuration.
+
+## Prepared context-compaction update
+
+The development checkout selects GLM profile v3: a verified 1,310,720-token
+context window and a 250,000 total-context-token auto-compaction trigger. The
+gateway accepts the audited exact `tools: []` compaction request and rejects
+tool-call output from its text-only summary. The pinned persona, full prompt,
+model, throughput routing, per-request budget check and 8,192-token output
+ceiling still apply. Chess clock and turn allocation pause during reported
+compaction; API tokens and the independent process timeout continue to count.
+Gateway request bodies are capped at 8 MiB before and after serialization;
+individual upstream SSE events retain the separate 2 MiB bound. Byte limits
+remain independent of the configured context-token window.
+
+Existing v2 games can use precisely this v3 context-policy upgrade when every
+other identity field matches. Saved game/prompt/persona/tool provenance and
+thread identifiers are retained; the bridge records its runtime context policy
+separately. No game recreation, session deletion or budget reset is needed.
+Unrelated profile changes and reverse upgrades remain rejected.
+
+The OpenRouter action ceiling becomes 2,000,000 cumulative input/output tokens,
+including repeated context and compaction. Smaller operator overrides remain
+effective. The daily default remains 20,000,000 tokens, and the lifetime $50
+usage-delta allowance and $5 admission reserve are unchanged. Daily admission
+reserves the action ceiling and conservatively charges incomplete attempts.
+The one-worker, half-CPU and 2 GiB limits remain unchanged.
+
+This update is prepared locally. Record the deployed revision and verification
+outcome separately after the isolated update procedure succeeds.
 
 ## Files and boundaries
 
@@ -122,6 +154,40 @@ sudo /home/or-chess/astra-chess/web-service/.venv/bin/python tools/run_openroute
 The launcher refuses this mode while `or-chess.service` is active, avoiding
 concurrent players during the check. The explicit `--live` flag is required.
 An audit passing on Windows does not replace these Linux namespace checks.
+
+## Update an existing experimental deployment
+
+Stage and test the candidate before modifying the running checkout. This
+compaction update requires no Caddy change, hostname reactivation, Astra
+application restart, credential change or database migration.
+
+1. Record the current/candidate revisions and engine fingerprint. Inspect all
+   experimental games, workers, replay builds and resource reservations with
+   the [read-only inventory](../tools/ops/report_games.py). A saved error/idle
+   game may remain; confirm no active response or compaction interval. An idle
+   snapshot alone does not prevent a new player request.
+2. Stop only `or-chess.service`, verify it is inactive and its worker control
+   group is empty, then check the saved state again. Take the definitive private
+   backup of the **whole** `/home/or-chess/.local/share/or-chess` directory now,
+   outside both the live data directory and repository. Include SQLite companion
+   files, game/query evidence, per-game Codex sessions, bridge recovery metadata
+   and the existing OpenRouter budget ledger.
+3. Update only the experimental checkout under its owning account. Preserve the
+   runtime, virtual environment and private environment file unless separately
+   reviewed changes require them. Verify the saved game's binding against the
+   candidate on a private copy; retain its board, clocks, messages and thread ID.
+   Run namespace preflight and mocked wire checks, with the focused compaction
+   regressions, before starting only `or-chess.service`.
+4. Verify health with the Arcturus Host header, HTTPS identity and saved-record
+   preservation. Confirm the original Astra application and Caddy process
+   identities remain unchanged. Keep a private audit of the backup, revisions,
+   tests and preserved-record hashes. A stopped error-state game remains saved
+   for the authorized retry; restarting the service does not itself retry it.
+
+For a code rollback, retain current application data. Never restore an older
+database, Codex session or budget ledger after accepting new moves or paid
+requests without reconciling those writes. In particular, the spending baseline
+and monotonic usage counters must not move backwards.
 
 ## Activate the hostname
 

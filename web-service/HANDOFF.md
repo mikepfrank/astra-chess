@@ -6,18 +6,27 @@ baseline and its deployment history are preserved below.
 
 ## September 13, 2026: Arcturus experimental branch
 
-**Latest incident: automatic compaction is currently blocked by the experimental
-gateway.** A user's game at ply 11 repeatedly failed with `invalid_tools`.
+**Compaction repair prepared; verify the deployment checkpoint before assuming
+it is live.** A user's game at ply 11 repeatedly failed with `invalid_tools`.
 Read-only inspection found a healthy service, preserved board/conversation and
 seven retries that each entered compaction without making a provider request.
 Fresh credential-free fixtures with Windows Codex 0.154.0-alpha.6.2 and deployed
 Linux 0.154.0 confirmed that `thread/compact/start` sends a normal Responses
 request with `tools: []`, unchanged persona instructions, and the configured
-model/reasoning. The gateway currently insists on all seven chess tools, so it
-rejects this summarization request. Retrying cannot resolve that condition.
-The cause is confirmed; no repair is implemented or deployed at this checkpoint.
-Support and test the bounded text-only compaction path without resetting the
-saved thread. See [the sanitized incident record](experiments/arcturus-compaction-incident-2026-09-13.json).
+model/reasoning. The deployed gateway required all seven chess tools, rejecting
+this summarization request before inference. The local repair admits exactly
+the empty-tool compaction form, retains prompt/model/budget checks, and rejects
+tool output during compaction. Ordinary turns still require all seven tools.
+See [the original incident record](experiments/arcturus-compaction-incident-2026-09-13.json).
+
+Mike requested a 250,000-token compaction trigger. GLM profile v3 uses that
+trigger and the verified 1,310,720-token context window. One explicit compatible
+upgrade permits existing v2 games to resume with these runtime settings while
+preserving their original profile, thread and exact prompt/persona snapshots.
+Runtime settings are recorded separately in bridge and provider-request evidence.
+The action token guard is now 2 million, with smaller operator overrides honored;
+daily and dollar budgets are unchanged. Requests allow 8 MiB while each streamed
+event remains limited to 2 MiB and output to 8,192 tokens.
 
 The isolated `codex/openrouter-chess` worktree is
 `Chess/openrouter-worktree`. Its model profile selects OpenRouter

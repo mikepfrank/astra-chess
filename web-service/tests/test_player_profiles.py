@@ -12,7 +12,7 @@ from astra_web import chess_game as game
 from astra_web.config import APP_ROOT, Config
 from astra_web.player_profiles import (
     game_player_binding, get_profile, persona_for, player_prompt, profile_for,
-    profile_identity, verify_game_profile,
+    player_profiles_compatible, profile_identity, verify_game_profile,
 )
 from astra_web.supervisor import Supervisor
 
@@ -80,7 +80,9 @@ class PlayerProfileConfigTests(ProfileFixture, unittest.TestCase):
         self.assertEqual(profile.env_key, 'OPENROUTER_API_KEY')
         self.assertEqual(profile.routing, 'throughput-nitro')
         self.assertFalse(profile.code_mode)
-        self.assertLess(profile.compact_limit, profile.context_window)
+        self.assertEqual(profile.context_window, 1_310_720)
+        self.assertEqual(profile.compact_limit, 250_000)
+        self.assertEqual(profile.version, 3)
 
     def test_environment_selects_profile_at_config_creation(self):
         astra = self.config()
@@ -193,7 +195,7 @@ class PlayerPromptAndPersistenceTests(ProfileFixture, unittest.TestCase):
             'model': 'gpt-6-astra', 'provider': 'astra_openai',
             'base_url': 'https://example.invalid/v1', 'reasoning': 'ultra',
             'routing': 'provider-default', 'code_mode': True,
-            'context_window': 400_000, 'compact_limit': 250_000,
+            'context_window': 400_000, 'compact_limit': 249_999,
             'version': original['player_profile']['version'] + 1, 'max_output_tokens': 16384,
             'prompt_sha256': '0' * 64,
         }
@@ -258,6 +260,67 @@ class PlayerPromptAndPersistenceTests(ProfileFixture, unittest.TestCase):
                         self.assertEqual(state['player_profile'], profile_identity(config))
                         with self.assertRaisesRegex(ValueError, 'Game model metadata differs'):
                             verify_game_profile(state, config)
+
+
+class PlayerRuntimeCompatibilityTests(ProfileFixture, unittest.TestCase):
+    def profiles(self):
+        current = profile_identity(self.config(model_profile='openrouter-glm'))
+        previous = copy.deepcopy(current)
+        previous.update(version=2, context_window=128_000, compact_limit=80_000)
+        return previous, current
+
+    def test_exact_v2_to_v3_upgrade_is_allowed_without_mutating_either_identity(self):
+        previous, current = self.profiles()
+        before = copy.deepcopy((previous, current))
+        self.assertTrue(player_profiles_compatible(previous, current))
+        self.assertTrue(player_profiles_compatible(previous, copy.deepcopy(previous)))
+        self.assertTrue(player_profiles_compatible(current, copy.deepcopy(current)))
+        self.assertFalse(player_profiles_compatible(current, previous))
+        self.assertEqual((previous, current), before)
+
+    def test_only_complete_exact_known_runtime_upgrade_is_allowed(self):
+        previous, current = self.profiles()
+        for field, value in (
+            ('version', 1), ('version', 2.0), ('version', True),
+            ('context_window', 128_001), ('context_window', 128_000.0),
+            ('compact_limit', 80_001), ('compact_limit', 80_000.0),
+        ):
+            with self.subTest(old_field=field, value=value):
+                changed = dict(previous, **{field: value})
+                self.assertFalse(player_profiles_compatible(changed, current))
+        for field, value in (
+            ('version', 4), ('version', 3.0), ('context_window', 1_310_719),
+            ('context_window', 1_310_720.0), ('compact_limit', 250_001),
+            ('compact_limit', 250_000.0),
+        ):
+            with self.subTest(new_field=field, value=value):
+                changed = dict(current, **{field: value})
+                self.assertFalse(player_profiles_compatible(previous, changed))
+        self.assertFalse(player_profiles_compatible(dict(previous, name='astra'), dict(current, name='astra')))
+        for invalid in (None, [], 'profile'):
+            self.assertFalse(player_profiles_compatible(invalid, current))
+
+    def test_upgrade_never_waives_other_model_prompt_persona_or_tool_fields(self):
+        previous, current = self.profiles()
+        changes = {
+            'model': 'another-model', 'canonical_model': 'another-model',
+            'provider': 'another-provider', 'base_url': 'https://example.invalid',
+            'env_key': 'OTHER_KEY', 'reasoning': 'ultra', 'code_mode': True,
+            'max_output_tokens': 16384, 'routing': 'provider-default',
+            'display_name': 'Another name', 'driver': 'another-driver',
+            'prompt_sha256': '0' * 64, 'tool_schema_sha256': '0' * 64,
+            'persona': {}, 'unexpected_extra': 'value',
+        }
+        for field, value in changes.items():
+            with self.subTest(field=field):
+                changed = copy.deepcopy(previous)
+                changed[field] = value
+                self.assertFalse(player_profiles_compatible(changed, current))
+                changed = copy.deepcopy(previous)
+                changed.pop(field, None)
+                if field in previous:
+                    self.assertFalse(player_profiles_compatible(changed, current))
+        self.assertFalse(player_profiles_compatible(dict(current, code_mode=0), current))
 
 
 class PlayerProfileAdmissionTests(ProfileFixture, unittest.IsolatedAsyncioTestCase):

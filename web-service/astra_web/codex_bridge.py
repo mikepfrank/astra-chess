@@ -17,7 +17,7 @@ import signal
 import subprocess
 import time
 from typing import Awaitable, Callable
-from .player_profiles import get_profile, profile_for, new_player_binding
+from .player_profiles import get_profile, profile_for, new_player_binding, player_profiles_compatible
 
 
 AUDITED_CODEX_VERSIONS = frozenset({"0.153.4", "0.154.0"})
@@ -32,7 +32,7 @@ def reviewed_versions(profile_name='astra'):
 
 PROVIDER = "astra_openai"
 # The audited Astra catalog permits raw windows up to 872,000 tokens. This
-# override gives 380,000 usable tokens and a 360,000 auto-compaction ceiling.
+# override gives 380,000 usable tokens with the selected 250,000 compaction limit.
 MODEL_CONTEXT_WINDOW = 400_000
 # Leave headroom below Astra's 272,000-input-token long-context pricing tier.
 # Compaction uses estimated active context, so this is not a hard billing cap.
@@ -497,7 +497,12 @@ class CodexPlayer:
                         _write_json(folder / f'provider-requests-{time.time_ns()}.json', {
                             'requested_model': self.profile.model, 'routing': self.profile.routing,
                             'requests': gateway.evidence, 'request_count': gateway.request_count,
-                            'budget_check_count': gateway.budget_check_count})
+                            'budget_check_count': gateway.budget_check_count,
+                            'rejections': gateway.rejections,
+                            'runtime_context_policy': {
+                                'context_window': self.profile.context_window,
+                                'compact_limit': self.profile.compact_limit,
+                                'profile_version': self.profile.version}})
             return await self._run(game_id, snapshot, tool_handler, emit, thread_id, player_binding=binding)
         finally:
             self._active_games.discard(game_id)
@@ -522,11 +527,18 @@ class CodexPlayer:
         if state.get("thread_id") and thread_id and state["thread_id"] != thread_id:
             raise CodexError("Stored Codex thread IDs disagree; operator reconciliation is required")
         thread_id = thread_id or state.get("thread_id")
-        if state.get('player_profile') not in (None, identity):
+        recorded_profile = state.get('player_profile')
+        if recorded_profile is not None and not player_profiles_compatible(recorded_profile, identity):
             raise CodexError('Stored Codex player profile differs; do not switch models under a saved thread')
         if thread_id and state.get('player_profile') is None and profile.name != 'astra':
             raise CodexError('An experimental model cannot resume an unbound legacy thread')
-        state['player_profile'] = identity
+        # The audited context-policy upgrade changes runtime limits, not the
+        # saved game's model, prompt, persona or original experiment provenance.
+        state['player_profile'] = recorded_profile if recorded_profile is not None else identity
+        state['runtime_context_policy'] = {
+            'context_window': profile.context_window,
+            'compact_limit': profile.compact_limit,
+            'profile_version': profile.version}
         env = _child_environment(player_root, codex_home, include_key=gateway_token is None, env_key=profile.env_key)
         if gateway_token is not None:
             env[transport_profile.env_key] = gateway_token

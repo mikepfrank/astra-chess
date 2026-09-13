@@ -35,11 +35,11 @@ PROFILES = {
         True, 400_000, 250_000, 'provider-default'),
     # Nitro is OpenRouter's documented throughput-sort shortcut. It includes
     # eligible priority endpoints; it does not change the underlying model.
-    # Start with a conservative usable context, below the advertised 1.3M.
+    # Use the verified full context; Mike selected a 250K compaction trigger.
     'openrouter-glm': PlayerProfile('openrouter-glm', 'chess_openrouter',
         'https://openrouter.ai/api/v1', 'OPENROUTER_API_KEY',
         'z-ai/glm-5.3-flash:nitro', 'z-ai/glm-5.3-flash', 'GLM 5.3 Flash',
-        'high', False, 128_000, 80_000, 'throughput-nitro', version=2, max_output_tokens=8192),
+        'high', False, 1_310_720, 250_000, 'throughput-nitro', version=3, max_output_tokens=8192),
 }
 
 
@@ -160,6 +160,38 @@ def profile_identity(config):
     return new_player_binding(config)['profile']
 
 
+def player_profiles_compatible(saved, expected):
+    """Exact identity equality, plus the one authorized GLM runtime upgrade.
+
+    This does not rewrite provenance or substitute prompt/persona/model/tool
+    identity. A v2 game may use the v3 runtime only when its former 128K/80K
+    settings and all remaining fields match exactly. Reverse or partial changes
+    and unknown future versions remain incompatible.
+    """
+    if not isinstance(saved, dict) or not isinstance(expected, dict):
+        return False
+
+    def equal(left, right):
+        try:
+            # Unlike Python's numeric equality, this distinguishes bool/int and
+            # integer/float profile fields, and rejects non-JSON or NaN values.
+            return (json.dumps(left, sort_keys=True, allow_nan=False) ==
+                    json.dumps(right, sort_keys=True, allow_nan=False))
+        except (TypeError, ValueError):
+            return False
+
+    if equal(saved, expected):
+        return True
+    if saved.get('name') != 'openrouter-glm' or expected.get('name') != 'openrouter-glm':
+        return False
+    old = {'version': 2, 'context_window': 128_000, 'compact_limit': 80_000}
+    new = {'version': 3, 'context_window': 1_310_720, 'compact_limit': 250_000}
+    if (not equal({key: saved.get(key) for key in old}, old)
+            or not equal({key: expected.get(key) for key in new}, new)):
+        return False
+    return equal({**saved, **new}, expected)
+
+
 def _validate_persona_snapshot(persona):
     expected = {'name', 'display_name', 'version', 'source', 'status',
                 'source_sha256', 'integration_sha256'}
@@ -196,7 +228,7 @@ def game_player_binding(state, config):
             raise ValueError('Game player prompt snapshot is invalid')
         _validate_persona_snapshot(persona)
         expected = {**model, 'prompt_sha256': _sha(prompt), 'persona': persona}
-        if saved != expected:
+        if not player_profiles_compatible(saved, expected):
             raise ValueError('Game player profile changed; its prompt and persona snapshot must match')
         return {'profile': copy.deepcopy(saved), 'prompt': prompt, 'persona': copy.deepcopy(persona)}
 
@@ -205,7 +237,7 @@ def game_player_binding(state, config):
         raise ValueError('Legacy game cannot resume with a different model profile')
     prompt = _legacy_prompt(profile)
     expected = {**model, 'prompt_sha256': _sha(prompt)}
-    if saved is not None and saved != expected:
+    if saved is not None and not player_profiles_compatible(saved, expected):
         raise ValueError('Game player profile changed; restore its recorded configuration before resuming')
     persona = {'name': 'astra' if profile.name == 'astra' else 'legacy-glm',
                'display_name': profile.display_name, 'version': 1,

@@ -59,7 +59,10 @@ class Config:
         if self.reasoning is None:
             self.reasoning = profile.reasoning
         if profile.name == 'openrouter-glm':
-            self.max_turn_tokens = min(self.max_turn_tokens, 1_000_000)
+            # At the 250K compaction threshold each tool round repeats context.
+            # Allow compaction plus a complete status/candidate/query/choose
+            # action, while preserving any smaller operator-configured limit.
+            self.max_turn_tokens = min(self.max_turn_tokens, 2_000_000)
 
     @property
     def db_path(self):

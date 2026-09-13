@@ -125,6 +125,41 @@ class PlayerPersonaTests(unittest.TestCase):
         self.assertEqual(binding['prompt'], state['player_prompt'])
         self.assertEqual(binding['persona'], state['player_persona'])
 
+    def test_v2_game_uses_v3_runtime_without_replacing_its_prompt_persona_or_provenance(self):
+        config = self.config(model_profile='openrouter-glm')
+        state = self.state(config)
+        state['player_profile'].update(version=2, context_window=128_000, compact_limit=80_000)
+        before = copy.deepcopy(state)
+        config.persona = 'astra'
+        for status in ('active', 'finished'):
+            with self.subTest(status=status):
+                state['status'] = status
+                with patch('astra_web.player_profiles.Path.read_text', side_effect=AssertionError('No source reload')):
+                    binding = game_player_binding(state, config)
+                self.assertEqual(binding['profile'], before['player_profile'])
+                self.assertEqual(binding['profile']['version'], 2)
+                self.assertEqual(binding['prompt'], before['player_prompt'])
+                self.assertEqual(binding['persona'], before['player_persona'])
+                self.assertEqual(state, dict(before, status=status))
+        self.assertEqual(profile_for(config).version, 3)
+        self.assertEqual(profile_for(config).context_window, 1_310_720)
+        self.assertEqual(profile_for(config).compact_limit, 250_000)
+        self.assertEqual(new_player_binding(config)['persona']['name'], 'astra')
+
+    def test_pre_persona_v2_game_keeps_legacy_prompt_and_exact_saved_identity(self):
+        config = self.config(model_profile='openrouter-glm')
+        state, prompt = self.legacy(config)
+        state['player_profile'].update(version=2, context_window=128_000, compact_limit=80_000)
+        before = copy.deepcopy(state)
+        binding = game_player_binding(state, config)
+        self.assertEqual(binding['profile'], before['player_profile'])
+        self.assertEqual(binding['prompt'], prompt)
+        self.assertEqual(binding['persona']['display_name'], 'GLM 5.3 Flash')
+        self.assertEqual(state, before)
+        state['player_profile']['tool_schema_sha256'] = '0' * 64
+        with self.assertRaisesRegex(ValueError, 'Game player profile changed'):
+            game_player_binding(state, config)
+
     def test_legacy_games_keep_exact_identity_and_prompt_despite_new_persona_default(self):
         for model_profile in ('astra', 'openrouter-glm'):
             config = self.config(model_profile=model_profile)
