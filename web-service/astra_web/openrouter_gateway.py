@@ -25,6 +25,11 @@ from .openrouter_setup import OpenRouterSetupError, require_budget
 
 UPSTREAM_URL = 'https://openrouter.ai/api/v1/responses'
 MODEL = 'z-ai/glm-5.3-flash:nitro'
+# Public catalog verified 2026-09-13: https://openrouter.ai/api/v1/models
+# id z-ai/glm-5.3-flash has canonical_slug z-ai/glm-5.3-flash-20260826.
+# Routing metadata may use that dated identifier. Response.model remains
+# separately restricted to its two previously audited API response slugs.
+ENDPOINT_MODELS = (MODEL, 'z-ai/glm-5.3-flash', 'z-ai/glm-5.3-flash-20260826')
 MAX_REQUEST_BYTES = 2 * 1024 * 1024
 MAX_OUTPUT_TOKENS = 8192
 
@@ -248,6 +253,7 @@ class OpenRouterGateway:
                 await send({'type': 'http.response.body', 'body': b''})
         except Exception:
             evidence['interrupted'] = True
+            evidence['stream_complete'] = False
             if started:
                 await send({'type': 'http.response.body', 'body':
                     b'event: error\ndata: {"type":"error","code":"chess_gateway_upstream_interrupted","message":"Provider stream interrupted."}\n\n'})
@@ -268,14 +274,22 @@ class OpenRouterGateway:
             raise GatewayError('invalid_upstream_event') from None
         if not isinstance(event, dict):
             raise GatewayError('invalid_upstream_event')
+
+        def reject_model(field, value):
+            evidence['model_mismatch'] = True
+            evidence['model_mismatch_field'] = field
+            # Keep only a bounded model identifier, never arbitrary event data.
+            if isinstance(value, str) and re.fullmatch(r'[A-Za-z0-9._:/-]{1,200}', value):
+                evidence['mismatched_model'] = value
+            raise GatewayError('upstream_model_mismatch')
+
         response = event.get('response')
         if not isinstance(response, dict):
             response = event
         model = response.get('model')
         if model is not None:
             if model not in (MODEL, 'z-ai/glm-5.3-flash'):
-                evidence['model_mismatch'] = True
-                raise GatewayError('upstream_model_mismatch')
+                reject_model('response.model', model)
             evidence['observed_model'] = model
         for source, target in (('id', 'response_id'), ('provider', 'provider'), ('provider_name', 'provider')):
             value = response.get(source)
@@ -287,13 +301,15 @@ class OpenRouterGateway:
                 value = usage.get(name)
                 if type(value) in (int, float) and math.isfinite(value) and value >= 0:
                     evidence['usage'][name] = value
-        if event.get('type') == 'response.completed':
-            evidence['stream_complete'] = True
         # Documented opt-in Responses metadata can be on the terminal event or
         # response object. Cache hits may omit it. Never retain pipeline/summary.
         metadata = event.get('openrouter_metadata', response.get('openrouter_metadata'))
         if isinstance(metadata, dict):
             routing = {}
+            if 'requested' in metadata:
+                if metadata['requested'] != MODEL:
+                    reject_model('routing.requested', metadata['requested'])
+                routing['requested'] = metadata['requested']
             if type(metadata.get('attempt')) is int and metadata['attempt'] >= 0:
                 routing['attempt'] = metadata['attempt']
             if type(metadata.get('is_byok')) is bool:
@@ -306,15 +322,16 @@ class OpenRouterGateway:
                     if not isinstance(endpoint, dict) or endpoint.get('selected') is not True:
                         continue
                     model, provider = endpoint.get('model'), endpoint.get('provider')
-                    if model not in (MODEL, 'z-ai/glm-5.3-flash'):
-                        evidence['model_mismatch'] = True
-                        raise GatewayError('upstream_model_mismatch')
+                    if model not in ENDPOINT_MODELS:
+                        reject_model('routing.selected.model', model)
                     if isinstance(provider, str) and re.fullmatch(r'[A-Za-z0-9 ._:/-]{1,200}', provider):
                         selected.append({'model': model, 'provider': provider})
                 routing['selected'] = selected
                 if len(selected) == 1:
                     evidence['provider'] = selected[0]['provider']
             evidence['routing'] = routing
+        if event.get('type') == 'response.completed':
+            evidence['stream_complete'] = True
 
     async def __call__(self, scope, receive, send):
         if scope['type'] != 'http':

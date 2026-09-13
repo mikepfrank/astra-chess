@@ -23,14 +23,16 @@ def payload():
                           {'type': 'function', 'name': 'list'}, {'type': 'function', 'name': 'read'}]}] + functions}
 
 
-def sse(model='z-ai/glm-5.3-flash'):
+def sse(model='z-ai/glm-5.3-flash', *, endpoint_model=None, requested=None):
     return ('event: response.completed\ndata: ' + json.dumps({'type': 'response.completed',
         'response': {'id': 'response-test', 'model': model, 'provider': 'Fixture Provider',
                      'usage': {'input_tokens': 12, 'output_tokens': 3, 'total_tokens': 15, 'cost': .001},
                      'openrouter_metadata': {'attempt': 1, 'is_byok': False,
+                         **({'requested': requested} if requested is not None else {}),
                          'summary': 'Private routing summary.', 'pipeline': [{'data': 'Private pipeline.'}],
                          'endpoints': {'available': [
-                             {'model': model, 'provider': 'Fixture Provider', 'selected': True},
+                             {'model': model if endpoint_model is None else endpoint_model,
+                              'provider': 'Fixture Provider', 'selected': True},
                              {'model': 'unselected-model', 'provider': 'Other Provider', 'selected': False}]}},
                      'output': [{'text': 'Private model output excluded from telemetry.'}]}}) + '\n\n').encode()
 
@@ -224,6 +226,67 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
             self.assertIn('chess_gateway_upstream_interrupted', response.text)
             self.assertTrue(gateway.evidence[0]['model_mismatch'])
             self.assertFalse(gateway.evidence[0]['stream_complete'])
+            self.assertEqual(gateway.evidence[0]['model_mismatch_field'], 'response.model')
+            self.assertEqual(gateway.evidence[0]['mismatched_model'], 'unrequested-model')
+
+    async def test_verified_dated_endpoint_keeps_strict_response_model_and_completes(self):
+        async def dated(request):
+            return httpx.Response(200, content=sse(endpoint_model='z-ai/glm-5.3-flash-20260826', requested=MODEL),
+                                  headers={'content-type': 'text/event-stream'})
+        async with self.gateway(handler=dated) as gateway, self.client(gateway) as client:
+            response = await client.post('/v1/responses', json=payload())
+            self.assertNotIn('chess_gateway_upstream_interrupted', response.text)
+            self.assertIn('response.completed', response.text)
+            evidence = gateway.evidence[0]
+            self.assertEqual(evidence['observed_model'], 'z-ai/glm-5.3-flash')
+            self.assertEqual(evidence['routing']['requested'], MODEL)
+            self.assertEqual(evidence['routing']['selected'][0]['model'], 'z-ai/glm-5.3-flash-20260826')
+            self.assertTrue(evidence['stream_complete'])
+
+    async def test_dated_endpoint_does_not_expand_response_model_allowlist(self):
+        async def changed(request):
+            return httpx.Response(200, content=sse('z-ai/glm-5.3-flash-20260826'),
+                                  headers={'content-type': 'text/event-stream'})
+        async with self.gateway(handler=changed) as gateway, self.client(gateway) as client:
+            response = await client.post('/v1/responses', json=payload())
+            self.assertNotIn('response.completed', response.text)
+            self.assertEqual(gateway.evidence[0]['model_mismatch_field'], 'response.model')
+            self.assertFalse(gateway.evidence[0]['stream_complete'])
+
+    async def test_unrequested_metadata_or_unknown_endpoint_fails_before_completion(self):
+        for field, options, identifier in (
+            ('routing.requested', {'requested': 'unrequested-model'}, 'unrequested-model'),
+            ('routing.requested', {'requested': 'z-ai/glm-5.3-flash'}, 'z-ai/glm-5.3-flash'),
+            ('routing.selected.model', {'endpoint_model': 'unrequested-model'}, 'unrequested-model'),
+            ('routing.selected.model', {'endpoint_model': 'z-ai/glm-5.3-flash-20990101'},
+             'z-ai/glm-5.3-flash-20990101'),
+        ):
+            with self.subTest(field=field, identifier=identifier):
+                async def changed(request):
+                    return httpx.Response(200, content=sse(**options), headers={'content-type': 'text/event-stream'})
+                async with self.gateway(handler=changed) as gateway, self.client(gateway) as client:
+                    response = await client.post('/v1/responses', json=payload())
+                    self.assertNotIn('response.completed', response.text)
+                    self.assertIn('chess_gateway_upstream_interrupted', response.text)
+                    self.assertEqual(gateway.evidence[0]['observed_model'], 'z-ai/glm-5.3-flash')
+                    self.assertEqual(gateway.evidence[0]['model_mismatch_field'], field)
+                    self.assertEqual(gateway.evidence[0]['mismatched_model'], identifier)
+                    self.assertFalse(gateway.evidence[0]['stream_complete'])
+
+    async def test_late_invalid_metadata_revokes_completion_and_omits_arbitrary_identifier(self):
+        unsafe_identifier = 'Private arbitrary text.\n' + 'x' * 250
+        async def changed(request):
+            terminal = {'openrouter_metadata': {'requested': unsafe_identifier}}
+            body = sse() + ('data: ' + json.dumps(terminal) + '\n\n').encode()
+            return httpx.Response(200, content=body, headers={'content-type': 'text/event-stream'})
+        async with self.gateway(handler=changed) as gateway, self.client(gateway) as client:
+            response = await client.post('/v1/responses', json=payload())
+            self.assertIn('chess_gateway_upstream_interrupted', response.text)
+            evidence = gateway.evidence[0]
+            self.assertFalse(evidence['stream_complete'])
+            self.assertTrue(evidence['model_mismatch'])
+            self.assertNotIn('mismatched_model', evidence)
+            self.assertNotIn('Private arbitrary text', json.dumps(evidence) + response.text)
 
     async def test_only_one_active_request_and_cancellation_closes_upstream(self):
         stream = SlowStream()
