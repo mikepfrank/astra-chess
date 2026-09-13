@@ -1,5 +1,9 @@
 # Handoff: the hosted Astra Chess service
 
+For the separate `codex/openrouter-chess` experimental branch, start with the
+[September 13 alternate-model orientation](OPENROUTER-EXPERIMENT.md). The hosted
+baseline and its deployment history are preserved below.
+
 Prepared September 11, 2026, at a stopping point in Mike Frank's hosted-service
 session. This is an orientation for continuing this branch or making a separate
 experimental fork, not live game state or an instruction to start a game.
