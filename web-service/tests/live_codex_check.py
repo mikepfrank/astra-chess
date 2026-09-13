@@ -24,14 +24,18 @@ from astra_web.local_setup import load_local_environment
 
 def safe_error(value):
     text = json.dumps(value, ensure_ascii=True)
-    key = os.environ.get('OPENAI_API_KEY')
-    if key:
-        text = text.replace(key, '[redacted]')
+    for variable in ('OPENAI_API_KEY', 'OPENROUTER_API_KEY'):
+        key = os.environ.get(variable)
+        if key:
+            text = text.replace(key, '[redacted]')
     return re.sub(r'sk-[A-Za-z0-9_-]+', '[redacted]', text)[:2000]
 
 
 async def run(args):
-    config = Config(data_dir=args.data_dir.resolve(), player_mode='codex', codex_bin=args.codex_bin)
+    config = Config(data_dir=args.data_dir.resolve(), player_mode='codex', codex_bin=args.codex_bin,
+                    model_profile=getattr(args, 'profile', 'astra'))
+    from astra_web.player_profiles import profile_for
+    profile = profile_for(config)
     config.validate()
     store = Store(config)
     identity = Identity(config)
@@ -51,7 +55,7 @@ async def run(args):
     print('Private integration game:', state['id'], flush=True)
     try:
         for turn in range(args.turns):
-            print('Starting Astra action', turn + 1, flush=True)
+            print('Starting', profile.display_name, 'action', turn + 1, flush=True)
             await supervisor._active_run(state['id'])
             state = store.get(state['id'])
             print(json.dumps({'ply':len(state['moves']), 'moves':[m['san'] for m in state['moves']],
@@ -80,10 +84,17 @@ if __name__ == '__main__':
     parser.add_argument('--codex-bin', required=True)
     parser.add_argument('--data-dir', required=True, type=Path)
     parser.add_argument('--turns', type=int, choices=(1, 2), default=2)
+    parser.add_argument('--profile', choices=('astra', 'openrouter-glm'), default='astra')
     args = parser.parse_args()
-    load_local_environment(Path(__file__).resolve().parents[1])
-    if not os.environ.get('OPENAI_API_KEY'):
+    if args.profile == 'openrouter-glm':
+        from astra_web.openrouter_setup import load_openrouter_environment
+        load_openrouter_environment(Path(__file__).resolve().parents[1])
+        key_variable = 'OPENROUTER_API_KEY'
+    else:
+        load_local_environment(Path(__file__).resolve().parents[1])
+        key_variable = 'OPENAI_API_KEY'
+    if not os.environ.get(key_variable):
         with warnings.catch_warnings():
             warnings.simplefilter('error', getpass.GetPassWarning)
-            os.environ['OPENAI_API_KEY'] = getpass.getpass('Service API key (hidden): ').strip()
+            os.environ[key_variable] = getpass.getpass('Service API key (hidden): ').strip()
     raise SystemExit(asyncio.run(run(args)))

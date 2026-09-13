@@ -11,6 +11,7 @@ import time
 from .config import REPO_ROOT
 from .store import DailyResourceLimit
 from . import chess_game as game
+from .player_profiles import profile_for, verify_game_profile
 
 
 def interruption_kind(error):
@@ -37,7 +38,8 @@ class Supervisor:
 
     @property
     def available(self):
-        return self.player_factory is not None or (self.config.player_mode == 'codex' and bool(os.getenv('OPENAI_API_KEY')))
+        return self.player_factory is not None or (self.config.player_mode == 'codex' and
+            bool(os.getenv(profile_for(self.config).env_key)))
 
     def recover(self):
         self.store.recover_reservations()
@@ -243,6 +245,7 @@ class Supervisor:
         state = self.store.get(game_id)
         if state['status'] not in {'active', 'finished'}:
             return
+        verify_game_profile(state, self.config)
         post_game = state['status'] == 'finished'
         if not post_game and state['engine_fingerprint'] != game.fingerprint():
             raise ValueError('Engine revision changed; restore the recorded revision before continuing this game.')

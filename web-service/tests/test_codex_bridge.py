@@ -57,10 +57,11 @@ for wire in sys.stdin:
         if scenario == 'wrong_compaction_scope': conf['model_auto_compact_token_limit_scope'] = 'body_after_prefix'
         if scenario == 'missing_context_window': conf.pop('model_context_window')
         if scenario == 'wrong_context_window': conf['model_context_window'] = 272000
+        if scenario == 'wrong_provider_url': conf['model_providers'][conf['model_provider']]['base_url'] = 'https://wrong.invalid/v1'
         send({'id': request['id'], 'result': {'config': conf}})
     elif method in ('thread/start', 'thread/resume'):
-        result = {'thread': {'id': 'test-thread'}, 'model': 'gpt-6-astra',
-                  'modelProvider': 'astra_openai', 'reasoningEffort': 'ultra',
+        result = {'thread': {'id': 'test-thread'}, 'model': params['model'],
+                  'modelProvider': params['modelProvider'], 'reasoningEffort': params['config']['model_reasoning_effort'],
                   'approvalPolicy': 'never', 'approvalsReviewer': 'user',
                   'sandbox': {'type': 'readOnly', 'networkAccess': False},
                   'instructionSources': [], 'runtimeWorkspaceRoots': [], 'activePermissionProfile': None}
@@ -168,6 +169,7 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         self.public = []
         self.wires = []
         self.children = []
+        self.child_envs = []
         self.environ = patch.dict(os.environ, {'OPENAI_API_KEY': 'unit-test-placeholder',
                                               'SMTP_PASSWORD': 'private-smtp-placeholder'})
         self.environ.start()
@@ -193,6 +195,7 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         send_original = bridge._Rpc.send
 
         async def spawn(*args, **kwargs):
+            self.child_envs.append(kwargs['env'])
             process = await spawn_original(sys.executable, str(fake), *args[1:], **kwargs)
             self.children.append(process)
             self.assertNotIn('SMTP_PASSWORD', kwargs['env'])
@@ -212,6 +215,77 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(self.children)
         self.assertTrue(all(p.returncode is not None for p in self.children))
         self.assertFalse(self.player._processes)
+
+    def use_openrouter(self):
+        from astra_web.player_profiles import get_profile
+        profile = get_profile('openrouter-glm')
+        self.config.model_profile = profile.name
+        self.config.model, self.config.reasoning = profile.model, profile.reasoning
+        self.player = bridge.CodexPlayer(self.config)
+        os.environ['OPENROUTER_API_KEY'] = 'unit-openrouter-placeholder'
+
+    async def test_openrouter_native_tools_resume_and_throughput_configuration(self):
+        self.use_openrouter()
+        with patch('astra_web.openrouter_setup.require_budget', return_value={}) as budget:
+            await self.run_fake()
+            await self.run_fake(thread_id='test-thread')
+        self.assertEqual(budget.call_count, 2)
+        folder = self.root / 'players/game-1'
+        config_text = (folder / 'codex-home/config.toml').read_text()
+        self.assertIn('z-ai/glm-5.3-flash:nitro', config_text)
+        self.assertIn('base_url = "http://127.0.0.1:', config_text)
+        self.assertIn('env_key = "CHESS_GATEWAY_TOKEN"', config_text)
+        self.assertTrue(all('OPENROUTER_API_KEY' not in env and 'OPENAI_API_KEY' not in env
+                            for env in self.child_envs))
+        self.assertIn('code_mode = false', config_text)
+        self.assertNotIn('unit-openrouter-placeholder', config_text)
+        saved = json.loads((folder / 'bridge-state.json').read_text())
+        self.assertEqual(saved['player_profile']['canonical_model'], 'z-ai/glm-5.3-flash')
+        self.assertEqual(saved['usage_total'], 40)
+        starts = [p['params'] for p in self.wires if p.get('method') == 'thread/start']
+        self.assertEqual(len(starts), 1)
+        self.assertIn('GLM 5.3 Flash', starts[0]['baseInstructions'])
+        self.assertNotIn('JavaScript tool orchestration', starts[0]['baseInstructions'])
+        self.assertEqual({t['name'] for t in starts[0]['dynamicTools']}, bridge.TOOL_NAMES)
+        self.assert_reaped()
+
+    async def test_openrouter_refuses_provider_url_mismatch_before_model_turn(self):
+        self.use_openrouter()
+        with patch('astra_web.openrouter_setup.require_budget', return_value={}):
+            with self.assertRaisesRegex(bridge.CodexError, 'provider'):
+                await self.run_fake('wrong_provider_url')
+        self.assertFalse(any(p.get('method') == 'turn/start' for p in self.wires))
+        self.assert_reaped()
+
+    async def test_openrouter_budget_denial_prevents_app_server_start(self):
+        self.use_openrouter()
+        with patch('astra_web.openrouter_setup.require_budget', side_effect=ValueError('budget unavailable')):
+            with self.assertRaisesRegex(ValueError, 'budget unavailable'):
+                await self.run_fake()
+        self.assertEqual(self.wires, [])
+        self.assert_reaped()
+
+    async def test_openrouter_refuses_changed_saved_profile_before_process_or_budget(self):
+        self.use_openrouter()
+        with patch('astra_web.openrouter_setup.require_budget', return_value={}) as budget:
+            await self.run_fake()
+            saved_path = self.root / 'players/game-1/bridge-state.json'
+            saved = json.loads(saved_path.read_text())
+            saved['player_profile']['routing'] = 'different-routing'
+            saved_path.write_text(json.dumps(saved))
+            process_count = len(self.children)
+            with self.assertRaisesRegex(bridge.CodexError, 'profile differs'):
+                await self.run_fake(thread_id='test-thread')
+            self.assertEqual(len(self.children), process_count)
+            self.assertEqual(budget.call_count, 1)
+
+    def test_openrouter_child_receives_only_its_provider_credential(self):
+        self.use_openrouter()
+        env = bridge._child_environment(self.root, self.root / 'home', include_key=True,
+                                       env_key='OPENROUTER_API_KEY')
+        self.assertEqual(env['OPENROUTER_API_KEY'], 'unit-openrouter-placeholder')
+        self.assertNotIn('OPENAI_API_KEY', env)
+        self.assertNotIn('SMTP_PASSWORD', env)
 
     async def test_start_resume_usage_privacy_and_isolation(self):
         first = await self.run_fake()

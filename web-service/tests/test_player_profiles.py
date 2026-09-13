@@ -1,0 +1,287 @@
+"""Profile isolation and admission checks; no model, network or engine queries."""
+import copy
+import hashlib
+import os
+from pathlib import Path
+import tempfile
+from types import SimpleNamespace
+import unittest
+from unittest.mock import Mock, patch
+
+from astra_web import chess_game as game
+from astra_web.config import APP_ROOT, Config
+from astra_web.player_profiles import (
+    get_profile, player_prompt, profile_for, profile_identity, verify_game_profile,
+)
+from astra_web.supervisor import Supervisor
+
+
+class ProfileFixture:
+    def setUp(self):
+        super().setUp()
+        environment = patch.dict(os.environ, {}, clear=True)
+        environment.start()
+        self.addCleanup(environment.stop)
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        self.data_dir = Path(folder.name)
+
+    def config(self, **kwargs):
+        return Config(data_dir=self.data_dir, **kwargs)
+
+    def state(self, config=None, side='black'):
+        return game.new_game({'id': 'profile-fixture', 'name': 'Fixture human'},
+                             side, config or self.config())
+
+
+class PlayerProfileConfigTests(ProfileFixture, unittest.TestCase):
+    def test_default_retains_astra_identity_reasoning_and_code_mode(self):
+        config = self.config()
+        config.validate()
+        profile = profile_for(config)
+        self.assertEqual(config.model_profile, 'astra')
+        self.assertEqual(config.model, 'gpt-6-astra')
+        self.assertEqual(config.reasoning, 'ultra')
+        self.assertEqual(profile.provider, 'astra_openai')
+        self.assertEqual(profile.env_key, 'OPENAI_API_KEY')
+        self.assertTrue(profile.code_mode)
+        self.assertEqual(profile.context_window, 400_000)
+        self.assertEqual(profile.compact_limit, 250_000)
+
+    def test_glm_uses_requested_model_throughput_routing_and_separate_credential(self):
+        config = self.config(model_profile='openrouter-glm')
+        config.validate()
+        profile = profile_for(config)
+        self.assertEqual(config.model, 'z-ai/glm-5.3-flash:nitro')
+        self.assertEqual(profile.canonical_model, 'z-ai/glm-5.3-flash')
+        self.assertEqual(config.reasoning, 'high')
+        self.assertEqual(profile.provider, 'chess_openrouter')
+        self.assertEqual(profile.base_url, 'https://openrouter.ai/api/v1')
+        self.assertEqual(profile.env_key, 'OPENROUTER_API_KEY')
+        self.assertEqual(profile.routing, 'throughput-nitro')
+        self.assertFalse(profile.code_mode)
+        self.assertLess(profile.compact_limit, profile.context_window)
+
+    def test_environment_selects_profile_at_config_creation(self):
+        astra = self.config()
+        with patch.dict(os.environ, {'ASTRA_MODEL_PROFILE': 'openrouter-glm'}):
+            glm = self.config()
+            glm.validate()
+        self.assertEqual(glm.model_profile, 'openrouter-glm')
+        self.assertEqual(glm.model, 'z-ai/glm-5.3-flash:nitro')
+        self.assertEqual(astra.model_profile, 'astra')
+        self.assertEqual(self.config().model_profile, 'astra')
+
+    def test_unknown_profile_fails_instead_of_falling_back(self):
+        for name in ('openrouter', 'OPENROUTER-GLM', '', None):
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'Unknown chess model profile'):
+                get_profile(name)
+        with patch.dict(os.environ, {'ASTRA_MODEL_PROFILE': 'typo'}):
+            with self.assertRaisesRegex(ValueError, 'Unknown chess model profile'):
+                self.config()
+
+    def test_explicit_model_and_reasoning_cannot_override_selected_profile(self):
+        for overrides in (
+            {'model': 'z-ai/glm-5.3-flash:nitro', 'reasoning': 'high'},
+            {'model_profile': 'openrouter-glm', 'model': 'gpt-6-astra'},
+            {'model_profile': 'openrouter-glm', 'model': 'z-ai/glm-5.3-flash'},
+            {'model_profile': 'openrouter-glm', 'reasoning': 'ultra'},
+        ):
+            with self.subTest(overrides=overrides):
+                config = self.config(**overrides)
+                with self.assertRaisesRegex(ValueError, 'must match the selected chess profile'):
+                    config.validate()
+
+    def test_legacy_config_without_profile_is_only_compatible_with_astra(self):
+        legacy = SimpleNamespace(model='gpt-6-astra', reasoning='ultra')
+        self.assertEqual(profile_for(legacy).name, 'astra')
+        legacy.model = 'z-ai/glm-5.3-flash:nitro'
+        legacy.reasoning = 'high'
+        with self.assertRaisesRegex(ValueError, 'must match the selected chess profile'):
+            profile_for(legacy)
+
+    def test_glm_experiments_require_exactly_one_worker(self):
+        for count in (0, 2, 16):
+            with self.subTest(count=count):
+                with self.assertRaisesRegex(ValueError, 'require one worker'):
+                    self.config(model_profile='openrouter-glm', max_workers=count).validate()
+        self.config(model_profile='openrouter-glm', max_workers=1).validate()
+        self.config(model_profile='astra', max_workers=2).validate()
+
+    def test_available_uses_only_selected_profiles_credential(self):
+        for profile, correct_key, other_key in (
+            ('astra', 'OPENAI_API_KEY', 'OPENROUTER_API_KEY'),
+            ('openrouter-glm', 'OPENROUTER_API_KEY', 'OPENAI_API_KEY'),
+        ):
+            with self.subTest(profile=profile):
+                supervisor = Supervisor(self.config(model_profile=profile, player_mode='codex'),
+                                        Mock(), Mock())
+                self.assertFalse(supervisor.available)
+                with patch.dict(os.environ, {other_key: 'fixture-unused-key'}):
+                    self.assertFalse(supervisor.available)
+                with patch.dict(os.environ, {correct_key: 'fixture-selected-key'}):
+                    self.assertTrue(supervisor.available)
+
+
+class PlayerPromptAndPersistenceTests(ProfileFixture, unittest.TestCase):
+    def test_astra_prompt_remains_the_unmodified_canonical_prompt(self):
+        canonical = (APP_ROOT / 'prompts' / 'player.md').read_text(encoding='utf-8')
+        self.assertEqual(player_prompt(get_profile('astra')), canonical)
+
+    def test_glm_prompt_identifies_glm_and_explains_direct_chess_tool_calls(self):
+        prompt = player_prompt(get_profile('openrouter-glm'))
+        self.assertTrue(prompt.startswith('You are GLM 5.3 Flash (z-ai/glm-5.3-flash),'))
+        self.assertNotIn('Astra', prompt)
+        self.assertNotIn("Codex's JavaScript tool orchestration", prompt)
+        self.assertIn('named function calls. Call these tools directly', prompt)
+        self.assertIn('Call chess_status at the start of every response attempt', prompt)
+        self.assertIn('All game actions use only the supplied chess tools.', prompt)
+        self.assertIn('Do not delegate play.', prompt)
+
+    def test_new_games_record_profile_and_effective_model_for_both_player_colors(self):
+        for profile in ('astra', 'openrouter-glm'):
+            config = self.config(model_profile=profile)
+            for human_side in ('white', 'black'):
+                with self.subTest(profile=profile, human_side=human_side):
+                    state = self.state(config, human_side)
+                    identity = state['player_profile']
+                    self.assertEqual(identity, profile_identity(config))
+                    self.assertEqual(identity['driver'], 'codex-app-server')
+                    self.assertEqual(identity['model'], state['model'])
+                    self.assertEqual(identity['reasoning'], state['reasoning'])
+                    self.assertEqual(identity['prompt_sha256'], hashlib.sha256(
+                        player_prompt(profile_for(config)).encode('utf-8')).hexdigest())
+                    snapshot = game.model_snapshot(state)
+                    self.assertEqual(snapshot['model'], config.model)
+                    self.assertEqual(snapshot['reasoning'], config.reasoning)
+                    self.assertEqual(snapshot['player_name'], profile_for(config).display_name)
+                    player_tag = 'Black' if human_side == 'white' else 'White'
+                    self.assertIn(f'[{player_tag} "{profile_for(config).display_name}"]', game.pgn(state))
+                    verify_game_profile(state, config)
+
+    def test_new_game_cannot_be_created_with_inconsistent_profile(self):
+        with self.assertRaisesRegex(ValueError, 'must match the selected chess profile'):
+            self.state(self.config(model_profile='openrouter-glm', model='gpt-6-astra'))
+
+    def test_saved_identity_is_independent_and_rejects_configuration_drift(self):
+        config = self.config(model_profile='openrouter-glm')
+        original = self.state(config)
+        changes = {
+            'model': 'gpt-6-astra', 'provider': 'astra_openai',
+            'base_url': 'https://example.invalid/v1', 'reasoning': 'ultra',
+            'routing': 'provider-default', 'code_mode': True,
+            'context_window': 400_000, 'compact_limit': 250_000,
+            'version': original['player_profile']['version'] + 1, 'max_output_tokens': 16384,
+            'prompt_sha256': '0' * 64,
+        }
+        for key, changed in changes.items():
+            with self.subTest(field=key):
+                state = copy.deepcopy(original)
+                state['player_profile'][key] = changed
+                with self.assertRaisesRegex(ValueError, 'Game player profile changed'):
+                    verify_game_profile(state, config)
+        verify_game_profile(original, config)
+
+    def test_changing_prompt_changes_identity_and_blocks_existing_game(self):
+        config = self.config(model_profile='openrouter-glm')
+        state = self.state(config)
+        canonical = (APP_ROOT / 'prompts' / 'player.md').read_text(encoding='utf-8')
+        with patch('astra_web.player_profiles.Path.read_text', return_value=canonical + '\nChanged policy.\n'):
+            self.assertNotEqual(profile_identity(config)['prompt_sha256'],
+                                state['player_profile']['prompt_sha256'])
+            with self.assertRaisesRegex(ValueError, 'Game player profile changed'):
+                verify_game_profile(state, config)
+        verify_game_profile(state, config)
+
+    def test_legacy_games_resume_only_with_original_astra_model_and_reasoning(self):
+        astra, glm = self.config(), self.config(model_profile='openrouter-glm')
+        legacy = self.state(astra)
+        del legacy['player_profile']
+        verify_game_profile(legacy, astra)
+        self.assertEqual(game.snapshot(legacy)['player_name'], 'Astra')
+        self.assertIn('[White "Astra"]', game.pgn(legacy))
+        for changed in (
+            dict(legacy, model='other-model'),
+            dict(legacy, reasoning='high'),
+            {k: v for k, v in legacy.items() if k != 'model'},
+        ):
+            with self.subTest(model=changed.get('model'), reasoning=changed['reasoning']):
+                with self.assertRaisesRegex(ValueError, 'Game model metadata differs'):
+                    verify_game_profile(changed, astra)
+        with self.assertRaisesRegex(ValueError, 'Game model metadata differs'):
+            verify_game_profile(legacy, glm)
+        legacy_glm = self.state(glm)
+        del legacy_glm['player_profile']
+        with self.assertRaisesRegex(ValueError, 'Legacy game cannot resume'):
+            verify_game_profile(legacy_glm, glm)
+
+    def test_new_profile_games_cannot_resume_under_the_other_profile(self):
+        astra, glm = self.config(), self.config(model_profile='openrouter-glm')
+        for state, config in ((self.state(astra), glm), (self.state(glm), astra)):
+            with self.subTest(model=state['model']):
+                with self.assertRaisesRegex(ValueError, 'Game model metadata differs'):
+                    verify_game_profile(state, config)
+
+    def test_new_game_rejects_top_level_metadata_contradicting_recorded_profile(self):
+        for profile in ('astra', 'openrouter-glm'):
+            config = self.config(model_profile=profile)
+            original = self.state(config)
+            for field, replacement in (('model', 'different-model'), ('reasoning', 'low')):
+                for remove in (False, True):
+                    with self.subTest(profile=profile, field=field, remove=remove):
+                        state = copy.deepcopy(original)
+                        if remove:
+                            del state[field]
+                        else:
+                            state[field] = replacement
+                        self.assertEqual(state['player_profile'], profile_identity(config))
+                        with self.assertRaisesRegex(ValueError, 'Game model metadata differs'):
+                            verify_game_profile(state, config)
+
+
+class PlayerProfileAdmissionTests(ProfileFixture, unittest.IsolatedAsyncioTestCase):
+    async def test_mismatch_stops_before_resource_reservation_clock_or_player_including_postgame(self):
+        config = self.config(model_profile='openrouter-glm')
+        for status in ('active', 'finished'):
+            for legacy in (False, True):
+                for human_side in ('white', 'black'):
+                    with self.subTest(status=status, legacy=legacy, human_side=human_side):
+                        state = self.state(self.config(), human_side)
+                        state['status'] = status
+                        if legacy:
+                            del state['player_profile']
+                        before = copy.deepcopy(state)
+                        store, players = Mock(), Mock()
+                        store.get.return_value = state
+                        supervisor = Supervisor(config, store, Mock(), players)
+                        with patch('astra_web.supervisor.game.clock') as clock:
+                            with self.assertRaisesRegex(ValueError, 'profile'):
+                                await supervisor._active_run(state['id'])
+                        store.reserve.assert_not_called()
+                        store.mutate.assert_not_called()
+                        clock.assert_not_called()
+                        players.assert_not_called()
+                        self.assertEqual(state, before)
+
+    async def test_matching_profile_reaches_admission_for_active_and_finished_games(self):
+        class ReachedAdmission(Exception):
+            pass
+
+        for profile in ('astra', 'openrouter-glm'):
+            for status in ('active', 'finished'):
+                with self.subTest(profile=profile, status=status):
+                    config = self.config(model_profile=profile)
+                    state = self.state(config)
+                    state['status'] = status
+                    store, players = Mock(), Mock()
+                    store.get.return_value = state
+                    store.reserve.side_effect = ReachedAdmission
+                    supervisor = Supervisor(config, store, Mock(), players)
+                    with self.assertRaises(ReachedAdmission):
+                        await supervisor._active_run(state['id'])
+                    store.reserve.assert_called_once_with()
+                    players.assert_not_called()
+
+
+if __name__ == '__main__':
+    unittest.main()

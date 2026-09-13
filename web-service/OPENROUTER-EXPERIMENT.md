@@ -1,119 +1,170 @@
-# Alternate-model chess experiment
+# OpenRouter chess experiment
 
-Orientation checkpoint: September 13, 2026. This branch explores whether other
-LLMs can operate the hosted chess toolkit, initially through Codex CLI and
-OpenRouter on Windows, before a possible separate Lightsail deployment.
-No alternate-model implementation or paid model test has been performed yet.
+Checkpoint: September 13, 2026. Mike selected Codex CLI as the first driver,
+`z-ai/glm-5.3-flash` as the first model, throughput-oriented routing and a $50
+initial local experiment budget. This branch implements that configuration with
+the existing from-scratch chess engine and hosted supervisor.
 
-## Checkout and scope
+## Scope and isolation
 
 - Branch: `codex/openrouter-chess`, based on hosted commit
   `306db42ba31e256a9425f51ff93e587982202427`.
-- Local worktree: `C:/Users/MikeFrank/Documents/ChatGPT/Chess/openrouter-worktree`.
-- The original `Chess` checkout remains on `main`; `Chess/hosted-worktree`
-  remains on `codex/hosted-chess`.
-- Work here with disposable data, isolated per-game model homes and credentials,
-  and a distinct local port/origin. This orientation launches no server.
-- Later Lightsail experiments are intended for a new Linux account and separate
-  configuration, data, service name and port. Mike will create that account.
-  A separate account still shares host CPU and memory; capacity needs checking
-  before simultaneous experimental and production workers run.
-- Production service, player records, operator credentials and the original
-  engine/game journals are outside this experiment's working data.
+- Worktree: `C:/Users/MikeFrank/Documents/ChatGPT/Chess/openrouter-worktree`.
+- Keep development, disposable games and credentials here. The original `main`
+  checkout, `codex/hosted-chess` checkout and production records remain separate.
+- The local launcher binds to `127.0.0.1:8790`; its default data directory is
+  `web-service/var/openrouter-local`. It overrides inherited data-directory and
+  origin settings and accepts only a dedicated data directory below this
+  worktree's `web-service/var`.
+- A later Lightsail trial will use a new Linux account, service, configuration,
+  data directory and port. Mike will create that account. Shared host capacity
+  still needs checking before experimental and production workers run together.
 
-Read [the hosted handoff](HANDOFF.md), [architecture](docs/ARCHITECTURE.md),
-[Codex integration](docs/CODEX-INTEGRATION.md), [configuration and launch
-reference](README.md), and [player instructions](prompts/player.md) for the
-baseline. The root [handoff](../HANDOFF.md) preserves the original experiment's
-intent; its pre-service status is historical.
+Read the [hosted handoff](HANDOFF.md), [architecture](docs/ARCHITECTURE.md) and
+[player instructions](prompts/player.md) for the preserved chess workflow.
+This work does not deploy a service or publish a new domain.
 
-## Findings from source review
+## Driver and playing contract
 
-The supervisor already accepts an injected player implementing async
-`run(game_id, snapshot, tool_handler, emit, thread_id=None)` and `close()`.
-See [supervisor.py](astra_web/supervisor.py) and
-[codex_bridge.py](astra_web/codex_bridge.py). Authoritative moves, clocks,
-candidate/query requirements, tactical evidence and resource enforcement stay
-with the supervisor. The existing `player_factory` is a testing seam, not a
-complete production provider registry.
+The explicit `openrouter-glm` profile selects
+`z-ai/glm-5.3-flash:nitro` through OpenRouter's Responses endpoint. OpenRouter
+documents `:nitro` as equivalent to `provider.sort: "throughput"`: eligible
+providers are tried in throughput order. It is a routing preference for the
+selected model, not a guaranteed speed or a model substitution. See
+[provider routing](https://openrouter.ai/docs/guides/routing/provider-selection).
 
-The current bridge deliberately pins the OpenAI endpoint and credential name,
-Astra/Ultra configuration, code mode, 400,000-token context and 250,000-token
-compaction trigger. Availability checks and local credential setup also assume
-OpenAI. An alternate provider therefore needs an explicit configuration profile
-and corresponding effective-configuration checks, not just another key.
+| Setting | Initial experiment |
+| --- | --- |
+| Driver | Codex app-server, direct function tools |
+| Model | `z-ai/glm-5.3-flash:nitro` |
+| Reasoning setting | `high` |
+| Context window / compaction trigger | 128,000 / 80,000 total-context tokens |
+| Output ceiling | 8,192 tokens per provider request |
+| Active workers | One |
+| Cumulative token ceiling per action | At most 1,000,000, including repeated input |
+| Chess clock | 90 minutes, +30 seconds per own move, +30 minutes after move 40 |
+| Ordinary / critical turn targets | 120 / 240 seconds, reduced by earned balance |
 
-The seven chess tools have ordinary JSON schemas. Astra's requirement for Codex
-code mode is separate from the chess-tool contract. Whether another model can
-use those tools through this app-server integration remains unverified. Preserve
-capability denial, process cleanup, early continuation persistence, truthful
-usage accounting, public/private output separation and state reconciliation.
+The supervisor retains authoritative moves, clocks, legal-action checks,
+independent candidate registration, mandatory current-position search and private
+query evidence. The model still reviews counterplay and chooses its move. There
+is no automatic engine-only move or model downgrade when an action fails.
 
-New games currently record model, reasoning and engine fingerprint. They do not
-bind a complete provider/driver/prompt configuration or guard against all
-configuration changes on resume. Before real experimental games, persist that
-identity and reject incompatible resumes. Record requested and observed model
-identity and provider routing where available; do not silently substitute models.
-Adapt the opponent's displayed identity and runtime-specific prompt wording
-while retaining its chess method.
+New games and saved Codex recovery state bind the model profile, prompt hash and
+tool-schema hash.
+Incompatible resumes are rejected before model work, including postgame chat.
+Legacy games can resume only with their original Astra configuration. The prompt
+uses the selected model's identity and function-call interface while preserving
+the playing method. The engine source fingerprint remains separately checked.
 
-## Provider feasibility and local prerequisite
+## Observed CLI boundary and local gateway
 
-OpenRouter's [Codex CLI guide](https://openrouter.ai/docs/cookbook/coding-agents/codex-cli)
-documents a custom provider using its API endpoint and `OPENROUTER_API_KEY`.
-The [official Codex configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference)
-documents custom provider base URLs, environment credentials and Responses
-transport. These sources were opened on September 13, 2026. They establish a
-documented configuration path, not compatibility of a selected non-OpenAI model
-with this service's tools, reasoning, continuation or compaction lifecycle.
+The exact local build `0.154.0-alpha.6.2` passed the isolated, no-key startup
+configuration audit. A separate loopback wire capture observed two additional
+built-in advertisements despite the restricted configuration:
+`request_user_input` and the `skills` namespace. Startup configuration alone
+therefore did not establish the intended model-visible tool list.
 
-The local `codex --version` currently resolves to `0.154.0-alpha.6.2`.
-The baseline bridge accepts only `0.153.4` and `0.154.0`, including rejection of
-version suffixes. Select an already audited executable if available, or audit a
-separately selected build before changing the accepted versions. Do not update
-the desktop installation or another checkout's runtime for this experiment.
+The experimental profile admits that exact build with an authenticated local
+gateway. The gateway removes those observed declarations, validates the seven
+canonical chess schemas, caps output, and forwards only to the fixed OpenRouter
+Responses endpoint. Codex receives a temporary local credential; the OpenRouter
+key stays in the service. Unknown tool shapes are rejected. The forwarded tools
+are `chess_status`, `chess_candidate`, `chess_query`, `chess_query_details`,
+`chess_critical`, `chess_choose` and `chess_comment`.
 
-## Proposed first implementation and validation
+Every provider request receives a fresh budget check. The gateway disallows
+concurrent requests and does not retry HTTP requests or follow redirects. The
+bridge also rejects unexpected capabilities and model rerouting. The alpha build
+is admitted only for this experimental profile; the original Astra profile's
+audited-version policy remains separate.
 
-1. Retain Codex app-server as the first transport to investigate. Define an
-   isolated provider/model profile with supported reasoning, context and tool
-   settings. Keep the engine and initial wall-time policy fixed.
-2. Extend configuration/contract tests with synthetic responses and disposable
-   data. Cover allowed tools, unknown requests, model mismatches, usage,
-   cancellation, duplicate acceptance, continuation/restart and output privacy.
-   Treat context maintenance as compaction only when validated by the adapter.
-3. Run a no-key protocol/configuration audit. This can validate local boundaries
-   but cannot establish model access, real tool use or durable resume.
-4. With model selection, secure key setup and a spending ceiling established,
-   perform two real local actions separated by a deterministic legal test reply.
-   Adapt the existing [live check](tests/live_codex_check.py); retain all private
-   evidence. This is an operational smoke test, not a strength measurement.
-5. Compare a small fixed set of positions with authentic legal histories, then
-   paired games if successful. Record initial candidate, final choice, targeted
-   questions, completed search depth, failures, wall time, token categories and
-   available billed cost. Use the same engine revision, hardware and search/time
-   limits. Engine scores are diagnostic evidence, not independent strength labels.
+Implementation: [profiles](astra_web/player_profiles.py),
+[bridge](astra_web/codex_bridge.py), [gateway](astra_web/openrouter_gateway.py).
+The [startup audit](tests/audit_model_profile.py) and
+[wire audit](tests/audit_model_wire.py) use isolated homes and local evidence.
+Neither audit establishes real model tool use or playing strength.
 
-A direct OpenRouter tool-calling player could use the existing supervisor seam
-if Codex compatibility prevents progress, provided Mike accepts that as a
-separate experimental condition. Equal wall-time trials are the proposed initial
-comparison; equal-cost trials can answer a different question later.
+## Credentials and the $50 session budget
 
-## Decisions requested from Mike
+The existing OpenRouter key can be used without changing its provider settings.
+The private budget ledger pins that credential and records the first model-action
+preflight's cumulative OpenRouter and BYOK usage. All subsequent increases in
+both counters count against the experiment's $50 lifetime allowance, including
+other activity using the same key. New games, application restarts and provider
+daily resets do not reset this baseline. Credential swaps, decreasing counters,
+missing telemetry and nonfinite values stop new work.
 
-- Is retaining Codex a strict requirement or the preferred first approach, with
-  a separate driver acceptable if needed?
-- Which one or two models should lead the experiment, or should Astra select a
-  shortlist after reviewing current capabilities and prices?
-- What total OpenRouter spending ceiling applies to the initial local trials?
+Remaining allowance is the smaller of `$50 - combined usage increases` and the
+provider's remaining key allowance, when one is reported. New actions and
+provider requests stop at $5 or less remaining. This is **local usage-delta
+admission control, not a provider-enforced hard spending cap**: usage reporting
+delay and work already in flight can exceed an allowance. The one-worker limit,
+output ceiling and $5 reserve provide additional bounds for the small first trial.
+OpenRouter documents the [usage fields](https://openrouter.ai/docs/api_reference/limits)
+and [request-time cap limitations](https://openrouter.zendesk.com/hc/en-us/articles/51680687417499-Can-I-create-one-API-key-per-user-with-its-own-spending-limit-Management-API-keys).
 
-No secret is needed for this source review. Set up the key through private local
-configuration when paid testing is ready; do not put it in this document or Git.
+The [setup helper](configure_openrouter.py) accepts a hidden terminal prompt,
+validates key telemetry without an inference call, and uses Windows user-scoped
+DPAPI storage under private `var/` paths. It reads no OpenAI setup or credential.
+Explicit `OPENROUTER_API_KEY` environment configuration is also supported. Setup
+does not establish a new budget baseline; the first action preflight does.
+Run setup and the service as the same Windows user. Keep keys out of commands,
+screenshots, source control and public replay records.
 
-## Verification at this checkpoint
+## Local setup and checks
 
-Reviewed the maintained handoffs, prompt, architecture, integration reference,
-configuration, driver/supervisor interfaces and existing test contracts. Created
-the isolated worktree and checked the default CLI version. Changes at this
-checkpoint are documentation only; application tests were not rerun. No provider
-model calls, local/live games, production access or deployment occurred.
+From this worktree's `web-service` directory, create its own virtual environment
+with Python 3.12; do not install packages into another checkout's environment:
+
+```powershell
+# Use the bundled Python's absolute path if python is unavailable on PATH.
+python -m venv .venv
+& ./.venv/Scripts/python.exe -m pip install -r requirements.txt
+$chessCodex = 'C:/path/to/reviewed/codex.exe'
+& ./.venv/Scripts/python.exe configure_openrouter.py --codex-bin $chessCodex
+& ./.venv/Scripts/python.exe run_openrouter.py
+```
+
+Open `http://127.0.0.1:8790`. Close that local server before the isolated paid
+smoke test so only one experiment uses the allowance at a time:
+
+```powershell
+& ./.venv/Scripts/python.exe -m unittest discover -s tests -v
+& ./.venv/Scripts/python.exe tests/live_codex_check.py --live --profile openrouter-glm --codex-bin $chessCodex --data-dir var/openrouter-smoke --turns 2
+```
+
+The paid check uses the real supervisor and engine for two model actions,
+separated by a deterministic legal test-opponent reply. It tests initial play
+and continuation in one saved conversation. Its private records remain in the
+selected data directory; the spending baseline is shared across this worktree.
+Successful smoke tests establish operation and resumption, not Elo or strength.
+Later comparisons should hold engine revision, hardware and wall-time policy
+fixed, using genuine legal histories and recorded candidate/search decisions.
+
+## Validation checkpoint
+
+The complete regression suite passed **300 tests with 2 skipped** on September
+13, 2026, on this Windows host.
+The real Codex executable also completed the gateway wire audit against a local
+mock Responses provider, with the seven canonical chess tools forwarded.
+
+The paid two-action test used the real supervisor and from-scratch engine. GLM
+played `1.e4`, resumed its saved conversation after the deterministic test reply
+`1...a6`, and played `2.d4`. Both moves were accepted, with one completed engine
+query and one public comment per model turn. Charged own-turn times were 20.93
+and 23.14 seconds. This is an operational check, not a strength measurement.
+
+All ten provider requests completed successfully with the selected GLM model.
+OpenRouter generation metadata identified BaseTen, Crusoe and Together as the
+providers and reported 132 native reasoning tokens. Total reported inference
+cost was **$0.00629936**; the refreshed local budget had **$49.99370064** remaining.
+The [sanitized experiment record](experiments/glm-5.3-flash-smoke-2026-09-13.json)
+contains per-request cost, timing and provider metadata without credentials,
+private response IDs or model reasoning text.
+
+Long-game context compaction, playing strength and Linux deployment remain
+untested. In particular, the gateway currently accepts the audited action request
+shape; automatic compaction must be observed and validated before relying on
+long-running games. A later Lightsail deployment requires its own configuration
+and process-isolation checks.

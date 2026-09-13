@@ -29,7 +29,7 @@ async def audit(codex_bin, audit_dir):
     (home / 'config.toml').write_text(bridge._config_text('gpt-6-astra', 'ultra'), encoding='utf-8')
     env = bridge._child_environment(root, home, include_key=False)
     assert 'OPENAI_API_KEY' not in env and 'CODEX_API_KEY' not in env
-    player = bridge.CodexPlayer(SimpleNamespace(codex_bin=codex_bin))
+    player = bridge.CodexPlayer(SimpleNamespace(codex_bin=codex_bin, model='gpt-6-astra', reasoning='ultra'))
     version = await player._version_check(env, workspace)
     events = Counter()
     report = {'cli_version': version, 'audit_directory': str(root), 'credentials_inherited': False,

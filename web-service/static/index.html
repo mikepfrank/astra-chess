@@ -14,7 +14,7 @@
     <nav aria-label="Your chess games"><a id="monitor-link" class="text-button small" href="/monitor/" hidden>Monitor</a><button id="games-button" class="text-button">Your games</button><button id="account-button" class="outline small">Take a seat</button></nav>
   </header>
   <main class="page-shell">
-    <div class="intro"><h1>Play Astra</h1><p class="intro-note">Take your time. You can return to a saved game over several days.</p></div>
+    <div class="intro"><h1 id="play-title">Play Astra</h1><p class="intro-note">Take your time. You can return to a saved game over several days.</p></div>
     <div id="availability-banner" class="notice availability-notice" hidden><span id="availability-text"></span><button id="availability-check" class="outline small" type="button">Check availability</button></div>
     <div class="play-layout">
       <section class="board-column" aria-label="Your game">
@@ -41,7 +41,7 @@
         <section class="chat-card" aria-labelledby="chat-title"><div class="card-heading"><div><p class="eyebrow">ACROSS THE BOARD</p><h2 id="chat-title">The conversation</h2></div><span id="connection-status" class="connection"><i></i>Connecting</span></div>
           <div id="messages" class="messages" role="log" aria-live="polite" aria-relevant="additions"><div class="conversation-empty"><span class="conversation-symbol" aria-hidden="true">“</span><p>More than a silent opponent.</p><span>Ask about an idea, talk through the last move, or simply enjoy the game.</span></div></div>
           <form id="message-form" class="composer">
-            <label class="sr-only" for="message-input">Message to Astra</label>
+            <label id="message-label" class="sr-only" for="message-input">Message to Astra</label>
             <textarea id="message-input" rows="2" maxlength="2000" placeholder="Say something to Astra…" disabled></textarea>
             <div class="composer-footer">
               <div class="composer-tools"><button id="emoji-toggle" type="button" class="text-button small" aria-expanded="false" aria-controls="emoji-picker" disabled><span aria-hidden="true">☺</span> Emoji</button><span id="message-count">0 / 2000</span></div>

@@ -2,6 +2,7 @@ import {BoardView, START_FEN, pieceImage, pieceNames, renderCaptures, formatCloc
 
 const $=id=>document.getElementById(id);
 const state={user:null,csrf:null,config:null,game:null,gameId:null,pending:false,mode:'register',next:null,polling:false,resetToken:null,verifyToken:null,recovery:null,identityVersion:0,identityLoaded:false,messageKey:null,availabilityChecking:false,availabilityError:null,lastAvailabilityCheck:0};
+const playerName=()=>state.game?.player_name||state.config?.player_name||'Astra';
 const accountUI={session:0,busy:false,loaded:false,controller:null};
 const identityUI={session:0,busy:false,pendingLink:null};
 const verificationUI={session:0,busy:false,controller:null};
@@ -89,20 +90,30 @@ function setIdentity(result){
   $('human-avatar').textContent=(state.user?.name||'Y').slice(0,1).toUpperCase();
 }
 function playerReady(){return state.config?.player_available===true&&!state.availabilityError;}
+function updatePlayerIdentity(){
+  const name=playerName();
+  $('play-title').textContent=`Play ${name}`;
+  $('chat-title').textContent=name==='Astra'?'The conversation':`Chat with ${name}`;
+  $('message-label').textContent=`Message to ${name}`;
+  $('message-input').placeholder=state.game?.status==='finished'?`Discuss the game with ${name}…`:`Say something to ${name}…`;
+  if(!state.game){$('top-name').textContent=name;$('top-avatar').textContent=name.slice(0,1).toUpperCase();}
+}
 function updateAvailability(){
+  updatePlayerIdentity();
+  const name=state.config?.player_name||'Astra';
   const available=playerReady();
   const checking=state.availabilityChecking;
   const testing=state.config?.player_mode==='test';
   $('availability-banner').hidden=available&&!testing;
-  const unavailableText=state.availabilityError?'The server could not be reached. Check your connection, then try again.':state.config?.player_mode==='disabled'?'Live play is not enabled on this server yet. The operator needs to enable Astra before a game can start.':'Astra is currently unavailable. Check again shortly; the operator may need to restore the player connection.';
-  $('availability-text').textContent=testing&&available?'Test environment: games here use a scripted test opponent to check the interface. This is not live Astra play.':unavailableText;
+  const unavailableText=state.availabilityError?'The server could not be reached. Check your connection, then try again.':state.config?.player_mode==='disabled'?`Live play is not enabled on this server yet. The operator needs to enable ${name} before a game can start.`:`${name} is currently unavailable. Check again shortly; the operator may need to restore the player connection.`;
+  $('availability-text').textContent=testing&&available?`Test environment: games here use a scripted test opponent to check the interface. This is not live ${name} play.`:unavailableText;
   $('availability-check').hidden=available;
   $('availability-check').disabled=checking;
   $('availability-check').textContent=checking?'Checking…':'Check availability';
   $('play-white').disabled=!available||checking||state.pending;$('play-black').disabled=!available||checking||state.pending;
   $('side-options').hidden=!available||checking;
-  $('new-title').textContent=checking?'Checking Astra…':available?'Which side is yours?':'Astra is unavailable';
-  $('new-description').textContent=checking?'Checking whether the player is ready for a new game.':available?'White makes the first move. Black has the first reply.':'A new game cannot start until Astra is connected.';
+  $('new-title').textContent=checking?`Checking ${name}…`:available?'Which side is yours?':`${name} is unavailable`;
+  $('new-description').textContent=checking?'Checking whether the player is ready for a new game.':available?'White makes the first move. Black has the first reply.':`A new game cannot start until ${name} is connected.`;
   $('new-availability').hidden=available||checking;
   $('new-availability').textContent=unavailableText;
   $('new-check-availability').hidden=available;
@@ -110,8 +121,8 @@ function updateAvailability(){
   $('new-check-availability').textContent=checking?'Checking…':'Check again';
   $('new-saved-games').hidden=!state.user;
   $('new-saved-note').textContent=state.user?'You are still signed in. Your account and saved games remain available; you can return to the board without starting a game.':'You can return to the board and check again later. No game has been started.';
-  $('welcome-title').textContent=available?'Take a seat.':'Astra is unavailable';
-  $('welcome-description').textContent=available?'Choose a side and meet Astra across the board.':'Live play is not ready yet. Check availability or return to one of your saved games.';
+  $('welcome-title').textContent=available?'Take a seat.':`${name} is unavailable`;
+  $('welcome-description').textContent=available?`Choose a side and meet ${name} across the board.`:'Live play is not ready yet. Check availability or return to one of your saved games.';
   $('welcome-new').textContent=available?'Start a game ↗':'Check availability';
   $('new-game').textContent=available?'New game':'Player availability';
   if(state.config){
@@ -168,7 +179,7 @@ function renderMessages(){
   for(const message of messages){
     const article=document.createElement('article');article.className='message '+(['human','astra','system'].includes(message.author)?message.author:'system');
     const heading=document.createElement('div');heading.className='message-heading';
-    const author=document.createElement('span');author.className='message-author';author.textContent=message.author==='astra'?'Astra':message.author==='human'?(state.user?.name||'You'):'Game';
+    const author=document.createElement('span');author.className='message-author';author.textContent=message.author==='astra'?playerName():message.author==='human'?(state.user?.name||'You'):'Game';
     const time=document.createElement('span');const date=parseDate(message.created_at);time.textContent=Number.isNaN(date.getTime())?'':date.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
     const body=document.createElement('p');body.className='message-body';body.textContent=message.text;
     heading.append(author,time);article.append(heading,body);log.append(article);
@@ -208,14 +219,15 @@ function renderGame(game){
   const boardChanged=state.game?.fen!==game.fen;
   const oldPly=state.game?.ply;
   state.game=game;state.gameId=game.id;
+  updatePlayerIdentity();
   $('welcome-overlay').hidden=true;
   const side=game.human_side, turn=game.fen.split(' ')[1]==='w'?'white':'black';
   const active=game.status==='active', humanTurn=turn===side;
   const bottomSide=board.flipped?'black':'white', topSide=bottomSide==='white'?'black':'white';
   board.set({fen:game.fen,board:game.board,legalMoves:game.legal_moves||[],side,enabled:active&&humanTurn&&!state.pending,lastMove:game.moves?.at(-1)?.uci,flipped:board.flipped});
   const name=state.user?.name||game.name||'You';
-  $('top-name').textContent=topSide===side?name:'Astra';
-  $('bottom-name').textContent=bottomSide===side?name:'Astra';
+  $('top-name').textContent=topSide===side?name:playerName();
+  $('bottom-name').textContent=bottomSide===side?name:playerName();
   $('top-detail').textContent=titleCase(topSide)+(topSide===side?' · Your side':' · Deliberation + calculation');
   $('bottom-detail').textContent=titleCase(bottomSide)+(bottomSide===side?' · Your side':' · Deliberation + calculation');
   const topHuman=topSide===side;
@@ -256,7 +268,7 @@ function renderGame(game){
   $('save-replay').hidden=game.status!=='finished';
   $('download-pgn').hidden=false;$('download-pgn').href=`/api/games/${encodeURIComponent(game.id)}/pgn`;
   updateComposer();
-  $('message-input').placeholder=game.status==='finished'?'Discuss the game with Astra…':'Say something to Astra…';
+  $('message-input').placeholder=game.status==='finished'?`Discuss the game with ${playerName()}…`:`Say something to ${playerName()}…`;
   for(const id of ['accept-draw','decline-draw','claim-draw','resume-game','retry-worker'])$(id).disabled=state.pending;
   if(game.status==='finished')$('board-hint').textContent='Game complete. You can discuss it with Astra.';
   else if(boardChanged)$('board-hint').textContent=humanTurn?'Your move: select a piece, then a highlighted square.':'You can inspect the board while you wait.';
@@ -292,7 +304,7 @@ async function poll(){
 function clearPrivateView(){
   closeArchiveDialog();
   state.messageKey=null;board.set({fen:START_FEN,flipped:false});
-  $('welcome-overlay').hidden=false;$('top-name').textContent='Astra';$('bottom-name').textContent='You';
+  $('welcome-overlay').hidden=false;updatePlayerIdentity();$('bottom-name').textContent='You';
   $('top-detail').textContent='Your opponent';$('bottom-detail').textContent='Choose White or Black';
   $('top-status').textContent='READY WHEN YOU ARE';$('bottom-status').textContent='';
   $('top-captures').replaceChildren();$('bottom-captures').replaceChildren();$('astra-clock').textContent='—';

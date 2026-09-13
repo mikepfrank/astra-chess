@@ -1,0 +1,240 @@
+"""Loopback gateway tests with mocked inference and budget verification."""
+import asyncio
+import json
+import unittest
+
+import httpx
+
+from astra_web.codex_bridge import dynamic_tools, TOOL_NAMES
+from astra_web.openrouter_gateway import OpenRouterGateway, MODEL, UPSTREAM_URL, MAX_REQUEST_BYTES, _codex_wire_schema
+from astra_web.openrouter_setup import OpenRouterSetupError
+
+
+KEY = 'unit-test-private-openrouter-key'
+
+
+def payload():
+    functions = [{'type': 'function', 'name': item['name'], 'description': item['description'],
+                  'parameters': item['inputSchema'], 'strict': False} for item in dynamic_tools()]
+    return {'model': MODEL, 'stream': True, 'input': [{'role': 'user', 'content': 'Test.'}],
+            'reasoning': {'effort': 'high'}, 'tool_choice': 'auto',
+            'tools': [{'type': 'function', 'name': 'request_user_input', 'parameters': {}},
+                      {'type': 'namespace', 'name': 'skills', 'tools': [
+                          {'type': 'function', 'name': 'list'}, {'type': 'function', 'name': 'read'}]}] + functions}
+
+
+def sse(model='z-ai/glm-5.3-flash'):
+    return ('event: response.completed\ndata: ' + json.dumps({'type': 'response.completed',
+        'response': {'id': 'response-test', 'model': model, 'provider': 'Fixture Provider',
+                     'usage': {'input_tokens': 12, 'output_tokens': 3, 'total_tokens': 15, 'cost': .001},
+                     'openrouter_metadata': {'attempt': 1, 'is_byok': False,
+                         'summary': 'Private routing summary.', 'pipeline': [{'data': 'Private pipeline.'}],
+                         'endpoints': {'available': [
+                             {'model': model, 'provider': 'Fixture Provider', 'selected': True},
+                             {'model': 'unselected-model', 'provider': 'Other Provider', 'selected': False}]}},
+                     'output': [{'text': 'Private model output excluded from telemetry.'}]}}) + '\n\n').encode()
+
+
+class SlowStream(httpx.AsyncByteStream):
+    def __init__(self):
+        self.started, self.closed = asyncio.Event(), asyncio.Event()
+
+    async def __aiter__(self):
+        self.started.set()
+        yield b'data: {"type":"response.created","response":{"model":"z-ai/glm-5.3-flash"}}\n\n'
+        await asyncio.Event().wait()
+
+    async def aclose(self):
+        self.closed.set()
+
+
+class GatewayTests(unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
+        self.calls, self.budgets = [], []
+
+    def budget(self, key):
+        self.budgets.append(key)
+        return {'remaining_usd': 49}
+
+    async def upstream(self, request):
+        self.calls.append(request)
+        return httpx.Response(200, content=sse(), headers={'content-type': 'text/event-stream'})
+
+    def gateway(self, handler=None, budget=None):
+        return OpenRouterGateway(KEY, transport=httpx.MockTransport(handler or self.upstream),
+                                 budget_check=budget or self.budget)
+
+    def client(self, gateway):
+        return httpx.AsyncClient(transport=httpx.ASGITransport(app=gateway), base_url='http://127.0.0.1',
+                                headers={'Authorization': 'Bearer ' + gateway.token})
+
+    async def test_actual_loopback_filters_tools_caps_output_and_records_only_metadata(self):
+        async with self.gateway() as gateway:
+            async with httpx.AsyncClient(trust_env=False) as client:
+                request = payload()
+                request['max_output_tokens'] = 100000
+                response = await client.post(gateway.base_url + '/responses', json=request,
+                    headers={'Authorization': 'Bearer ' + gateway.token})
+            self.assertEqual(response.status_code, 200)
+            upstream = self.calls[0]
+            body = json.loads(upstream.content)
+            self.assertEqual(str(upstream.url), UPSTREAM_URL)
+            self.assertEqual(upstream.headers['authorization'], 'Bearer ' + KEY)
+            self.assertEqual(upstream.headers['x-openrouter-metadata'], 'enabled')
+            self.assertEqual({tool['name'] for tool in body['tools']}, TOOL_NAMES)
+            self.assertEqual(len(body['tools']), 7)
+            self.assertTrue(all(tool['type'] == 'function' for tool in body['tools']))
+            self.assertEqual(body['max_output_tokens'], 8192)
+            self.assertEqual(body['reasoning'], {'effort': 'high'})
+            self.assertEqual((gateway.request_count, gateway.budget_check_count), (1, 1))
+            self.assertEqual(gateway.evidence[0]['observed_model'], 'z-ai/glm-5.3-flash')
+            self.assertEqual(gateway.evidence[0]['provider'], 'Fixture Provider')
+            self.assertEqual(gateway.evidence[0]['usage']['cost'], .001)
+            self.assertEqual(gateway.evidence[0]['routing'], {'attempt': 1, 'is_byok': False,
+                'selected': [{'model': 'z-ai/glm-5.3-flash', 'provider': 'Fixture Provider'}]})
+            self.assertTrue(gateway.evidence[0]['stream_complete'])
+            self.assertNotIn('Private model output', json.dumps(gateway.evidence))
+            self.assertNotIn('Private routing', json.dumps(gateway.evidence))
+            self.assertNotIn('Private pipeline', json.dumps(gateway.evidence))
+            self.assertNotIn(KEY, response.text + json.dumps(gateway.evidence))
+        self.assertTrue(gateway._server_task.done())
+        self.assertFalse(gateway._requests)
+
+    async def test_nonce_and_route_are_required_before_budget_or_inference(self):
+        async with self.gateway() as gateway, self.client(gateway) as client:
+            for headers in ({'Authorization': 'Bearer wrong'}, {'Authorization': 'Bearer ' + KEY}):
+                response = await client.post('/v1/responses', json=payload(), headers=headers)
+                self.assertEqual(response.status_code, 401)
+            self.assertEqual((await client.get('/v1/responses')).status_code, 404)
+            self.assertEqual((await client.post('/v1/other', json=payload())).status_code, 404)
+            self.assertEqual((await client.post('/v1/responses?alternate=1', json=payload())).status_code, 404)
+        self.assertEqual(self.calls, [])
+        self.assertEqual(self.budgets, [])
+
+    async def test_audited_codex_schema_normalization_is_accepted_and_bounds_restored(self):
+        request = payload()
+        for tool in request['tools']:
+            if tool.get('name') in TOOL_NAMES:
+                tool['parameters'] = _codex_wire_schema(tool['parameters'])
+        async with self.gateway() as gateway, self.client(gateway) as client:
+            self.assertEqual((await client.post('/v1/responses', json=request)).status_code, 200)
+        forwarded = {tool['name']: tool for tool in json.loads(self.calls[0].content)['tools']}
+        self.assertEqual(forwarded['chess_query']['parameters']['properties']['seconds']['maximum'], 180)
+        self.assertEqual(forwarded['chess_candidate']['parameters']['properties']['concern']['maxLength'], 2000)
+
+    async def test_invalid_model_schema_and_unaudited_tools_fail_without_sending(self):
+        bad = []
+        for name, value in (('model', 'other-model'), ('stream', False), ('max_output_tokens', True),
+                            ('provider', {'sort': 'price'}), ('models', ['other-model']), ('route', 'fallback'),
+                            ('plugins', []), ('reasoning', {'effort': 'low'}),
+                            ('tool_choice', {'type': 'function', 'name': 'skills'})):
+            request = payload()
+            request[name] = value
+            bad.append(request)
+        request = payload()
+        request['tools'].append({'type': 'function', 'name': 'shell', 'parameters': {}})
+        bad.append(request)
+        request = payload()
+        request['tools'][1]['tools'].append({'type': 'function', 'name': 'write'})
+        bad.append(request)
+        request = payload()
+        request['tools'][-1]['parameters'] = {}
+        bad.append(request)
+        request = payload()
+        request['tools'].pop()
+        bad.append(request)
+        async with self.gateway() as gateway, self.client(gateway) as client:
+            for request in bad:
+                with self.subTest(request_kind=request.get('model')):
+                    self.assertEqual((await client.post('/v1/responses', json=request)).status_code, 400)
+        self.assertEqual(self.calls, [])
+        self.assertEqual(self.budgets, [])
+
+    async def test_size_and_compression_bounds_precede_upstream(self):
+        async with self.gateway() as gateway, self.client(gateway) as client:
+            response = await client.post('/v1/responses', content=b' ' * (MAX_REQUEST_BYTES + 1))
+            self.assertEqual(response.status_code, 413)
+            response = await client.post('/v1/responses', content=b'compressed', headers={'Content-Encoding': 'gzip'})
+            self.assertEqual(response.status_code, 415)
+        self.assertEqual(self.calls, [])
+
+    async def test_budget_denial_blocks_every_model_request(self):
+        def deny(key):
+            self.budgets.append(key)
+            raise OpenRouterSetupError('budget_low')
+        async with self.gateway(budget=deny) as gateway, self.client(gateway) as client:
+            response = await client.post('/v1/responses', json=payload())
+            self.assertEqual(response.status_code, 402)
+            self.assertEqual(response.json()['error']['reason'], 'budget_low')
+            self.assertEqual(gateway.request_count, 0)
+        self.assertEqual(self.calls, [])
+        self.assertEqual(len(self.budgets), 1)
+
+    async def test_budget_checked_again_for_each_round_without_paid_retries(self):
+        async def failed(request):
+            self.calls.append(request)
+            return httpx.Response(429, text=KEY)
+        async with self.gateway(handler=failed) as gateway, self.client(gateway) as client:
+            for _ in range(2):
+                response = await client.post('/v1/responses', json=payload())
+                self.assertEqual(response.status_code, 429)
+                self.assertNotIn(KEY, response.text)
+            self.assertEqual((gateway.request_count, gateway.budget_check_count), (2, 2))
+        self.assertEqual(len(self.calls), 2)
+
+    async def test_redirect_is_not_followed_and_response_headers_are_not_forwarded(self):
+        async def redirect(request):
+            self.calls.append(request)
+            return httpx.Response(307, headers={'Location': 'https://example.invalid/' + KEY}, text=KEY)
+        async with self.gateway(handler=redirect) as gateway, self.client(gateway) as client:
+            response = await client.post('/v1/responses', json=payload())
+            self.assertEqual(response.status_code, 502)
+            self.assertNotIn('location', response.headers)
+            self.assertNotIn(KEY, response.text)
+        self.assertEqual(len(self.calls), 1)
+
+    async def test_model_mismatch_is_stopped_before_its_event_reaches_codex(self):
+        async def changed(request):
+            self.calls.append(request)
+            return httpx.Response(200, content=sse('unrequested-model'), headers={'content-type': 'text/event-stream'})
+        async with self.gateway(handler=changed) as gateway, self.client(gateway) as client:
+            response = await client.post('/v1/responses', json=payload())
+            self.assertNotIn('unrequested-model', response.text)
+            self.assertIn('chess_gateway_upstream_interrupted', response.text)
+            self.assertTrue(gateway.evidence[0]['model_mismatch'])
+            self.assertFalse(gateway.evidence[0]['stream_complete'])
+
+    async def test_only_one_active_request_and_cancellation_closes_upstream(self):
+        stream = SlowStream()
+        async def slow(request):
+            self.calls.append(request)
+            return httpx.Response(200, stream=stream, headers={'content-type': 'text/event-stream'})
+        async with self.gateway(handler=slow) as gateway, self.client(gateway) as client:
+            first = asyncio.create_task(client.post('/v1/responses', json=payload()))
+            await asyncio.wait_for(stream.started.wait(), 2)
+            response = await client.post('/v1/responses', json=payload())
+            self.assertEqual(response.status_code, 409)
+            first.cancel()
+            with self.assertRaises(asyncio.CancelledError):
+                await first
+            await asyncio.wait_for(stream.closed.wait(), 2)
+            self.assertFalse(gateway._busy)
+            self.assertEqual((gateway.request_count, gateway.budget_check_count), (1, 1))
+        self.assertFalse(gateway._requests)
+
+    async def test_context_exit_cancels_active_request(self):
+        stream = SlowStream()
+        async def slow(request):
+            return httpx.Response(200, stream=stream, headers={'content-type': 'text/event-stream'})
+        async with self.gateway(handler=slow) as gateway:
+            async with self.client(gateway) as client:
+                task = asyncio.create_task(client.post('/v1/responses', json=payload()))
+                await asyncio.wait_for(stream.started.wait(), 2)
+                await gateway.close()
+                self.assertTrue(task.cancelled())
+                self.assertTrue(stream.closed.is_set())
+        self.assertFalse(gateway._requests)
+
+
+if __name__ == '__main__':
+    unittest.main()

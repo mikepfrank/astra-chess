@@ -5,6 +5,7 @@ import secrets
 import sys
 import time
 from .config import REPO_ROOT
+from .player_profiles import profile_identity
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -25,6 +26,7 @@ def new_game(user, side, config):
                 moves=[], messages=[], status='active', result='*', termination='', draw_offer=None,
                 version=0, created_at=now, updated_at=now, last_human_activity=now,
                 engine_fingerprint=fingerprint(), model=config.model, reasoning=config.reasoning,
+                player_profile=profile_identity(config),
                 thread_id=None, own_moves=0, clock_used=0.0, active_started=None,
                 worker={'state': 'idle', 'message': ''}, candidates=[], queries=[], decisions=[], clock_events=[])
 
@@ -149,6 +151,7 @@ def snapshot(state, internal=False):
                                   'updated_at', 'worker', 'engine_fingerprint', 'model', 'reasoning')}
     result.update(board=list(board.board), legal_moves=[m.uci() for m in board.legal_moves()] if state['status'] == 'active' else [],
                   ply=len(state['moves']), clock=clock(state), claimable=claimable(state) if state['status'] == 'active' else False)
+    result['player_name'] = state.get('player_profile', {}).get('display_name', 'Astra')
     if internal:
         result.update(history_fens=history(state), candidates=state['candidates'][-3:], decisions=state['decisions'][-3:])
     return result
@@ -157,11 +160,16 @@ def snapshot(state, internal=False):
 def pgn(state):
     def escape(value):
         return str(value).replace('\\', '\\\\').replace('"', '\\"').replace('\n', ' ').replace('\r', ' ')
-    names = {state['human_side']: state['name'], state['astra_side']: 'Astra'}
+    player_name = state.get('player_profile', {}).get('display_name', 'Astra')
+    names = {state['human_side']: state['name'], state['astra_side']: player_name}
     headers = {'Event': 'Astra Chess Public Beta', 'Site': 'Astra Chess', 'White': names['white'],
                'Black': names['black'], 'Result': state['result'], 'Termination': state['termination'],
                'AstraModel': state['model'], 'AstraReasoning': state['reasoning'],
                'EngineSHA256': state['engine_fingerprint']}
+    if state.get('player_profile', {}).get('name') not in (None, 'astra'):
+        headers.update(Event='LLM Chess Local Experiment', Site='Local experiment',
+                       Model=state['model'], Reasoning=state['reasoning'],
+                       PlayerProfile=state['player_profile']['name'])
     tokens = []
     for i, move in enumerate(state['moves']):
         if i % 2 == 0:

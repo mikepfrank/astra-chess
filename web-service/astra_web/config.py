@@ -23,8 +23,9 @@ def is_bare_email(value: str) -> bool:
 class Config:
     data_dir: Path = field(default_factory=lambda: Path(os.getenv("ASTRA_DATA_DIR", str(APP_ROOT / "var"))).resolve())
     origin: str = field(default_factory=lambda: os.getenv("ASTRA_ORIGIN", "http://127.0.0.1:8788").rstrip("/"))
-    model: str = "gpt-6-astra"
-    reasoning: str = "ultra"
+    model_profile: str = field(default_factory=lambda: os.getenv("ASTRA_MODEL_PROFILE", "astra"))
+    model: str | None = None
+    reasoning: str | None = None
     player_mode: str = field(default_factory=lambda: os.getenv("ASTRA_PLAYER", "disabled"))
     codex_bin: str = field(default_factory=lambda: os.getenv("ASTRA_CODEX_BIN", "codex"))
     max_workers: int = field(default_factory=lambda: int(os.getenv("ASTRA_MAX_WORKERS", "1")))
@@ -49,11 +50,25 @@ class Config:
     smtp_feedback_address: str = field(default_factory=lambda: os.getenv("ASTRA_SMTP_FEEDBACK_ADDRESS", ""))
     secure_cookies: bool = field(default_factory=lambda: os.getenv("ASTRA_ORIGIN", "").startswith("https://"))
 
+    def __post_init__(self):
+        from .player_profiles import get_profile
+        profile = get_profile(self.model_profile)
+        if self.model is None:
+            self.model = profile.model
+        if self.reasoning is None:
+            self.reasoning = profile.reasoning
+        if profile.name == 'openrouter-glm':
+            self.max_turn_tokens = min(self.max_turn_tokens, 1_000_000)
+
     @property
     def db_path(self):
         return self.data_dir / "astra.sqlite3"
 
     def validate(self):
+        from .player_profiles import profile_for
+        profile = profile_for(self)
+        if profile.name == 'openrouter-glm' and self.max_workers != 1:
+            raise ValueError('Initial OpenRouter experiments require one worker')
         if self.player_mode not in {"disabled", "codex", "test"}:
             raise ValueError("ASTRA_PLAYER must be disabled, codex, or test")
         if self.max_workers < 1 or self.max_workers > 16:
