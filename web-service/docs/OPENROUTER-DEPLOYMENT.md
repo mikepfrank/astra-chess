@@ -73,6 +73,25 @@ public health endpoints returned HTTP 200. The private coherent backup and
 operator evidence are under `/home/or-chess/backups/compaction-20260913T213250Z/`.
 See [the sanitized repair record](../experiments/arcturus-compaction-repair-2026-09-13.json).
 
+## Active Arcturus daily allowance: 200 million tokens
+
+Mike selected `ASTRA_MAX_DAILY_TOKENS=200000000` for this deployment's private
+`/home/or-chess/.config/or-chess/service.env`. It was activated at 22:02 UTC on
+September 13 after idle checks and a coherent private backup. The running process
+and a check under the installed service restrictions both verified the setting;
+loopback and public health returned HTTP 200. Game/database/private-file hashes
+and the original Astra/Caddy PIDs were unchanged. Backup and private evidence
+are under `/home/or-chess/backups/daily-limit-20260913T220210Z/`; see the
+[sanitized update record](../experiments/arcturus-daily-allowance-2026-09-13.json).
+This is an Arcturus deployment override: the shared application's
+20,000,000-token default and the original Astra service remain unchanged.
+
+The allowance applies to the existing UTC-day token ledger; retain its used
+and reserved counters. The 2,000,000-token action ceiling, 500-turn daily limit,
+single worker, $50 lifetime usage-delta budget and $5 admission reserve still
+apply independently. Raising the daily token allowance does not reset or expand
+the dollar budget. No application source change is required.
+
 ## Files and boundaries
 
 | Path | Purpose and service access |
@@ -114,6 +133,11 @@ without printing it or copying the operator's entire login environment. The
 unit supplies the fixed profile, persona, origin, runtime and data settings.
 Do not override them in the environment file: environment-file values take
 precedence over unit defaults, and the preflight rejects mismatches.
+The selected daily-token override is a separate deployment setting; keep its
+single `ASTRA_MAX_DAILY_TOKENS=200000000` entry in that private environment file.
+After a controlled restart of only `or-chess.service`, verify the effective
+configuration without displaying the file's credential contents. Preserve all
+existing game and usage records using the update procedure below.
 
 Transfer the existing experiment's budget ledger securely into the data
 directory, owned by `or-chess` with mode `0600`. Preserve its initial usage

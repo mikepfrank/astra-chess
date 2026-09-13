@@ -1,0 +1,32 @@
+{
+  "date": "2026-09-13",
+  "maintenance_checkpoint_utc": "2026-09-13T22:02:10Z",
+  "application_commit": "bfbf8cf8f2b2f6d14ccb8414b779611cf9b0b9de",
+  "scope": "Arcturus deployment environment only; no application code change",
+  "configuration": {
+    "ASTRA_MAX_DAILY_TOKENS": 200000000,
+    "previous_daily_tokens": 20000000,
+    "max_action_tokens_unchanged": 2000000,
+    "max_daily_turns_unchanged": 500,
+    "compaction_trigger_unchanged": 250000,
+    "shared_application_default_unchanged": 20000000,
+    "experiment_dollar_guard_unchanged": true
+  },
+  "validation": {
+    "idle_workers_and_zero_reservations_before_restart": true,
+    "coherent_private_data_and_environment_backup": true,
+    "running_process_environment_verified": true,
+    "effective_config_verified_under_installed_service_restrictions": true,
+    "namespace_preflight_passed": true,
+    "loopback_and_public_health_http": 200,
+    "paid_requests": 0
+  },
+  "preservation": {
+    "all_database_table_contents_unchanged": true,
+    "all_private_game_and_budget_file_hashes_unchanged": true,
+    "saved_thread_unchanged": true,
+    "game_ply_unchanged": 27,
+    "existing_daily_usage_tokens_retained": 18156279,
+    "original_astra_and_caddy_process_ids_unchanged": true
+  }
+}

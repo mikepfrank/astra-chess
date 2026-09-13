@@ -6,6 +6,17 @@ baseline and its deployment history are preserved below.
 
 ## September 13, 2026: Arcturus experimental branch
 
+**Latest operation: Arcturus's daily token allowance is 200 million**, activated
+at 22:02 UTC through its private `ASTRA_MAX_DAILY_TOKENS=200000000` environment
+setting. The shared application default remains 20 million for other deployments.
+The current day's 18,156,279-token ledger was retained; the former 20M ceiling
+could not admit another 2M reservation. Only Arcturus restarted after an idle
+check and coherent private backup. Running-process and service-namespace checks
+confirmed 200M/day, 2M/action and 500 actions/day. Game data, conversation,
+clocks, usage and saved thread matched after restart; original Astra/Caddy PIDs
+were unchanged. The $50 experiment guard and 250K compaction setting remain.
+See [the allowance update record](experiments/arcturus-daily-allowance-2026-09-13.json).
+
 **Compaction repair and 250K trigger deployed at 21:32 UTC, code `43a494e`.**
 A user's game at ply 11 repeatedly failed with `invalid_tools`.
 Read-only inspection found a healthy service, preserved board/conversation and

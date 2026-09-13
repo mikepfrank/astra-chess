@@ -51,7 +51,7 @@ selected model, not a guaranteed speed or a model substitution. See
 | Gateway byte limits | 8 MiB per request; 2 MiB per upstream SSE event |
 | Active workers | One |
 | Cumulative token ceiling per action | At most 2,000,000, including repeated input and compaction; smaller operator overrides remain effective |
-| Daily token allowance | 20,000,000 by default; unchanged by this update |
+| Daily token allowance | Selected Arcturus deployment override: 200,000,000; shared application default: 20,000,000 |
 | Chess clock | 90 minutes, +30 seconds per own move, +30 minutes after move 40 |
 | Ordinary / critical turn targets | 120 / 240 seconds, reduced by earned balance |
 
@@ -80,6 +80,16 @@ an explicit smaller limit still interrupts correctly. Daily admission reserves
 the configured action ceiling and settles actual complete usage; missing or
 incomplete usage remains conservatively charged. The $50 session budget and
 $5 stop threshold are unchanged.
+
+Mike subsequently selected a 200,000,000-token daily allowance for the live
+Arcturus deployment, through its private `ASTRA_MAX_DAILY_TOKENS=200000000`
+environment setting. The setting was activated and verified in the running
+process and installed service namespace at 22:02 UTC on September 13. See the
+[allowance update record](experiments/arcturus-daily-allowance-2026-09-13.json).
+The shared 20,000,000-token code default and the original Astra
+deployment are unchanged. This raises the Arcturus UTC-day admission allowance
+without resetting recorded usage, increasing the 2,000,000-token action ceiling,
+or changing the separate $50 lifetime spending guard and $5 stop threshold.
 
 ## Observed CLI boundary and local gateway
 
