@@ -1,0 +1,59 @@
+# Independent experimental service; see docs/OPENROUTER-DEPLOYMENT.md.
+[Unit]
+Description=Arcturus OpenRouter chess experiment
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=or-chess
+Group=or-chess
+WorkingDirectory=/home/or-chess/astra-chess/web-service
+# PID1 reads credentials before creating the restricted filesystem view.
+EnvironmentFile=/home/or-chess/.config/or-chess/service.env
+Environment=ASTRA_DATA_DIR=/home/or-chess/.local/share/or-chess
+Environment=ASTRA_OPENROUTER_BUDGET_PATH=/home/or-chess/.local/share/or-chess/openrouter-budget.json
+Environment=ASTRA_CODEX_BIN=/home/or-chess/.local/share/or-chess-runtime/codex/bin/codex
+Environment=ASTRA_PLAYER=codex
+Environment=ASTRA_MODEL_PROFILE=openrouter-glm
+Environment=ASTRA_PERSONA=arcturus
+Environment=ASTRA_ORIGIN=https://arcturus.astraplayschess.com
+Environment=ASTRA_MAX_WORKERS=1
+Environment=HOME=/home/or-chess/.local/share/or-chess
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=PYTHONNOUSERSITE=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+UnsetEnvironment=OPENAI_API_KEY CODEX_API_KEY
+ExecStart=/home/or-chess/astra-chess/web-service/.venv/bin/python -m uvicorn astra_web.app:create_app --factory --host 127.0.0.1 --port 8792 --proxy-headers --forwarded-allow-ips 127.0.0.1 --no-access-log --limit-concurrency 64 --timeout-keep-alive 5
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+KillMode=control-group
+UMask=0077
+NoNewPrivileges=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=tmpfs
+BindReadOnlyPaths=/home/or-chess/astra-chess
+BindReadOnlyPaths=/home/or-chess/.local/share/or-chess-runtime
+BindPaths=/home/or-chess/.local/share/or-chess
+ReadWritePaths=/home/or-chess/.local/share/or-chess
+ProtectProc=invisible
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+# Aggregate limits cover the web process and all model/tool descendants.
+MemoryMax=2G
+CPUQuota=50%
+Nice=10
+TasksMax=64
+LimitNOFILE=1024
+
+[Install]
+WantedBy=multi-user.target

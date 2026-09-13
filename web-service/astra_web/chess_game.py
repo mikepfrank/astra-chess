@@ -5,7 +5,7 @@ import secrets
 import sys
 import time
 from .config import REPO_ROOT
-from .player_profiles import profile_identity
+from .player_profiles import new_player_binding
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -21,12 +21,14 @@ def fingerprint():
 
 def new_game(user, side, config):
     now = time.time()
+    binding = new_player_binding(config)
     return dict(id=secrets.token_hex(16), user_id=user['id'], name=user['name'], human_side=side,
                 astra_side='black' if side == 'white' else 'white', fen=START_FEN,
                 moves=[], messages=[], status='active', result='*', termination='', draw_offer=None,
                 version=0, created_at=now, updated_at=now, last_human_activity=now,
                 engine_fingerprint=fingerprint(), model=config.model, reasoning=config.reasoning,
-                player_profile=profile_identity(config),
+                player_profile=binding['profile'], player_persona=binding['persona'],
+                player_prompt=binding['prompt'],
                 thread_id=None, own_moves=0, clock_used=0.0, active_started=None,
                 worker={'state': 'idle', 'message': ''}, candidates=[], queries=[], decisions=[], clock_events=[])
 
@@ -151,7 +153,12 @@ def snapshot(state, internal=False):
                                   'updated_at', 'worker', 'engine_fingerprint', 'model', 'reasoning')}
     result.update(board=list(board.board), legal_moves=[m.uci() for m in board.legal_moves()] if state['status'] == 'active' else [],
                   ply=len(state['moves']), clock=clock(state), claimable=claimable(state) if state['status'] == 'active' else False)
-    result['player_name'] = state.get('player_profile', {}).get('display_name', 'Astra')
+    profile = state.get('player_profile') or {}
+    persona = state.get('player_persona') or {}
+    result['player_name'] = persona.get('display_name', profile.get('display_name', 'Astra'))
+    result['model_name'] = profile.get('display_name', 'Astra')
+    result['persona_id'] = persona.get('name', 'astra' if profile.get('name', 'astra') == 'astra' else 'legacy-glm')
+    result['persona_version'] = persona.get('version', 1)
     if internal:
         result.update(history_fens=history(state), candidates=state['candidates'][-3:], decisions=state['decisions'][-3:])
     return result
@@ -160,16 +167,20 @@ def snapshot(state, internal=False):
 def pgn(state):
     def escape(value):
         return str(value).replace('\\', '\\\\').replace('"', '\\"').replace('\n', ' ').replace('\r', ' ')
-    player_name = state.get('player_profile', {}).get('display_name', 'Astra')
+    profile = state.get('player_profile') or {}
+    persona = state.get('player_persona') or {}
+    player_name = persona.get('display_name', profile.get('display_name', 'Astra'))
     names = {state['human_side']: state['name'], state['astra_side']: player_name}
     headers = {'Event': 'Astra Chess Public Beta', 'Site': 'Astra Chess', 'White': names['white'],
                'Black': names['black'], 'Result': state['result'], 'Termination': state['termination'],
                'AstraModel': state['model'], 'AstraReasoning': state['reasoning'],
                'EngineSHA256': state['engine_fingerprint']}
-    if state.get('player_profile', {}).get('name') not in (None, 'astra'):
+    if profile.get('name') not in (None, 'astra') or persona.get('name') not in (None, 'astra'):
         headers.update(Event='LLM Chess Local Experiment', Site='Local experiment',
                        Model=state['model'], Reasoning=state['reasoning'],
-                       PlayerProfile=state['player_profile']['name'])
+                       PlayerProfile=profile['name'])
+    if persona:
+        headers.update(PlayerPersona=persona['name'], PersonaVersion=persona['version'])
     tokens = []
     for i, move in enumerate(state['moves']):
         if i % 2 == 0:

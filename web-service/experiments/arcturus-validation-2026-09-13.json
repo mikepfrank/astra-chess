@@ -1,0 +1,33 @@
+{
+  "date": "2026-09-13",
+  "scope": "Arcturus persona integration and isolated deployment",
+  "persona": {
+    "name": "arcturus",
+    "display_name": "Arcturus",
+    "version": 1,
+    "source": "personas/arcturus-v1.md",
+    "status": "draft",
+    "source_sha256": "304f40730cb7a77126694d0125eb9fa1bafb0cb8e624ae4b5180a7b1028c347a",
+    "integration_sha256": "3cf089a96e0a776831611137dc2607dc89ec186426f55ff89a5a3bbf53a32f51"
+  },
+  "prompt_sha256": "7fe5defa47e7b34685b465c488af0ae12735d3e99b4e937d67e2278b2a8ac688",
+  "windows_checks": {
+    "regression_tests": 303,
+    "persona_tests": 11,
+    "service_helper_tests": 6,
+    "skipped": 2,
+    "failures": 0,
+    "codex_version": "0.154.0-alpha.6.2",
+    "real_cli_mock_provider_instructions_exact": true,
+    "gateway_requires_full_instructions_on_every_request": true
+  },
+  "caddy_fixture": {
+    "version": "2.11.4",
+    "admin_disabled": true,
+    "sigusr1_reload_passed": true,
+    "pid_preserved": true,
+    "config_inode_preserved": true,
+    "production_proxy_changed": false
+  },
+  "linux_deployment": "pending"
+}

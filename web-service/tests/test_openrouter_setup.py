@@ -41,6 +41,12 @@ class OpenRouterSetupTests(unittest.TestCase):
     def require(self, body=None, key=KEY, **kwargs):
         return setup.require_budget(key, self.ledger, transport=self.transport(body=body), **kwargs)
 
+    def test_service_budget_path_uses_private_writable_state(self):
+        with patch.dict(os.environ, {'ASTRA_OPENROUTER_BUDGET_PATH': str(self.ledger)}):
+            result = setup.require_budget(KEY, transport=self.transport())
+        self.assertTrue(self.ledger.is_file())
+        self.assertEqual(result['spent_usd'], 0)
+
     def assert_error(self, code, callback, *args, **kwargs):
         with self.assertRaises(setup.OpenRouterSetupError) as raised:
             callback(*args, **kwargs)

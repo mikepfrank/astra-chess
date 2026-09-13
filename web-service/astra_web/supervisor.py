@@ -11,7 +11,7 @@ import time
 from .config import REPO_ROOT
 from .store import DailyResourceLimit
 from . import chess_game as game
-from .player_profiles import profile_for, verify_game_profile
+from .player_profiles import profile_for, verify_game_profile, game_player_binding
 
 
 def interruption_kind(error):
@@ -513,7 +513,10 @@ class Supervisor:
             snapshot = game.model_snapshot(self.store.get(game_id))
             snapshot['memory'] = self.identity.memory_for_user(state['user_id'])
             snapshot['remaining_turn_seconds'] = allocation
-            run = asyncio.create_task(player.run(game_id, snapshot, tool, emit, thread_id=state['thread_id']))
+            options = {'thread_id': state['thread_id']}
+            if not self.player_factory:
+                options['player_binding'] = game_player_binding(self.store.get(game_id), self.config)
+            run = asyncio.create_task(player.run(game_id, snapshot, tool, emit, **options))
             try:
                 while not run.done():
                     if remaining_turn() <= 0:

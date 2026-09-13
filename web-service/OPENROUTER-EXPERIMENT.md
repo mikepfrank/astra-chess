@@ -5,6 +5,13 @@ Checkpoint: September 13, 2026. Mike selected Codex CLI as the first driver,
 initial local experiment budget. This branch implements that configuration with
 the existing from-scratch chess engine and hosted supervisor.
 
+The next checkpoint separates the [shared playing contract and versioned
+personas](prompts/README.md). New GLM games select Mike's supplied Arcturus draft;
+existing experimental games keep their exact recorded prompt and identity. The
+gateway checks the complete pinned instructions on every provider request.
+The [isolated Linux deployment guide](docs/OPENROUTER-DEPLOYMENT.md) describes
+the new `or-chess` account and `arcturus.astraplayschess.com` test hostname.
+
 ## Scope and isolation
 
 - Branch: `codex/openrouter-chess`, based on hosted commit
@@ -16,13 +23,14 @@ the existing from-scratch chess engine and hosted supervisor.
   `web-service/var/openrouter-local`. It overrides inherited data-directory and
   origin settings and accepts only a dedicated data directory below this
   worktree's `web-service/var`.
-- A later Lightsail trial will use a new Linux account, service, configuration,
-  data directory and port. Mike will create that account. Shared host capacity
-  still needs checking before experimental and production workers run together.
+- The Lightsail trial uses a separate `or-chess` Linux account, service,
+  configuration, data directory and loopback port 8792. Shared host capacity
+  is bounded separately with a half-CPU quota, lower scheduling priority and
+  2 GiB memory ceiling for the experiment.
 
 Read the [hosted handoff](HANDOFF.md), [architecture](docs/ARCHITECTURE.md) and
 [player instructions](prompts/player.md) for the preserved chess workflow.
-This work does not deploy a service or publish a new domain.
+The original service and its game records are outside this deployment's scope.
 
 ## Driver and playing contract
 

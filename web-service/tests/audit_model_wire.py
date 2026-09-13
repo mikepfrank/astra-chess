@@ -7,6 +7,7 @@ import argparse
 import asyncio
 from dataclasses import replace
 import json
+import hashlib
 from pathlib import Path
 import sys
 import tempfile
@@ -14,10 +15,16 @@ import tempfile
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from astra_web import codex_bridge as bridge
 from astra_web.player_profiles import get_profile
+from astra_web.player_profiles import new_player_binding
+from astra_web.config import Config
 from audit_model_profile import CANDIDATE_VERSION
 
 
-async def audit(codex_bin, audit_dir, catalog=None, restrict_builtins=False, through_gateway=False):
+async def audit(codex_bin, audit_dir, catalog=None, restrict_builtins=False, through_gateway=False,
+                candidate_version=CANDIDATE_VERSION):
+    if candidate_version not in bridge.reviewed_versions('openrouter-glm'):
+        raise bridge.CodexError('Wire audit requires an explicitly reviewed candidate version')
+    instructions = new_player_binding(Config(model_profile='openrouter-glm'))['prompt']
     base = Path(audit_dir).resolve()
     base.mkdir(parents=True, exist_ok=True)
     root = Path(tempfile.mkdtemp(prefix='model-wire-', dir=base)).resolve()
@@ -27,7 +34,7 @@ async def audit(codex_bin, audit_dir, catalog=None, restrict_builtins=False, thr
         bridge._private_directory(root / name, root)
     captured = asyncio.Event()
     report = {'audit_directory': str(root), 'external_provider_contacted': False,
-              'real_credentials_inherited': False, 'candidate_version': CANDIDATE_VERSION,
+              'real_credentials_inherited': False, 'candidate_version': candidate_version,
               'catalog_configured': catalog is not None, 'request_captured': False,
               'restrict_builtins_probe': restrict_builtins, 'through_gateway': through_gateway}
 
@@ -43,6 +50,8 @@ async def audit(codex_bin, audit_dir, catalog=None, restrict_builtins=False, thr
                 return [{'path': path, 'expected': expected, 'actual': actual}]
             return []
         report.update(request_captured=True, request_path=path,
+            instructions_match=request.get('instructions') == instructions,
+            instructions_sha256=hashlib.sha256(instructions.encode('utf-8')).hexdigest(),
             requested_model=request.get('model'), reasoning=request.get('reasoning'),
             stream=request.get('stream'), max_output_tokens=request.get('max_output_tokens'),
             tool_types=[tool.get('type') for tool in tools], tool_names=[tool.get('name') for tool in tools],
@@ -94,7 +103,8 @@ async def audit(codex_bin, audit_dir, catalog=None, restrict_builtins=False, thr
             return httpx.Response(400, json={'error': {'type': 'audit_fixture', 'message': 'No inference occurs.'}})
 
         gateway = OpenRouterGateway('local-wire-audit-placeholder',
-            transport=httpx.MockTransport(mock_upstream), budget_check=lambda key: {'remaining_usd': 49})
+            transport=httpx.MockTransport(mock_upstream), budget_check=lambda key: {'remaining_usd': 49},
+            expected_instructions=instructions)
         await gateway.__aenter__()
         profile = replace(profile, base_url=gateway.base_url, env_key='CHESS_GATEWAY_TOKEN')
     config = bridge._config_text(profile.model, profile.reasoning, profile=profile)
@@ -119,7 +129,7 @@ async def audit(codex_bin, audit_dir, catalog=None, restrict_builtins=False, thr
             stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL, limit=4096)
         try:
             output, _ = await asyncio.wait_for(version_process.communicate(), 10)
-            if version_process.returncode != 0 or output.decode('utf-8').strip() != f'codex-cli {CANDIDATE_VERSION}':
+            if version_process.returncode != 0 or output.decode('utf-8').strip() != f'codex-cli {candidate_version}':
                 raise bridge.CodexError('Local wire audit requires its exact candidate CLI version')
         finally:
             await bridge._terminate(version_process)
@@ -157,7 +167,7 @@ async def audit(codex_bin, audit_dir, catalog=None, restrict_builtins=False, thr
                     **({'selectedCapabilityRoots': []} if restrict_builtins else {}),
                     'dynamicTools': bridge.dynamic_tools(), 'ephemeral': False,
                     'allowProviderModelFallback': False,
-                    'baseInstructions': 'Local protocol fixture. Use only the registered chess tools.',
+                    'baseInstructions': instructions,
                     'developerInstructions': 'This fixture has no external model or credentials.'})
                 expected = {'model': profile.model, 'modelProvider': profile.provider,
                     'approvalPolicy': 'never', 'approvalsReviewer': 'user',
@@ -175,6 +185,8 @@ async def audit(codex_bin, audit_dir, catalog=None, restrict_builtins=False, thr
                 await captured.wait()
                 report['seven_chess_tools_only'] = (set(report.get('tool_names', [])) == bridge.TOOL_NAMES
                     and len(report.get('tool_names', [])) == len(bridge.TOOL_NAMES))
+                if not report.get('instructions_match'):
+                    raise bridge.CodexError('The provider request omitted or changed its pinned instructions')
                 stage = 'complete'
     except Exception as error:
         report['failure_type'] = type(error).__name__
@@ -199,14 +211,15 @@ async def audit(codex_bin, audit_dir, catalog=None, restrict_builtins=False, thr
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--codex', required=True)
-    parser.add_argument('--candidate-version', required=True, choices=[CANDIDATE_VERSION])
+    parser.add_argument('--candidate-version', required=True, choices=sorted(bridge.reviewed_versions('openrouter-glm')))
     parser.add_argument('--audit-dir', type=Path, required=True)
     parser.add_argument('--catalog', type=Path)
     parser.add_argument('--restrict-builtins', action='store_true')
     parser.add_argument('--through-gateway', action='store_true', help='Exercise the real filter against mocked upstream inference')
     args = parser.parse_args()
     try:
-        asyncio.run(audit(args.codex, args.audit_dir, args.catalog, args.restrict_builtins, args.through_gateway))
+        asyncio.run(audit(args.codex, args.audit_dir, args.catalog, args.restrict_builtins, args.through_gateway,
+                          args.candidate_version))
     except (bridge.CodexError, OSError, ValueError, KeyError, TimeoutError) as error:
         parser.exit(1, f'Local model wire audit failed ({type(error).__name__}); inspect sanitized report.\n')
 

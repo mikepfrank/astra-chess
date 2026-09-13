@@ -18,7 +18,7 @@ from .replay_library import install_replay_library
 from .experiment_library import install_experiment_library
 from .operator_monitor import install_operator_monitor
 from . import chess_game as game
-from .player_profiles import profile_for
+from .player_profiles import profile_for, persona_for
 
 
 def create_app(config=None, player_factory=None):
@@ -146,7 +146,10 @@ def create_app(config=None, player_factory=None):
     async def public_config():
         return dict(player_available=supervisor.available, player_mode=config.player_mode,
                     model=config.model, reasoning=config.reasoning, suspend_hours=config.suspend_hours,
-                    player_name=profile_for(config).display_name)
+                    player_name=persona_for(config).display_name,
+                    model_name=profile_for(config).display_name,
+                    persona_id=persona_for(config).name,
+                    persona_version=persona_for(config).version)
 
     @app.get('/api/games')
     async def games(request: Request):

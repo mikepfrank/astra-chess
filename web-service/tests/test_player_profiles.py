@@ -11,7 +11,8 @@ from unittest.mock import Mock, patch
 from astra_web import chess_game as game
 from astra_web.config import APP_ROOT, Config
 from astra_web.player_profiles import (
-    get_profile, player_prompt, profile_for, profile_identity, verify_game_profile,
+    game_player_binding, get_profile, persona_for, player_prompt, profile_for,
+    profile_identity, verify_game_profile,
 )
 from astra_web.supervisor import Supervisor
 
@@ -32,6 +33,25 @@ class ProfileFixture:
     def state(self, config=None, side='black'):
         return game.new_game({'id': 'profile-fixture', 'name': 'Fixture human'},
                              side, config or self.config())
+
+    def legacy_state(self, config=None, *, unprofiled=False):
+        config = config or self.config()
+        state = self.state(config)
+        del state['player_prompt'], state['player_persona']
+        del state['player_profile']['persona']
+        prompt = (APP_ROOT / 'prompts' / 'legacy' / 'player-v1.md').read_text(encoding='utf-8')
+        if config.model_profile != 'astra':
+            prompt = prompt.replace('You are Astra,', 'You are GLM 5.3 Flash (z-ai/glm-5.3-flash),')
+            prompt = prompt.replace('Astra', 'GLM 5.3 Flash')
+            prompt = prompt.replace(
+                "The chess tools are exposed through Codex's JavaScript tool orchestration. Use\n"
+                'that interface to call the supplied tools; it does not grant general host access.',
+                'The chess tools are supplied as named function calls. Call these tools directly;\n'
+                'they do not grant general host access.')
+        state['player_profile']['prompt_sha256'] = hashlib.sha256(prompt.encode('utf-8')).hexdigest()
+        if unprofiled:
+            del state['player_profile']
+        return state
 
 
 class PlayerProfileConfigTests(ProfileFixture, unittest.TestCase):
@@ -124,14 +144,16 @@ class PlayerProfileConfigTests(ProfileFixture, unittest.TestCase):
 
 
 class PlayerPromptAndPersistenceTests(ProfileFixture, unittest.TestCase):
-    def test_astra_prompt_remains_the_unmodified_canonical_prompt(self):
+    def test_shared_method_is_persona_neutral_and_included_in_astra_prompt(self):
         canonical = (APP_ROOT / 'prompts' / 'player.md').read_text(encoding='utf-8')
-        self.assertEqual(player_prompt(get_profile('astra')), canonical)
+        self.assertNotIn('Astra', canonical)
+        self.assertNotIn('Arcturus', canonical)
+        self.assertIn(canonical.rstrip(), player_prompt(get_profile('astra')))
 
     def test_glm_prompt_identifies_glm_and_explains_direct_chess_tool_calls(self):
         prompt = player_prompt(get_profile('openrouter-glm'))
-        self.assertTrue(prompt.startswith('You are GLM 5.3 Flash (z-ai/glm-5.3-flash),'))
-        self.assertNotIn('Astra', prompt)
+        self.assertTrue(prompt.startswith('You are Arcturus, an AI chess-playing persona.'))
+        self.assertIn('Your actual underlying model is z-ai/glm-5.3-flash.', prompt)
         self.assertNotIn("Codex's JavaScript tool orchestration", prompt)
         self.assertIn('named function calls. Call these tools directly', prompt)
         self.assertIn('Call chess_status at the start of every response attempt', prompt)
@@ -154,9 +176,10 @@ class PlayerPromptAndPersistenceTests(ProfileFixture, unittest.TestCase):
                     snapshot = game.model_snapshot(state)
                     self.assertEqual(snapshot['model'], config.model)
                     self.assertEqual(snapshot['reasoning'], config.reasoning)
-                    self.assertEqual(snapshot['player_name'], profile_for(config).display_name)
+                    self.assertEqual(snapshot['player_name'], persona_for(config).display_name)
+                    self.assertEqual(snapshot['model_name'], profile_for(config).display_name)
                     player_tag = 'Black' if human_side == 'white' else 'White'
-                    self.assertIn(f'[{player_tag} "{profile_for(config).display_name}"]', game.pgn(state))
+                    self.assertIn(f'[{player_tag} "{persona_for(config).display_name}"]', game.pgn(state))
                     verify_game_profile(state, config)
 
     def test_new_game_cannot_be_created_with_inconsistent_profile(self):
@@ -182,21 +205,20 @@ class PlayerPromptAndPersistenceTests(ProfileFixture, unittest.TestCase):
                     verify_game_profile(state, config)
         verify_game_profile(original, config)
 
-    def test_changing_prompt_changes_identity_and_blocks_existing_game(self):
+    def test_changing_prompt_changes_new_identity_but_preserves_existing_game(self):
         config = self.config(model_profile='openrouter-glm')
         state = self.state(config)
         canonical = (APP_ROOT / 'prompts' / 'player.md').read_text(encoding='utf-8')
         with patch('astra_web.player_profiles.Path.read_text', return_value=canonical + '\nChanged policy.\n'):
             self.assertNotEqual(profile_identity(config)['prompt_sha256'],
                                 state['player_profile']['prompt_sha256'])
-            with self.assertRaisesRegex(ValueError, 'Game player profile changed'):
-                verify_game_profile(state, config)
+            verify_game_profile(state, config)
+            self.assertEqual(game_player_binding(state, config)['prompt'], state['player_prompt'])
         verify_game_profile(state, config)
 
     def test_legacy_games_resume_only_with_original_astra_model_and_reasoning(self):
         astra, glm = self.config(), self.config(model_profile='openrouter-glm')
-        legacy = self.state(astra)
-        del legacy['player_profile']
+        legacy = self.legacy_state(astra, unprofiled=True)
         verify_game_profile(legacy, astra)
         self.assertEqual(game.snapshot(legacy)['player_name'], 'Astra')
         self.assertIn('[White "Astra"]', game.pgn(legacy))
@@ -210,8 +232,7 @@ class PlayerPromptAndPersistenceTests(ProfileFixture, unittest.TestCase):
                     verify_game_profile(changed, astra)
         with self.assertRaisesRegex(ValueError, 'Game model metadata differs'):
             verify_game_profile(legacy, glm)
-        legacy_glm = self.state(glm)
-        del legacy_glm['player_profile']
+        legacy_glm = self.legacy_state(glm, unprofiled=True)
         with self.assertRaisesRegex(ValueError, 'Legacy game cannot resume'):
             verify_game_profile(legacy_glm, glm)
 

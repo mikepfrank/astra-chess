@@ -30,7 +30,7 @@ function renderAstraEvaluation(game){
   if($('show-astra-evaluation').checked&&evidence&&game.termination!=='checkmate'){
     mate=Number.isInteger(evidence.mate_in_moves)&&evidence.mate_in_moves>0&&['astra','opponent'].includes(evidence.mate_for);
     if(mate){
-      value=`Mate in ${evidence.mate_in_moves}${evidence.mate_for==='opponent'?' against Astra':''}`;
+      value=`Mate in ${evidence.mate_in_moves}${evidence.mate_for==='opponent'?` against ${playerName()}`:''}`;
     }else if(typeof evidence.score_pawns==='number'&&Number.isFinite(evidence.score_pawns)){
       const rounded=Math.round(evidence.score_pawns*100)/100;
       value=`${rounded<0?'':'+'}${rounded.toFixed(2)} pawns`;
@@ -40,7 +40,7 @@ function renderAstraEvaluation(game){
       if(evidence.san)parts.push(`After ${evidence.san}`);
       if(mate&&evidence.source==='goal_probe')parts.push('mate proof');
       if(Number.isInteger(evidence.completed_depth)&&evidence.completed_depth>0)parts.push(`depth ${evidence.completed_depth}`);
-      if(!mate)parts.push('Positive values favor Astra');
+      if(!mate)parts.push(`Positive values favor ${playerName()}`);
       context=parts.join(' · ');
     }
   }
@@ -92,15 +92,34 @@ function setIdentity(result){
 function playerReady(){return state.config?.player_available===true&&!state.availabilityError;}
 function updatePlayerIdentity(){
   const name=playerName();
+  const siteName=state.config?.player_name||'Astra';
+  const experimental=siteName!=='Astra';
+  document.title=`${siteName} Chess · ${experimental?'Experimental':'Public beta'}`;
+  document.querySelector('meta[name="description"]').content=experimental?`Play chess with ${siteName}, an experimental language-model opponent using Astra's chess harness and tactical engine.`:'Play a thoughtful game of chess with Astra: language-model deliberation and a small tactical engine built from scratch.';
+  $('site-brand').setAttribute('aria-label',`${siteName} Chess home`);
+  $('brand-name').textContent=siteName.toUpperCase();
+  $('brand-mark').textContent=siteName.slice(0,1).toUpperCase();
+  $('site-badge').textContent=experimental?'EXPERIMENTAL':'PUBLIC BETA';
+  $('site-footer-label').textContent=`${siteName} Chess · ${experimental?'Experimental':'Public beta'}`;
   $('play-title').textContent=`Play ${name}`;
   $('chat-title').textContent=name==='Astra'?'The conversation':`Chat with ${name}`;
   $('message-label').textContent=`Message to ${name}`;
   $('message-input').placeholder=state.game?.status==='finished'?`Discuss the game with ${name}…`:`Say something to ${name}…`;
+  $('evaluation-preference-label').textContent=`Show ${name}'s evaluation`;
+  const evaluationSummary=`${name}'s tactical engine evaluated the position resulting from its last move as:`;
+  if($('evaluation-summary-label').textContent!==evaluationSummary)$('evaluation-summary-label').textContent=evaluationSummary;
+  $('memory-choice-label').textContent=`Let ${siteName} remember context I choose between games`;
+  $('memory-text-label').textContent=`What would you like ${siteName} to remember?`;
+  $('method-title').textContent=name==='Astra'?'What makes an Astra game different?':`How does ${name} play?`;
+  $('method-description').textContent=name==='Astra'?'Astra combines language-model deliberation with a tactical engine written from scratch. It chooses which positions to investigate, reviews the evidence, and decides what to play. No external chess engines, opening books, game databases, or endgame tablebases guide its moves.':`Astra developed the chess harness and wrote its tactical engine from scratch. ${name} uses these tools to choose which positions to investigate, review the evidence, and decide what to play. No external chess engines, opening books, game databases, or endgame tablebases guide its moves.`;
+  $('method-conversation').textContent=`${name} may explain an idea or keep a plan to itself. The conversation is part of the game. Its time budget is separate from yours; you can take your time.`;
+  if(!state.game){$('astra-clock').title=`${name}’s remaining thinking time`;$('retry-worker').textContent=`Retry ${name}`;}
   if(!state.game){$('top-name').textContent=name;$('top-avatar').textContent=name.slice(0,1).toUpperCase();}
 }
 function updateAvailability(){
   updatePlayerIdentity();
   const name=state.config?.player_name||'Astra';
+  $('black-first-label').textContent=`${name} moves first`;
   const available=playerReady();
   const checking=state.availabilityChecking;
   const testing=state.config?.player_mode==='test';
@@ -126,7 +145,9 @@ function updateAvailability(){
   $('welcome-new').textContent=available?'Start a game ↗':'Check availability';
   $('new-game').textContent=available?'New game':'Player availability';
   if(state.config){
-    $('model-detail').textContent=`Player: ${state.config.model||'configured by operator'}${state.config.reasoning?' · '+state.config.reasoning+' reasoning':''}. ${state.config.suspend_hours?`Inactive games suspend after ${state.config.suspend_hours} hours and can be resumed.`:''}`;
+    const model=state.config.model_name||state.config.model||'configured by operator';
+    const label=name==='Astra'?(state.config.model||'configured by operator'):`${name} · ${model}`;
+    $('model-detail').textContent=`Player: ${label}${state.config.reasoning?' · '+state.config.reasoning+' reasoning':''}. ${state.config.suspend_hours?`Inactive games suspend after ${state.config.suspend_hours} hours and can be resumed.`:''}`;
   }
 }
 async function refreshAvailability(){
@@ -188,12 +209,13 @@ function renderMessages(){
 }
 function canChat(game){return ['active','finished'].includes(game?.status);}
 function responseStatusText(game){
-  if(game.worker?.state==='error')return game.worker.message||'Astra’s response was interrupted. You can retry.';
-  if(game.worker?.state==='disabled')return game.worker.message||'Astra is unavailable. Your game is saved.';
-  if(game.worker?.state==='queued')return 'Astra will be with you shortly. Your response is queued.';
-  if(game.worker?.state==='compacting')return 'Astra is compacting its conversation context. '+(game.clock?.paused?'Its chess clock is paused.':'It will continue when the context is ready.');
-  if(game.worker?.state==='calculating')return 'Astra’s tactical engine is calculating. Astra will review the result next.';
-  if(game.worker?.state==='thinking')return game.status==='finished'?'Astra is thinking about your message.':'Astra is thinking. You can keep the conversation going.';
+  const name=playerName();
+  if(game.worker?.state==='error')return game.worker.message||`${name}’s response was interrupted. You can retry.`;
+  if(game.worker?.state==='disabled')return game.worker.message||`${name} is unavailable. Your game is saved.`;
+  if(game.worker?.state==='queued')return `${name} will be with you shortly. Your response is queued.`;
+  if(game.worker?.state==='compacting')return `${name} is compacting its conversation context. `+(game.clock?.paused?'Its chess clock is paused.':'It will continue when the context is ready.');
+  if(game.worker?.state==='calculating')return `${name}’s tactical engine is calculating. ${name} will review the result next.`;
+  if(game.worker?.state==='thinking')return game.status==='finished'?`${name} is thinking about your message.`:`${name} is thinking. You can keep the conversation going.`;
   return '';
 }
 function statusText(game){
@@ -202,7 +224,7 @@ function statusText(game){
   if(game.status==='finished')return `${game.result||'Game over'} · ${titleCase(game.termination||'Game finished')} · ${response||'You can keep chatting about the game.'}`;
   if(response)return response;
   const turn=game.fen.split(' ')[1]==='w'?'white':'black';
-  return turn===game.human_side?'Your move. Take your time.':'Astra’s move. Considering the position.';
+  return turn===game.human_side?'Your move. Take your time.':`${playerName()}’s move. Considering the position.`;
 }
 function playerStatusText(game,side){
   const worker=game.worker?.state;
@@ -210,7 +232,7 @@ function playerStatusText(game,side){
   const turn=game.fen.split(' ')[1]==='w'?'white':'black';
   if(side===game.human_side)return turn===side?'YOUR MOVE':'';
   if(['compacting','calculating','thinking','queued','error','disabled'].includes(worker))return worker.toUpperCase();
-  return turn===side?'ASTRA’S MOVE':'';
+  return turn===side?`${playerName().toUpperCase()}’S MOVE`:'';
 }
 function renderGame(game){
   if(game.id!==state.game?.id)closeEmojiPicker();
@@ -231,9 +253,9 @@ function renderGame(game){
   $('top-detail').textContent=titleCase(topSide)+(topSide===side?' · Your side':' · Deliberation + calculation');
   $('bottom-detail').textContent=titleCase(bottomSide)+(bottomSide===side?' · Your side':' · Deliberation + calculation');
   const topHuman=topSide===side;
-  $('top-avatar').textContent=topHuman?name.slice(0,1).toUpperCase():'A';
+  $('top-avatar').textContent=topHuman?name.slice(0,1).toUpperCase():playerName().slice(0,1).toUpperCase();
   $('top-avatar').className='avatar '+(topHuman?'human-avatar':'astra-avatar');
-  $('human-avatar').textContent=topHuman?'A':name.slice(0,1).toUpperCase();
+  $('human-avatar').textContent=topHuman?playerName().slice(0,1).toUpperCase():name.slice(0,1).toUpperCase();
   $('human-avatar').className='avatar '+(topHuman?'astra-avatar':'human-avatar');
   for(const [location,displayedSide] of [['top',topSide],['bottom',bottomSide]]){
     const status=$(location+'-status');
@@ -245,10 +267,10 @@ function renderGame(game){
   const clockPaused=game.clock?.paused===true;
   $('astra-clock').textContent=formatClock(game.clock?.remaining_seconds);
   $('astra-clock').classList.toggle('paused',clockPaused);
-  $('astra-clock').title=clockPaused?'Astra’s chess clock is paused while its conversation context is compacted.':'Astra’s remaining thinking time';
+  $('astra-clock').title=clockPaused?`${playerName()}’s chess clock is paused while its conversation context is compacted.`:`${playerName()}’s remaining thinking time`;
   $('astra-clock').setAttribute('role','timer');
-  $('astra-clock').setAttribute('aria-label',`Astra’s remaining thinking time: ${formatClock(game.clock?.remaining_seconds)}${clockPaused?', paused':''}`);
-  // Keep the only clock attached to Astra even when the board is flipped.
+  $('astra-clock').setAttribute('aria-label',`${playerName()}’s remaining thinking time: ${formatClock(game.clock?.remaining_seconds)}${clockPaused?', paused':''}`);
+  // Keep the only clock attached to the model opponent when the board is flipped.
   const clockHost=topHuman?$('bottom-status').parentElement:$('top-status').parentElement;
   clockHost.append($('astra-clock'));
   renderCaptures($('top-captures'),game.moves||[],topSide,side);
@@ -257,20 +279,20 @@ function renderGame(game){
   $('game-status-text').textContent=statusText(game);
   $('game-status').className='game-status '+(['thinking','calculating','compacting','error'].includes(game.worker?.state)?game.worker.state:game.status==='finished'?'finished':'');
   $('draw-banner').hidden=!game.draw_offer||game.status==='finished';
-  $('draw-text').textContent=game.draw_offer==='astra'?'Astra offers a draw.':'Your draw offer is pending.';
+  $('draw-text').textContent=game.draw_offer==='astra'?`${playerName()} offers a draw.`:'Your draw offer is pending.';
   $('accept-draw').hidden=game.draw_offer!=='astra';$('decline-draw').hidden=game.draw_offer!=='astra';
   $('offer-draw').disabled=!active||!!game.draw_offer||state.pending;
   $('resign').disabled=game.status==='finished'||state.pending;
   $('claim-draw').hidden=!game.claimable||!active||!humanTurn;
   $('resume-game').hidden=game.status!=='suspended';
   $('retry-worker').hidden=!['error','disabled'].includes(game.worker?.state)||!canChat(game);
-  $('retry-worker').textContent=game.status==='finished'?'Retry reply':'Retry Astra';
+  $('retry-worker').textContent=game.status==='finished'?'Retry reply':`Retry ${playerName()}`;
   $('save-replay').hidden=game.status!=='finished';
   $('download-pgn').hidden=false;$('download-pgn').href=`/api/games/${encodeURIComponent(game.id)}/pgn`;
   updateComposer();
   $('message-input').placeholder=game.status==='finished'?`Discuss the game with ${playerName()}…`:`Say something to ${playerName()}…`;
   for(const id of ['accept-draw','decline-draw','claim-draw','resume-game','retry-worker'])$(id).disabled=state.pending;
-  if(game.status==='finished')$('board-hint').textContent='Game complete. You can discuss it with Astra.';
+  if(game.status==='finished')$('board-hint').textContent=`Game complete. You can discuss it with ${playerName()}.`;
   else if(boardChanged)$('board-hint').textContent=humanTurn?'Your move: select a piece, then a highlighted square.':'You can inspect the board while you wait.';
   if(oldPly!==game.ply||!$('moves').querySelector('.move-row'))renderMoves();
   renderMessages();connection(true,'Connected');
@@ -308,7 +330,7 @@ function clearPrivateView(){
   $('top-detail').textContent='Your opponent';$('bottom-detail').textContent='Choose White or Black';
   $('top-status').textContent='READY WHEN YOU ARE';$('bottom-status').textContent='';
   $('top-captures').replaceChildren();$('bottom-captures').replaceChildren();$('astra-clock').textContent='—';
-  $('astra-clock').classList.remove('paused');$('astra-clock').title='Astra’s remaining thinking time';$('astra-clock').removeAttribute('aria-label');
+  $('astra-clock').classList.remove('paused');$('astra-clock').title=`${playerName()}’s remaining thinking time`;$('astra-clock').removeAttribute('aria-label');
   for(const id of ['top-status','bottom-status'])$(id).classList.remove('compacting','active');
   $('game-status-text').textContent='A fresh game, at your own pace.';$('game-status').className='game-status';
   $('message-input').value='';updateComposer();
@@ -630,7 +652,7 @@ async function showGames(){
 }
 $('games-button').addEventListener('click',()=>requireUser(showGames));
 $('flip-board').addEventListener('click',()=>{board.flipped=!board.flipped;if(state.game)renderGame(state.game);else board.set({fen:START_FEN,flipped:board.flipped});});
-$('resign').addEventListener('click',async()=>{if(await confirmAction('Resign this game?','This ends the game with a win for Astra. Your moves and conversation will remain in your games.','Resign game'))await act('resign');});
+$('resign').addEventListener('click',async()=>{if(await confirmAction('Resign this game?',`This ends the game with a win for ${playerName()}. Your moves and conversation will remain in your games.`,'Resign game'))await act('resign');});
 $('offer-draw').addEventListener('click',()=>act('offer_draw'));
 $('accept-draw').addEventListener('click',async()=>{if(await confirmAction('Accept the draw?','The game will finish as a draw by agreement.','Accept draw'))await act('accept_draw');});
 $('decline-draw').addEventListener('click',()=>act('decline_draw'));

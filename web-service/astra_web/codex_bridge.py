@@ -17,7 +17,7 @@ import signal
 import subprocess
 import time
 from typing import Awaitable, Callable
-from .player_profiles import get_profile, profile_for, player_prompt, profile_identity
+from .player_profiles import get_profile, profile_for, new_player_binding
 
 
 AUDITED_CODEX_VERSIONS = frozenset({"0.153.4", "0.154.0"})
@@ -470,7 +470,7 @@ class CodexPlayer:
             await _terminate(process)
 
     async def run(self, game_id: str, snapshot: dict, tool_handler: ToolHandler,
-                  emit: Emitter, thread_id: str | None = None) -> dict:
+                  emit: Emitter, thread_id: str | None = None, *, player_binding=None) -> dict:
         if not isinstance(game_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", game_id):
             raise CodexError("Invalid internal game identifier")
         if game_id in self._active_games:
@@ -479,16 +479,18 @@ class CodexPlayer:
             raise CodexError("Invalid stored Codex thread identifier")
         self._active_games.add(game_id)
         try:
+            binding = player_binding or new_player_binding(self.config)
             if self.profile.name == 'openrouter-glm':
                 from .openrouter_gateway import OpenRouterGateway
                 key = os.environ.get(self.profile.env_key)
                 if not key:
                     raise CodexError('OPENROUTER_API_KEY must be configured by the service operator')
-                async with OpenRouterGateway(key) as gateway:
+                async with OpenRouterGateway(key, expected_instructions=binding['prompt']) as gateway:
                     transport = replace(self.profile, base_url=gateway.base_url, env_key='CHESS_GATEWAY_TOKEN')
                     try:
                         return await self._run(game_id, snapshot, tool_handler, emit, thread_id,
-                                               transport_profile=transport, gateway_token=gateway.token)
+                                               transport_profile=transport, gateway_token=gateway.token,
+                                               player_binding=binding)
                     finally:
                         data_root = Path(self.config.data_dir).resolve()
                         folder = _private_directory(data_root / 'players' / game_id, data_root)
@@ -496,15 +498,16 @@ class CodexPlayer:
                             'requested_model': self.profile.model, 'routing': self.profile.routing,
                             'requests': gateway.evidence, 'request_count': gateway.request_count,
                             'budget_check_count': gateway.budget_check_count})
-            return await self._run(game_id, snapshot, tool_handler, emit, thread_id)
+            return await self._run(game_id, snapshot, tool_handler, emit, thread_id, player_binding=binding)
         finally:
             self._active_games.discard(game_id)
 
     async def _run(self, game_id, snapshot, tool_handler, emit, thread_id,
-                   transport_profile=None, gateway_token=None):
+                   transport_profile=None, gateway_token=None, player_binding=None):
         profile = self.profile
         transport_profile = transport_profile or profile
-        identity = profile_identity(self.config)
+        binding = player_binding or new_player_binding(self.config)
+        identity = binding['profile']
         data_root = Path(self.config.data_dir).resolve()
         player_root = _private_directory(data_root / "players" / game_id, data_root)
         codex_home = _private_directory(player_root / "codex-home", data_root)
@@ -554,7 +557,7 @@ class CodexPlayer:
         emitted_items = set()
         public_chars = 0
         request_count = 0
-        prompt = player_prompt(profile)
+        prompt = binding['prompt']
         process = await _spawn(str(self.config.codex_bin), "app-server", "--stdio", "--strict-config",
                                cwd=str(workspace), env=env, stdin=asyncio.subprocess.PIPE,
                                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL,

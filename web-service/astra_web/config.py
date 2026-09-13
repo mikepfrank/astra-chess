@@ -24,6 +24,7 @@ class Config:
     data_dir: Path = field(default_factory=lambda: Path(os.getenv("ASTRA_DATA_DIR", str(APP_ROOT / "var"))).resolve())
     origin: str = field(default_factory=lambda: os.getenv("ASTRA_ORIGIN", "http://127.0.0.1:8788").rstrip("/"))
     model_profile: str = field(default_factory=lambda: os.getenv("ASTRA_MODEL_PROFILE", "astra"))
+    persona: str | None = field(default_factory=lambda: os.getenv("ASTRA_PERSONA"))
     model: str | None = None
     reasoning: str | None = None
     player_mode: str = field(default_factory=lambda: os.getenv("ASTRA_PLAYER", "disabled"))
@@ -65,8 +66,9 @@ class Config:
         return self.data_dir / "astra.sqlite3"
 
     def validate(self):
-        from .player_profiles import profile_for
+        from .player_profiles import persona_for, profile_for
         profile = profile_for(self)
+        persona_for(self)
         if profile.name == 'openrouter-glm' and self.max_workers != 1:
             raise ValueError('Initial OpenRouter experiments require one worker')
         if self.player_mode not in {"disabled", "codex", "test"}:

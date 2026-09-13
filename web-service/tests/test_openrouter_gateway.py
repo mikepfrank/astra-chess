@@ -93,6 +93,27 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(gateway.evidence[0]['routing'], {'attempt': 1, 'is_byok': False,
                 'selected': [{'model': 'z-ai/glm-5.3-flash', 'provider': 'Fixture Provider'}]})
             self.assertTrue(gateway.evidence[0]['stream_complete'])
+
+    async def test_pinned_instructions_required_on_every_provider_request(self):
+        instructions = 'Shared chess contract.\nPersona: Arcturus. 🐂'
+        async with OpenRouterGateway(KEY, transport=httpx.MockTransport(self.upstream),
+                budget_check=self.budget, expected_instructions=instructions) as gateway:
+            async with self.client(gateway) as client:
+                for actual in (None, 'Persona omitted.', instructions + '\nChanged.'):
+                    request = payload()
+                    if actual is not None:
+                        request['instructions'] = actual
+                    response = await client.post('/v1/responses', json=request)
+                    self.assertEqual(response.status_code, 400)
+                    self.assertEqual(response.json()['error']['code'], 'instructions_mismatch')
+                self.assertFalse(self.calls)
+                self.assertFalse(self.budgets)
+                request = {**payload(), 'instructions': instructions}
+                for _ in range(2):
+                    self.assertEqual((await client.post('/v1/responses', json=request)).status_code, 200)
+            self.assertEqual(len(self.calls), 2)
+            self.assertTrue(all(row['instructions_verified'] for row in gateway.evidence))
+            self.assertNotIn(instructions, json.dumps(gateway.evidence))
             self.assertNotIn('Private model output', json.dumps(gateway.evidence))
             self.assertNotIn('Private routing', json.dumps(gateway.evidence))
             self.assertNotIn('Private pipeline', json.dumps(gateway.evidence))

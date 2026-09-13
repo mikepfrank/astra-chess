@@ -165,7 +165,7 @@ def _ledger(path):
 
 def _check_budget(key, ledger_path, transport, *, persist):
     key = _key(key)
-    path = Path(ledger_path) if ledger_path is not None else APP_ROOT / "var" / "openrouter-budget.json"
+    path = Path(ledger_path or os.getenv('ASTRA_OPENROUTER_BUDGET_PATH') or APP_ROOT / "var" / "openrouter-budget.json")
     key_hash = hashlib.sha256(key.encode("utf-8")).hexdigest()
     try:
         path.parent.mkdir(parents=True, exist_ok=True)

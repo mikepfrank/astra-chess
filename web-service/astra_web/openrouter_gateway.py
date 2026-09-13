@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 from contextlib import contextmanager
 import hmac
+import hashlib
 import json
 import math
 import re
@@ -112,10 +113,13 @@ class OpenRouterGateway:
     ``transport`` and ``budget_check`` permit tests without external requests.
     The production default checks the worktree-wide experiment budget each time.
     """
-    def __init__(self, api_key, *, transport=None, budget_check=None):
+    def __init__(self, api_key, *, transport=None, budget_check=None, expected_instructions=None):
         if not isinstance(api_key, str) or not api_key or '\r' in api_key or '\n' in api_key:
             raise GatewayError('invalid_credential')
         self._api_key = api_key
+        if expected_instructions is not None and (not isinstance(expected_instructions, str) or not expected_instructions.strip()):
+            raise GatewayError('invalid_expected_instructions')
+        self._expected_instructions = expected_instructions
         self._transport = transport
         self._budget_check = budget_check or require_budget
         self.token = secrets.token_urlsafe(32)
@@ -204,6 +208,9 @@ class OpenRouterGateway:
         started = False
         evidence = {'requested_model': MODEL, 'observed_model': None,
                     'response_id': None, 'provider': None, 'usage': {}, 'stream_complete': False}
+        if self._expected_instructions is not None:
+            evidence['instructions_verified'] = True
+            evidence['instructions_sha256'] = hashlib.sha256(self._expected_instructions.encode('utf-8')).hexdigest()
         try:
             self.request_count += 1
             self.evidence.append(evidence)
@@ -346,6 +353,8 @@ class OpenRouterGateway:
                         if not message.get('more_body', False):
                             break
                 payload = _prepare_request(json.loads(body))
+                if self._expected_instructions is not None and payload.get('instructions') != self._expected_instructions:
+                    raise GatewayError('instructions_mismatch')
                 if len(json.dumps(payload, allow_nan=False).encode('utf-8')) > MAX_REQUEST_BYTES:
                     raise GatewayError('request_too_large')
             except GatewayError as error:
