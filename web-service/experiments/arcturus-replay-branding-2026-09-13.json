@@ -1,0 +1,39 @@
+{
+  "date": "2026-09-13",
+  "maintenance_checkpoint_utc": "2026-09-13T23:57:49Z",
+  "application_commit": "7e940d3d29cd66d99b9e976c7aea48d97a1442f8",
+  "status": "deployed and public browser checks passed",
+  "scope": "Saved player identity in replay generation, public list and legacy replay UI; branding-only correction of the existing Arcturus snapshots",
+  "repair": {
+    "html_copies_updated": 2,
+    "publication_metadata_rows_updated": 1,
+    "frames_preserved": 65,
+    "captured_messages_preserved": 142,
+    "same_shared_url_and_archive_ids": true,
+    "same_listing_and_chat_inclusion_choices": true,
+    "game_record_and_non_publication_tables_unchanged": true,
+    "unrelated_private_files_unchanged": true,
+    "codex_alias_targets_preserved_without_following": true,
+    "repeat_dry_run_has_no_remaining_changes": true,
+    "coherent_private_backup_before_update": true,
+    "original_astra_and_caddy_process_ids_unchanged": true,
+    "legacy_share_records_present": 0,
+    "model_or_tactical_search_calls": 0
+  },
+  "verification": {
+    "windows_replay_regressions_passed": 41,
+    "windows_player_and_service_regressions_passed": 52,
+    "windows_additional_branding_and_initial_repair_checks_passed": 11,
+    "linux_final_repair_checks_passed": 8,
+    "linux_final_repair_checks_skipped": 0,
+    "old_v1_records_remain_supported": true,
+    "new_v2_records_capture_public_player_name_only": true,
+    "saved_name_independent_of_current_site_persona": true,
+    "hostile_names_escaped_and_private_bindings_excluded": true,
+    "captured_content_and_rollback_fixtures": true,
+    "public_same_url_and_arcturus_labels": true,
+    "public_script_csp_execution": true,
+    "desktop_and_mobile_browser_checks": true,
+    "browser_page_errors": 0
+  }
+}

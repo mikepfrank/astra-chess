@@ -14,6 +14,17 @@ Astra. Existing immutable snapshots need the narrow operator branding repair,
 which preserves their exact captured content and shared URLs. See
 [the replay workflow](docs/REPLAY-WORKFLOW.md).
 
+Deployed as `7e940d3` at 23:57 UTC. The narrow repair changed two existing HTML
+copies and one publication metadata row. It preserved the same shared URL,
+all 65 frames and 142 captured messages, original game/clock/budget records and
+recovery files. An idle check and coherent private backup preceded the update;
+only Arcturus restarted, with original Astra/Caddy PIDs unchanged. Public browser
+checks passed for the list, same replay URL, chat authors, script CSP and mobile
+layout. A second dry run reports no remaining changes. The first dry run safely
+refused Codex's temporary aliases; the reviewed tool now fingerprints only the
+four recognized alias names/targets without following them. All eight repair
+tests passed on Linux. See [the deployment record](experiments/arcturus-replay-branding-2026-09-13.json).
+
 The dedicated `codex/openrouter-chess` branch is now pushed to the GitHub origin
 for safekeeping. Continue committing/pushing this branch; do not merge it into
 `main` or `codex/hosted-chess` as part of experimental deployment.
