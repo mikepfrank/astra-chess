@@ -113,6 +113,12 @@ function updatePlayerIdentity(){
   $('method-title').textContent=name==='Astra'?'What makes an Astra game different?':`How does ${name} play?`;
   $('method-description').textContent=name==='Astra'?'Astra combines language-model deliberation with a tactical engine written from scratch. It chooses which positions to investigate, reviews the evidence, and decides what to play. No external chess engines, opening books, game databases, or endgame tablebases guide its moves.':`Astra developed the chess harness and wrote its tactical engine from scratch. ${name} uses these tools to choose which positions to investigate, review the evidence, and decide what to play. No external chess engines, opening books, game databases, or endgame tablebases guide its moves.`;
   $('method-conversation').textContent=`${name} may explain an idea or keep a plan to itself. The conversation is part of the game. Its time budget is separate from yours; you can take your time.`;
+  const current=state.game||state.config;
+  if(current){
+    const model=current.model_name||current.model||'configured by operator';
+    const label=name==='Astra'?(current.model||'configured by operator'):`${name} · ${model}`;
+    $('model-detail').textContent=`Player: ${label}${current.reasoning?' · '+current.reasoning+' reasoning':''}. ${state.config?.suspend_hours?`Inactive games suspend after ${state.config.suspend_hours} hours and can be resumed.`:''}`;
+  }
   if(!state.game){$('astra-clock').title=`${name}’s remaining thinking time`;$('retry-worker').textContent=`Retry ${name}`;}
   if(!state.game){$('top-name').textContent=name;$('top-avatar').textContent=name.slice(0,1).toUpperCase();}
 }
@@ -144,11 +150,6 @@ function updateAvailability(){
   $('welcome-description').textContent=available?`Choose a side and meet ${name} across the board.`:'Live play is not ready yet. Check availability or return to one of your saved games.';
   $('welcome-new').textContent=available?'Start a game ↗':'Check availability';
   $('new-game').textContent=available?'New game':'Player availability';
-  if(state.config){
-    const model=state.config.model_name||state.config.model||'configured by operator';
-    const label=name==='Astra'?(state.config.model||'configured by operator'):`${name} · ${model}`;
-    $('model-detail').textContent=`Player: ${label}${state.config.reasoning?' · '+state.config.reasoning+' reasoning':''}. ${state.config.suspend_hours?`Inactive games suspend after ${state.config.suspend_hours} hours and can be resumed.`:''}`;
-  }
 }
 async function refreshAvailability(){
   if(state.availabilityChecking)return playerReady();
