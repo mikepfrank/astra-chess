@@ -1,0 +1,54 @@
+{
+  "date": "2026-09-13",
+  "scope": "Read-only diagnosis of repeated retries after five completed move pairs and a sixth human move",
+  "application_commit": "472ef94",
+  "status": "cause confirmed; repair not implemented or deployed",
+  "service": {
+    "active": true,
+    "restarts": 0,
+    "memory_bytes_at_inspection": 65105920,
+    "tasks_at_inspection": 4,
+    "lingering_codex_process": false
+  },
+  "game": {
+    "ply": 11,
+    "message_count": 39,
+    "completed_engine_queries": 6,
+    "saved_thread_present": true,
+    "worker_state": "error",
+    "active_started": null,
+    "last_successful_provider_input_tokens": 77813,
+    "configured_auto_compaction_limit": 80000,
+    "consecutive_retry_attempts_without_provider_calls": 7,
+    "retry_pattern": ["thread_saved", "compaction_started", "worker_error"],
+    "exact_error": {"error": {"type": "chess_gateway_error", "code": "invalid_tools"}}
+  },
+  "reproduction": {
+    "method": "Fresh isolated Codex thread; thread/compact/start; dummy credential and loopback HTTP fixture",
+    "windows_codex_version": "0.154.0-alpha.6.2",
+    "linux_codex_version": "0.154.0",
+    "external_provider_contacted": false,
+    "real_credentials_inherited": false,
+    "request_path": "/v1/responses",
+    "request_model": "z-ai/glm-5.3-flash:nitro",
+    "reasoning_effort": "high",
+    "stream": true,
+    "tools": [],
+    "full_persona_instructions_unchanged": true,
+    "instructions_sha256": "7fe5defa47e7b34685b465c488af0ae12735d3e99b4e937d67e2278b2a8ac688",
+    "max_output_tokens_field_present": false
+  },
+  "cause": "The gateway requires the complete seven-tool chess set for every Responses request. Codex local compaction legitimately sends tools: [], which is rejected before any upstream request. Retrying the same saved thread repeats required compaction and the rejection.",
+  "repair_requirements": [
+    "Support a narrowly validated text-only compaction request while retaining model, reasoning, persona, budget and output bounds.",
+    "Keep ordinary chess requests restricted to their exact canonical seven-tool schemas.",
+    "Test compaction completion, restoration of normal tool requests and continuation of the same saved thread.",
+    "Persist sanitized gateway rejection codes to make future protocol failures diagnosable."
+  ],
+  "investigation_changes": {
+    "live_game_state": false,
+    "live_conversation_history": false,
+    "service_restart": false,
+    "paid_model_requests": 0
+  }
+}
