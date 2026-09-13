@@ -6,6 +6,13 @@ baseline and its deployment history are preserved below.
 
 ## September 13, 2026: Arcturus experimental branch
 
+**Latest UI: the clock-side ERROR indicator is bold, bright red.** It follows
+Arcturus when the board flips and clears when the worker recovers or the private
+view is reset. Desktop/mobile visual checks confirmed the style, flip and
+error-to-thinking transition using synthetic data with all network requests
+intercepted. This static-only update needs a browser refresh, without a service
+restart. Mike deferred investigation of the sporadic underlying errors.
+
 **Latest operation: Arcturus's daily token allowance is 200 million**, activated
 at 22:02 UTC through its private `ASTRA_MAX_DAILY_TOKENS=200000000` environment
 setting. The shared application default remains 20 million for other deployments.

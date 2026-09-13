@@ -220,6 +220,10 @@ nav {
 .player-status.active {
   color:var(--accent);
 }
+.player-status.error {
+  color:#ff8b82;
+  font-weight:800;
+}
 .clock {
   font-size:18px;
   font-variant-numeric:tabular-nums;

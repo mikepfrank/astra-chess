@@ -264,6 +264,7 @@ function renderGame(game){
     status.textContent=playerStatusText(game,displayedSide);
     status.classList.toggle('active',active&&(turn===displayedSide||astraCompacting)||game.status==='finished'&&displayedSide!==side&&['thinking','queued','compacting'].includes(game.worker?.state));
     status.classList.toggle('compacting',astraCompacting);
+    status.classList.toggle('error',displayedSide===game.astra_side&&game.worker?.state==='error');
   }
   const clockPaused=game.clock?.paused===true;
   $('astra-clock').textContent=formatClock(game.clock?.remaining_seconds);
@@ -332,7 +333,7 @@ function clearPrivateView(){
   $('top-status').textContent='READY WHEN YOU ARE';$('bottom-status').textContent='';
   $('top-captures').replaceChildren();$('bottom-captures').replaceChildren();$('astra-clock').textContent='—';
   $('astra-clock').classList.remove('paused');$('astra-clock').title=`${playerName()}’s remaining thinking time`;$('astra-clock').removeAttribute('aria-label');
-  for(const id of ['top-status','bottom-status'])$(id).classList.remove('compacting','active');
+  for(const id of ['top-status','bottom-status'])$(id).classList.remove('compacting','active','error');
   $('game-status-text').textContent='A fresh game, at your own pace.';$('game-status').className='game-status';
   $('message-input').value='';updateComposer();
   $('offer-draw').disabled=true;$('resign').disabled=true;
