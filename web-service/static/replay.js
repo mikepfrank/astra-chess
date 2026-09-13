@@ -2,6 +2,7 @@ import {BoardView,START_FEN,renderCaptures} from './pieces.js';
 const $=id=>document.getElementById(id);
 const board=new BoardView($('board'));
 let data,index=0,playing=false,timer,shownMessageCount=-1;
+const playerName=()=>data?.player_name||'Astra';
 const moveButtons=[];
 const titleCase=text=>String(text||'').replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
 function stop(){playing=false;clearTimeout(timer);$('play').textContent=index===data.moves.length?'Replay':'Play';$('play').setAttribute('aria-label',index===data.moves.length?'Replay from the beginning':'Play replay');$('play').setAttribute('aria-pressed','false');}
@@ -13,11 +14,11 @@ function show(ply){
   const turn=fen.split(' ')[1]==='w'?'white':'black';
   for(const [location,side] of [['top',topSide],['bottom',bottomSide]]){
     const human=side===data.human_side;
-    $(location+'-name').textContent=human?data.name:'Astra';
+    $(location+'-name').textContent=human?data.name:playerName();
     $(location+'-detail').textContent=titleCase(side);
     $(location+'-status').textContent=index===data.moves.length?'GAME COMPLETE':turn===side?'TO MOVE':'';
     $(location+'-status').classList.toggle('active',index<data.moves.length&&turn===side);
-    $(location+'-avatar').textContent=human?String(data.name||'Player').slice(0,1).toUpperCase():'A';
+    $(location+'-avatar').textContent=(human?String(data.name||'Player'):playerName()).slice(0,1).toUpperCase();
     $(location+'-avatar').className='avatar '+(human?'human-avatar':'astra-avatar');
     renderCaptures($(location+'-captures'),data.moves.slice(0,index),side,data.human_side);
   }
@@ -48,7 +49,7 @@ function renderCommentary(){
     for(const message of messages){
       const article=document.createElement('article');article.className='message '+(['human','astra','system'].includes(message.author)?message.author:'system');
       const header=document.createElement('div');header.className='message-heading';
-      const author=document.createElement('span');author.className='message-author';author.textContent=message.author==='human'?data.name:message.author==='astra'?'Astra':'Game';
+      const author=document.createElement('span');author.className='message-author';author.textContent=message.author==='human'?data.name:message.author==='astra'?playerName():'Game';
       const body=document.createElement('p');body.className='message-body';body.textContent=message.text;
       header.append(author);article.append(header,body);container.append(article);
     }
@@ -97,8 +98,11 @@ async function initialize(){
     data=await response.json();
     if(!Array.isArray(data.moves))throw new Error('The replay data is incomplete.');
     data.name=data.name||'Player';
-    $('replay-title').textContent=`${data.name} & Astra`;
-    document.title=`${data.name} vs Astra · Shared replay`;
+    $('replay-title').textContent=`${data.name} & ${playerName()}`;
+    document.title=`${data.name} vs ${playerName()} · Shared replay`;
+    $('replay-brand-name').textContent=playerName().toUpperCase();
+    $('replay-brand-mark').textContent=playerName().slice(0,1).toUpperCase();
+    $('replay-footer').textContent=`${playerName()} Chess · Shared replay`;
     $('replay-result').textContent=`${data.result||'Finished'} · ${titleCase(data.termination||'Game complete')}`;
     $('replay-slider').max=data.moves.length;board.flipped=data.human_side==='black';
     $('commentary-disclosure').textContent=data.messages?.length?'The player chose to share this conversation. Messages accumulate at their recorded positions; going back hides later messages. The final position includes any shared post-game discussion.':'The player shared the moves. No conversation is displayed.';

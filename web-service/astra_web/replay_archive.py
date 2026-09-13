@@ -14,11 +14,12 @@ import time
 
 from . import chess_game as game
 from .evaluations import latest_astra_evaluation, _read_result, _qualifying, _qualifying_mate_proof
+from .player_profiles import saved_player_name
 
 
 APP_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = APP_ROOT.parent
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 MAX_RECORD_BYTES = 12_000_000
 GAME_FIELDS = {'id', 'name', 'human_side', 'astra_side', 'model', 'reasoning', 'result',
                'termination', 'created_at', 'updated_at', 'exported_at', 'initial_fen',
@@ -82,11 +83,16 @@ def read_game(data_dir, game_id):
 
 def _validate_record(record):
     if (not isinstance(record, dict) or set(record) != {'schema_version', 'game', 'moves', 'messages', 'evaluations'}
-            or type(record['schema_version']) is not int or record['schema_version'] != SCHEMA_VERSION):
+            or type(record['schema_version']) is not int or record['schema_version'] not in (1, SCHEMA_VERSION)):
         raise ValueError('Unsupported or unexpected archive record fields.')
     meta = record['game']
-    if not isinstance(meta, dict) or set(meta) != GAME_FIELDS:
+    expected_fields = GAME_FIELDS | ({'player_name'} if record['schema_version'] >= 2 else set())
+    if not isinstance(meta, dict) or set(meta) != expected_fields:
         raise ValueError('Invalid archive game metadata fields.')
+    if record['schema_version'] >= 2:
+        name = _text(meta['player_name'], 200, 'player name')
+        if any(ord(char) < 32 or ord(char) == 127 or 0xD800 <= ord(char) <= 0xDFFF for char in name):
+            raise ValueError('Invalid archive player name.')
     if (meta['status'] != 'finished' or not isinstance(meta['id'], str) or not re.fullmatch(r'[0-9a-f]{32}', meta['id'])
             or meta['human_side'] not in ('white', 'black') or meta['astra_side'] not in ('white', 'black')
             or meta['human_side'] == meta['astra_side'] or meta['initial_fen'] != game.START_FEN
@@ -145,7 +151,7 @@ def _validate_record(record):
         author, ply, stamp = message['author'], message['ply'], _timestamp(message['created_at'])
         if author not in ('human', 'astra') or type(ply) is not int or not prior_ply <= ply <= len(moves):
             raise ValueError('Invalid public message author or committed-position order.')
-        expected_name = 'Astra' if author == 'astra' else meta['name']
+        expected_name = meta.get('player_name', 'Astra') if author == 'astra' else meta['name']
         if message['name'] != expected_name:
             raise ValueError('Public message name disagrees with its author.')
         _text(message['text'], 4000, 'message text')
@@ -158,7 +164,7 @@ def _validate_record(record):
         prior_ply, prior_stamp = ply, stamp
     own_plies = [i for i, move in enumerate(moves) if move['actor'] == 'astra']
     if not isinstance(evaluations, list) or len(evaluations) != len(own_plies):
-        raise ValueError('Archive must explicitly account for each Astra move evaluation.')
+        raise ValueError('Archive must explicitly account for each model move evaluation.')
     for row, ply in zip(evaluations, own_plies):
         if not isinstance(row, dict) or set(row) != {'ply', 'evaluation', 'provenance'} or type(row['ply']) is not int or row['ply'] != ply:
             raise ValueError('Invalid archive evaluation position.')
@@ -222,12 +228,13 @@ def make_record(state, data_dir, *, exported_at=None):
         if not isinstance(state, dict) or state.get('status') != 'finished':
             raise ValueError('Only finished games can be archived.')
         meta = {key: state[key] for key in GAME_FIELDS - {'exported_at', 'initial_fen'}}
-        meta.update(exported_at=time.time() if exported_at is None else exported_at, initial_fen=game.START_FEN)
+        meta.update(exported_at=time.time() if exported_at is None else exported_at,
+                    initial_fen=game.START_FEN, player_name=saved_player_name(state))
         moves = [{key: move[key] for key in MOVE_FIELDS} for move in state['moves']]
         if state.get('fen') != (moves[-1]['fen'] if moves else game.START_FEN):
             raise ValueError('Recorded final FEN disagrees with the archived move sequence.')
         messages = [{key: message[key] for key in MESSAGE_FIELDS - {'name'}} |
-                    {'name': 'Astra' if message['author'] == 'astra' else state['name']}
+                    {'name': meta['player_name'] if message['author'] == 'astra' else state['name']}
                     for message in state['messages']]
         record = {'schema_version': SCHEMA_VERSION, 'game': meta, 'moves': moves, 'messages': messages,
                   'evaluations': [{'ply': i, 'evaluation': None, 'provenance': None}
@@ -263,6 +270,19 @@ def record_pgn(record):
     pgn = game.pgn(dict(meta, moves=record['moves']))
     headers = {'Date': stamp.strftime('%Y.%m.%d'), 'UTCDate': stamp.strftime('%Y.%m.%d'),
                'UTCTime': stamp.strftime('%H:%M:%S'), 'Round': 'hosted-' + meta['id']}
+    if record['schema_version'] >= 2:
+        # Public archive identity is sufficient to rebuild the PGN. Do not
+        # fabricate private persona/profile provenance to feed the live writer.
+        name = meta['player_name']
+        names = {meta['human_side']: meta['name'], meta['astra_side']: name}
+        headers.update(Event=f'{name} Chess Public Beta', Site=f'{name} Chess',
+                       White=names['white'], Black=names['black'], Result=meta['result'],
+                       Termination=meta['termination'], Model=meta['model'],
+                       Reasoning=meta['reasoning'], EngineSHA256=meta['engine_fingerprint'])
+        def escape(value):
+            return str(value).replace('\\', '\\\\').replace('"', '\\"').replace('\n', ' ').replace('\r', ' ')
+        notation = pgn.split('\n\n', 1)[1]
+        return '\n'.join(f'[{key} "{escape(value)}"]' for key, value in headers.items()) + '\n\n' + notation
     return '\n'.join(f'[{key} "{value}"]' for key, value in headers.items()) + '\n' + pgn
 
 
@@ -315,12 +335,13 @@ def build_archive(record, output):
             raise ValueError('Offline replay builds require the rules-only chess==1.11.2 dependency; install requirements-replay.txt or supply its existing directory on PYTHONPATH.') from error
         raise
     meta = record['game']
+    player_name = meta.get('player_name', 'Astra')
     with tempfile.TemporaryDirectory(prefix='astra-replay-') as directory:
         folder = Path(directory)
         pgn_path = folder / ('hosted-' + meta['id'] + '.pgn')
         pgn_path.write_text(record_pgn(record), encoding='utf-8')
         metadata_path = folder / 'metadata.json'
-        metadata_path.write_text(_json({'hosted-' + meta['id']: {'model': 'Astra',
+        metadata_path.write_text(_json({'hosted-' + meta['id']: {'model': player_name,
             'thinkingLevel': meta['reasoning'].title(), 'playerSide': meta['astra_side']}}), encoding='utf-8')
         builder.ROOT, builder.REPLAY_METADATA = APP_ROOT, metadata_path
         temporary_page = folder / 'replay.html'
@@ -346,10 +367,12 @@ def build_archive(record, output):
         frame = frames[row['ply'] + 1]
         frame['evaluation'] = _frame_evaluation(row, frame['move'], astra_side=meta['astra_side'], mate=frame['mate'])
     data['evaluations'] = {'perspective': meta['astra_side'], 'recordedChoices': len(record['evaluations']),
-        'description': f"Saved evidence for Astra's actual moves. Positive pawn scores favor {meta['astra_side'].title()}. Human-move frames have no new evaluation; missing evidence stays missing."}
+        'description': f"Saved evidence for {player_name}'s actual moves. Positive pawn scores favor {meta['astra_side'].title()}. Human-move frames have no new evaluation; missing evidence stays missing."}
+    data['playerName'] = player_name
     data['messages'] = deepcopy(record['messages'])
     data['archive'] = {'gameId': meta['id'], 'createdAt': meta['created_at'], 'exportedAt': meta['exported_at'],
-        'model': meta['model'], 'reasoning': meta['reasoning'], 'source': 'hosted_service', 'messageCount': len(record['messages'])}
+        'model': meta['model'], 'reasoning': meta['reasoning'], 'playerName': player_name,
+        'source': 'hosted_service', 'messageCount': len(record['messages'])}
     page = page[:start] + _json(data).replace('<', '\\u003c') + page[end:]
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)

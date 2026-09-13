@@ -160,7 +160,7 @@
 </svg>
 <main id="chess-replay" class="app">
   <header class="heading">
-    <div><p class="eyebrow">ASTRA CHESS · HOSTED GAME REPLAY</p><h1>__TITLE__</h1><p class="subtitle">__SUBTITLE__</p></div>
+    <div><p class="eyebrow">CHESS · HOSTED GAME REPLAY</p><h1>__TITLE__</h1><p class="subtitle">__SUBTITLE__</p></div>
     <div class="result" aria-label="Game result: __RESULT_DESCRIPTION__"><strong>__RESULT__</strong><span>__ENDING__</span></div>
   </header>
   <div class="layout">
@@ -296,7 +296,7 @@
     const author = document.createElement('strong');
     author.className = 'chat-author';
     const side = message.author === 'astra' ? data.playerSide : humanSide;
-    author.textContent = message.name || data.displayNames[side] || (message.author === 'astra' ? 'Astra' : 'Player');
+    author.textContent = message.name || data.displayNames[side] || (message.author === 'astra' ? data.playerName || 'Astra' : 'Player');
     header.append(author);
     const context = document.createElement('p');
     context.className = 'chat-context';

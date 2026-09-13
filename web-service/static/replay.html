@@ -1,16 +1,16 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="robots" content="noindex,nofollow"><title>Shared replay · Astra Chess</title><link rel="stylesheet" href="/static/style.css"><script type="module" src="/static/replay.js"></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><meta name="robots" content="noindex,nofollow"><title>Shared chess replay</title><link rel="stylesheet" href="/static/style.css"><script type="module" src="/static/replay.js"></script></head>
 <body>
   <a class="skip-link" href="#board">Skip to chessboard</a>
-  <header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">A</span><span>ASTRA<span class="brand-sub">CHESS CLUB</span></span></a><span class="beta-badge">PUBLIC BETA</span><nav><a class="outline small" href="/">Play your own game ↗</a></nav></header>
+  <header class="site-header"><a class="brand" href="/"><span id="replay-brand-mark" class="brand-mark" aria-hidden="true">♟</span><span><span id="replay-brand-name">CHESS</span><span class="brand-sub">CHESS CLUB</span></span></a><span class="beta-badge">PUBLIC BETA</span><nav><a class="outline small" href="/">Play your own game ↗</a></nav></header>
   <main class="page-shell">
-    <div id="replay-error" class="error-page" hidden><h1>This replay is unavailable.</h1><p id="replay-error-detail">The link may have expired or been revoked by its owner.</p><a class="primary wide" href="/">Visit Astra Chess</a></div>
+    <div id="replay-error" class="error-page" hidden><h1>This replay is unavailable.</h1><p id="replay-error-detail">The link may have expired or been revoked by its owner.</p><a class="primary wide" href="/">Return to chess</a></div>
     <div id="replay-content" hidden>
-      <div class="replay-intro"><div><p class="eyebrow">A GAME, REVISITED</p><h1 id="replay-title">Astra at the board.</h1></div><p id="replay-result" class="muted"></p></div>
+      <div class="replay-intro"><div><p class="eyebrow">A GAME, REVISITED</p><h1 id="replay-title">A recorded game.</h1></div><p id="replay-result" class="muted"></p></div>
       <div class="play-layout">
         <section class="board-column" aria-label="Shared game replay">
-          <div class="player-row"><div class="player-identity"><span class="avatar astra-avatar" id="top-avatar">A</span><div><strong id="top-name">Astra</strong><span id="top-detail" class="muted">Black</span></div></div><span id="top-status" class="player-status"></span></div>
+          <div class="player-row"><div class="player-identity"><span class="avatar astra-avatar" id="top-avatar">A</span><div><strong id="top-name">Opponent</strong><span id="top-detail" class="muted">Black</span></div></div><span id="top-status" class="player-status"></span></div>
           <div id="top-captures" class="capture-tray"></div>
           <div class="board-container"><div id="board" class="chessboard"></div></div>
           <div id="bottom-captures" class="capture-tray"></div>
@@ -27,7 +27,7 @@
       </div>
     </div>
     <div id="replay-loading" class="empty-note" role="status">Opening the scoresheet…</div>
-    <footer class="site-footer"><span>Astra Chess · Shared replay</span></footer>
+    <footer class="site-footer"><span id="replay-footer">Shared chess replay</span></footer>
   </main>
 </body>
 </html>

@@ -79,6 +79,20 @@ the feature does not give the model a filesystem, publishing or shell tool.
 
 ## Hosting and persistence
 
+Replay names follow each game's saved player identity. The public library's
+navigation uses the deployment's current persona, while individual entries,
+standalone titles, board labels, chat author labels and PGN headers use the
+captured game's player name. Historical Astra experiments retain their original
+attribution. New sanitized exports use schema v2 with a public `player_name`;
+schema v1 remains readable with its original implicit Astra identity. Private
+persona prompts and driver state are never exported.
+
+Existing HTML snapshots do not update automatically when a template changes.
+The narrow Arcturus branding repair in `tools/ops/` relabels only known display
+fields in existing snapshots, preserving captured chat, moves, evaluations,
+archive IDs, shared links and visibility. It requires a reviewed dry run,
+backup and stopped experimental service; it never recaptures later discussion.
+
 `/games/` is the public user-game index. Its entries are derived from explicitly
 published snapshots, and the service maintains a generated
 `public-replays/index.html` under `ASTRA_DATA_DIR`. This file is an output, not

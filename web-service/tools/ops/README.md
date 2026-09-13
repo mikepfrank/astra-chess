@@ -16,6 +16,44 @@ own explicitly configured mail credentials.
 The notification tool has a separate [setup and operations guide](../../docs/GAME-NOTIFICATIONS.md).
 It is an opt-in mail sender; the read-only report and migration rehearsal do not send mail.
 
+## Repair existing Arcturus replay branding
+
+[`repair_arcturus_replay_branding.py`](repair_arcturus_replay_branding.py) repairs
+one explicitly selected finished Arcturus game's existing HTML snapshots and
+adds only `player_name` to its publication metadata. It never captures the
+latest game conversation: private and shared copies retain their own chat,
+move and evaluation snapshots, archive IDs, tokens, listing flags and timestamps.
+Mentions of Astra inside chat and private records remain unchanged.
+
+Run a read-only plan from the reviewed experimental checkout first:
+
+```sh
+.venv/bin/python tools/ops/repair_arcturus_replay_branding.py --data-dir /home/or-chess/.local/share/or-chess --game GAME_ID
+```
+
+After stopping only `or-chess.service` and taking the deployment's full private
+data backup, repeat the plan at that stable boundary. Apply requires its exact
+hash and a new private backup directory outside the live data tree:
+
+```sh
+.venv/bin/python tools/ops/repair_arcturus_replay_branding.py --data-dir /home/or-chess/.local/share/or-chess --game GAME_ID --apply --expect-plan PLAN_SHA256 --backup-dir /home/or-chess/backups/NEW_REPAIR_DIRECTORY
+```
+
+The CLI refuses apply outside that installed data directory or while the unit
+or its descendants run. It saves a coherent SQLite backup and exact changed
+HTML, then updates only known branding fields. All other database rows and
+columns, query/game evidence, Codex records and the spending ledger must retain
+their hashes. Changed input invalidates the plan; unsupported HTML, symlinks or
+retired replay metadata require review. Legacy `/replay/` links are counted and
+left unchanged. A caught failure rolls back publication metadata and written
+HTML; keep the service stopped for manual recovery if rollback cannot verify.
+
+Deploy the matching persona-aware renderer and index code before restarting.
+The application rebuilds the generated index from publication metadata. Verify
+the same public links, chat choices and script-hash CSP after restart. The tool
+does not operate Caddy or the original Astra application, regenerate evaluations,
+change the game or clock, or consume model tokens.
+
 ## Read-only game and resource report
 
 From `web-service/` on Linux:

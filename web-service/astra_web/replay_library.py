@@ -23,6 +23,7 @@ from fastapi import HTTPException, Request
 from fastapi.responses import HTMLResponse
 
 from . import replay_archive
+from .player_profiles import persona_for, saved_player_name
 
 
 MAX_PENDING_BUILDS = 8
@@ -380,6 +381,7 @@ class ReplayLibrary:
                     page = self._read_page(self._private_path(game_id, archive_id, include))
                     _atomic_write(self._public_path(token), page)
                     metadata = dict(name=state['name'], human_side=state['human_side'], astra_side=state['astra_side'],
+                                    player_name=saved_player_name(state),
                                     result=state['result'], termination=state['termination'], created_at=state['created_at'], plies=len(state['moves']))
                     db.execute('''INSERT INTO replay_variant_shares VALUES(?,?,?,?,?,?,?)
                         ON CONFLICT(game_id,include_commentary) DO UPDATE SET token=excluded.token,
@@ -461,11 +463,13 @@ class ReplayLibrary:
 
     def _index(self, page=1):
         data = self.public_entries(page)
+        site_name = escape(persona_for(self.config).display_name)
         rows = []
         for entry in data['games']:
             name = escape(entry['name'])
             date = datetime.fromtimestamp(entry['created_at'], timezone.utc).strftime('%b %d, %Y')
-            white, black = (name, 'Astra') if entry['human_side'] == 'white' else ('Astra', name)
+            player_name = escape(entry.get('player_name', 'Astra'))
+            white, black = (name, player_name) if entry['human_side'] == 'white' else (player_name, name)
             rows.append(f'<li><a href="{entry["public_url"]}">{white} <span>vs.</span> {black}</a>'
                         f'<p>{date} UTC · {escape(entry["result"])} · {(entry["plies"] + 1) // 2} moves'
                         f' · {"Chat included" if entry["include_commentary"] else "Moves only"}</p></li>')
@@ -475,13 +479,13 @@ class ReplayLibrary:
         if page * PAGE_SIZE < data['total']:
             navigation.append(f'<a href="?page={page + 1}">Older games →</a>')
         return '''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Public game replays · Astra plays chess</title><style>
+<title>Public game replays · ''' + site_name + ''' plays chess</title><style>
 :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0d171e;color:#e8eef0;font:17px/1.65 system-ui,sans-serif}
 main{max-width:850px;margin:0 auto;padding:3rem 1.5rem}h1{font:2.5rem/1.15 Georgia,serif;margin:.6rem 0 1.4rem}
 a{color:#81cec1;text-underline-offset:.2em}a:hover{color:#b5eee4}.eyebrow{font-size:.8rem;letter-spacing:.14em;color:#81cec1;text-transform:uppercase}
 ul{list-style:none;padding:0}li{padding:1.2rem 0;border-bottom:1px solid #2c424e}li>a{font-size:1.2rem}p{color:#a9bdc7;margin:.3rem 0}
 li span{color:#a9bdc7}nav{display:flex;gap:2rem;padding:1rem 0}footer{border-top:1px solid #2c424e;margin-top:2.5rem;padding-top:1.5rem}
-</style><main><a href="/">← Play Astra</a><p class="eyebrow">Shared by the players</p><h1>Public game replays</h1>
+</style><main><a href="/">← Play ''' + site_name + '''</a><p class="eyebrow">Shared by the players</p><h1>Public game replays</h1>
 <p>Explore completed games, move by move. Players choose whether to include their conversation and can remove their replay from this library.</p>''' + (
             '<ul>' + ''.join(rows) + '</ul>' if rows else '<p>No games have been published to this list yet.</p>') + (
             '<nav aria-label="Library pages">' + ''.join(navigation) + '</nav>' if navigation else '') + '''

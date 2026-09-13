@@ -6,6 +6,18 @@ baseline and its deployment history are preserved below.
 
 ## September 13, 2026: Arcturus experimental branch
 
+**Replay identity update:** public library navigation uses the deployment's
+persona; each replay entry, standalone page, board/chat label and PGN uses the
+game's saved player name. New sanitized records are schema v2; v1 retains Astra
+fallback. The original historical experiment collection remains attributed to
+Astra. Existing immutable snapshots need the narrow operator branding repair,
+which preserves their exact captured content and shared URLs. See
+[the replay workflow](docs/REPLAY-WORKFLOW.md).
+
+The dedicated `codex/openrouter-chess` branch is now pushed to the GitHub origin
+for safekeeping. Continue committing/pushing this branch; do not merge it into
+`main` or `codex/hosted-chess` as part of experimental deployment.
+
 **Latest UI: the clock-side ERROR indicator is bold, bright red.** It follows
 Arcturus when the board flips and clears when the worker recovers or the private
 view is reset. Desktop/mobile visual checks confirmed the style, flip and

@@ -18,7 +18,7 @@ from .replay_library import install_replay_library
 from .experiment_library import install_experiment_library
 from .operator_monitor import install_operator_monitor
 from . import chess_game as game
-from .player_profiles import profile_for, persona_for
+from .player_profiles import profile_for, persona_for, saved_player_name
 
 
 def create_app(config=None, player_factory=None):
@@ -249,7 +249,8 @@ def create_app(config=None, player_factory=None):
         if set(data) != {'include_commentary'} or type(data['include_commentary']) is not bool:
             raise ValueError('Explicitly choose whether to include commentary.')
         public = {k: state[k] for k in ('name','human_side','astra_side','result','termination','moves','model','reasoning','engine_fingerprint')}
-        public.update(initial_fen=game.START_FEN, messages=state['messages'] if data['include_commentary'] else [])
+        public.update(player_name=saved_player_name(state), initial_fen=game.START_FEN,
+                      messages=state['messages'] if data['include_commentary'] else [])
         token = store.share(game_id, public)
         store.audit(game_id, 'replay_shared', {'include_commentary': data['include_commentary']})
         return {'url': config.origin + '/replay/' + token}

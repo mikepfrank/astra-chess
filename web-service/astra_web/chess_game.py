@@ -5,7 +5,7 @@ import secrets
 import sys
 import time
 from .config import REPO_ROOT
-from .player_profiles import new_player_binding
+from .player_profiles import new_player_binding, saved_player_name
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -155,7 +155,7 @@ def snapshot(state, internal=False):
                   ply=len(state['moves']), clock=clock(state), claimable=claimable(state) if state['status'] == 'active' else False)
     profile = state.get('player_profile') or {}
     persona = state.get('player_persona') or {}
-    result['player_name'] = persona.get('display_name', profile.get('display_name', 'Astra'))
+    result['player_name'] = saved_player_name(state)
     result['model_name'] = profile.get('display_name', 'Astra')
     result['persona_id'] = persona.get('name', 'astra' if profile.get('name', 'astra') == 'astra' else 'legacy-glm')
     result['persona_version'] = persona.get('version', 1)
@@ -169,14 +169,16 @@ def pgn(state):
         return str(value).replace('\\', '\\\\').replace('"', '\\"').replace('\n', ' ').replace('\r', ' ')
     profile = state.get('player_profile') or {}
     persona = state.get('player_persona') or {}
-    player_name = persona.get('display_name', profile.get('display_name', 'Astra'))
+    player_name = saved_player_name(state)
     names = {state['human_side']: state['name'], state['astra_side']: player_name}
     headers = {'Event': 'Astra Chess Public Beta', 'Site': 'Astra Chess', 'White': names['white'],
                'Black': names['black'], 'Result': state['result'], 'Termination': state['termination'],
                'AstraModel': state['model'], 'AstraReasoning': state['reasoning'],
                'EngineSHA256': state['engine_fingerprint']}
     if profile.get('name') not in (None, 'astra') or persona.get('name') not in (None, 'astra'):
-        headers.update(Event='LLM Chess Local Experiment', Site='Local experiment',
+        headers.pop('AstraModel')
+        headers.pop('AstraReasoning')
+        headers.update(Event=f'{player_name} Chess Public Beta', Site=f'{player_name} Chess',
                        Model=state['model'], Reasoning=state['reasoning'],
                        PlayerProfile=profile['name'])
     if persona:

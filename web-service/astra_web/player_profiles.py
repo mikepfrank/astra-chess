@@ -78,6 +78,17 @@ def persona_for(config):
     return get_persona(name)
 
 
+def saved_player_name(state):
+    """Public display name from the saved game, never current persona defaults."""
+    profile = state.get('player_profile') or {}
+    persona = state.get('player_persona') or {}
+    name = persona.get('display_name', profile.get('display_name', 'Astra'))
+    if (not isinstance(name, str) or not name.strip() or len(name) > 200
+            or any(ord(char) < 32 for char in name)):
+        raise ValueError('Saved player display name is invalid')
+    return name
+
+
 def get_profile(name='astra'):
     try:
         return PROFILES[name]
