@@ -44,6 +44,8 @@ MAX_HTML_BYTES = 32_000_000
 MODEL = 'z-ai/glm-5.3-flash:nitro'
 NAME = 'Arcturus'
 TOKEN = re.compile(r'[0-9a-f]{32}')
+CODEX_ALIAS_TARGET = '/home/or-chess/.local/share/or-chess-runtime/codex/bin/codex'
+CODEX_ALIAS_NAMES = {'apply_patch', 'applypatch', 'codex-linux-sandbox', 'codex-execve-wrapper'}
 
 
 def canonical(value):
@@ -222,17 +224,36 @@ def file_digest(path):
     return result.hexdigest()
 
 
+def codex_alias_evidence(relative, target):
+    """Recognize only the installed Codex arg0 aliases; never resolve a target."""
+    parts = Path(relative).parts
+    if (len(parts) != 7 or parts[0] != 'players' or not TOKEN.fullmatch(parts[1])
+            or parts[2:5] != ('codex-home', 'tmp', 'arg0')
+            or not re.fullmatch(r'codex-arg0[A-Za-z0-9]{6,32}', parts[5])
+            or parts[6] not in CODEX_ALIAS_NAMES or target != CODEX_ALIAS_TARGET):
+        raise ValueError('Protected evidence tree contains an unrecognized symbolic link.')
+    return {'kind': 'codex_arg0_alias', 'target_text': target}
+
+
 def protected_files(root):
     result = {}
     for relative in ('games', 'players'):
         folder = root / relative
+        if folder.is_symlink() or getattr(folder, 'is_junction', lambda: False)():
+            raise ValueError('Protected evidence roots must not be symbolic links.')
         if folder.exists():
             for path in sorted(folder.rglob('*')):
                 if path.is_symlink():
-                    raise ValueError('Protected evidence tree contains a symbolic link.')
+                    relative_path = path.relative_to(root)
+                    result[str(relative_path)] = codex_alias_evidence(relative_path, os.readlink(path))
+                    continue
+                if getattr(path, 'is_junction', lambda: False)():
+                    raise ValueError('Protected evidence tree contains an unrecognized junction.')
                 if path.is_file():
                     result[str(path.relative_to(root))] = file_digest(checked_file(root, path.relative_to(root)))
     budget = root / 'openrouter-budget.json'
+    if budget.is_symlink() or getattr(budget, 'is_junction', lambda: False)():
+        raise ValueError('The protected budget must not be a symbolic link.')
     if budget.exists():
         result[budget.name] = file_digest(checked_file(root, budget.name))
     return result

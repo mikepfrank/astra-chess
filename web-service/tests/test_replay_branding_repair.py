@@ -5,6 +5,7 @@ import importlib.util
 import io
 import json
 from pathlib import Path
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -185,6 +186,65 @@ class ReplayBrandingRepairTests(unittest.TestCase):
             db.execute('UPDATE games SET state=? WHERE id=?', (json.dumps(state), self.game_id))
         with self.assertRaisesRegex(ValueError, 'only finished games with saved Arcturus'):
             repair.make_plan(self.root, self.game_id)
+
+
+class CodexAliasInventoryTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name).resolve()
+        self.relative = Path('players') / ('a' * 32) / 'codex-home/tmp/arg0/codex-arg0D0Qbz8'
+
+    def test_allowlist_fingerprints_exact_alias_path_and_target_text(self):
+        for name in repair.CODEX_ALIAS_NAMES:
+            with self.subTest(name=name):
+                relative = self.relative / name
+                evidence = repair.codex_alias_evidence(relative, repair.CODEX_ALIAS_TARGET)
+                self.assertEqual(evidence, {'kind': 'codex_arg0_alias', 'target_text': repair.CODEX_ALIAS_TARGET})
+        for relative, target in ((self.relative / 'unknown', repair.CODEX_ALIAS_TARGET),
+                                 (self.relative / 'apply_patch', repair.CODEX_ALIAS_TARGET + '-other'),
+                                 (Path('games') / self.relative, repair.CODEX_ALIAS_TARGET),
+                                 (Path('public-replays/link.html'), repair.CODEX_ALIAS_TARGET),
+                                 (self.relative / 'apply_patch', '../bin/codex')):
+            with self.subTest(relative=relative, target=target), self.assertRaises(ValueError):
+                repair.codex_alias_evidence(relative, target)
+
+    @unittest.skipUnless(sys.platform == 'linux', 'Exact installed POSIX link text requires a Linux fixture')
+    def test_real_aliases_are_not_followed_and_any_path_or_target_change_is_detected(self):
+        folder = self.root / self.relative
+        folder.mkdir(parents=True)
+        for name in repair.CODEX_ALIAS_NAMES:
+            (folder / name).symlink_to(repair.CODEX_ALIAS_TARGET)
+        with patch.object(repair, 'file_digest', side_effect=AssertionError('Alias target was followed')):
+            before = repair.protected_files(self.root)
+        self.assertEqual(set(before), {str(self.relative / name) for name in repair.CODEX_ALIAS_NAMES})
+        self.assertTrue(all(row['target_text'] == repair.CODEX_ALIAS_TARGET for row in before.values()))
+        link = folder / 'apply_patch'
+        link.unlink()
+        fewer = repair.protected_files(self.root)
+        self.assertNotEqual(repair.digest(repair.canonical(before).encode()), repair.digest(repair.canonical(fewer).encode()))
+        link.symlink_to(repair.CODEX_ALIAS_TARGET + '-other')
+        with self.assertRaisesRegex(ValueError, 'unrecognized symbolic link'):
+            repair.protected_files(self.root)
+
+    @unittest.skipUnless(sys.platform == 'linux', 'Real symlink containment is verified in a Linux fixture')
+    def test_other_evidence_and_replay_links_remain_refused(self):
+        target = self.root / 'target'
+        target.write_bytes(b'fixture')
+        folder = self.root / 'games'
+        folder.mkdir()
+        (folder / 'unexpected').symlink_to(target)
+        with self.assertRaisesRegex(ValueError, 'unrecognized symbolic link'):
+            repair.protected_files(self.root)
+        replay = self.root / 'public-replays' / 'fixture.html'
+        replay.parent.mkdir()
+        replay.symlink_to(target)
+        with self.assertRaisesRegex(ValueError, 'symbolic-link ancestors'):
+            repair.checked_file(self.root, replay.relative_to(self.root))
+        (folder / 'unexpected').unlink()
+        (self.root / 'openrouter-budget.json').symlink_to(self.root / 'missing-target')
+        with self.assertRaisesRegex(ValueError, 'protected budget'):
+            repair.protected_files(self.root)
 
 
 if __name__ == '__main__':
