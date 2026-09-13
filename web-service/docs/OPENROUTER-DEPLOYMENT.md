@@ -6,6 +6,31 @@ This deployment serves `arcturus.astraplayschess.com` from the separate
 new games to the Arcturus persona. The original Astra account, application
 unit, repository and game data remain independently operated.
 
+## Validated deployment: September 13, 2026
+
+The experimental service is enabled and serving HTTPS at
+[arcturus.astraplayschess.com](https://arcturus.astraplayschess.com). Application
+code through `e1d5cf8` is deployed. Namespace preflight, actual Codex wire audit,
+80 focused Linux tests and the two-action paid smoke test passed. The test
+played `1.d4 a6 2.Bf4` and reported `$0.00600888` in inference cost. See the
+[sanitized test record](../experiments/arcturus-linux-smoke-2026-09-13.json).
+
+Caddy 2.11.4 accepted the candidate and reloaded through SIGUSR1, preserving its
+PID, the Astra application PID, and the mounted Caddyfile inode. The original
+apex and www responses matched their preflight state. The new hostname passed
+certificate, secure-cookie, foreign-origin, illegal-move and record-persistence
+checks. Windows HTTPS requests confirmed Arcturus/GLM and Astra/Ultra on their
+respective hostnames, and the browser confirmed the Arcturus interface. The
+successful private activation audit is
+`/var/lib/astra-caddy-activation/activation-kzc4kc7k/report.json`; its directory
+also contains the original configuration for recovery.
+
+The local preview is stopped. The budget baseline was retained; the service and
+paid operator checks use the same private host ledger. Long-game compaction and
+playing strength remain untested. The following sections document the installed
+layout and reproducible operator procedure; do not rerun hostname activation on
+an already active configuration.
+
 ## Files and boundaries
 
 | Path | Purpose and service access |
@@ -105,7 +130,7 @@ loopback health before admitting public traffic:
 
 ```sh
 sudo systemctl enable --now or-chess.service
-curl --fail http://127.0.0.1:8792/health
+curl --fail -H 'Host: arcturus.astraplayschess.com' http://127.0.0.1:8792/health
 ```
 
 The new DNS record must reach the host. Preserve the current apex and `www`
@@ -121,10 +146,28 @@ Validate the complete candidate proxy configuration before activation, save
 the previous configuration, and preserve the existing mounted file's inode
 when updating it. The installed Caddy 2.11.4 supports a `SIGUSR1` config reload
 for its command-line configuration even with the administration API disabled;
-the planned reload needs verification on the running host. After reloading,
+the reload is performed by the reviewed activation helper. After reloading,
 verify the new HTTPS hostname, the existing Astra hostname, and the Caddy
 process state. Proxy changes are an operator step separate from installing the
 experimental application unit.
+
+The bounded [activation helper](../tools/ops/activate_arcturus_caddy.py) first
+saves a root-private original and candidate, validates the candidate, and
+checks the original HTTPS routes and experimental loopback service. Its default
+mode makes no proxy change. Apply uses the reviewed original SHA-256:
+
+```sh
+sudo .venv/bin/python tools/ops/activate_arcturus_caddy.py
+sudo .venv/bin/python tools/ops/activate_arcturus_caddy.py --apply --expected-config-sha256 HASH_FROM_PLAN
+```
+
+It preserves the individually mounted configuration inode and pins the verified
+Caddy main process for `SIGUSR1`. Successful activation requires unchanged Caddy
+and Astra application process identities, unchanged original route responses,
+and valid HTTPS responses for the new host. A failed activation attempts to
+restore the original bytes and reload them; private backups and reports remain
+under `/var/lib/astra-caddy-activation`. The helper never operates the Astra
+application unit or game database.
 
 To stop experimental traffic, stop `or-chess.service`; retain its private
 game records and budget ledger for recovery. Change only the new hostname's

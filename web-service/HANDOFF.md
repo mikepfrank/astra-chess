@@ -4,6 +4,76 @@ For the separate `codex/openrouter-chess` experimental branch, start with the
 [September 13 alternate-model orientation](OPENROUTER-EXPERIMENT.md). The hosted
 baseline and its deployment history are preserved below.
 
+## September 13, 2026: Arcturus experimental branch
+
+The isolated `codex/openrouter-chess` worktree is
+`Chess/openrouter-worktree`. Its model profile selects OpenRouter
+`z-ai/glm-5.3-flash:nitro` with high reasoning and throughput-oriented provider
+routing. The original `main` and `codex/hosted-chess` checkouts, Astra deployment
+and original chess journals remain independently operated.
+
+Model and persona are now separate. `ASTRA_PERSONA` selects the name and voice
+for **new games**: Arcturus is the GLM default; Astra remains the original
+profile's default. The supplied Arcturus v1 draft is preserved verbatim, with a
+separate integration note that treats its anecdotes and prices as creative prior
+context, keeps `chess_status` authoritative and preserves the existing chess
+method. It grants no additional tools, filesystem work or publication rights.
+Read [the prompt/persona architecture](prompts/README.md) before changing it.
+
+`player_profiles.py` creates private prompt/persona snapshots at game creation.
+The supervisor passes the verified binding privately to the Codex bridge and
+gateway; public state contains the persona name/ID/version and separate model
+identity. Existing games continue with their saved persona and exact prompt,
+even if defaults or source drafts change. Pre-persona games resolve the frozen,
+hash-checked legacy prompt and retain their original Astra or GLM display name.
+Model, tool-schema, runtime and engine compatibility checks still apply.
+
+Windows regression, persona and deployment-helper checks have passed. Local
+wire checks exercised the actual Codex executable against a mocked provider,
+including the exact composed prompt and seven chess tools. The earlier paid
+GLM smoke test accepted two moves across a thread resume and reported
+`$0.00629936`; that pre-persona operational check is not an Arcturus strength or
+long-game compaction result. See [the experiment record](OPENROUTER-EXPERIMENT.md)
+for its dated evidence and limits.
+
+**Arcturus is live at https://arcturus.astraplayschess.com**, using the separate
+`or-chess` Linux account, `or-chess.service`, private data and runtime, and
+loopback port `8792`. Application code through `e1d5cf8` is deployed; the later
+documentation/operations checkpoint records its validation without restarting
+the application. The checkout was transferred with Git bundles rather than
+pushed to GitHub. The original Astra application and shared Caddy proxy kept
+their existing processes during activation; only the separate hostname was
+added with a validated, same-inode Caddy configuration write and SIGUSR1 reload.
+
+Linux namespace preflight, real Codex 0.154.0 wire audit, 80 focused tests and a
+paid two-action Arcturus test passed. Arcturus played `1.d4 a6 2.Bf4`, with two
+engine queries, saved-thread continuation, and the full persona prompt verified
+on all ten requests. Reported inference cost was `$0.00600888`. A first failed
+attempt exposed a verified dated model identifier in OpenRouter routing
+metadata; `1168a23` fixes this without relaxing response-model validation.
+The [Linux smoke report](experiments/arcturus-linux-smoke-2026-09-13.json)
+preserves that failure and the successful retry.
+
+The public hostname passed certificate, session-cookie, origin, illegal-move
+and persistence checks using three private disposable QA games. Both public
+hostnames were checked from Windows; the browser displays Arcturus branding and
+is ready for the user to join. No original-site game records were modified.
+See [the deployment guide](docs/OPENROUTER-DEPLOYMENT.md) and
+[validation record](experiments/arcturus-validation-2026-09-13.json) for details.
+Playing strength and long-game context compaction still need separate trials.
+
+The existing $50 experiment ledger was transferred without resetting its baseline;
+all paid host checks and the service must use the same private ledger. Stop
+local paid experiments before moving ledger authority to Linux; the local
+preview was stopped at this checkpoint. Keep the real
+OpenRouter key in the service process and use only the temporary gateway token
+in Codex. The guard stops new work with $5 remaining but is not a provider hard
+cap. Session cookies omit `Domain`, so the deployed Astra and Arcturus hostnames
+have separate host-only cookies; local services on different ports of the same
+hostname still share browser cookie scope.
+
+## September 11 hosted-service baseline
+
 Prepared September 11, 2026, at a stopping point in Mike Frank's hosted-service
 session. This is an orientation for continuing this branch or making a separate
 experimental fork, not live game state or an instruction to start a game.

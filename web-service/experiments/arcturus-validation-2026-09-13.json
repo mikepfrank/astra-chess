@@ -19,7 +19,9 @@
     "failures": 0,
     "codex_version": "0.154.0-alpha.6.2",
     "real_cli_mock_provider_instructions_exact": true,
-    "gateway_requires_full_instructions_on_every_request": true
+    "gateway_requires_full_instructions_on_every_request": true,
+    "gateway_tests_after_routing_fix": 16,
+    "activation_transaction_tests": 9
   },
   "caddy_fixture": {
     "version": "2.11.4",
@@ -29,5 +31,45 @@
     "config_inode_preserved": true,
     "production_proxy_changed": false
   },
-  "linux_deployment": "pending"
+  "linux_deployment": {
+    "application_commit": "e1d5cf8",
+    "python": "3.12.14",
+    "codex": "0.154.0",
+    "namespace_preflight_passed": true,
+    "real_cli_mock_provider_instructions_exact": true,
+    "focused_profile_persona_setup_service_tests": 64,
+    "gateway_tests": 16,
+    "failures": 0,
+    "paid_two_action_smoke_passed": true,
+    "smoke_report": "arcturus-linux-smoke-2026-09-13.json",
+    "service_enabled_and_active": true,
+    "loopback_health_and_identity_verified": true,
+    "public_hostname_activation": "passed",
+    "proxy_activation": {
+      "original_sha256": "80ef99f1c5d3b7a3867eb69b67a6eec3df2ddbdcb5160bacd3095db13780a2fc",
+      "candidate_sha256": "0e82c372cccf780a2f374f7eaf3e1274f6ee26d387f76f20a03c9fc12ad92c0e",
+      "caddy_pid": 3778975,
+      "astra_pid": 3778964,
+      "caddy_pid_stable": true,
+      "astra_pid_stable": true,
+      "routes_verified": true,
+      "same_config_inode": true
+    },
+    "https_checks": {
+      "certificate_valid": true,
+      "security_headers_present": true,
+      "secure_session_cookie": true,
+      "three_distinct_qa_games": true,
+      "fourth_unfinished_game_rejected": true,
+      "illegal_moves_rejected": true,
+      "games_preserved_on_reload": true,
+      "resignation_persisted": true,
+      "foreign_origin_rejected": true,
+      "model_actions_started": 0
+    },
+    "public_https_verified_from_windows": true,
+    "browser_title_and_arcturus_labels_verified": true,
+    "production_profile_unchanged": "gpt-6-astra/ultra",
+    "local_preview_stopped": true
+  }
 }

@@ -150,7 +150,7 @@ Successful smoke tests establish operation and resumption, not Elo or strength.
 Later comparisons should hold engine revision, hardware and wall-time policy
 fixed, using genuine legal histories and recorded candidate/search decisions.
 
-## Validation checkpoint
+## Initial pre-persona validation checkpoint
 
 The complete regression suite passed **300 tests with 2 skipped** on September
 13, 2026, on this Windows host.
@@ -171,8 +171,42 @@ The [sanitized experiment record](experiments/glm-5.3-flash-smoke-2026-09-13.jso
 contains per-request cost, timing and provider metadata without credentials,
 private response IDs or model reasoning text.
 
-Long-game context compaction, playing strength and Linux deployment remain
-untested. In particular, the gateway currently accepts the audited action request
-shape; automatic compaction must be observed and validated before relying on
-long-running games. A later Lightsail deployment requires its own configuration
-and process-isolation checks.
+Linux deployment was untested at that initial checkpoint. The September 13
+Arcturus checks below supersede that limitation. Long-game context compaction
+and playing strength remain untested: the gateway accepts the audited action
+request shape, and automatic compaction must be observed and validated before
+relying on long-running games.
+
+## Arcturus Linux validation, September 13
+
+The persona split passed the 303-test Windows regression run (2 skips), 11
+additional persona tests and 6 deployment-helper tests. A later gateway fix
+passed all 16 gateway tests on both Windows and Linux. Linux also passed 64
+focused profile, persona, setup and service-helper tests. These were separate
+runs, rather than one combined test invocation.
+
+Under the installed experimental unit's actual filesystem and resource
+restrictions, Python 3.12.14 and Codex 0.154.0 passed the namespace preflight and
+the mock-provider wire audit. The full composed Arcturus instructions arrived
+unchanged, with only the seven canonical chess tools forwarded.
+
+The paid two-action Linux check then played `1.d4 a6 2.Bf4`, resuming the saved
+conversation between turns. It recorded two candidates, two engine queries and
+two accepted decisions. All ten provider requests completed and verified the
+same full prompt. OpenRouter selected Together for those requests; their total
+reported inference cost was **$0.00600888**. The test used half of one logical
+CPU and a 2 GiB memory ceiling. It establishes basic operation and continuation,
+not a playing-strength comparison.
+
+An initial attempt exposed a metadata mismatch: the response model was correct,
+but the selected endpoint used `z-ai/glm-5.3-flash-20260826`. The
+[public catalog](https://openrouter.ai/api/v1/models) identifies that exact dated
+slug as the configured model's `canonical_slug`. The gateway now permits this
+verified identifier only in endpoint metadata; response-model and requested
+model checks remain strict. Unknown future identifiers still stop work for
+review. The failed attempt cost $0.00085475 and a small routing diagnostic cost
+$0.00076505; both remain part of the unchanged shared experiment allowance.
+
+See the [sanitized Linux smoke record](experiments/arcturus-linux-smoke-2026-09-13.json),
+[deployment validation record](experiments/arcturus-validation-2026-09-13.json),
+and [deployment guide](docs/OPENROUTER-DEPLOYMENT.md) for current activation status.

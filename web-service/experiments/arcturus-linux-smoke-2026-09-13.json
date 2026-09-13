@@ -1,0 +1,294 @@
+{
+  "date": "2026-09-13",
+  "scope": "two-action Arcturus Linux integration; not a strength measurement",
+  "tested_commit": "1168a23",
+  "python": "3.12.14",
+  "codex": "0.154.0",
+  "installed_service_namespace": true,
+  "cpu_quota_percent": 50,
+  "memory_limit_gib": 2,
+  "moves": [
+    "d4",
+    "a6",
+    "Bf4"
+  ],
+  "own_moves": 2,
+  "candidates": 2,
+  "queries": 2,
+  "decisions": 2,
+  "clock_used_seconds": 35.44314002990723,
+  "thread_resumed": true,
+  "public_message_count": 7,
+  "public_comment_example": "First move of a fresh game — I'm White here. House repertoire says the London System, which begins with the unglamorous, perfectly bovine **1.d4**. Let me register that and let the panel have a look. 🐂",
+  "provider_requests": [
+    {
+      "requested_model": "z-ai/glm-5.3-flash:nitro",
+      "observed_model": "z-ai/glm-5.3-flash",
+      "provider": "Together",
+      "usage": {
+        "input_tokens": 5672,
+        "output_tokens": 13,
+        "total_tokens": 5685,
+        "cost": 0.0002813
+      },
+      "routing": {
+        "requested": "z-ai/glm-5.3-flash:nitro",
+        "attempt": 1,
+        "is_byok": false,
+        "selected": [
+          {
+            "model": "z-ai/glm-5.3-flash-20260826",
+            "provider": "Together"
+          }
+        ]
+      },
+      "stream_complete": true,
+      "instructions_verified": true,
+      "instructions_sha256": "7fe5defa47e7b34685b465c488af0ae12735d3e99b4e937d67e2278b2a8ac688"
+    },
+    {
+      "requested_model": "z-ai/glm-5.3-flash:nitro",
+      "observed_model": "z-ai/glm-5.3-flash",
+      "provider": "Together",
+      "usage": {
+        "input_tokens": 6457,
+        "output_tokens": 195,
+        "total_tokens": 6652,
+        "cost": 0.00039789
+      },
+      "routing": {
+        "requested": "z-ai/glm-5.3-flash:nitro",
+        "attempt": 1,
+        "is_byok": false,
+        "selected": [
+          {
+            "model": "z-ai/glm-5.3-flash-20260826",
+            "provider": "Together"
+          }
+        ]
+      },
+      "stream_complete": true,
+      "instructions_verified": true,
+      "instructions_sha256": "7fe5defa47e7b34685b465c488af0ae12735d3e99b4e937d67e2278b2a8ac688"
+    },
+    {
+      "requested_model": "z-ai/glm-5.3-flash:nitro",
+      "observed_model": "z-ai/glm-5.3-flash",
+      "provider": "Together",
+      "usage": {
+        "input_tokens": 6686,
+        "output_tokens": 55,
+        "total_tokens": 6741,
+        "cost": 0.00027008
+      },
+      "routing": {
+        "requested": "z-ai/glm-5.3-flash:nitro",
+        "attempt": 1,
+        "is_byok": false,
+        "selected": [
+          {
+            "model": "z-ai/glm-5.3-flash-20260826",
+            "provider": "Together"
+          }
+        ]
+      },
+      "stream_complete": true,
+      "instructions_verified": true,
+      "instructions_sha256": "7fe5defa47e7b34685b465c488af0ae12735d3e99b4e937d67e2278b2a8ac688"
+    },
+    {
+      "requested_model": "z-ai/glm-5.3-flash:nitro",
+      "observed_model": "z-ai/glm-5.3-flash",
+      "provider": "Together",
+      "usage": {
+        "input_tokens": 10617,
+        "output_tokens": 205,
+        "total_tokens": 10822,
+        "cost": 0.00090401
+      },
+      "routing": {
+        "requested": "z-ai/glm-5.3-flash:nitro",
+        "attempt": 1,
+        "is_byok": false,
+        "selected": [
+          {
+            "model": "z-ai/glm-5.3-flash-20260826",
+            "provider": "Together"
+          }
+        ]
+      },
+      "stream_complete": true,
+      "instructions_verified": true,
+      "instructions_sha256": "7fe5defa47e7b34685b465c488af0ae12735d3e99b4e937d67e2278b2a8ac688"
+    },
+    {
+      "requested_model": "z-ai/glm-5.3-flash:nitro",
+      "observed_model": "z-ai/glm-5.3-flash",
+      "provider": "Together",
+      "usage": {
+        "input_tokens": 11972,
+        "output_tokens": 68,
+        "total_tokens": 12040,
+        "cost": 0.00057028
+      },
+      "routing": {
+        "requested": "z-ai/glm-5.3-flash:nitro",
+        "attempt": 1,
+        "is_byok": false,
+        "selected": [
+          {
+            "model": "z-ai/glm-5.3-flash-20260826",
+            "provider": "Together"
+          }
+        ]
+      },
+      "stream_complete": true,
+      "instructions_verified": true,
+      "instructions_sha256": "7fe5defa47e7b34685b465c488af0ae12735d3e99b4e937d67e2278b2a8ac688"
+    },
+    {
+      "requested_model": "z-ai/glm-5.3-flash:nitro",
+      "observed_model": "z-ai/glm-5.3-flash",
+      "provider": "Together",
+      "usage": {
+        "input_tokens": 12142,
+        "output_tokens": 7,
+        "total_tokens": 12149,
+        "cost": 0.00039632
+      },
+      "routing": {
+        "requested": "z-ai/glm-5.3-flash:nitro",
+        "attempt": 1,
+        "is_byok": false,
+        "selected": [
+          {
+            "model": "z-ai/glm-5.3-flash-20260826",
+            "provider": "Together"
+          }
+        ]
+      },
+      "stream_complete": true,
+      "instructions_verified": true,
+      "instructions_sha256": "7fe5defa47e7b34685b465c488af0ae12735d3e99b4e937d67e2278b2a8ac688"
+    },
+    {
+      "requested_model": "z-ai/glm-5.3-flash:nitro",
+      "observed_model": "z-ai/glm-5.3-flash",
+      "provider": "Together",
+      "usage": {
+        "input_tokens": 13476,
+        "output_tokens": 189,
+        "total_tokens": 13665,
+        "cost": 0.00067206
+      },
+      "routing": {
+        "requested": "z-ai/glm-5.3-flash:nitro",
+        "attempt": 1,
+        "is_byok": false,
+        "selected": [
+          {
+            "model": "z-ai/glm-5.3-flash-20260826",
+            "provider": "Together"
+          }
+        ]
+      },
+      "stream_complete": true,
+      "instructions_verified": true,
+      "instructions_sha256": "7fe5defa47e7b34685b465c488af0ae12735d3e99b4e937d67e2278b2a8ac688"
+    },
+    {
+      "requested_model": "z-ai/glm-5.3-flash:nitro",
+      "observed_model": "z-ai/glm-5.3-flash",
+      "provider": "Together",
+      "usage": {
+        "input_tokens": 13700,
+        "output_tokens": 55,
+        "total_tokens": 13755,
+        "cost": 0.00047738
+      },
+      "routing": {
+        "requested": "z-ai/glm-5.3-flash:nitro",
+        "attempt": 1,
+        "is_byok": false,
+        "selected": [
+          {
+            "model": "z-ai/glm-5.3-flash-20260826",
+            "provider": "Together"
+          }
+        ]
+      },
+      "stream_complete": true,
+      "instructions_verified": true,
+      "instructions_sha256": "7fe5defa47e7b34685b465c488af0ae12735d3e99b4e937d67e2278b2a8ac688"
+    },
+    {
+      "requested_model": "z-ai/glm-5.3-flash:nitro",
+      "observed_model": "z-ai/glm-5.3-flash",
+      "provider": "Together",
+      "usage": {
+        "input_tokens": 17994,
+        "output_tokens": 248,
+        "total_tokens": 18242,
+        "cost": 0.00118726
+      },
+      "routing": {
+        "requested": "z-ai/glm-5.3-flash:nitro",
+        "attempt": 1,
+        "is_byok": false,
+        "selected": [
+          {
+            "model": "z-ai/glm-5.3-flash-20260826",
+            "provider": "Together"
+          }
+        ]
+      },
+      "stream_complete": true,
+      "instructions_verified": true,
+      "instructions_sha256": "7fe5defa47e7b34685b465c488af0ae12735d3e99b4e937d67e2278b2a8ac688"
+    },
+    {
+      "requested_model": "z-ai/glm-5.3-flash:nitro",
+      "observed_model": "z-ai/glm-5.3-flash",
+      "provider": "Together",
+      "usage": {
+        "input_tokens": 19908,
+        "output_tokens": 33,
+        "total_tokens": 19941,
+        "cost": 0.0008523
+      },
+      "routing": {
+        "requested": "z-ai/glm-5.3-flash:nitro",
+        "attempt": 1,
+        "is_byok": false,
+        "selected": [
+          {
+            "model": "z-ai/glm-5.3-flash-20260826",
+            "provider": "Together"
+          }
+        ]
+      },
+      "stream_complete": true,
+      "instructions_verified": true,
+      "instructions_sha256": "7fe5defa47e7b34685b465c488af0ae12735d3e99b4e937d67e2278b2a8ac688"
+    }
+  ],
+  "total_reported_cost_usd": 0.00600888,
+  "initial_failed_attempt": {
+    "accepted_moves": 0,
+    "reported_cost_usd": 0.00085475,
+    "reason": "Gateway rejected the selected endpoint dated canonical model identifier; actual response model was correct.",
+    "fix": "1168a23 admits only the verified dated endpoint slug; response model validation stays strict."
+  },
+  "routing_diagnostic": {
+    "reported_cost_usd": 0.00076505,
+    "max_output_tokens": 64,
+    "observed_response_model": "z-ai/glm-5.3-flash",
+    "selected_endpoint_model": "z-ai/glm-5.3-flash-20260826",
+    "provider": "Together",
+    "verification_source": "https://openrouter.ai/api/v1/models"
+  },
+  "limitations": [
+    "Long-game compaction and playing strength remain untested.",
+    "Budget accounting is shared with other use of the same API key."
+  ]
+}
