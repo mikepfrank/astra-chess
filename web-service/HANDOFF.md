@@ -6,15 +6,15 @@ baseline and its deployment history are preserved below.
 
 ## September 13, 2026: Arcturus experimental branch
 
-**Compaction repair prepared; verify the deployment checkpoint before assuming
-it is live.** A user's game at ply 11 repeatedly failed with `invalid_tools`.
+**Compaction repair and 250K trigger deployed at 21:32 UTC, code `43a494e`.**
+A user's game at ply 11 repeatedly failed with `invalid_tools`.
 Read-only inspection found a healthy service, preserved board/conversation and
 seven retries that each entered compaction without making a provider request.
 Fresh credential-free fixtures with Windows Codex 0.154.0-alpha.6.2 and deployed
 Linux 0.154.0 confirmed that `thread/compact/start` sends a normal Responses
 request with `tools: []`, unchanged persona instructions, and the configured
 model/reasoning. The deployed gateway required all seven chess tools, rejecting
-this summarization request before inference. The local repair admits exactly
+this summarization request before inference. The deployed repair admits exactly
 the empty-tool compaction form, retains prompt/model/budget checks, and rejects
 tool output during compaction. Ordinary turns still require all seven tools.
 See [the original incident record](experiments/arcturus-compaction-incident-2026-09-13.json).
@@ -27,6 +27,17 @@ Runtime settings are recorded separately in bridge and provider-request evidence
 The action token guard is now 2 million, with smaller operator overrides honored;
 daily and dollar budgets are unchanged. Requests allow 8 MiB while each streamed
 event remains limited to 2 MiB and output to 8,192 tokens.
+
+The complete Windows service suite ran 347 tests successfully, with two Windows
+symlink tests skipped. Actual Windows and Linux Codex fixtures completed
+compaction, restored seven-tool requests, and resumed the same thread against a
+mocked provider. The installed Linux service namespace also passed this lifecycle
+and reported the new runtime limits. A coherent stopped-service backup preceded
+the update. Every saved database table, private game file and budget file matched
+after restart; the original Astra and Caddy PIDs remained unchanged. Both public
+health endpoints returned HTTP 200. Mike was told the existing game is ready for
+Retry; no move or paid request was made during repair validation. See the
+[repair validation record](experiments/arcturus-compaction-repair-2026-09-13.json).
 
 The isolated `codex/openrouter-chess` worktree is
 `Chess/openrouter-worktree`. Its model profile selects OpenRouter
@@ -60,7 +71,7 @@ for its dated evidence and limits.
 
 **Arcturus is live at https://arcturus.astraplayschess.com**, using the separate
 `or-chess` Linux account, `or-chess.service`, private data and runtime, and
-loopback port `8792`. Application code through `e1d5cf8` is deployed; the later
+loopback port `8792`. Initial activation deployed code through `e1d5cf8`; the later
 documentation/operations checkpoint records its validation without restarting
 the application. The checkout was transferred with Git bundles rather than
 pushed to GitHub. The original Astra application and shared Caddy proxy kept

@@ -41,7 +41,7 @@ providers are tried in throughput order. It is a routing preference for the
 selected model, not a guaranteed speed or a model substitution. See
 [provider routing](https://openrouter.ai/docs/guides/routing/provider-selection).
 
-| Setting | Prepared profile v3 configuration |
+| Setting | Deployed profile v3 configuration |
 | --- | --- |
 | Driver | Codex app-server, direct function tools |
 | Model | `z-ai/glm-5.3-flash:nitro` |
@@ -69,9 +69,10 @@ the new runtime context policy separately. Reverse, partial and unknown-version
 changes remain incompatible. Unbound legacy games still require their original
 Astra configuration. The engine source fingerprint remains separately checked.
 
-This context-compaction update is prepared in the development checkout;
-deployment and live recovery are not established by the historical smoke tests
-below. At 250,000 tokens, repeated context in the mandatory status, candidate,
+This context-compaction update was deployed as `43a494e` on September 13 at
+21:32 UTC. Its [repair validation](experiments/arcturus-compaction-repair-2026-09-13.json)
+is separate from the earlier paid smoke tests below. At 250,000 tokens, repeated
+context in the mandatory status, candidate,
 query and choose rounds can exceed the former 1,000,000-token action limit.
 The 2,000,000 ceiling leaves room for those rounds and compaction. A focused
 no-model regression completes compaction and a full move at 1,549,152 tokens;
@@ -204,7 +205,7 @@ Linux deployment was untested at that initial checkpoint. The September 13
 Arcturus checks below superseded that limitation. Neither initial smoke test
 exercised long-game context compaction or established playing strength. The
 gateway at that checkpoint accepted the audited chess-action request shape;
-the prepared text-only compaction support is described above.
+the subsequently deployed text-only compaction support is described above.
 
 ## Arcturus Linux validation, September 13
 

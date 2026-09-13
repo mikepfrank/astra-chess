@@ -1,0 +1,51 @@
+{
+  "date": "2026-09-13",
+  "deployed_at_utc": "2026-09-13T21:32:50Z",
+  "application_commit": "43a494ee5c31df9aaa5f19415a7f9b10b44b16a3",
+  "previous_commit": "472ef943154b3a52e70e1e5e3e54f54ea33cedca",
+  "status": "deployed; user advised to retry the preserved game",
+  "runtime": {
+    "context_window": 1310720,
+    "auto_compaction_limit": 250000,
+    "max_action_tokens": 2000000,
+    "max_daily_tokens": 20000000,
+    "max_request_bytes": 8388608,
+    "max_sse_event_bytes": 2097152,
+    "max_output_tokens": 8192,
+    "experiment_dollar_budget_unchanged": true
+  },
+  "repair": {
+    "strict_empty_tool_compaction_supported": true,
+    "normal_requests_require_exact_seven_chess_tools": true,
+    "compaction_tool_outputs_rejected": true,
+    "prompt_model_reasoning_and_budget_checks_retained": true,
+    "sanitized_rejection_codes_persisted": true,
+    "exact_v2_to_v3_runtime_upgrade_preserves_saved_identity": true
+  },
+  "validation": {
+    "windows_service_tests_run": 347,
+    "windows_service_tests_failed": 0,
+    "windows_service_tests_skipped": 2,
+    "skips": "Symlink creation unavailable for the Windows account",
+    "windows_codex": "0.154.0-alpha.6.2",
+    "linux_codex": "0.154.0",
+    "actual_cli_mocked_compaction_continuation_and_same_thread_resume": true,
+    "same_lifecycle_passed_in_installed_linux_service_namespace": true,
+    "namespace_effective_runtime_limits_verified": true,
+    "requests_per_lifecycle": 3,
+    "budget_checks_per_lifecycle": 3,
+    "instructions_match_on_every_request": true,
+    "paid_requests": 0,
+    "real_provider_long_game_compaction_tested": false
+  },
+  "preservation": {
+    "coherent_private_backup_before_update": true,
+    "all_saved_database_table_contents_unchanged": true,
+    "private_game_and_budget_files_unchanged": true,
+    "saved_thread_unchanged": true,
+    "game_ply_unchanged": 11,
+    "original_astra_and_caddy_process_ids_unchanged": true,
+    "arcturus_public_health_http": 200,
+    "astra_public_health_http": 200
+  }
+}

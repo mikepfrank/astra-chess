@@ -8,8 +8,8 @@ unit, repository and game data remain independently operated.
 
 ## Initial validated deployment: September 13, 2026
 
-This is the original activation record. It does not certify deployment of the
-prepared context-compaction update described below.
+This is the original activation record. The subsequent context-compaction
+update is recorded separately below.
 
 The experimental service is enabled and serving HTTPS at
 [arcturus.astraplayschess.com](https://arcturus.astraplayschess.com). Application
@@ -34,9 +34,9 @@ playing strength remain untested. The following sections document the installed
 layout and reproducible operator procedure; do not rerun hostname activation on
 an already active configuration.
 
-## Prepared context-compaction update
+## Deployed context-compaction update: September 13, 21:32 UTC
 
-The development checkout selects GLM profile v3: a verified 1,310,720-token
+Deployed code `43a494e` selects GLM profile v3: a verified 1,310,720-token
 context window and a 250,000 total-context-token auto-compaction trigger. The
 gateway accepts the audited exact `tools: []` compaction request and rejects
 tool-call output from its text-only summary. The pinned persona, full prompt,
@@ -60,8 +60,18 @@ usage-delta allowance and $5 admission reserve are unchanged. Daily admission
 reserves the action ceiling and conservatively charges incomplete attempts.
 The one-worker, half-CPU and 2 GiB limits remain unchanged.
 
-This update is prepared locally. Record the deployed revision and verification
-outcome separately after the isolated update procedure succeeds.
+The update passed 347 Windows service tests (two platform skips), a staged Linux
+Codex 0.154.0 compaction/resume lifecycle, installed-unit namespace preflight,
+and the same lifecycle under the installed unit's restrictions. The provider
+was mocked throughout repair validation; no paid turn or live-game move was
+started. Namespace configuration reported the 250K trigger and 2M action cap.
+
+Only `or-chess.service` restarted. All saved database table contents and private
+game/budget file hashes matched before and after; the saved thread and ply 11
+position remained intact. Original Astra/Caddy PIDs were unchanged, and both
+public health endpoints returned HTTP 200. The private coherent backup and
+operator evidence are under `/home/or-chess/backups/compaction-20260913T213250Z/`.
+See [the sanitized repair record](../experiments/arcturus-compaction-repair-2026-09-13.json).
 
 ## Files and boundaries
 
