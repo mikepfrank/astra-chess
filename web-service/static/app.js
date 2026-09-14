@@ -105,7 +105,7 @@ function updateSiteAddressNotice(){
   // the current query/fragment, or browser storage to the other origin.
   $('canonical-site-link').href=canonical.origin+'/';
   $('canonical-site-link').textContent=canonical.host;
-  $('site-address-password-note').hidden=state.user?.has_password===true;
+  $('site-address-password-note').hidden=state.user?.protected===true;
 }
 function playerReady(){return state.config?.player_available===true&&!state.availabilityError;}
 function updatePlayerIdentity(){

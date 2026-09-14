@@ -33,6 +33,14 @@
     "windows_caddy_tests": {"tests_run": 25, "passed": true},
     "windows_service_check_tests": {"tests_run": 6, "passed": true},
     "intercepted_browser_cases": {"cases_run": 4, "passed": true, "external_requests": 0},
+    "alias_notice_fixture_correction": {
+      "issue": "The initial browser fixture used has_password instead of the actual public identity field protected, masking unnecessary password guidance for protected accounts.",
+      "correction": "The alias notice now reads protected. Follow-up fixture users were generated through Identity._public rather than hand-authoring the account schema.",
+      "protected_account_failure_reproduced_before_fix": true,
+      "intercepted_browser_cases_rerun_after_fix": 4,
+      "passed": true,
+      "external_requests": 0
+    },
     "public_https_checks_utc_minute": "2026-09-14T05:29Z",
     "public_checks_read_only": true,
     "https_config_library_and_replay_verified_on_both_hosts": true,
