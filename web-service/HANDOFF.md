@@ -6,14 +6,28 @@ baseline and its deployment history are preserved below.
 
 ## September 13, 2026: Arcturus experimental branch
 
-**New domain requested; DNS prepared only:** Mike purchased `arcturuschess.com`
-and wants it to be Arcturus's preferred public hostname, reducing promotion of
-the more expensive original Astra service. See [the GoDaddy DNS files](deploy/dns/README.md).
-Only the apex A record needs changing; the existing `www` CNAME is already
-correct. Keep unrelated DNS and GoDaddy-managed records. Neither DNS nor live
-hostname/origin configuration has been changed. Before a later server cutover,
+**New domain DNS configured; server activation pending:** Mike purchased
+`arcturuschess.com` and wants it to be Arcturus's preferred public hostname,
+reducing promotion of the more expensive original Astra service. See
+[the GoDaddy DNS files](deploy/dns/README.md). On September 14 UTC, after Mike
+removed Website Builder, authoritative DNS returned only `54.190.167.232` for
+the apex; the existing `www` CNAME is already correct. Live hostname/origin
+configuration has not changed. Before a later server cutover,
 handle host-only session cookies and passwordless-account continuity, preserve
 replay paths, and avoid adding links that promote the expensive Astra site.
+
+**Arcturus SES identity created; DKIM DNS pending:** On September 14 UTC, the
+AWS console created `arcturuschess.com` in Oregon (`us-west-2`) with Easy DKIM,
+2048-bit signing, signatures enabled, no custom MAIL FROM, and email feedback
+forwarding enabled. The three generated CNAMEs are in the incremental
+[GoDaddy SES import file](deploy/dns/arcturuschess.com.ses.txt); they still need
+publishing. Keep the existing DMARC record. Account-level suppression is
+enabled for bounces and complaints. The account remains healthy but in the SES
+sandbox (200 messages/day, one/second); the existing production-access support
+case already contains Mike's detailed response and says "Customer action
+completed." No additional support reply or email was sent. Arcturus SMTP,
+notification scheduling, email branding and the new website origin still need
+configuration and validation; identity creation alone does not enable mail.
 
 **Max reasoning for future games:** GLM profile v4 now selects `max` and a
 32,768-token ceiling per provider response, including reasoning. Saved v2/v3

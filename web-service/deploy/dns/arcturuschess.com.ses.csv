@@ -1,0 +1,4 @@
+Type,Name,Value,TTL
+CNAME,2hbsybpmmstxipltbqckov7zuc2ysytc._domainkey.arcturuschess.com,2hbsybpmmstxipltbqckov7zuc2ysytc.dkim.amazonses.com,3600
+CNAME,zcwl2uhxeyolmafw4tphbuff7ekqvsyp._domainkey.arcturuschess.com,zcwl2uhxeyolmafw4tphbuff7ekqvsyp.dkim.amazonses.com,3600
+CNAME,ra4ymvbdizahmjlcq6yw2em62r66sk3y._domainkey.arcturuschess.com,ra4ymvbdizahmjlcq6yw2em62r66sk3y.dkim.amazonses.com,3600

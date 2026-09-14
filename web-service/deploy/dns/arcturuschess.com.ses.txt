@@ -1,0 +1,10 @@
+; GoDaddy incremental import: Amazon SES Easy DKIM for arcturuschess.com.
+; Exact records from the new SES identity in Oregon (us-west-2), 2026-09-14 UTC.
+; Add only these three CNAMEs. Keep all existing website, NS, SOA and DMARC records.
+; Identity verification is pending DNS; this file does not enable application email.
+$ORIGIN arcturuschess.com.
+$TTL 3600
+
+2hbsybpmmstxipltbqckov7zuc2ysytc._domainkey  3600  IN  CNAME  2hbsybpmmstxipltbqckov7zuc2ysytc.dkim.amazonses.com.
+zcwl2uhxeyolmafw4tphbuff7ekqvsyp._domainkey  3600  IN  CNAME  zcwl2uhxeyolmafw4tphbuff7ekqvsyp.dkim.amazonses.com.
+ra4ymvbdizahmjlcq6yw2em62r66sk3y._domainkey  3600  IN  CNAME  ra4ymvbdizahmjlcq6yw2em62r66sk3y.dkim.amazonses.com.
