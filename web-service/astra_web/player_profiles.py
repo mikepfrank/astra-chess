@@ -1,5 +1,5 @@
 """Explicit, versioned experimental profiles; no model or provider fallback."""
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 import copy
 import hashlib
 import json
@@ -39,8 +39,25 @@ PROFILES = {
     'openrouter-glm': PlayerProfile('openrouter-glm', 'chess_openrouter',
         'https://openrouter.ai/api/v1', 'OPENROUTER_API_KEY',
         'z-ai/glm-5.3-flash:nitro', 'z-ai/glm-5.3-flash', 'GLM 5.3 Flash',
-        'high', False, 1_310_720, 250_000, 'throughput-nitro', version=3, max_output_tokens=8192),
+        'max', False, 1_310_720, 250_000, 'throughput-nitro', version=4, max_output_tokens=32768),
 }
+
+# Earlier games retain their actual High/8K experiment settings. The sole
+# authorized v2 migration still changes only context limits to this v3 runtime.
+GLM_HIGH_PROFILE = replace(PROFILES['openrouter-glm'], reasoning='high',
+                           version=3, max_output_tokens=8192)
+
+
+def trusted_runtime_profile(profile):
+    """Accept only complete installed profiles, never arbitrary saved settings."""
+    if not isinstance(profile, PlayerProfile):
+        return False
+    try:
+        encoded = json.dumps(asdict(profile), sort_keys=True, allow_nan=False)
+        return any(encoded == json.dumps(asdict(known), sort_keys=True, allow_nan=False)
+                   for known in (*PROFILES.values(), GLM_HIGH_PROFILE))
+    except (TypeError, ValueError):
+        return False
 
 
 @dataclass(frozen=True)
@@ -120,9 +137,9 @@ def _legacy_prompt(profile):
     return prompt
 
 
-def _model_identity(config):
+def _model_identity(config, profile=None):
     from .codex_bridge import dynamic_tools
-    profile = profile_for(config)
+    profile = profile or profile_for(config)
     return {**asdict(profile), 'driver': 'codex-app-server',
             'tool_schema_sha256': _sha(json.dumps(dynamic_tools(), sort_keys=True,
                 separators=(',', ':')))}
@@ -195,6 +212,9 @@ def player_profiles_compatible(saved, expected):
         return True
     if saved.get('name') != 'openrouter-glm' or expected.get('name') != 'openrouter-glm':
         return False
+    if any(value.get('reasoning') != 'high' or value.get('max_output_tokens') != 8192
+           for value in (saved, expected)):
+        return False
     old = {'version': 2, 'context_window': 128_000, 'compact_limit': 80_000}
     new = {'version': 3, 'context_window': 1_310_720, 'compact_limit': 250_000}
     if (not equal({key: saved.get(key) for key in old}, old)
@@ -222,6 +242,16 @@ def _validate_persona_snapshot(persona):
             raise ValueError('Game player persona snapshot is invalid')
 
 
+def _game_runtime_profile(saved, config):
+    """Select a known runtime; full identity validation follows before use."""
+    current = profile_for(config)
+    if (current.name == 'openrouter-glm' and isinstance(saved, dict)
+            and saved.get('name') == current.name
+            and type(saved.get('version')) is int and saved['version'] in (2, 3)):
+        return GLM_HIGH_PROFILE
+    return current
+
+
 def game_player_binding(state, config):
     """Verify model/tool invariants and resolve a game's immutable private prompt.
 
@@ -229,10 +259,11 @@ def game_player_binding(state, config):
     new games. Legacy records resolve the versioned prompt whose hash they saved;
     this helper does not mutate or migrate any game or Codex recovery record.
     """
-    model = _model_identity(config)
-    if state.get('model') != config.model or state.get('reasoning') != config.reasoning:
-        raise ValueError('Game model metadata differs from its configured player profile')
     saved = state.get('player_profile')
+    profile = _game_runtime_profile(saved, config)
+    model = _model_identity(config, profile)
+    if state.get('model') != profile.model or state.get('reasoning') != profile.reasoning:
+        raise ValueError('Game model metadata differs from its configured player profile')
     if 'player_prompt' in state or 'player_persona' in state:
         prompt, persona = state.get('player_prompt'), state.get('player_persona')
         if not isinstance(prompt, str) or not 1 <= len(prompt) <= 131072:
@@ -243,7 +274,6 @@ def game_player_binding(state, config):
             raise ValueError('Game player profile changed; its prompt and persona snapshot must match')
         return {'profile': copy.deepcopy(saved), 'prompt': prompt, 'persona': copy.deepcopy(persona)}
 
-    profile = profile_for(config)
     if saved is None and profile.name != 'astra':
         raise ValueError('Legacy game cannot resume with a different model profile')
     prompt = _legacy_prompt(profile)
@@ -256,6 +286,25 @@ def game_player_binding(state, config):
                'source_sha256': LEGACY_PROMPT_SHA256, 'integration_sha256': _sha('')}
     return {'profile': copy.deepcopy(saved if saved is not None else expected),
             'prompt': prompt, 'persona': persona}
+
+
+def runtime_profile_for_binding(binding, config):
+    """Revalidate a private bridge binding and return its installed runtime.
+
+    Max is a new-game default, not a migration for existing High games. Both
+    the model driver and gateway consume this same per-game runtime selection.
+    """
+    if not isinstance(binding, dict) or not isinstance(binding.get('profile'), dict):
+        raise ValueError('Game player binding is invalid')
+    saved = binding['profile']
+    state = {'model': saved.get('model'), 'reasoning': saved.get('reasoning'),
+             'player_profile': saved}
+    if 'persona' in saved:
+        state.update(player_prompt=binding.get('prompt'), player_persona=binding.get('persona'))
+    verified = game_player_binding(state, config)
+    if verified != binding:
+        raise ValueError('Game player binding differs from its verified snapshot')
+    return _game_runtime_profile(saved, config)
 
 
 def verify_game_profile(state, config):

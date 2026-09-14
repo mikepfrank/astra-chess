@@ -14,6 +14,7 @@ from astra_web.config import APP_ROOT, Config
 from astra_web.player_profiles import (
     LEGACY_PROMPT_SHA256, game_player_binding, get_persona, get_profile,
     new_player_binding, persona_for, profile_for, verify_game_profile,
+    runtime_profile_for_binding,
 )
 
 
@@ -128,7 +129,9 @@ class PlayerPersonaTests(unittest.TestCase):
     def test_v2_game_uses_v3_runtime_without_replacing_its_prompt_persona_or_provenance(self):
         config = self.config(model_profile='openrouter-glm')
         state = self.state(config)
-        state['player_profile'].update(version=2, context_window=128_000, compact_limit=80_000)
+        state['reasoning'] = 'high'
+        state['player_profile'].update(version=2, reasoning='high', max_output_tokens=8192,
+                                      context_window=128_000, compact_limit=80_000)
         before = copy.deepcopy(state)
         config.persona = 'astra'
         for status in ('active', 'finished'):
@@ -141,7 +144,8 @@ class PlayerPersonaTests(unittest.TestCase):
                 self.assertEqual(binding['prompt'], before['player_prompt'])
                 self.assertEqual(binding['persona'], before['player_persona'])
                 self.assertEqual(state, dict(before, status=status))
-        self.assertEqual(profile_for(config).version, 3)
+        self.assertEqual(profile_for(config).version, 4)
+        self.assertEqual(runtime_profile_for_binding(binding, config).reasoning, 'high')
         self.assertEqual(profile_for(config).context_window, 1_310_720)
         self.assertEqual(profile_for(config).compact_limit, 250_000)
         self.assertEqual(new_player_binding(config)['persona']['name'], 'astra')
@@ -149,7 +153,9 @@ class PlayerPersonaTests(unittest.TestCase):
     def test_pre_persona_v2_game_keeps_legacy_prompt_and_exact_saved_identity(self):
         config = self.config(model_profile='openrouter-glm')
         state, prompt = self.legacy(config)
-        state['player_profile'].update(version=2, context_window=128_000, compact_limit=80_000)
+        state['reasoning'] = 'high'
+        state['player_profile'].update(version=2, reasoning='high', max_output_tokens=8192,
+                                      context_window=128_000, compact_limit=80_000)
         before = copy.deepcopy(state)
         binding = game_player_binding(state, config)
         self.assertEqual(binding['profile'], before['player_profile'])

@@ -153,7 +153,7 @@ class ReplayBrandingTests(unittest.TestCase):
                 self.assertIn('[Event "Arcturus Chess Public Beta"]', pgn)
                 self.assertIn('[Site "Arcturus Chess"]', pgn)
                 self.assertIn('[Model "z-ai/glm-5.3-flash:nitro"]', pgn)
-                self.assertIn('[Reasoning "high"]', pgn)
+                self.assertIn('[Reasoning "max"]', pgn)
                 self.assertNotIn('[AstraModel ', pgn)
                 self.assertNotIn('[AstraReasoning ', pgn)
                 self.assert_binding_private(pgn)

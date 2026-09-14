@@ -34,7 +34,7 @@ ENDPOINT_MODELS = (MODEL, 'z-ai/glm-5.3-flash', 'z-ai/glm-5.3-flash-20260826')
 # This byte ceiling is separate from the model's context/token accounting.
 MAX_REQUEST_BYTES = 8 * 1024 * 1024
 MAX_SSE_EVENT_BYTES = 2 * 1024 * 1024
-MAX_OUTPUT_TOKENS = 8192
+MAX_OUTPUT_TOKENS = 32768
 
 
 class GatewayError(ValueError):
@@ -55,15 +55,14 @@ def _codex_wire_schema(schema):
     return schema
 
 
-def _prepare_request(payload):
+def _prepare_request(payload, profile):
     # Lazy import avoids a bridge/gateway import cycle.
     from .codex_bridge import dynamic_tools
     specs = {tool['name']: tool for tool in dynamic_tools()}
     if (not isinstance(payload, dict) or payload.get('model') != MODEL
             or payload.get('stream') is not True
             or {'provider', 'models', 'route', 'plugins'} & payload.keys()
-            or not isinstance(payload.get('reasoning'), dict)
-            or payload['reasoning'].get('effort') != 'high'):
+            or payload.get('reasoning') != {'effort': profile.reasoning}):
         raise GatewayError('invalid_request')
     incoming = payload.get('tools')
     if not isinstance(incoming, list):
@@ -107,12 +106,15 @@ def _prepare_request(payload):
             raise GatewayError('invalid_tool_choice')
     elif choice not in ('auto', 'none', 'required'):
         raise GatewayError('invalid_tool_choice')
-    maximum = payload.get('max_output_tokens', MAX_OUTPUT_TOKENS)
+    maximum = payload.get('max_output_tokens', profile.max_output_tokens)
     if type(maximum) is not int or maximum <= 0:
         raise GatewayError('invalid_output_limit')
     # The :nitro suffix already selects throughput routing. Do not add another
     # provider policy that could conflict with the recorded experiment profile.
-    return {**payload, 'tools': forwarded, 'max_output_tokens': min(maximum, MAX_OUTPUT_TOKENS)}
+    # The trusted per-game profile owns the allowance. A smaller client default
+    # must not silently retain the former 8K limit for a new Max game. Historical
+    # High games select their exact old profile through the host, never the wire.
+    return {**payload, 'tools': forwarded, 'max_output_tokens': profile.max_output_tokens}
 
 
 class _LoopbackServer(uvicorn.Server):
@@ -128,10 +130,16 @@ class OpenRouterGateway:
     ``transport`` and ``budget_check`` permit tests without external requests.
     The production default checks the worktree-wide experiment budget each time.
     """
-    def __init__(self, api_key, *, transport=None, budget_check=None, expected_instructions=None):
+    def __init__(self, api_key, *, transport=None, budget_check=None, expected_instructions=None,
+                 profile=None):
         if not isinstance(api_key, str) or not api_key or '\r' in api_key or '\n' in api_key:
             raise GatewayError('invalid_credential')
         self._api_key = api_key
+        from .player_profiles import get_profile, trusted_runtime_profile
+        profile = get_profile('openrouter-glm') if profile is None else profile
+        if not trusted_runtime_profile(profile) or profile.name != 'openrouter-glm':
+            raise GatewayError('invalid_gateway_profile')
+        self.profile = profile
         if expected_instructions is not None and (not isinstance(expected_instructions, str) or not expected_instructions.strip()):
             raise GatewayError('invalid_expected_instructions')
         self._expected_instructions = expected_instructions
@@ -222,6 +230,9 @@ class OpenRouterGateway:
             return
         started = False
         evidence = {'requested_model': MODEL, 'observed_model': None,
+                    'requested_reasoning': self.profile.reasoning,
+                    'max_output_tokens': self.profile.max_output_tokens,
+                    'profile_version': self.profile.version,
                     'request_kind': 'compaction' if payload['tools'] == [] else 'chess',
                     'response_id': None, 'provider': None, 'usage': {}, 'stream_complete': False}
         if self._expected_instructions is not None:
@@ -262,12 +273,24 @@ class OpenRouterGateway:
                     await send({'type': 'http.response.body',
                                 'body': ('\n'.join(frame) + '\n\n').encode('utf-8'), 'more_body': True})
                 await send({'type': 'http.response.body', 'body': b''})
-        except Exception:
+        except Exception as error:
             evidence['interrupted'] = True
             evidence['stream_complete'] = False
             if started:
-                await send({'type': 'http.response.body', 'body':
-                    b'event: error\ndata: {"type":"error","code":"chess_gateway_upstream_interrupted","message":"Provider stream interrupted."}\n\n'})
+                output_limit = isinstance(error, GatewayError) and str(error) == 'upstream_output_limit'
+                incomplete = isinstance(error, GatewayError) and str(error) == 'upstream_incomplete'
+                if output_limit:
+                    code = 'chess_gateway_output_limit'
+                    message = 'Provider response reached its output token limit before completion.'
+                elif incomplete:
+                    code = 'chess_gateway_upstream_incomplete'
+                    message = 'Provider response ended before completion.'
+                else:
+                    code = 'chess_gateway_upstream_interrupted'
+                    message = 'Provider stream interrupted.'
+                body = 'event: error\ndata: ' + json.dumps({'type': 'error', 'code': code,
+                    'message': message}) + '\n\n'
+                await send({'type': 'http.response.body', 'body': body.encode('utf-8')})
             else:
                 await self._error(send, 502, 'upstream_unavailable')
 
@@ -355,6 +378,16 @@ class OpenRouterGateway:
                 if len(selected) == 1:
                     evidence['provider'] = selected[0]['provider']
             evidence['routing'] = routing
+        if event.get('type') == 'response.incomplete' or response.get('status') == 'incomplete':
+            details = response.get('incomplete_details')
+            reason = details.get('reason') if isinstance(details, dict) else None
+            # Do not forward the incomplete terminal payload or save arbitrary
+            # provider text. Keep usage above for cost accounting; report a
+            # specific terminal error so a length cutoff cannot look like idle.
+            evidence['incomplete_reason'] = reason if reason in ('max_output_tokens', 'content_filter') else 'other'
+            if reason == 'max_output_tokens':
+                raise GatewayError('upstream_output_limit')
+            raise GatewayError('upstream_incomplete')
         if event.get('type') == 'response.completed':
             evidence['stream_complete'] = True
 
@@ -394,7 +427,7 @@ class OpenRouterGateway:
                             return
                         if not message.get('more_body', False):
                             break
-                payload = _prepare_request(json.loads(body))
+                payload = _prepare_request(json.loads(body), self.profile)
                 if self._expected_instructions is not None and payload.get('instructions') != self._expected_instructions:
                     raise GatewayError('instructions_mismatch')
                 if len(json.dumps(payload, allow_nan=False).encode('utf-8')) > MAX_REQUEST_BYTES:

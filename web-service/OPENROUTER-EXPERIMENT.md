@@ -41,13 +41,13 @@ providers are tried in throughput order. It is a routing preference for the
 selected model, not a guaranteed speed or a model substitution. See
 [provider routing](https://openrouter.ai/docs/guides/routing/provider-selection).
 
-| Setting | Deployed profile v3 configuration |
+| Setting | New-game profile v4 configuration |
 | --- | --- |
 | Driver | Codex app-server, direct function tools |
 | Model | `z-ai/glm-5.3-flash:nitro` |
-| Reasoning setting | `high` |
+| Reasoning setting | `max` |
 | Context window / compaction trigger | 1,310,720 / 250,000 total-context tokens |
-| Output ceiling | 8,192 tokens per provider request |
+| Output ceiling | 32,768 tokens per provider request, including reasoning |
 | Gateway byte limits | 8 MiB per request; 2 MiB per upstream SSE event |
 | Active workers | One |
 | Cumulative token ceiling per action | At most 2,000,000, including repeated input and compaction; smaller operator overrides remain effective |
@@ -61,13 +61,28 @@ query evidence. The model still reviews counterplay and chooses its move. There
 is no automatic engine-only move or model downgrade when an action fails.
 
 New games and saved Codex recovery state bind the model profile, prompt hash and
-tool-schema hash. Profile v3 admits exactly the authorized v2 runtime upgrade
+tool-schema hash. Profile v4 selects Max reasoning and a 32,768-token response
+ceiling for new games. Existing High games retain their recorded effort and
+8,192-token ceiling, including post-game conversation; their replay labels and
+saved prompts are not rewritten. Runtime selection accepts only the known saved
+profiles, and the gateway validates each request against that trusted selection.
+
+For those historical games, profile v3 admits exactly the authorized v2 runtime upgrade
 from 128,000/80,000 to 1,310,720/250,000 context/compaction settings. All other
 saved identity fields must match, including the model, persona, prompt and tool
 schema. Original game and recovery provenance stays intact; the bridge records
 the new runtime context policy separately. Reverse, partial and unknown-version
 changes remain incompatible. Unbound legacy games still require their original
 Astra configuration. The engine source fingerprint remains separately checked.
+
+The Max setting is the highest GLM-5.3 Flash effort listed by the
+[OpenRouter model catalog](https://openrouter.ai/api/v1/models); the supported
+levels are `max`, `high`, and `low`. [Z.ai's model instructions](https://github.com/zai-org/GLM-5/blob/main/README.md#note)
+also specify Max for benchmark reproduction. This establishes parameter support,
+not an improvement in measured chess strength. The response ceiling is separate
+from the 250,000-token context-compaction trigger and the cumulative action limit.
+A response that exhausts its output allowance must terminate as an explicit
+provider error, preserving the game for retry rather than waiting for more output.
 
 This context-compaction update was deployed as `43a494e` on September 13 at
 21:32 UTC. Its [repair validation](experiments/arcturus-compaction-repair-2026-09-13.json)

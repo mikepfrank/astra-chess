@@ -20,7 +20,7 @@ APP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_ROOT))
 from astra_web.config import Config
 from astra_web.openrouter_setup import _ledger, OpenRouterSetupError
-from astra_web.player_profiles import new_player_binding
+from astra_web.player_profiles import new_player_binding, profile_for
 from tools.check_linux_service import _codex_version
 
 
@@ -51,6 +51,7 @@ def preflight():
     if not all(checks.values()):
         return {'checks': checks}
     config.validate()
+    profile = profile_for(config)
     binding = new_player_binding(config)
     checks['arcturus_prompt'] = (binding['persona']['name'] == 'arcturus'
         and binding['prompt'].startswith('You are Arcturus, an AI chess-playing persona.\n'))
@@ -103,7 +104,12 @@ def preflight():
     checks['nice_priority'] = os.getpriority(os.PRIO_PROCESS, 0) == 10
     version = _codex_version(config)
     checks['reviewed_codex_version'] = version == 'codex-cli 0.154.0'
-    return {'checks': checks, 'limits': limits, 'python': sys.version.split()[0],
+    return {'checks': checks, 'limits': limits,
+            'runtime': {'profile_version': profile.version, 'reasoning': profile.reasoning,
+                        'max_output_tokens': profile.max_output_tokens,
+                        'context_window': profile.context_window, 'compact_limit': profile.compact_limit,
+                        'max_turn_tokens': config.max_turn_tokens, 'max_daily_tokens': config.max_daily_tokens},
+            'python': sys.version.split()[0],
             'sqlite': sqlite3.sqlite_version, 'codex': version}
 
 

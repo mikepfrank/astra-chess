@@ -6,6 +6,24 @@ baseline and its deployment history are preserved below.
 
 ## September 13, 2026: Arcturus experimental branch
 
+**Max reasoning for future games:** GLM profile v4 now selects `max` and a
+32,768-token ceiling per provider response, including reasoning. Saved v2/v3
+games retain High/8,192; their existing context-only upgrade to v3 remains
+supported. Both the Codex bridge and gateway use the same validated per-game
+runtime. Saved game identities, prompts and replay labels are not migrated.
+The gateway supplies the profile's exact output allowance even if Codex omits
+the field or supplies a smaller default. It records the requested effort and
+output allowance in private request evidence. An incomplete response caused by
+`max_output_tokens` produces a terminal error and remains available for retry;
+usage evidence is retained, with conservative failed-action accounting.
+
+Actual Windows Codex checks verify Max on the wire, tool-result continuation,
+compaction, process restart and same-thread resume. A simulated length cutoff
+fails the turn promptly without retry: Codex currently reports a generic stream
+interruption, while private gateway evidence retains the specific output-limit
+reason. The 250K compaction trigger, 200M daily allowance, 2M action ceiling,
+$50 spending guard, throughput routing and chess clocks are unchanged.
+
 **Replay identity update:** public library navigation uses the deployment's
 persona; each replay entry, standalone page, board/chat label and PGN uses the
 game's saved player name. New sanitized records are schema v2; v1 retains Astra

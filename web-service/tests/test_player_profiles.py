@@ -13,6 +13,7 @@ from astra_web.config import APP_ROOT, Config
 from astra_web.player_profiles import (
     game_player_binding, get_profile, persona_for, player_prompt, profile_for,
     player_profiles_compatible, profile_identity, verify_game_profile,
+    runtime_profile_for_binding, trusted_runtime_profile, GLM_HIGH_PROFILE,
 )
 from astra_web.supervisor import Supervisor
 
@@ -74,7 +75,7 @@ class PlayerProfileConfigTests(ProfileFixture, unittest.TestCase):
         profile = profile_for(config)
         self.assertEqual(config.model, 'z-ai/glm-5.3-flash:nitro')
         self.assertEqual(profile.canonical_model, 'z-ai/glm-5.3-flash')
-        self.assertEqual(config.reasoning, 'high')
+        self.assertEqual(config.reasoning, 'max')
         self.assertEqual(profile.provider, 'chess_openrouter')
         self.assertEqual(profile.base_url, 'https://openrouter.ai/api/v1')
         self.assertEqual(profile.env_key, 'OPENROUTER_API_KEY')
@@ -82,7 +83,8 @@ class PlayerProfileConfigTests(ProfileFixture, unittest.TestCase):
         self.assertFalse(profile.code_mode)
         self.assertEqual(profile.context_window, 1_310_720)
         self.assertEqual(profile.compact_limit, 250_000)
-        self.assertEqual(profile.version, 3)
+        self.assertEqual(profile.version, 4)
+        self.assertEqual(profile.max_output_tokens, 32768)
 
     def test_environment_selects_profile_at_config_creation(self):
         astra = self.config()
@@ -108,6 +110,7 @@ class PlayerProfileConfigTests(ProfileFixture, unittest.TestCase):
             {'model_profile': 'openrouter-glm', 'model': 'gpt-6-astra'},
             {'model_profile': 'openrouter-glm', 'model': 'z-ai/glm-5.3-flash'},
             {'model_profile': 'openrouter-glm', 'reasoning': 'ultra'},
+            {'model_profile': 'openrouter-glm', 'reasoning': 'high'},
         ):
             with self.subTest(overrides=overrides):
                 config = self.config(**overrides)
@@ -265,6 +268,7 @@ class PlayerPromptAndPersistenceTests(ProfileFixture, unittest.TestCase):
 class PlayerRuntimeCompatibilityTests(ProfileFixture, unittest.TestCase):
     def profiles(self):
         current = profile_identity(self.config(model_profile='openrouter-glm'))
+        current.update(version=3, reasoning='high', max_output_tokens=8192)
         previous = copy.deepcopy(current)
         previous.update(version=2, context_window=128_000, compact_limit=80_000)
         return previous, current
@@ -321,6 +325,54 @@ class PlayerRuntimeCompatibilityTests(ProfileFixture, unittest.TestCase):
                 if field in previous:
                     self.assertFalse(player_profiles_compatible(changed, current))
         self.assertFalse(player_profiles_compatible(dict(current, code_mode=0), current))
+
+    def test_existing_high_games_keep_their_runtime_when_new_default_is_max(self):
+        config = self.config(model_profile='openrouter-glm')
+        for version in (2, 3):
+            for legacy in (False, True):
+                with self.subTest(version=version, legacy=legacy):
+                    state = self.legacy_state(config) if legacy else self.state(config)
+                    state['reasoning'] = 'high'
+                    state['player_profile'].update(version=version, reasoning='high', max_output_tokens=8192)
+                    if version == 2:
+                        state['player_profile'].update(context_window=128_000, compact_limit=80_000)
+                    before = copy.deepcopy(state)
+                    binding = game_player_binding(state, config)
+                    runtime = runtime_profile_for_binding(binding, config)
+                    self.assertEqual(runtime, GLM_HIGH_PROFILE)
+                    self.assertEqual(binding['profile'], before['player_profile'])
+                    self.assertEqual(state, before)
+                    self.assertEqual(game.snapshot(state)['reasoning'], 'high')
+                    self.assertIn('[Reasoning "high"]', game.pgn(state))
+        next_game = self.state(config)
+        self.assertEqual(next_game['reasoning'], 'max')
+        self.assertEqual(next_game['player_profile']['version'], 4)
+        self.assertEqual(runtime_profile_for_binding(game_player_binding(next_game, config), config),
+                         get_profile('openrouter-glm'))
+
+    def test_high_to_max_is_not_a_compatible_saved_thread_migration(self):
+        high, _ = self.profiles()
+        maximum = profile_identity(self.config(model_profile='openrouter-glm'))
+        self.assertFalse(player_profiles_compatible(high, maximum))
+        self.assertFalse(player_profiles_compatible(dict(high, version=3,
+            context_window=1_310_720, compact_limit=250_000), maximum))
+
+    def test_trusted_runtime_rejects_partial_or_unknown_historical_profiles(self):
+        from dataclasses import replace
+        self.assertTrue(trusted_runtime_profile(GLM_HIGH_PROFILE))
+        self.assertTrue(trusted_runtime_profile(get_profile('openrouter-glm')))
+        for profile in (replace(GLM_HIGH_PROFILE, max_output_tokens=32768),
+                        replace(GLM_HIGH_PROFILE, version=3.0),
+                        replace(get_profile('openrouter-glm'), reasoning='high')):
+            self.assertFalse(trusted_runtime_profile(profile))
+        config = self.config(model_profile='openrouter-glm')
+        state = self.state(config)
+        for version, effort, output in ((3, 'max', 32768), (4, 'high', 8192), (2, 'max', 32768)):
+            changed = copy.deepcopy(state)
+            changed['reasoning'] = effort
+            changed['player_profile'].update(version=version, reasoning=effort, max_output_tokens=output)
+            with self.assertRaises(ValueError):
+                game_player_binding(changed, config)
 
 
 class PlayerProfileAdmissionTests(ProfileFixture, unittest.IsolatedAsyncioTestCase):

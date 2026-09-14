@@ -2,9 +2,28 @@
 
 This deployment serves `arcturus.astraplayschess.com` from the separate
 `or-chess` Linux account. It retains the Codex driver, selects the
-`openrouter-glm` profile (`z-ai/glm-5.3-flash:nitro`, high reasoning), and binds
+`openrouter-glm` profile (`z-ai/glm-5.3-flash:nitro`, Max reasoning for new games), and binds
 new games to the Arcturus persona. The original Astra account, application
 unit, repository and game data remain independently operated.
+
+## Max reasoning for new games
+
+Profile v4 uses Max reasoning and a 32,768-token output ceiling for each provider
+response, including reasoning. The gateway supplies this limit when Codex omits
+it and validates effort against the game's trusted runtime profile. Existing
+High games retain their saved effort, response ceiling, prompts, conversation
+and replay provenance. Their existing v2-to-v3 context-only compatibility rule
+continues to apply. The 250K compaction trigger, 200M daily allowance, chess clock,
+per-action token limit and dollar budget are independent of this change.
+
+Before activation, verify Max on the actual Codex build through the local mock
+gateway, including tool continuation, compaction and output-limit failure. Check
+all saved game bindings against the staged code without mutating their records.
+Deploy at an idle boundary with a coherent private backup and stop/restart only
+`or-chess.service`; verify the public `/api/config` reports `reasoning: "max"`.
+Any paid validation belongs in a disposable operator-check directory under the
+same service restrictions and shared spending ledger, while normal workers are
+stopped. Record it separately from the preserved user games.
 
 ## Initial validated deployment: September 13, 2026
 

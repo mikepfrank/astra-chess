@@ -1,5 +1,6 @@
 """Loopback gateway tests with mocked inference and budget verification."""
 import asyncio
+from dataclasses import replace
 import json
 import unittest
 
@@ -7,18 +8,19 @@ import httpx
 
 from astra_web.codex_bridge import dynamic_tools, TOOL_NAMES
 from astra_web.openrouter_gateway import (OpenRouterGateway, MODEL, UPSTREAM_URL,
-    MAX_REQUEST_BYTES, MAX_SSE_EVENT_BYTES, _codex_wire_schema)
+    MAX_REQUEST_BYTES, MAX_SSE_EVENT_BYTES, MAX_OUTPUT_TOKENS, GatewayError, _codex_wire_schema)
 from astra_web.openrouter_setup import OpenRouterSetupError
+from astra_web.player_profiles import get_profile
 
 
 KEY = 'unit-test-private-openrouter-key'
 
 
-def payload():
+def payload(effort='max'):
     functions = [{'type': 'function', 'name': item['name'], 'description': item['description'],
                   'parameters': item['inputSchema'], 'strict': False} for item in dynamic_tools()]
     return {'model': MODEL, 'stream': True, 'input': [{'role': 'user', 'content': 'Test.'}],
-            'reasoning': {'effort': 'high'}, 'tool_choice': 'auto',
+            'reasoning': {'effort': effort}, 'tool_choice': 'auto',
             'tools': [{'type': 'function', 'name': 'request_user_input', 'parameters': {}},
                       {'type': 'namespace', 'name': 'skills', 'tools': [
                           {'type': 'function', 'name': 'list'}, {'type': 'function', 'name': 'read'}]}] + functions}
@@ -64,9 +66,9 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
         self.calls.append(request)
         return httpx.Response(200, content=sse(), headers={'content-type': 'text/event-stream'})
 
-    def gateway(self, handler=None, budget=None):
+    def gateway(self, handler=None, budget=None, profile=None):
         return OpenRouterGateway(KEY, transport=httpx.MockTransport(handler or self.upstream),
-                                 budget_check=budget or self.budget)
+                                 budget_check=budget or self.budget, profile=profile)
 
     def client(self, gateway):
         return httpx.AsyncClient(transport=httpx.ASGITransport(app=gateway), base_url='http://127.0.0.1',
@@ -88,8 +90,9 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual({tool['name'] for tool in body['tools']}, TOOL_NAMES)
             self.assertEqual(len(body['tools']), 7)
             self.assertTrue(all(tool['type'] == 'function' for tool in body['tools']))
-            self.assertEqual(body['max_output_tokens'], 8192)
-            self.assertEqual(body['reasoning'], {'effort': 'high'})
+            self.assertEqual(body['max_output_tokens'], 32768)
+            self.assertEqual(body['max_output_tokens'], MAX_OUTPUT_TOKENS)
+            self.assertEqual(body['reasoning'], {'effort': 'max'})
             self.assertEqual((gateway.request_count, gateway.budget_check_count), (1, 1))
             self.assertEqual(gateway.evidence[0]['observed_model'], 'z-ai/glm-5.3-flash')
             self.assertEqual(gateway.evidence[0]['provider'], 'Fixture Provider')
@@ -97,6 +100,46 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(gateway.evidence[0]['routing'], {'attempt': 1, 'is_byok': False,
                 'selected': [{'model': 'z-ai/glm-5.3-flash', 'provider': 'Fixture Provider'}]})
             self.assertTrue(gateway.evidence[0]['stream_complete'])
+            self.assertEqual(gateway.evidence[0]['requested_reasoning'], 'max')
+            self.assertEqual(gateway.evidence[0]['max_output_tokens'], 32768)
+            self.assertEqual(gateway.evidence[0]['profile_version'], 4)
+
+    async def test_new_profile_owns_output_allowance_even_with_a_smaller_client_default(self):
+        async with self.gateway() as gateway, self.client(gateway) as client:
+            for maximum in (None, 8192, 32768, 100000):
+                request = payload()
+                if maximum is not None:
+                    request['max_output_tokens'] = maximum
+                self.assertEqual((await client.post('/v1/responses', json=request)).status_code, 200)
+        self.assertEqual(len(self.calls), 4)
+        self.assertTrue(all(json.loads(request.content)['max_output_tokens'] == 32768 for request in self.calls))
+
+    async def test_historical_high_requires_the_exact_trusted_host_profile(self):
+        historical = replace(get_profile('openrouter-glm'), reasoning='high', version=3,
+                             max_output_tokens=8192)
+        async with self.gateway(profile=historical) as gateway, self.client(gateway) as client:
+            self.assertEqual((await client.post('/v1/responses', json=payload())).status_code, 400)
+            for tools in (payload()['tools'], []):
+                request = {**payload('high'), 'tools': tools, 'max_output_tokens': 32768}
+                self.assertEqual((await client.post('/v1/responses', json=request)).status_code, 200)
+            self.assertEqual((gateway.request_count, gateway.budget_check_count), (2, 2))
+            self.assertTrue(all(item['requested_reasoning'] == 'high' and item['max_output_tokens'] == 8192
+                                and item['profile_version'] == 3 for item in gateway.evidence))
+        self.assertTrue(all(json.loads(request.content)['max_output_tokens'] == 8192 for request in self.calls))
+        async with self.gateway() as gateway, self.client(gateway) as client:
+            self.assertEqual((await client.post('/v1/responses', json=payload('high'))).status_code, 400)
+            self.assertEqual(gateway.request_count, 0)
+
+    def test_untrusted_profiles_cannot_change_gateway_reasoning_or_output_policy(self):
+        current = get_profile('openrouter-glm')
+        for profile in (get_profile('astra'), {'reasoning': 'high'},
+                        replace(current, max_output_tokens=8192),
+                        replace(current, max_output_tokens=65536),
+                        replace(current, reasoning='high'),
+                        replace(current, provider='other-provider'),
+                        replace(current, version=5)):
+            with self.subTest(profile=profile), self.assertRaisesRegex(GatewayError, 'invalid_gateway_profile'):
+                self.gateway(profile=profile)
 
     async def test_pinned_instructions_required_on_every_provider_request(self):
         instructions = 'Shared chess contract.\nPersona: Arcturus. 🐂'
@@ -143,9 +186,9 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
             body = json.loads(request.content)
             self.assertEqual(body['tools'], [])
             self.assertEqual(body['instructions'], instructions)
-            self.assertEqual(body['max_output_tokens'], 8192)
+            self.assertEqual(body['max_output_tokens'], 32768)
             self.assertEqual(body['model'], MODEL)
-            self.assertEqual(body['reasoning'], {'effort': 'high'})
+            self.assertEqual(body['reasoning'], {'effort': 'max'})
 
     async def test_compaction_requires_exact_empty_list_and_non_tool_choice(self):
         bad = []
@@ -206,6 +249,9 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
         for name, value in (('model', 'other-model'), ('stream', False), ('max_output_tokens', True),
                             ('provider', {'sort': 'price'}), ('models', ['other-model']), ('route', 'fallback'),
                             ('plugins', []), ('reasoning', {'effort': 'low'}),
+                            ('reasoning', {'effort': 'high'}),
+                            ('reasoning', {'effort': 'max', 'max_tokens': 1024}),
+                            ('max_output_tokens', 0), ('max_output_tokens', -1), ('max_output_tokens', 8192.0),
                             ('tool_choice', {'type': 'function', 'name': 'skills'})):
             request = payload()
             request[name] = value
@@ -255,7 +301,7 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(gateway.evidence[0]['stream_complete'])
         forwarded = json.loads(self.calls[0].content)
         self.assertEqual(forwarded['input'][0]['content'], content)
-        self.assertEqual(forwarded['max_output_tokens'], 8192)
+        self.assertEqual(forwarded['max_output_tokens'], 32768)
         self.assertEqual(len(self.budgets), 1)
 
     async def test_stream_event_keeps_smaller_two_mib_bound(self):
@@ -294,6 +340,49 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
                 self.assertNotIn(KEY, response.text)
             self.assertEqual((gateway.request_count, gateway.budget_check_count), (2, 2))
         self.assertEqual(len(self.calls), 2)
+
+    async def test_output_limit_is_an_explicit_terminal_error_with_usage_and_no_retry(self):
+        for event_type in ('response.incomplete', 'response.completed'):
+            for tools in (payload()['tools'], []):
+                with self.subTest(event_type=event_type, compaction=tools == []):
+                    async def truncated(request):
+                        self.calls.append(request)
+                        event = {'type': event_type, 'response': {
+                            'model': 'z-ai/glm-5.3-flash', 'status': 'incomplete',
+                            'incomplete_details': {'reason': 'max_output_tokens', 'private': 'provider detail'},
+                            'usage': {'input_tokens': 100, 'output_tokens': 32768, 'total_tokens': 32868},
+                            'output': [{'type': 'reasoning', 'text': 'Private incomplete reasoning.'}]}}
+                        return httpx.Response(200, content=('data: ' + json.dumps(event) + '\n\n').encode(),
+                                              headers={'content-type': 'text/event-stream'})
+                    async with self.gateway(handler=truncated) as gateway, self.client(gateway) as client:
+                        response = await client.post('/v1/responses', json={**payload(), 'tools': tools})
+                        self.assertIn('chess_gateway_output_limit', response.text)
+                        self.assertIn('output token limit before completion', response.text)
+                        self.assertNotIn('Private incomplete reasoning', response.text)
+                        self.assertNotIn('provider detail', response.text + json.dumps(gateway.evidence))
+                        self.assertNotIn(event_type, response.text)
+                        self.assertEqual((gateway.request_count, gateway.budget_check_count), (1, 1))
+                        self.assertFalse(gateway.evidence[0]['stream_complete'])
+                        self.assertEqual(gateway.evidence[0]['incomplete_reason'], 'max_output_tokens')
+                        self.assertEqual(gateway.evidence[0]['usage']['output_tokens'], 32768)
+        self.assertEqual(len(self.calls), 4)
+
+    async def test_other_incomplete_reasons_are_sanitized_and_not_misreported_as_length(self):
+        async def incomplete(request):
+            self.calls.append(request)
+            event = {'type': 'response.incomplete', 'response': {
+                'model': 'z-ai/glm-5.3-flash', 'status': 'incomplete',
+                'incomplete_details': {'reason': 'Private provider failure detail.'}}}
+            return httpx.Response(200, content=('data: ' + json.dumps(event) + '\n\n').encode(),
+                                  headers={'content-type': 'text/event-stream'})
+        async with self.gateway(handler=incomplete) as gateway, self.client(gateway) as client:
+            response = await client.post('/v1/responses', json=payload())
+            self.assertIn('chess_gateway_upstream_incomplete', response.text)
+            self.assertNotIn('chess_gateway_output_limit', response.text)
+            self.assertNotIn('Private provider failure', response.text + json.dumps(gateway.evidence))
+            self.assertEqual(gateway.evidence[0]['incomplete_reason'], 'other')
+            self.assertFalse(gateway.evidence[0]['stream_complete'])
+            self.assertEqual((gateway.request_count, gateway.budget_check_count), (1, 1))
 
     async def test_redirect_is_not_followed_and_response_headers_are_not_forwarded(self):
         async def redirect(request):

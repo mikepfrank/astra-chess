@@ -24,6 +24,7 @@ async def audit(codex_bin, audit_dir, catalog=None, restrict_builtins=False, thr
                 candidate_version=CANDIDATE_VERSION):
     if candidate_version not in bridge.reviewed_versions('openrouter-glm'):
         raise bridge.CodexError('Wire audit requires an explicitly reviewed candidate version')
+    model_profile = get_profile('openrouter-glm')
     instructions = new_player_binding(Config(model_profile='openrouter-glm'))['prompt']
     base = Path(audit_dir).resolve()
     base.mkdir(parents=True, exist_ok=True)
@@ -36,6 +37,8 @@ async def audit(codex_bin, audit_dir, catalog=None, restrict_builtins=False, thr
     report = {'audit_directory': str(root), 'external_provider_contacted': False,
               'real_credentials_inherited': False, 'candidate_version': candidate_version,
               'catalog_configured': catalog is not None, 'request_captured': False,
+              'expected_reasoning': model_profile.reasoning,
+              'expected_max_output_tokens': model_profile.max_output_tokens,
               'restrict_builtins_probe': restrict_builtins, 'through_gateway': through_gateway}
 
     def record_request(request, path, authorization):
@@ -90,7 +93,7 @@ async def audit(codex_bin, audit_dir, catalog=None, restrict_builtins=False, thr
 
     server = await asyncio.start_server(serve, host='127.0.0.1', port=0, limit=bridge.MAX_RPC_BYTES)
     port = server.sockets[0].getsockname()[1]
-    profile = replace(get_profile('openrouter-glm'), base_url=f'http://127.0.0.1:{port}/v1',
+    profile = replace(model_profile, base_url=f'http://127.0.0.1:{port}/v1',
                       env_key='LOCAL_WIRE_AUDIT_KEY')
     gateway = None
     if through_gateway:
@@ -104,7 +107,7 @@ async def audit(codex_bin, audit_dir, catalog=None, restrict_builtins=False, thr
 
         gateway = OpenRouterGateway('local-wire-audit-placeholder',
             transport=httpx.MockTransport(mock_upstream), budget_check=lambda key: {'remaining_usd': 49},
-            expected_instructions=instructions)
+            expected_instructions=instructions, profile=model_profile)
         await gateway.__aenter__()
         profile = replace(profile, base_url=gateway.base_url, env_key='CHESS_GATEWAY_TOKEN')
     config = bridge._config_text(profile.model, profile.reasoning, profile=profile)
@@ -187,6 +190,16 @@ async def audit(codex_bin, audit_dir, catalog=None, restrict_builtins=False, thr
                     and len(report.get('tool_names', [])) == len(bridge.TOOL_NAMES))
                 if not report.get('instructions_match'):
                     raise bridge.CodexError('The provider request omitted or changed its pinned instructions')
+                report['profile_wire_verified'] = (
+                    report.get('requested_model') == model_profile.model
+                    and report.get('reasoning') == {'effort': model_profile.reasoning}
+                    and report.get('stream') is True
+                    and (not through_gateway or (
+                        report['seven_chess_tools_only']
+                        and all(report['canonical_schemas_match'].values())
+                        and report.get('max_output_tokens') == model_profile.max_output_tokens)))
+                if not report['profile_wire_verified']:
+                    raise bridge.CodexError('The provider request differs from its selected profile')
                 stage = 'complete'
     except Exception as error:
         report['failure_type'] = type(error).__name__

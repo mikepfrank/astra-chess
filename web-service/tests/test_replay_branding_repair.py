@@ -32,6 +32,10 @@ class ReplayBrandingRepairTests(unittest.TestCase):
         self.store = Store(self.config)
         ReplayLibrary(self.config, self.store)
         state = game.new_game({'id': 'fixture-owner', 'name': 'Astra admirer <&>'}, 'white', self.config)
+        # This narrowly scoped repair handles the historical High/v3 snapshots,
+        # regardless of the current default for newly created GLM games.
+        state['reasoning'] = 'high'
+        state['player_profile'].update(version=3, reasoning='high', max_output_tokens=8192)
         for index, uci in enumerate(('f2f3', 'e7e5', 'g2g4', 'd8h4')):
             game.apply_move(state, uci, 'human' if index % 2 == 0 else 'astra')
             state['moves'][index]['at'] = 1001.0 + index

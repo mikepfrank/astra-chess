@@ -238,10 +238,14 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(all('OPENROUTER_API_KEY' not in env and 'OPENAI_API_KEY' not in env
                             for env in self.child_envs))
         self.assertIn('code_mode = false', config_text)
+        self.assertIn('model_reasoning_effort = "max"', config_text)
         self.assertNotIn('unit-openrouter-placeholder', config_text)
         saved = json.loads((folder / 'bridge-state.json').read_text())
         self.assertEqual(saved['player_profile']['canonical_model'], 'z-ai/glm-5.3-flash')
         self.assertEqual(saved['usage_total'], 40)
+        self.assertEqual(saved['runtime_reasoning_policy'], {'effort': 'max', 'max_output_tokens': 32768})
+        turns = [w['params'] for w in self.wires if w.get('method') == 'turn/start']
+        self.assertTrue(all(turn['effort'] == 'max' for turn in turns))
         starts = [p['params'] for p in self.wires if p.get('method') == 'thread/start']
         self.assertEqual(len(starts), 1)
         self.assertTrue(starts[0]['baseInstructions'].startswith('You are Arcturus,'))
@@ -267,12 +271,11 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         from astra_web.player_profiles import new_player_binding
         self.use_openrouter()
         binding = new_player_binding(self.config)
-        binding['profile'].update(version=2, context_window=128_000, compact_limit=80_000)
+        binding['profile'].update(version=2, reasoning='high', max_output_tokens=8192,
+                                  context_window=128_000, compact_limit=80_000)
         with patch('astra_web.openrouter_setup.require_budget', return_value={}):
             await self.run_fake(player_binding=binding)
-            # Direct callers may supply current identity; the audited runtime
-            # transition still retains old recovery provenance and conversation.
-            await self.run_fake(thread_id='test-thread')
+            await self.run_fake(thread_id='test-thread', player_binding=binding)
         folder = self.root / 'players/game-1'
         saved = json.loads((folder / 'bridge-state.json').read_text())
         self.assertEqual(saved['player_profile'], binding['profile'])
@@ -284,9 +287,19 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(resume['baseInstructions'], binding['prompt'])
         self.assertEqual(resume['config']['model_context_window'], 1_310_720)
         self.assertEqual(resume['config']['model_auto_compact_token_limit'], 250_000)
+        self.assertEqual(resume['config']['model_reasoning_effort'], 'high')
+        self.assertEqual(saved['runtime_reasoning_policy'], {'effort': 'high', 'max_output_tokens': 8192})
+        self.assertTrue(all(w['params']['effort'] == 'high' for w in self.wires
+                            if w.get('method') == 'turn/start'))
         telemetry = [json.loads(p.read_text()) for p in folder.glob('provider-requests-*.json')]
         self.assertTrue(all(t['rejections'] == [] for t in telemetry))
         self.assertTrue(all(t['runtime_context_policy']['compact_limit'] == 250_000 for t in telemetry))
+        self.assertTrue(all(t['runtime_reasoning_policy'] == {'effort': 'high', 'max_output_tokens': 8192}
+                            for t in telemetry))
+        with patch('astra_web.openrouter_setup.require_budget', return_value={}) as budget:
+            with self.assertRaisesRegex(bridge.CodexError, 'profile differs'):
+                await self.run_fake(thread_id='test-thread')
+        budget.assert_not_called()
 
     async def test_openrouter_refuses_provider_url_mismatch_before_model_turn(self):
         self.use_openrouter()
