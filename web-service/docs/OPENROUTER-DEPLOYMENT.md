@@ -16,6 +16,15 @@ and replay provenance. Their existing v2-to-v3 context-only compatibility rule
 continues to apply. The 250K compaction trigger, 200M daily allowance, chess clock,
 per-action token limit and dollar budget are independent of this change.
 
+Activated from application commit `da1a1af` at the September 14, 00:40 UTC
+maintenance checkpoint. Staged Linux regressions and actual Codex checks passed;
+the installed namespace and isolated two-action Max test passed before restart.
+All ten paid requests completed with Max/32,768, costing $0.01170204 in total.
+Saved user data/replays and budget baseline were preserved, and the original
+Astra/Caddy processes were unchanged. The coherent private backup and operator
+receipt are under `/home/or-chess/backups/max-reasoning-20260914T004026Z/`.
+See [the sanitized validation record](../experiments/arcturus-max-reasoning-2026-09-14.json).
+
 Before activation, verify Max on the actual Codex build through the local mock
 gateway, including tool continuation, compaction and output-limit failure. Check
 all saved game bindings against the staged code without mutating their records.

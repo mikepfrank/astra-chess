@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "checkpoint_utc": "2026-09-14T00:40:26Z",
+  "application_commit": "da1a1aff9b5a51d9f549291abc913a2c155fa07b",
+  "scope": "New Arcturus games use Max reasoning and 32768 output tokens; existing games retain saved settings.",
+  "new_game_profile": {
+    "version": 4,
+    "model": "z-ai/glm-5.3-flash:nitro",
+    "reasoning": "max",
+    "max_output_tokens": 32768,
+    "context_window": 1310720,
+    "compact_limit": 250000,
+    "max_turn_tokens": 2000000,
+    "max_daily_tokens": 200000000
+  },
+  "saved_game_policy": {
+    "high_profile_versions": [2, 3],
+    "reasoning": "high",
+    "max_output_tokens": 8192,
+    "prior_v2_to_v3_context_only_upgrade_retained": true,
+    "saved_bindings_validated_read_only": 4,
+    "saved_tables_unchanged": true,
+    "private_game_and_replay_files_unchanged": true,
+    "budget_identity_and_baseline_preserved": true,
+    "original_astra_and_caddy_processes_unchanged": true
+  },
+  "validation": {
+    "windows_full_suite": {
+      "tests_run": 374,
+      "platform_skips": 4,
+      "initial_failed_subtests": 6,
+      "initial_errors": 4,
+      "resolution": "All failures were old High expectations or historical repair fixtures creating new Max games in three replay test modules. Corrected the fixtures without changing the repair tool and reran all three affected modules: 19 tests, 2 platform skips, no failures. Other full-suite checks passed."
+    },
+    "linux_focused_suite": {"tests_run": 125, "platform_skips": 1, "passed": true},
+    "actual_codex_builds": ["0.154.0-alpha.6.2 (Windows)", "0.154.0 (Linux)"],
+    "mocked_wire_checks_passed_on_both_platforms": true,
+    "max_and_32768_present_on_every_mocked_provider_request": true,
+    "tool_call_and_result_continuation_verified": true,
+    "compaction_and_same_thread_resume_verified": true,
+    "output_limit_fixture_failed_promptly_without_retry": true,
+    "output_limit_classification_retained_in_gateway_evidence": true,
+    "codex_rewrites_output_limit_as_generic_stream_interruption": true,
+    "installed_service_namespace_preflight_and_lifecycle_passed": true,
+    "running_public_config_reports_max": true
+  },
+  "isolated_paid_check": {
+    "live_user_game_modified": false,
+    "model_actions": 2,
+    "moves": ["d4", "a6", "Bf4"],
+    "deterministic_test_opponent_reply": "a6",
+    "saved_thread": true,
+    "provider_requests": 10,
+    "requested_efforts": ["max"],
+    "requested_output_limits": [32768],
+    "all_requests_completed": true,
+    "all_responses_glm": true,
+    "all_pinned_instructions_verified": true,
+    "providers": ["Parasail", "Together"],
+    "input_tokens": 119414,
+    "output_tokens": 2049,
+    "peak_response_output_tokens": 741,
+    "reported_cost_usd": 0.01170204,
+    "incomplete_responses": 0,
+    "limitations": "Two opening actions validate operation and continuation, not chess strength or worst-case Max reasoning length."
+  }
+}

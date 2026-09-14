@@ -24,6 +24,18 @@ interruption, while private gateway evidence retains the specific output-limit
 reason. The 250K compaction trigger, 200M daily allowance, 2M action ceiling,
 $50 spending guard, throughput routing and chess clocks are unchanged.
 
+Deployed application code `da1a1af` at the September 14, 00:40 UTC maintenance
+checkpoint (September 13 locally). All four saved High bindings validated
+without mutation; a coherent private backup preceded the update. Linux ran
+125 focused tests successfully (one platform skip), actual Codex wire/lifecycle
+and length-cutoff checks, and installed-service namespace validation. The
+isolated paid two-action check played `1.d4 a6 2.Bf4`: all ten requests used
+Max/32,768, with 2,049 total output tokens, a 741-token peak response and
+$0.01170204 reported cost. The running public configuration reports Max.
+Saved database tables, private game/replay files and the budget baseline were
+preserved; only the experiment's paid-test usage advanced. Original Astra/Caddy
+PIDs were unchanged. See [the validation record](experiments/arcturus-max-reasoning-2026-09-14.json).
+
 **Replay identity update:** public library navigation uses the deployment's
 persona; each replay entry, standalone page, board/chat label and PGN uses the
 game's saved player name. New sanitized records are schema v2; v1 retains Astra
@@ -100,7 +112,7 @@ Retry; no move or paid request was made during repair validation. See the
 
 The isolated `codex/openrouter-chess` worktree is
 `Chess/openrouter-worktree`. Its model profile selects OpenRouter
-`z-ai/glm-5.3-flash:nitro` with high reasoning and throughput-oriented provider
+`z-ai/glm-5.3-flash:nitro` with Max reasoning for new games and throughput-oriented provider
 routing. The original `main` and `codex/hosted-chess` checkouts, Astra deployment
 and original chess journals remain independently operated.
 
