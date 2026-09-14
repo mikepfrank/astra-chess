@@ -2,10 +2,11 @@
 
 Prepared from Mike's GoDaddy screenshot and public DNS on September 14, 2026
 UTC (September 13 locally). The destination is the existing Lightsail IPv4
-address, verified against the currently working Arcturus hostname. Later public
+address, verified against the working Arcturus hostname. Later public
 DNS checks on September 14 UTC confirmed that the apex now has only
 `54.190.167.232`; the two Website Builder addresses have been removed. Server
-hostname activation and email delivery remain separate from these DNS changes.
+hostname activation completed at 05:27 UTC on September 14; email delivery
+remains a separate follow-up.
 
 ## Website DNS checkpoint
 
@@ -36,29 +37,30 @@ data verified through DNS. It predates the SES additions and is a reference,
 not an additive import file. GoDaddy should continue managing the SOA serial
 and timing fields.
 
-## SES DNS published; AWS verification pending
+## SES domain and DKIM verified
 
 On September 14, 2026 UTC, a new `arcturuschess.com` identity was created in
-Amazon SES **US West (Oregon), us-west-2**. Its status is **Verification
-pending**. Easy DKIM uses RSA 2048 for both current and next signing keys, with
+Amazon SES **US West (Oregon), us-west-2**. At **05:26 UTC**, a fresh AWS console
+check confirmed identity **Verified** and DKIM **Successful**. Easy DKIM uses
+RSA 2048 for both current and next signing keys, with
 signatures enabled. Custom MAIL FROM is not configured. Email feedback
 forwarding is enabled; no SNS notification topics are configured.
 
 Mike imported the three DKIM records in his regular browser. At the September
 14 **05:04 UTC** checkpoint, all three exact CNAME name/value pairs matched
 this identity's records on `ns03.domaincontrol.com`, `ns04.domaincontrol.com`
-and public resolver `1.1.1.1`. The refreshed SES console still showed identity
-**Verification pending** and DKIM **Pending**. DNS publication is complete;
-AWS verification is not yet confirmed. No repeated import is needed.
+and public resolver `1.1.1.1`. At that checkpoint, the refreshed SES console still showed identity
+**Verification pending** and DKIM **Pending**. The 05:26 UTC console check above
+subsequently confirmed both. No repeated import is needed.
 
 At 05:10 UTC, the SES verification-error popover still described its earlier
 04:41 UTC lookup (September 13 at 23:41 UTC-05), with SOA serial `2026091304`
 and "The DNS server could not find the specified domain name." Both GoDaddy
 nameservers, Cloudflare (`1.1.1.1`) and Google (`8.8.8.8`) now returned SOA
 serial `2026091305`, the correct apex address, and all three exact DKIM CNAMEs.
-The displayed failure therefore predates the current DNS zone. Await a newer
-SES verification result rather than deleting the identity or reimporting
-already correct records.
+The displayed failure predated the published DNS zone. Its timestamp explains
+the temporary mismatch between correct public DNS and the then-pending AWS
+status; the 05:26 UTC successful verification supersedes it.
 
 [arcturuschess.com.ses.txt](arcturuschess.com.ses.txt) is the applied import file
 for the exact three CNAME records supplied by this identity, each with TTL
@@ -100,15 +102,31 @@ separate activation requirements.
 
 ## Server activation and account continuity
 
-DNS alone will not activate the new website. The experimental server still
-needs the new HTTPS hostname, canonical `www` redirect and matching application
-origin before the new address is ready. Existing replay paths should be
-preserved. Do not redirect all old-host traffic until account continuity is
-handled: login cookies are host-only; password users must sign in again, and
-passwordless users need an account-protection or migration route first.
+`https://arcturuschess.com` is active and is Arcturus's canonical origin.
+Application code `17789dc` was deployed at **05:26:45 UTC** after an idle check
+and coherent private backup. Installed-service namespace validation and 70
+focused Linux tests passed; all four saved player bindings, private data and
+budget records remained unchanged. The application accepts the previous
+Arcturus origin only through an explicit additional-origin setting, while
+requiring each write's Origin to match its request Host and retaining CSRF
+validation.
+
+The Caddy update succeeded at **05:27 UTC**, retaining all three running
+service PIDs, the original route definitions and the configuration inode.
+At **05:28 UTC**, a laptop check through normal public DNS resolved
+`54.190.167.232` and verified TLS and HTTP 200 health. The `www` hostname
+returned HTTP 308 to the canonical origin while preserving the path and query.
+Mike also confirmed the new address working in his browser.
+
+The old hostname remains functional without an automatic redirect. Login
+cookies remain host-only: password users sign in again at the new address;
+passwordless users should add a password under **Your account** on the old
+hostname before moving. The old-host notice explains this and offers a manual
+link to the canonical site. Existing account/session records are not migrated
+or rewritten.
 
 The new DNS points directly to the host's IP and includes no reference to the
 original Astra domain. This reduces promotion of that address; it does not
 make the expensive service access-controlled. Shared infrastructure and
-historical public records can still associate the sites. Future activation
-should avoid adding public links from Arcturus to the expensive Astra service.
+historical public records can still associate the sites. Keep Arcturus's
+public entry points focused on its own domain.

@@ -4,19 +4,31 @@ For the separate `codex/openrouter-chess` experimental branch, start with the
 [September 13 alternate-model orientation](OPENROUTER-EXPERIMENT.md). The hosted
 baseline and its deployment history are preserved below.
 
-## September 13, 2026: Arcturus experimental branch
+## September 13–14, 2026: Arcturus experimental branch
 
-**New domain DNS configured; server activation pending:** Mike purchased
-`arcturuschess.com` and wants it to be Arcturus's preferred public hostname,
-reducing promotion of the more expensive original Astra service. See
-[the GoDaddy DNS files](deploy/dns/README.md). On September 14 UTC, after Mike
-removed Website Builder, authoritative DNS returned only `54.190.167.232` for
-the apex; the existing `www` CNAME is already correct. Live hostname/origin
-configuration has not changed. Before a later server cutover,
-handle host-only session cookies and passwordless-account continuity, preserve
-replay paths, and avoid adding links that promote the expensive Astra site.
+**New domain active:** `https://arcturuschess.com` is now Arcturus's preferred
+public hostname and canonical application origin. At September 14
+**05:26:45 UTC**, code `17789dc` was deployed after an idle check and coherent
+private backup. Installed-service namespace validation and 70 focused Linux
+tests passed; all four saved player bindings, private data and budget records
+were unchanged. Caddy activation succeeded at **05:27 UTC**, preserving all
+three service PIDs at that step, original routes and the configuration inode.
+At **05:28 UTC**, the laptop's normal DNS resolved only `54.190.167.232`; TLS
+and health returned HTTP 200, and `www` redirected with HTTP 308 while retaining
+the path and query. Mike confirmed the new address working in his browser.
+See [the DNS and activation record](deploy/dns/README.md).
 
-**Arcturus DKIM DNS published; SES verification pending:** On September 14 UTC, the
+The previous Arcturus hostname remains functional through
+`ASTRA_ADDITIONAL_ORIGINS`, without an automatic redirect. Each write still
+requires an allowed Origin matching its request Host plus the existing CSRF
+check. Cookies remain host-only, and existing sessions/accounts are not
+migrated. Password users can sign in at the new domain; passwordless users
+should add a password under **Your account** on the old hostname first. The
+old-host notice gives this guidance and a manual canonical-domain link.
+
+**Arcturus SES identity and DKIM verified:** A fresh AWS console check on
+September 14 at **05:26 UTC** confirmed identity **Verified**, DKIM **Successful**
+and signatures enabled with RSA 2048. Earlier on September 14 UTC, the
 AWS console created `arcturuschess.com` in Oregon (`us-west-2`) with Easy DKIM,
 2048-bit signing, signatures enabled, no custom MAIL FROM, and email feedback
 forwarding enabled. The three generated CNAMEs are in the incremental
@@ -24,14 +36,18 @@ forwarding enabled. The three generated CNAMEs are in the incremental
 them in his regular browser after GoDaddy's embedded-browser login failed.
 At the September 14 05:04 UTC checkpoint, all three exact name/value pairs
 resolved correctly on both GoDaddy authoritative nameservers and `1.1.1.1`.
-The refreshed SES console still showed identity and DKIM verification pending.
+The refreshed SES console still showed identity and DKIM verification pending
+at that earlier checkpoint. At 05:10 UTC, its error popover still referred to a
+04:41 UTC lookup before DNS publication; the 05:26 UTC verification supersedes
+that stale result.
 The existing DMARC record is retained. Account-level suppression is
 enabled for bounces and complaints. The account remains healthy but in the SES
 sandbox (200 messages/day, one/second); the existing production-access support
 case already contains Mike's detailed response and says "Customer action
 completed." No additional support reply or email was sent. Arcturus SMTP,
-notification scheduling, email branding and the new website origin still need
-configuration and validation; identity creation alone does not enable mail.
+notification scheduling, sender permissions and email branding still need
+configuration and delivery/feedback validation. Verified DKIM and the working
+website do not enable mail or remove the SES sandbox restrictions.
 
 **Max reasoning for future games:** GLM profile v4 now selects `max` and a
 32,768-token ceiling per provider response, including reasoning. Saved v2/v3

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "application_commit": "17789dcded053d88f6f4f56a31fe125197c61135",
+  "application_checkpoint_utc": "2026-09-14T05:26:45Z",
+  "status": "Deployed; public HTTPS checks and user browser confirmation passed.",
+  "scope": "Activate arcturuschess.com as Arcturus's canonical origin while preserving the existing hostname, accounts, games and replay links.",
+  "routing": {
+    "canonical_origin": "https://arcturuschess.com",
+    "www_redirect_status": 308,
+    "www_redirect_preserves_path_and_query": true,
+    "retained_alias_remains_functional": true,
+    "canonical_origin_matches_on_both_application_hosts": true,
+    "original_astra_site_healthy": true
+  },
+  "preservation": {
+    "saved_player_bindings_validated_read_only": 4,
+    "all_saved_database_tables_unchanged": true,
+    "private_files_and_budget_unchanged": true,
+    "account_or_game_migration_performed": false,
+    "caddy_original_configuration_bytes_preserved": true,
+    "caddy_configuration_inode_preserved": true,
+    "caddy_activation_succeeded_without_restart": true,
+    "original_astra_process_unchanged": true,
+    "service_process_ids_after_activation": {
+      "or-chess.service": 3843888,
+      "astra-chess.service": 3778964,
+      "astra-caddy.service": 3778975
+    }
+  },
+  "verification": {
+    "linux_focused_tests": {"tests_run": 70, "passed": true},
+    "windows_domain_service_identity_and_proxy_tests": {"tests_run": 39, "passed": true},
+    "windows_caddy_tests": {"tests_run": 25, "passed": true},
+    "windows_service_check_tests": {"tests_run": 6, "passed": true},
+    "intercepted_browser_cases": {"cases_run": 4, "passed": true, "external_requests": 0},
+    "public_https_checks_utc_minute": "2026-09-14T05:29Z",
+    "public_checks_read_only": true,
+    "https_config_library_and_replay_verified_on_both_hosts": true,
+    "public_replays_compared": 1,
+    "public_replay_bytes_identical_between_hosts": true,
+    "cross_host_origin_rejected_with_403": true,
+    "foreign_origin_rejected_with_403": true,
+    "csrf_still_required": true,
+    "user_confirmed_new_domain_working": true,
+    "new_domain_arcturus_identity_dialog_and_existing_account_notice_observed": true
+  },
+  "account_guidance": {
+    "alias_notice_links_manually_to_canonical_origin": true,
+    "passwordless_accounts_receive_password_guidance_before_moving": true,
+    "canonical_sign_in_notice_uses_existing_credentials": true,
+    "canonical_sign_in_notice_exposes_no_previous_domain_link": true,
+    "automatic_cookie_storage_or_token_transfer_added": false
+  },
+  "ses_domain_identity": {
+    "domain": "arcturuschess.com",
+    "verified_utc_minute": "2026-09-14T05:26Z",
+    "identity_status": "Verified",
+    "dkim_status": "Successful",
+    "scope_note": "Domain identity and DKIM verification are separate from enabling or testing application email delivery."
+  },
+  "model_calls": 0,
+  "emails_sent": 0
+}
