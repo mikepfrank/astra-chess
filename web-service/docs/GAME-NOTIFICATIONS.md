@@ -3,15 +3,20 @@
 The independent operator monitor checks the saved game list once per hour and
 sends one plain-text email only when it finds new game IDs. It uses Python's
 standard library, no LLM, no tactical search and no additional installed mail
-server. It runs as `astra` on Lightsail even when the development laptop is off.
+server. Each installation runs under its own Lightsail account even when the
+development laptop is off.
 This is a new-game notification, not a page-visit tracker or a model-usage alert.
-The installed scheduler described here belongs to the original Astra service.
-The separate Arcturus staged check is recorded at the end of this document;
-it did not install or activate an Arcturus scheduler.
+The original Astra scheduler and the separately configured Arcturus scheduler
+have independent databases, recipients, private configuration and checkpoints.
+The dated checks at the end distinguish earlier staged mail tests from actual
+activation.
 
 The sender is [`tools/ops/notify_new_games.py`](../tools/ops/notify_new_games.py).
 The scheduler templates are [`astra-game-notify.service`](../deploy/astra-game-notify.service)
-and [`astra-game-notify.timer`](../deploy/astra-game-notify.timer). The timer is
+and [`astra-game-notify.timer`](../deploy/astra-game-notify.timer), with separate
+[`or-chess-game-notify.service`](../deploy/or-chess-game-notify.service) and
+[`or-chess-game-notify.timer`](../deploy/or-chess-game-notify.timer) templates for
+Arcturus. Each timer is
 independent of the chess service: installing it does not restart a player's turn.
 
 Alternate deployments can set `site_name` (for example, `Arcturus chess`) in
@@ -28,6 +33,37 @@ Changing branding preserves already queued bytes. Changing sender, recipient,
 or feedback address refuses a pending send until its existing destination is
 restored or the operator explicitly reconciles the queue. Legacy queues without
 a feedback address continue unchanged when the new setting is absent.
+
+## Deployment variants
+
+| Setting | Original Astra | Arcturus |
+| --- | --- | --- |
+| Account | `astra` | `or-chess` |
+| Data | `/home/astra/.local/share/astra-chess` | `/home/or-chess/.local/share/or-chess` |
+| Private mail configuration | `/home/astra/.config/astra-chess-monitor/config.json` | `/home/or-chess/.config/or-chess-monitor/config.json` |
+| Private reporting state | `/home/astra/.local/state/astra-chess-monitor` | `/home/or-chess/.local/state/or-chess-monitor` |
+| Timer | `astra-game-notify.timer` | `or-chess-game-notify.timer` |
+| Hourly schedule | Top of the hour, plus up to 60 seconds of jitter | Five minutes past the hour, plus up to 60 seconds of jitter |
+| Sender domain | `astraplayschess.com` | `arcturuschess.com` |
+
+For Arcturus, use the
+[`or-chess-notification-config.example.json`](../deploy/or-chess-notification-config.example.json)
+template with its own authorized operator recipient and private SES credentials.
+It selects `notifications@arcturuschess.com` and Arcturus subject/body branding.
+The five-minute offset avoids deliberately scheduling both sites' digests at
+the same moment. Each timer catches up once after downtime; no-news runs remain
+silent. Messages do not contain links to either site's private monitor.
+
+The commands below describe the original Astra installation. When setting up
+Arcturus, substitute all account, data, configuration, state and unit names
+together using the table above. Initialize the new Arcturus state once before
+enabling its timer; never copy or reinitialize Astra's existing checkpoint.
+Configuring notifications does not enable player verification or password-reset
+email in either web application.
+
+Both notification timers were verified enabled and active on September 14 at
+21:50 UTC. The Arcturus activation receipt is recorded at the end of this guide;
+its SMTP test was accepted by SES, with inbox receipt still unconfirmed.
 
 ## Delivery contract
 
@@ -207,6 +243,12 @@ service. Limits are 128 MB memory, 10% aggregate CPU, 16 tasks and 120 seconds p
 run. These restrictions reduce exposure, but two trusted programs sharing the
 same Unix UID are not completely isolated from one another.
 
+The Arcturus unit additionally unsets `OPENROUTER_API_KEY` and
+`CHESS_GATEWAY_TOKEN`, hides the experiment's provider-budget files, and makes
+its game service's private `service.env` inaccessible. It never reads that
+environment file to obtain mail credentials. Verify these boundaries in the
+actual unit namespace before enabling delivery.
+
 ## Verification
 
 ```sh
@@ -315,3 +357,32 @@ Activating Arcturus notifications requires separate `or-chess` configuration,
 state, initial real-game baseline and units, plus the same namespace and delivery
 checks described above. Do not reuse the original Astra monitor's checkpoint or
 enable its timer for the Arcturus database.
+
+### September 14 both-site activation follow-up
+
+A fresh inspection found the original Astra timer enabled and waiting. Its
+21:00:52–21:00:54 UTC run completed successfully, and its reporting checkpoint
+contained 25 IDs with no pending message. The existing configuration and
+checkpoint were preserved.
+
+The separate Arcturus service and timer were activated at **21:50:18 UTC**,
+using the already authorized operator recipient and dedicated private
+configuration. Initialization recorded 14 existing game IDs without sending
+a historical digest. Windows checks passed 20 notification tests and four new
+unit-boundary tests, with no real email from those tests. Linux namespace checks
+and a clearly identified synthetic SMTP handoff passed; SES accepted the test
+message, but inbox receipt has not yet been confirmed.
+
+The installed units passed `systemd-analyze verify`. A manual run of the exact
+service completed successfully with no new games, preserving the 14-ID baseline
+and leaving no pending message. `or-chess-game-notify.timer` was enabled and
+active/waiting, with its next run at 22:05:33 UTC. The original Astra timer stayed
+enabled and active/waiting, with its next run at 22:00:46 UTC. These are dated
+activation checks, not a promise that a timer remains healthy indefinitely.
+
+All three game/proxy service PIDs remained unchanged during notifier
+installation. The original notification units and configuration were preserved.
+Both web applications still have recovery SMTP unset: these independent
+operator notifications do not enable public verification or password reset.
+See the [activation validation](../validation/2026-09-14-monitor-notifications.md)
+for the retained receipt and separate private monitor-page activation.

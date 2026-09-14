@@ -6,6 +6,33 @@ baseline and its deployment history are preserved below.
 
 ## September 13–14, 2026: Arcturus experimental branch
 
+**Both private monitors and new-game alerts are active:** code `898cba7` was
+activated on Arcturus at **21:48:23 UTC / 16:48 CDT** on September 14. The existing
+protected Dr. Thanos account now has operator access. Refresh a signed-in board
+page to see **Monitor** beside **Your games**. Both `/monitor/` pages were verified
+with signed-in browser sessions; Arcturus showed 11 player games (1 finished,
+10 unfinished) after excluding 3 exact deployment fixtures, and Astra showed
+18 (8 finished, 10 unfinished) after its existing 7 exclusions. Both refresh
+every 30 seconds while visible; saved unfinished games do not mean online players.
+
+All 14 Arcturus game documents, database tables and private files matched across
+the gated activation. The original Astra and Caddy processes stayed unchanged.
+42 focused Linux checks passed, alongside Windows and browser checks. Two workers,
+Max reasoning, clocks, spending limits and game-service resource settings remain
+unchanged. No further gameplay pause is needed for this monitor setup.
+
+At **21:50:18 UTC**, the separate Arcturus notifier was installed and its timer
+enabled. It checks hourly at `:05` plus up to 60 seconds of jitter; the existing
+Astra hourly timer remains enabled at `:00` plus jitter. Both email only newly
+started games to the authorized operator address and send nothing without news.
+Arcturus's 14 existing games were baselined without a historical digest. Native
+namespace/WAL/isolation checks passed, and SES accepted one synthetic Arcturus
+activation email; inbox receipt of that particular message is not yet confirmed.
+The actual notifier's initial no-news run succeeded, with no pending message.
+See the [monitor and notification activation record](validation/2026-09-14-monitor-notifications.md).
+The dedicated operator mailer is separate from application SMTP; general
+password-recovery email remains disabled.
+
 **Two-worker trial is live:** `565c057` was activated on September 14 at
 **21:12 UTC / 16:12 CDT**, after the queue became idle. One Arcturus web
 supervisor admits two distinct game actions, with verified aggregate limits
@@ -52,7 +79,7 @@ tests passed, with one Windows-only check skipped. The original Astra and Caddy
 processes were unchanged. See the
 [investigation and recovery status](validation/2026-09-14-context-recovery.md).
 
-**Arcturus isolated mail checks passed; live mail remains disabled:** staged
+**Earlier Arcturus isolated mail checks passed:** staged
 code `011c4b8` passed 50 focused Linux mail, identity and monitor tests. On
 September 14, the operator-only delivery check ran from **05:38:53 to 05:40
 UTC**. SES accepted three test messages: recovery verification and password
@@ -60,8 +87,9 @@ reset from `accounts@arcturuschess.com`, plus a synthetic new-game digest from
 `notifications@arcturuschess.com`, all to Mike's authorized operator address.
 Mike confirmed receiving all three and supplied a Gmail screenshot showing them
 in the inbox. Received-message authentication headers were not inspected.
-The mail branding code is now included in deployed `18c910d`; SMTP configuration
-and monitor activation remain unchanged and disabled.
+The mail branding code was subsequently included in deployed `18c910d`.
+Application SMTP remains disabled; operator-monitor and alert activation was
+completed later that day, as recorded above.
 
 The disposable HTTP account passed verification, reset, token-reuse rejection,
 old-session revocation, rejection of the old password and login with the new
@@ -75,14 +103,15 @@ changed. All three live service PIDs remained unchanged. The private test
 receipt is under `/var/lib/arcturus-mail-check`; see the
 [sanitized validation record](experiments/arcturus-mail-2026-09-14.json).
 
-Both live applications still have SMTP unset and report
+Both live applications had SMTP unset and reported
 `email_reset_available=false`, rechecked at **05:41 UTC**. Branding code
-`011c4b8` was used only in staging; the live checkout remains `e73d81d`.
-Arcturus has no installed separate monitor configuration or notification
-unit/timer. A fresh SES check at **05:31 UTC**
+`011c4b8` was then used only in staging; the live checkout at that checkpoint
+was `e73d81d`. Arcturus's separate monitor configuration and notification
+unit/timer were not yet installed at that early checkpoint. A fresh SES check at **05:31 UTC**
 confirmed sandbox limits of 200 messages/day and one/second. General recovery
-still awaits production access and feedback/delivery validation; notification
-activation requires its own configuration, baseline, namespace checks and timer.
+still awaits production access and feedback/delivery validation. Operator-only
+notification activation later completed its configuration, baseline, namespace
+checks and timer without enabling application SMTP.
 See [password recovery](docs/PASSWORD-RECOVERY.md) and
 [game notifications](docs/GAME-NOTIFICATIONS.md) for the staged-test boundary.
 

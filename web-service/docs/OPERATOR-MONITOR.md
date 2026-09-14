@@ -51,14 +51,36 @@ fresh snapshot. A temporary connection failure leaves the last snapshot visible
 and marks it stale; authentication failure clears private data.
 
 Unfinished games are saved game states, not evidence that their players are
-online. A suspended game can be resumed. Active response counts describe Astra
-work; a human may be away while their game waits for a move. The update time
+online. A suspended game can be resumed. Active response counts describe the
+site's AI responses; a human may be away while their game waits for a move. The update time
 identifies the snapshot being displayed.
 
 Any daily token figures come from the service's UTC admission ledger and include
 cached input. They are not dollar costs. An idle dashboard is not a reserved
 maintenance window: gate incoming requests and recheck work before stopping the
 application, as described in the [deployment walkthrough](../DEPLOYMENT.md).
+
+## Separate Astra and Arcturus installations
+
+The private pages are [Astra's monitor](https://astraplayschess.com/monitor/)
+and [Arcturus's monitor](https://arcturuschess.com/monitor/). Sign in to each
+site with its existing password-protected operator account. The domains have
+separate cookies, account databases, operator bindings and game inventories;
+signing in to one does not sign in to the other. Use Arcturus's canonical domain
+for new sessions, even though its older subdomain remains available.
+
+The original Astra binding lives in its private `operator.env` systemd drop-in,
+described in the September 12 checkpoint below. Arcturus uses its own
+`ASTRA_OPERATOR_USER_ID` and exact fixture exclusions in
+`/home/or-chess/.config/or-chess/service.env`. Identify an account through its
+known immutable ownership records and confirm it is password-protected; a
+display name alone is not authorization. Neither installation changes the
+other site's accounts or reporting baseline.
+
+The browser page and the [new-game email notifier](GAME-NOTIFICATIONS.md) are
+independent. The page refreshes the current inventory; email checks for newly
+created IDs on its hourly schedule. Configuring the page does not send mail,
+and enabling notifications does not grant browser access.
 
 ## Validation
 
@@ -93,3 +115,25 @@ games, with seven known fixtures excluded. No live game, clock, player message
 or account was used as a test mutation. Recovery code was installed in this
 release, but player recovery mail remains disabled pending the separate
 [activation prerequisites](PASSWORD-RECOVERY.md).
+
+## September 14, 2026 both-site verification
+
+At 21:33 UTC, the existing signed-in Astra monitor displayed 18 player games:
+8 finished and 10 unfinished, with seven explicit deployment fixtures excluded.
+The original operator binding required no change.
+
+Arcturus's protected operator binding was activated at **21:48:23 UTC / 16:48
+CDT**, using revision `898cba7`. Three exact known deployment fixtures were
+excluded. The refreshed live board displayed the operator-only Monitor link;
+backend and synthetic browser authorization checks passed before deployment.
+At 21:49 UTC, the signed-in Arcturus monitor displayed 11 player games: one
+finished and ten unfinished. The two sites' private pages are now available
+through their own operator logins.
+
+The brief Arcturus-only admission gate enclosed the final idle checks, backup,
+configuration activation and application restart. All 14 game documents,
+database table digests and private files were preserved. The original Astra
+and Caddy PIDs stayed unchanged, and the gate restored the exact prior Caddy
+configuration. See the
+[activation receipt](../validation/2026-09-14-monitor-notifications.md) for
+the live inventory and authorization checks.

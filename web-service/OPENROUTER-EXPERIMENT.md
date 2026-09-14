@@ -10,7 +10,8 @@ stored separately. New GLM games select Mike's supplied Arcturus draft;
 existing experimental games keep their exact recorded prompt and identity. The
 gateway checks the complete pinned instructions on every provider request.
 The [isolated Linux deployment guide](docs/OPENROUTER-DEPLOYMENT.md) describes
-the new `or-chess` account and `arcturus.astraplayschess.com` test hostname.
+the separate `or-chess` account, canonical `arcturuschess.com` hostname, and
+the retained `arcturus.astraplayschess.com` alias.
 
 ## Scope and isolation
 
@@ -33,6 +34,31 @@ the new `or-chess` account and `arcturus.astraplayschess.com` test hostname.
 Read the [hosted handoff](HANDOFF.md), [architecture](docs/ARCHITECTURE.md) and
 [player instructions](prompts/player.md) for the preserved chess workflow.
 The original service and its game records are outside this deployment's scope.
+
+## Private monitoring and new-game alerts
+
+The [private monitor page](https://arcturuschess.com/monitor/) uses the site's
+existing password-account login. Access requires the immutable operator account
+ID in Arcturus's private configuration; a display name is insufficient. The
+original [Astra monitor](https://astraplayschess.com/monitor/) has its own account,
+cookies and inventory. See the [monitor guide](docs/OPERATOR-MONITOR.md).
+
+Arcturus's independent `or-chess-game-notify.timer` checks hourly
+at five minutes past, with up to 60 seconds of jitter. Its private mail settings
+and reporting state are outside game data and separate from Astra's existing
+notifier. New digests use `notifications@arcturuschess.com` and Arcturus branding;
+no-news checks send nothing and model calls are never involved. The initial
+baseline records existing IDs without sending historical games. Monitor-page
+access and scheduled delivery have separate activation checks. The protected
+operator binding was activated in `898cba7` at September 14 **21:48:23 UTC**,
+preserving all 14 game records and the original Astra/Caddy processes. The live
+monitor displayed 11 player games at 21:49 UTC, excluding three known fixtures.
+The Arcturus timer was enabled and verified at **21:50:18 UTC**; an exact-unit
+no-news run preserved its 14-ID baseline. SES accepted a separate synthetic
+notification test, with inbox receipt still unconfirmed. The original Astra
+notifier remained active, and both applications' recovery SMTP remains unset.
+See [notification setup](docs/GAME-NOTIFICATIONS.md) and the
+[September 14 validation](validation/2026-09-14-monitor-notifications.md).
 
 ## Driver and playing contract
 
