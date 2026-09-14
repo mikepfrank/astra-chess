@@ -61,7 +61,8 @@ async def compact(config, game_id, expected_version, unit):
     before = {s['id']: game_digest(s) for s in games}
     report = {'operation': 'operator_context_compaction', 'game_id': game_id,
         'expected_version': expected_version, 'thread_id': state['thread_id'],
-        'started_at': time.time(), 'compaction_events': [], 'usage_tokens': None, 'success': False}
+        'started_at': time.time(), 'compaction_events': [], 'usage_tokens': None,
+        'usage_complete': False, 'success': False}
     player = CodexPlayer(config)
     reservation = store.reserve()
 
@@ -84,6 +85,7 @@ async def compact(config, game_id, expected_version, unit):
         result = await player.compact(game_id, chess_game.model_snapshot(state), tool,
             thread_id=state['thread_id'], player_binding=binding)
         report['usage_tokens'] = result['usage_tokens']
+        report['usage_complete'] = result['usage_tokens'] is not None
         if result['thread_id'] != state['thread_id']:
             raise ValueError('Maintenance changed the game thread')
         require_stopped(unit)
@@ -100,7 +102,13 @@ async def compact(config, game_id, expected_version, unit):
         except BaseException as error:
             report.update(success=False, cleanup_error_type=type(error).__name__)
             failure = failure or error
-        store.settle(reservation, report['usage_tokens'])
+        # A failed stream may have spent tokens after its last telemetry event.
+        # Match normal Supervisor settlement: only a completed player operation
+        # with known usage can replace the conservative reservation amount.
+        charge = (report['usage_tokens'] if report['usage_complete'] else
+                  max(reservation[1], report['usage_tokens'] or 0))
+        store.settle(reservation, charge)
+        report['charged_tokens'] = charge
         report['completed_at'] = time.time()
         with store.connection() as db:
             store._event(db, game_id, 'operator_context_compaction', report)

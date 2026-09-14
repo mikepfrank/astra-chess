@@ -24,20 +24,22 @@ class ContextMaintenanceTests(unittest.IsolatedAsyncioTestCase):
         self.store.create(self.state)
         (self.config.data_dir / 'players' / self.state['id']).mkdir(parents=True)
 
-    async def exercise(self, fail=False, tool_call=False):
+    async def exercise(self, fail=False, tool_call=False, missing_usage=False):
         class Player:
             def __init__(self, config):
                 pass
             async def compact(self, game_id, snapshot, tool, thread_id, player_binding):
                 await tool('_thread', {'thread_id': thread_id})
                 await tool('_compaction', {'phase': 'started', 'item_id': 'compact-fixture'})
-                await tool('_usage', {'tokens': 450})
+                if not missing_usage:
+                    await tool('_usage', {'tokens': 450})
                 if fail:
                     raise RuntimeError('fixture provider error')
                 if tool_call:
                     await tool('chess_choose', {'action': 'move', 'uci': 'e2e4'})
                 await tool('_compaction', {'phase': 'completed', 'item_id': 'compact-fixture'})
-                return {'thread_id': thread_id, 'usage_tokens': 450, 'model': 'fixture', 'reasoning': 'max'}
+                return {'thread_id': thread_id, 'usage_tokens': None if missing_usage else 450,
+                        'model': 'fixture', 'reasoning': 'max'}
             async def close(self):
                 pass
         with patch.object(ops, 'require_stopped'), patch.object(ops, 'CodexPlayer', Player), contextlib.redirect_stdout(io.StringIO()):
@@ -48,20 +50,34 @@ class ContextMaintenanceTests(unittest.IsolatedAsyncioTestCase):
         report = await self.exercise()
         self.assertTrue(report['success'])
         self.assertTrue(report['same_thread'])
+        self.assertTrue(report['usage_complete'])
+        self.assertEqual(report['charged_tokens'], 450)
         self.assertEqual(before, self.store.get(self.state['id']))
         with self.store.connection() as db:
             row = db.execute('SELECT tokens,reserved FROM budget').fetchone()
             self.assertEqual(tuple(row), (450, 0))
             self.assertEqual(db.execute("SELECT count(*) FROM events WHERE kind='operator_context_compaction'").fetchone()[0], 1)
 
-    async def test_failure_and_forbidden_move_preserve_game_and_charge_observed_usage(self):
+    async def test_failure_and_forbidden_move_preserve_game_and_charge_reserved_allowance(self):
         before = self.store.get(self.state['id'])
         for options in ({'fail': True}, {'tool_call': True}):
             with self.assertRaises(RuntimeError):
                 await self.exercise(**options)
             self.assertEqual(before, self.store.get(self.state['id']))
         with self.store.connection() as db:
-            self.assertEqual(tuple(db.execute('SELECT tokens,reserved FROM budget').fetchone()), (900, 0))
+            self.assertEqual(tuple(db.execute('SELECT tokens,reserved FROM budget').fetchone()),
+                             (2 * self.config.max_turn_tokens, 0))
+
+    async def test_completed_compaction_without_usage_still_charges_reserved_allowance(self):
+        before = self.store.get(self.state['id'])
+        report = await self.exercise(missing_usage=True)
+        self.assertTrue(report['success'])
+        self.assertFalse(report['usage_complete'])
+        self.assertEqual(report['charged_tokens'], self.config.max_turn_tokens)
+        self.assertEqual(before, self.store.get(self.state['id']))
+        with self.store.connection() as db:
+            self.assertEqual(tuple(db.execute('SELECT tokens,reserved FROM budget').fetchone()),
+                             (self.config.max_turn_tokens, 0))
 
     async def test_changed_version_or_busy_other_game_refuses_before_spending(self):
         with patch.object(ops, 'require_stopped'), patch.object(ops, 'CodexPlayer') as player:
