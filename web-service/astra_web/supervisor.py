@@ -18,6 +18,10 @@ class ChessClockExhausted(TimeoutError):
     """Earned chess time was used, rather than lost to a harness failure."""
 
 
+class ChatSuperseded(Exception):
+    """A human move made an in-flight, non-own-turn chat obsolete."""
+
+
 def interruption_kind(error):
     if isinstance(error, asyncio.CancelledError):
         return 'service_interrupted'
@@ -260,6 +264,8 @@ class Supervisor:
         if not post_game and state['engine_fingerprint'] != game.fingerprint():
             raise ValueError('Engine revision changed; restore the recorded revision before continuing this game.')
         own_turn = not post_game and game.side_to_move(state) == state['astra_side']
+        openrouter_chat = (not own_turn and
+            getattr(self.config, 'model_profile', 'astra') == 'openrouter-glm')
         balance = game.clock(state)['remaining_seconds']
         if own_turn and balance <= 0:
             self.store.mutate(game_id, lambda s: s.update(worker={'state': 'error', 'message': f'{saved_player_name(s)}’s earned thinking allowance is exhausted. The game remains saved.'}), kind='clock_exhausted')
@@ -272,7 +278,8 @@ class Supervisor:
         if own_turn:
             allocation = min(self.config.ordinary_seconds, balance, balance / horizon)
         else:
-            allocation = self.config.ordinary_seconds if post_game else min(60, self.config.ordinary_seconds)
+            allocation = (600 if openrouter_chat else
+                self.config.ordinary_seconds if post_game else min(60, self.config.ordinary_seconds))
         critical_allocation = min(self.config.critical_seconds, balance, 2 * balance / horizon) if own_turn else allocation
         soft_target = own_turn and getattr(self.config, 'model_profile', 'astra') == 'openrouter-glm'
         if soft_target:
@@ -327,6 +334,16 @@ class Supervisor:
             now = control['pause']['monotonic'] if control['pause'] else time.monotonic()
             return max(0.0, control['deadline'] - now)
 
+        def response_timing():
+            return {'kind': 'chat', 'limit_seconds': allocation,
+                'remaining_seconds': remaining_turn(), 'charges_chess_clock': False}
+
+        def chat_is_superseded(current=None):
+            if not openrouter_chat or post_game:
+                return False
+            current = self.store.get(game_id) if current is None else current
+            return current['status'] == 'active' and len(current['moves']) != control['ply']
+
         def turn_timing():
             now = control['pause']['monotonic'] if control['pause'] else time.monotonic()
             elapsed = (control['elapsed_at_clock_stop'] if control['chosen'] and control['stopped_clock']
@@ -351,6 +368,8 @@ class Supervisor:
 
         async def tool(name, args):
             result = await handle_tool(name, args)
+            if openrouter_chat and not name.startswith('_'):
+                result = {**result, 'response_timing': response_timing()}
             if soft_target and not name.startswith('_'):
                 timing = turn_timing()
                 result = {**result, 'turn_timing': timing}
@@ -415,6 +434,10 @@ class Supervisor:
                     control['pause_items'].add(item_id)
                 return {}
             current = self.store.get(game_id)
+            if chat_is_superseded(current):
+                # A stale tool call can race the polling loop. This is a normal
+                # transition to the newly queued chess turn, not a model error.
+                raise ChatSuperseded()
             if current['status'] == 'finished' and name not in {'chess_status', 'chess_query_details', 'chess_comment'}:
                 raise ValueError('The game is finished. You may discuss it and inspect saved queries; further chess actions are unavailable.')
             if current['status'] not in {'active', 'finished'} and name != 'chess_comment':
@@ -493,6 +516,8 @@ class Supervisor:
                 completed = False
                 try:
                     result, path = await self._query(game_id, current, args, available)
+                    if chat_is_superseded():
+                        raise ChatSuperseded()
                     completed = True
                 finally:
                     def calculation_ended(s):
@@ -557,6 +582,8 @@ class Supervisor:
             raise ValueError('Unknown tool. Only the chess service tools are available.')
 
         async def emit(text):
+            if chat_is_superseded():
+                raise ChatSuperseded()
             if not isinstance(text, str) or not text.strip():
                 return
             if control['public_messages'] >= 8:
@@ -574,6 +601,9 @@ class Supervisor:
             snapshot = game.model_snapshot(self.store.get(game_id))
             snapshot['memory'] = self.identity.memory_for_user(state['user_id'])
             snapshot['remaining_turn_seconds'] = allocation
+            if openrouter_chat:
+                snapshot['hard_response_seconds'] = hard_allocation
+                snapshot['response_timing'] = response_timing()
             if soft_target:
                 snapshot['hard_response_seconds'] = hard_allocation
                 snapshot['remaining_turn_seconds'] = hard_allocation
@@ -584,7 +614,16 @@ class Supervisor:
             run = asyncio.create_task(player.run(game_id, snapshot, tool, emit, **options))
             try:
                 post_action_timeout = False
+                superseded_chat = False
                 while not run.done():
+                    if chat_is_superseded():
+                        run.cancel()
+                        outcome = (await asyncio.gather(run, return_exceptions=True))[0]
+                        if isinstance(outcome, BaseException) and not isinstance(
+                                outcome, (asyncio.CancelledError, ChatSuperseded)):
+                            raise outcome
+                        superseded_chat = True
+                        break
                     timing = turn_timing() if soft_target else None
                     tail_expired = (soft_target and control['chosen']
                         and time.monotonic() >= control['post_action_deadline'])
@@ -611,11 +650,25 @@ class Supervisor:
                     await asyncio.wait({run}, timeout=min(0.25, max(.01, remaining_turn())))
                 # Cancellation can leave unreported provider usage. Keep the
                 # normal conservative reservation settlement for this case.
-                result = None if post_action_timeout else await run
+                try:
+                    result = None if post_action_timeout or superseded_chat else await run
+                except ChatSuperseded:
+                    if not chat_is_superseded():
+                        raise
+                    superseded_chat = True
+                    result = None
                 if result and result.get('usage_tokens') is not None:
                     control['tokens'] = result['usage_tokens']
                     control['usage_complete'] = True
                 latest = self.store.get(game_id)
+                if superseded_chat or chat_is_superseded(latest):
+                    self.store.audit(game_id, 'chat_superseded', {
+                        'attempt_id': control['attempt_id'], 'ply': control['ply'],
+                        'current_ply': len(latest['moves']),
+                        'usage_complete': control['usage_complete']})
+                    # schedule() also records a rerun when accepting the human
+                    # move. Its set coalesces both paths into one fresh worker.
+                    self.rerun.add(game_id)
                 if (soft_target and not control['chosen'] and remaining_turn() <= 0
                         and latest['status'] == 'active' and len(latest['moves']) == control['ply']):
                     # A provider can complete between deadline polls without

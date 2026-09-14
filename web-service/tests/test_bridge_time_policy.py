@@ -12,7 +12,11 @@ class BridgeTimePolicyTests(unittest.TestCase):
                                               {'hard_response_seconds': 5400})
         self.assertEqual(value, 5700)
 
-    def test_other_profiles_chat_and_maintenance_keep_their_existing_bound(self):
+    def test_openrouter_chat_budget_can_exceed_default_transport_timeout(self):
+        self.assertEqual(bridge._action_timeout_seconds(SimpleNamespace(), get_profile('openrouter-glm'),
+                         {'hard_response_seconds': 600}), 900)
+
+    def test_other_profiles_unbudgeted_actions_and_maintenance_keep_their_existing_bound(self):
         config = SimpleNamespace(codex_timeout_seconds=300)
         for profile, snapshot, compact_only in ((get_profile('astra'), {'hard_response_seconds': 5400}, False),
                 (get_profile('openrouter-glm'), {}, False),

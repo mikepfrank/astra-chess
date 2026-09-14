@@ -177,11 +177,12 @@ def _event_input(game_id, snapshot):
 
 
 def _action_timeout_seconds(config, profile, snapshot, *, compact_only=False):
-    """Keep the transport ceiling above an OpenRouter turn's earned clock.
+    """Keep the transport ceiling above the host's OpenRouter response budget.
 
     hard_response_seconds is supplied only by the host supervisor, never by
     opponent messages or model tool arguments. The supervisor enforces the
-    actual chess clock; this is a separate bound on a stranded child process.
+    actual chess clock or separate chat deadline; this is a bound on a stranded
+    child process, not additional thinking time granted to the model.
     """
     configured = float(getattr(config, 'codex_timeout_seconds', 300))
     if compact_only or profile.name != 'openrouter-glm' or 'hard_response_seconds' not in snapshot:
