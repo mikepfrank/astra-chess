@@ -113,3 +113,17 @@ after a failed deployment body, no mutation on validation failure, and
 preservation of unrelated concurrent edits with a manual recovery receipt.
 The versioned helper has no standalone apply action; the operations guide
 describes its required place around drain, update and restart cleanup.
+
+## Subsequent chat timeout
+
+A read-only inventory at 21:17:44 UTC found a new worker error on an existing
+game during the human's turn. The user confirmed sending a sidebar comment.
+That action began at approximately 21:15:56, after deployment finished, and
+ended at 21:17:15 with `TimeoutError: Player response deadline reached`.
+The existing human-turn chat allowance remains 60 seconds; the recorded
+compaction pause was 18.897 seconds, explaining the approximately 79-second
+wall interval. It did not change the board or create a chess-clock charge.
+The live service's task peak was 39 with zero task-limit hits, and memory events
+showed no limit hit or OOM. The separate chat timeout policy was left unchanged;
+this is an observed remaining behavior, not evidence of a two-worker capacity
+failure. The service and all saved games remained available.

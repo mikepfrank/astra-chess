@@ -22,6 +22,10 @@ was removed after startup. All 13 game documents, database table digests and
 private files matched, and original Astra/Caddy PIDs stayed unchanged. At
 21:12:44 UTC, HTTPS health passed and all nine unfinished games awaited humans.
 See the [parallel-worker validation](validation/2026-09-14-parallel-workers.md).
+At 21:17 UTC a subsequent human-turn sidebar response hit the unchanged
+60-second chat deadline after an 18.9-second compaction pause. It left the
+board and chess clock unchanged; no task or memory limit was hit. That separate
+chat-timeout policy remains as before.
 
 **Player-name copy update is live:** `3c43bf7` was deployed at the idle
 maintenance checkpoint on September 14 at 20:07 UTC. Worker notices and action
