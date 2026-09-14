@@ -6,6 +6,37 @@ baseline and its deployment history are preserved below.
 
 ## September 13–14, 2026: Arcturus experimental branch
 
+**High chat / Max moves is live:** `ce66868` was activated at **22:24:26 UTC /
+17:24 CDT** on September 14. Current v4 Arcturus games select High for chat during
+the human's turn and after the game, and Max when Arcturus must choose a move.
+Both retain 32,768 output tokens and the 250K compaction threshold. The host
+selects the response kind from the saved position; player text cannot choose it.
+Original saved profiles, prompts, personas, threads and replay metadata remain
+intact. Earlier High/8K games and the original Astra/Ultra service keep their
+existing policy.
+
+This also includes the chat deadline repair deployed as `16e2bd8` at 22:07:33
+UTC: the old hard 60-second human-turn chat limit caused the repeated errors.
+OpenRouter chat now has a 600-second host allowance and bounded 900-second bridge
+ceiling without charging the chess clock. A human move supersedes unfinished
+chat, reaping that worker before its chess response starts.
+
+All 151 focused checks passed on Windows; Linux passed 150 and skipped the one
+Windows-only process check. The actual Codex 0.154.0 executable also completed
+Max → High → Max on one disposable thread with six mocked provider requests,
+confirming the transmitted effort, 32K limit and process cleanup. Deployment
+waited for another player's response to finish, then gated only Arcturus. All
+14 game documents, database table digests, private files, environment and units
+matched across activation; original Astra/Caddy PIDs stayed unchanged. See the
+[chat policy investigation and verification](validation/2026-09-14-chat-deadline.md).
+
+The existing pending chat was retried once at 22:25:27 UTC and completed at
+22:28:54 UTC (206.8 seconds). All three real provider streams completed on High
+with no gateway rejections; the saved Max profile/thread, board and clock were
+unchanged. The signed-in browser showed the reply and returned to "Your move"
+without an error. High does not guarantee low latency: this successful chat
+still took about 3 minutes 27 seconds. No further gameplay pause is needed.
+
 **Both private monitors and new-game alerts are active:** code `898cba7` was
 activated on Arcturus at **21:48:23 UTC / 16:48 CDT** on September 14. The existing
 protected Dr. Thanos account now has operator access. Refresh a signed-in board
@@ -51,8 +82,8 @@ private files matched, and original Astra/Caddy PIDs stayed unchanged. At
 See the [parallel-worker validation](validation/2026-09-14-parallel-workers.md).
 At 21:17 UTC a subsequent human-turn sidebar response hit the unchanged
 60-second chat deadline after an 18.9-second compaction pause. It left the
-board and chess clock unchanged; no task or memory limit was hit. That separate
-chat-timeout policy remains as before.
+board and chess clock unchanged; no task or memory limit was hit. The subsequent
+chat-timeout and per-response reasoning corrections are documented above.
 
 **Player-name copy update is live:** `3c43bf7` was deployed at the idle
 maintenance checkpoint on September 14 at 20:07 UTC. Worker notices and action

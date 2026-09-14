@@ -29,8 +29,10 @@ OpenRouter chat receives a separate 600-second host response budget and a
 and model tool arguments cannot change it. Completed context compaction retains
 the existing pause policy, while the bridge provides a bounded outer timeout.
 The model sees chat timing explicitly identified as not charging the chess
-clock. Max reasoning, per-response output cap, daily token admission, provider
-spending guard and own-turn clock policy remain unchanged. Astra keeps its
+clock. The initial deadline repair retained Max reasoning; the later
+per-response effort change is described below. The per-response output cap,
+daily token admission, provider spending guard and own-turn clock policy remain
+unchanged. Astra keeps its
 existing chat and bridge deadlines.
 
 Current v4 Arcturus games use High reasoning for chat during the human's turn
@@ -67,5 +69,44 @@ and Caddy process IDs were unchanged, and the gate restored its exact previous
 configuration. The private backup is `chat-deadline-20260914T220733Z`.
 
 Before the live retry, Mike requested High reasoning for chat while retaining
-Max for move decisions. That per-response policy is being implemented and will
-be validated separately before the pending chat is retried.
+Max for move decisions. Exact commit `ce66868` passed all 151 focused Windows
+checks; Linux passed 150 and skipped its Windows-only process-tree check.
+The additional tests cover runtime profile validation, immutable game identity,
+High chat → Max move → High post-game chat, bridge configuration/resumption,
+automatic and explicit compaction, and rejected untrusted effort overrides.
+
+The actual remote Codex 0.154.0 executable completed Max move → High chat → Max
+move on the same disposable thread. All six mocked upstream requests carried
+the expected effort, unchanged instructions and seven canonical tools, with
+32,768 output tokens. The 250K threshold, original saved Max profile and thread
+were preserved; each process was reaped. No real credentials, external provider
+contact or player records were used for this native transport audit.
+
+The idle guard deferred activation while another player was being served.
+At **22:24:26 UTC**, a second gated deployment activated `ce66868`. All 14 game
+documents, database tables, private files, environment and service units matched
+across activation. Original Astra/Caddy PIDs were unchanged, and the exact proxy
+configuration was restored. The private backup and deployment receipt are under
+`chat-deadline-20260914T222426Z`. Two workers, aggregate resource limits, Max move
+reasoning, output/context limits and spending controls were preserved.
+
+## Live pending-chat verification
+
+One Retry of the existing pending human-turn chat started at **22:25:27.823 UTC**
+and completed at **22:28:54.576 UTC** (206.8 seconds). The worker-start event,
+bridge runtime policy and private provider receipt all recorded **chat / high**
+with 32,768 output tokens. All three provider request streams completed, with
+zero gateway rejections. Four public assistant entries were added and the worker
+returned to idle. Its board, moves, clock ledger/balance and original saved Max
+profile/thread matched the private pre-retry baseline. No chess move was made
+and no chess time was charged for the test.
+
+Mike subsequently confirmed seeing the chat response. The signed-in browser
+displayed the reply, unchanged **1:03:24** remaining chess
+time and "Your move. Take your time." with no Retry/error state. Both original
+and experimental services, Caddy and the two notification timers remained
+active. The private `live-chat-result.json` is retained beside the deployment
+receipt. This verifies successful completion under High; it is not evidence of
+an average latency improvement. This individual response still took roughly
+3 minutes 27 seconds, so responsiveness remains an observation for subsequent
+beta play.
