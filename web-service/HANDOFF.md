@@ -4,6 +4,48 @@ For the separate `codex/openrouter-chess` experimental branch, start with the
 [September 13 alternate-model orientation](OPENROUTER-EXPERIMENT.md). The hosted
 baseline and its deployment history are preserved below.
 
+## Resume checklist — September 14 housekeeping checkpoint
+
+- Work only in `openrouter-worktree`, branch `codex/openrouter-chess`, remote
+  `https://github.com/mikepfrank/astra-chess.git`. The parent `main` and adjacent
+  `hosted-worktree` checkouts belong to other work. The root
+  [HANDOFF.md](../HANDOFF.md) now points here before its historical local-game
+  context.
+- The **22:44:55 UTC** read-only check found live Arcturus at clean commit
+  `ce668680f429290a07b3615774288895fa248ce1`. Both applications returned 200 with
+  their proper Host headers; both services, Caddy and both notification timers
+  were active. Later documentation commits are pushed for continuity but do not
+  change the running process. No maintenance or user pause is pending.
+- Mike confirmed receipt of the repaired chat. The 206.8-second High response
+  establishes successful delivery, not improved average speed. Continue treating
+  response latency as unresolved performance evidence; do not lower move
+  reasoning or otherwise tune policy without a new request.
+- Image uploads via a `+` button are **deferred**, not the next automatic task.
+  See [the preserved feasibility note](docs/FUTURE-FEATURES.md) for native Codex
+  image input, upload/storage changes, request limits, replay privacy and the
+  still-unrun exact-provider compatibility test.
+- Operator notifications work independently of application SMTP. General
+  password recovery remains disabled. Do not infer production SES access or
+  general-recipient recovery readiness from delivery to the verified operator.
+- To inspect hosted games, use [report_games.py](tools/ops/report_games.py) or
+  the authenticated monitor. Re-read authoritative database and worker state;
+  dated inventory counts and conversation summaries are not current game state.
+  Do not use the local experiment's `resume_chess.py` or start a move for QA.
+- Use the application `.venv/bin/python` on Lightsail (Python 3.12), not the
+  system Python 3.9. Inspect private provider receipts by timing, effort,
+  completion and error metadata; avoid copying raw reasoning, chat, credentials
+  or recovery tokens into notes or Git. A timeout during a streaming HTTP-200
+  request is not proof of an upstream rejection.
+- For deployment, stage and test the exact commit, wait for idle, gate only
+  Arcturus, recheck workers/reservations and child processes, back up coherently,
+  then preserve all game/table/private-file digests. Caddy's inode and the
+  original Astra routes/process must stay intact. Process-only rollback must
+  never rewind player data. See [operator procedures](tools/ops/README.md).
+- Code and safe operational evidence belong in Git. Credentials, live databases,
+  transcripts, Codex sessions, model-output logs, budget state and private
+  backups remain excluded. A clean tracked worktree alone is not proof that
+  ignored scratch tools or task assets outside it were assessed for preservation.
+
 ## September 13–14, 2026: Arcturus experimental branch
 
 **High chat / Max moves is live:** `ce66868` was activated at **22:24:26 UTC /

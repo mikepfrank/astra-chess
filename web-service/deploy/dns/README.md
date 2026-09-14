@@ -1,5 +1,11 @@
 # arcturuschess.com DNS preparation
 
+**Later service status:** the domain/DKIM history below is dated. Both private
+monitors and the separate Arcturus new-game notifier were subsequently activated
+on September 14. General password-recovery SMTP remains disabled. Use the
+[current handoff](../../HANDOFF.md) for live-service status rather than the
+earlier mail-configuration snapshots in this record.
+
 Prepared from Mike's GoDaddy screenshot and public DNS on September 14, 2026
 UTC (September 13 locally). The destination is the existing Lightsail IPv4
 address, verified against the working Arcturus hostname. Later public
@@ -20,6 +26,10 @@ The website's A-record replacement is complete. The earlier
 single website change; do not reimport it or restore the former
 `13.248.243.5` / `76.223.105.230` addresses. The separate SES file below adds
 only the email-domain verification records.
+
+[arcturuschess.com.changes.txt](arcturuschess.com.changes.txt) is the same
+website-change content with the extension accepted by GoDaddy's importer.
+It is preserved as an applied setup artifact, not a request to import it again.
 
 ## Records to retain
 

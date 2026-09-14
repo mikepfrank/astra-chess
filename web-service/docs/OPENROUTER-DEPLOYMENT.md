@@ -2,7 +2,8 @@
 
 The preferred address is `arcturuschess.com`, served from the separate
 `or-chess` Linux account. It retains the Codex driver, selects the
-`openrouter-glm` profile (`z-ai/glm-5.3-flash:nitro`, Max reasoning for new games), and binds
+`openrouter-glm` profile (`z-ai/glm-5.3-flash:nitro`, Max for move decisions and
+High for chat in current v4 games), and binds
 new games to the Arcturus persona. The original Astra account, application
 unit, repository and game data remain independently operated.
 
@@ -40,7 +41,18 @@ replay continuity and unchanged original Astra routes. Compare saved table,
 private-file and budget hashes around maintenance. This change requires no paid
 model calls or emails. Website activation does not enable SES mail delivery.
 
-## Max reasoning for new games
+## Reasoning policy: Max moves, High chat
+
+As of live commit `ce66868` on September 14 at 22:24:26 UTC, current v4 games
+select High for chat during the human's turn and after the game. The host derives
+this from the authoritative game status; it does not rewrite the game's saved
+Max profile, prompt, persona, thread or replay identity. Both action types retain
+32,768 output tokens. Automatic compaction inherits the current action's effort;
+explicit operator compaction uses the saved profile. Historical High/8K games
+retain that policy. See [the current handoff](../HANDOFF.md) and
+[chat validation](../validation/2026-09-14-chat-deadline.md).
+
+### Original Max profile activation
 
 Profile v4 uses Max reasoning and a 32,768-token output ceiling for each provider
 response, including reasoning. The gateway supplies this limit when Codex omits

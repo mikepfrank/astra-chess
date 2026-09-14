@@ -1,0 +1,8 @@
+; GoDaddy incremental import for arcturuschess.com.
+; Remove the existing @ A "Website Builder Site" record before importing.
+; Keep every other existing record, including www and the managed NS/SOA.
+; See README.md. DNS preparation only; server hostname activation is separate.
+$ORIGIN arcturuschess.com.
+$TTL 3600
+
+@  3600  IN  A  54.190.167.232

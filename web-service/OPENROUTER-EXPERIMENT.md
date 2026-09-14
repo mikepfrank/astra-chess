@@ -1,6 +1,7 @@
 # OpenRouter chess experiment
 
-Checkpoint: September 13, 2026. Mike selected Codex CLI as the first driver,
+Current overview: September 14, 2026; see [HANDOFF.md](HANDOFF.md) for the latest
+verified deployment checkpoint and deferred work. Mike selected Codex CLI as the first driver,
 `z-ai/glm-5.3-flash` as the first model, throughput-oriented routing and a $50
 initial local experiment budget. This branch implements that configuration with
 the existing from-scratch chess engine and hosted supervisor.

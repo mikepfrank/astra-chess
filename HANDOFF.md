@@ -1,4 +1,44 @@
-# Handoff to a new Astra session
+# Handoff: Arcturus development worktree
+
+## Current branch checkpoint — September 14, 2026
+
+This checkout is **`openrouter-worktree` on `codex/openrouter-chess`**, the
+Arcturus/OpenRouter hosted-service experiment. Start with
+[web-service/HANDOFF.md](web-service/HANDOFF.md) for current status and
+[OPENROUTER-EXPERIMENT.md](web-service/OPENROUTER-EXPERIMENT.md) for architecture,
+profiles, limits and isolation. The September 9 local-chess handoff below is
+historical context, not the current deployment or an instruction to resume play.
+
+At the read-only **22:44:55 UTC** checkpoint, the clean Lightsail application
+checkout was `ce668680f429290a07b3615774288895fa248ce1`; both applications returned
+HTTP 200 health and both notification timers were active. Documentation commits
+after that deployed revision do not imply another live code activation.
+
+Current Arcturus v4 games use **High for chat / Max for moves**, 32,768 output
+tokens per provider response, 250K context compaction, two concurrent game
+workers, 200M daily tokens, and the existing $50 experiment spending guard.
+OpenRouter chat has a 600-second host allowance and a bounded 900-second bridge
+ceiling without chess-clock charges. The repeated hard-60-second chat failure
+was fixed; the live retry completed in 206.8 seconds, and Mike confirmed seeing
+the reply. High is not a guarantee of low latency. No game pause or deployment
+is pending from that repair.
+
+**Next work is not yet selected.** Image attachments via a `+` chat button were
+assessed as feasible, but Mike explicitly deferred implementation. Preserve the
+[feature proposal and compatibility questions](web-service/docs/FUTURE-FEATURES.md).
+General password-recovery email remains disabled; working operator notifications
+and successful isolated SES delivery tests are separate from that feature.
+
+Resume in this worktree only; leave `../hosted-worktree`, the parent `main`
+checkout and original Astra service/game data alone. Read fresh game/worker
+state before an operational action; an unfinished game is not proof that its
+player is online. Never reset a saved game, thread, clock or budget to repair a
+provider failure. Use the service's owned persistence and tools, not the local
+experiment's `resume_chess.py`, for hosted games. Keep credentials, raw private
+logs and game records outside Git. See the service handoff for verification,
+operator-tool and recovery pointers.
+
+## Historical local experiment handoff — September 9, 2026
 
 Prepared September 9, 2026, from the surviving conversation context and the
 repository at `125c669`. This is a dated orientation, not live game state.

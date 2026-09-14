@@ -1,11 +1,20 @@
-# Operator inventory and replay migration rehearsal
+# Operator tools and preserved deployment procedures
 
-These tools preserve the reusable parts of the first hosted deployments. Run
+The inventory, notification and rehearsal tools below preserve reusable parts
+of the first hosted deployments. Run
 them from a checkout containing the complete repository, using the application's
 Python virtual environment. They do not start model turns, run tactical searches,
 change game clocks, restart services or update Git. Inventory and migration
 rehearsal do not read credentials; the optional notification sender reads its
 own explicitly configured mail credentials.
+
+The directory also contains explicitly operated repair/activation tools and a
+maintenance-gate context manager; their individual sections define their side
+effects. The dated [September 14 deployment archive](history/2026-09-14/README.md)
+preserves the chat and parallel-worker deployment sources and dependency chain.
+Those archived files refuse direct execution and are not current deployment
+entrypoints. See also the [housekeeping record](../../validation/2026-09-14-housekeeping.md)
+for retained audit helpers and exclusions.
 
 | Tool | Source access | Writes |
 |---|---|---|
@@ -15,6 +24,29 @@ own explicitly configured mail credentials.
 
 The notification tool has a separate [setup and operations guide](../../docs/GAME-NOTIFICATIONS.md).
 It is an opt-in mail sender; the read-only report and migration rehearsal do not send mail.
+
+## Preserved Arcturus audit helpers
+
+The following helpers were promoted from ignored scratch storage during the
+September 14 housekeeping checkpoint. Their new CLI/import boundaries were
+checked offline; preservation did not repeat live email or service-namespace
+tests. Run only the check actually needed for an authorized operation.
+
+| Helper | Scope and invocation from `web-service/` |
+|---|---|
+| [check_chat_policy.py](../../tests/check_chat_policy.py) | `.venv/bin/python tests/check_chat_policy.py FULL_COMMIT_SHA`; offline fixture suite, exact clean tracked revision required; writes `var/chat-tests.json` |
+| [audit_arcturus_public.py](../../tests/audit_arcturus_public.py) | `.venv/bin/python tests/audit_arcturus_public.py`; bounded public HTTPS/config/replay/redirect checks and anonymous rejected origin/CSRF probes; no credentials or player actions |
+| [audit_or_chess_notifier_namespace.py](../../tests/audit_or_chess_notifier_namespace.py) | `sudo .venv/bin/python tests/audit_or_chess_notifier_namespace.py`; Linux-only transient namespace/WAL/isolation fixture and private receipt; no mail by default |
+| [check_arcturus_mail.py](check_arcturus_mail.py) | `sudo .venv/bin/python tools/ops/check_arcturus_mail.py --stage /home/or-chess/mail-staging/CHECKPOINT --recipient ADDRESS --live`; sends three real verification/reset/notification messages using disposable records |
+
+The namespace audit reads the installed notifier configuration; sending one
+synthetic message additionally requires `--send-test-email --recipient ADDRESS`.
+The explicit address must match the configured authorized recipient. The
+three-message mail check defaults to the separate Arcturus notifier credentials;
+`--source-config` can select another explicitly intended private configuration.
+Both mail helpers validate before sending and preserve real account/game data.
+Inspect `--help` for selectable paths. SMTP acceptance alone does not establish
+inbox receipt or enable application password recovery for general recipients.
 
 ## Repair existing Arcturus replay branding
 
