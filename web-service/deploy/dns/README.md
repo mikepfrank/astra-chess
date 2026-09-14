@@ -51,6 +51,15 @@ and public resolver `1.1.1.1`. The refreshed SES console still showed identity
 **Verification pending** and DKIM **Pending**. DNS publication is complete;
 AWS verification is not yet confirmed. No repeated import is needed.
 
+At 05:10 UTC, the SES verification-error popover still described its earlier
+04:41 UTC lookup (September 13 at 23:41 UTC-05), with SOA serial `2026091304`
+and "The DNS server could not find the specified domain name." Both GoDaddy
+nameservers, Cloudflare (`1.1.1.1`) and Google (`8.8.8.8`) now returned SOA
+serial `2026091305`, the correct apex address, and all three exact DKIM CNAMEs.
+The displayed failure therefore predates the current DNS zone. Await a newer
+SES verification result rather than deleting the identity or reimporting
+already correct records.
+
 [arcturuschess.com.ses.txt](arcturuschess.com.ses.txt) is the applied import file
 for the exact three CNAME records supplied by this identity, each with TTL
 3600 seconds. Retain it as the reproducible record of the additions.
