@@ -6,13 +6,17 @@ baseline and its deployment history are preserved below.
 
 ## September 13–14, 2026: Arcturus experimental branch
 
-**New-game continuation incident, recovery pending:** a game stalled after
-Black's tenth move despite correct host state and completed provider responses.
-Offline Linux checks preserve the current board/tool ordering and standard
-reasoning fields. A same-thread compaction maintenance command is prepared;
-the copied-game provider test and live recovery await explicit user permission
-after automatic approval review rejected resending the existing conversation.
-No live changes were made for this incident. See the
+**Context recovery and soft turn target are live:** code `18c910d` is deployed
+to the isolated Arcturus service. A private copy recovered from the stalled
+continuation and completed a legal move through the normal tactical workflow.
+At approximately 16:11 UTC on September 14, the live thread was compacted in
+place; all saved game documents, including its board and clock, stayed identical.
+The game remains on the original position awaiting the user's Retry. OpenRouter
+own-turns now treat 120 seconds as a soft warning target while continuing to
+charge earned clock time. A committed move gets 15 seconds for trailing text;
+that text timing out no longer marks the move as failed. All 87 targeted Linux
+tests passed, with one Windows-only check skipped. The original Astra and Caddy
+processes were unchanged. See the
 [investigation and recovery status](validation/2026-09-14-context-recovery.md).
 
 **Arcturus isolated mail checks passed; live mail remains disabled:** staged
@@ -23,6 +27,8 @@ reset from `accounts@arcturuschess.com`, plus a synthetic new-game digest from
 `notifications@arcturuschess.com`, all to Mike's authorized operator address.
 Mike confirmed receiving all three and supplied a Gmail screenshot showing them
 in the inbox. Received-message authentication headers were not inspected.
+The mail branding code is now included in deployed `18c910d`; SMTP configuration
+and monitor activation remain unchanged and disabled.
 
 The disposable HTTP account passed verification, reset, token-reuse rejection,
 old-session revocation, rejection of the old password and login with the new

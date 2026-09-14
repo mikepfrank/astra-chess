@@ -94,8 +94,33 @@ The bridge's independent process bound follows the host's earned-clock
 allowance, preventing its old five-minute fallback from cutting a valid longer
 turn short. This policy is scoped to OpenRouter own-turns.
 
-Live compaction and deployment are recorded below when completed. The private
-test move is not copied into the live game.
+## Live recovery completed
+
+Code `18c910d` was deployed to the isolated Arcturus service after 87 targeted
+Linux tests passed (one Windows-only process check skipped). The suite covers
+reasoning transport, explicit compaction, maintenance accounting, soft targets,
+post-move timeout handling, clock exhaustion and retry refunds.
+
+The service was stopped only after an idle inventory and consistent snapshot.
+A full private backup preceded the code update. Live compaction through the
+installed service's restricted environment completed at approximately
+16:11:33 UTC on September 14: 138,750 input and 2,218 output tokens, $0.0219215,
+same thread, Max reasoning, 32,768 output ceiling and 250K automatic threshold.
+
+Every saved game document remained identical, including moves, board, clocks,
+messages and player bindings. Account, replay and request tables were unchanged.
+Expected changes were limited to the target Codex context and receipts, audit
+events, token accounting and the global OpenRouter spending ledger. The ledger
+retained its cap, initial baseline and key binding, and spending moved forward.
+The first final-check assertion had omitted that expected global-ledger write;
+a separate private reconciliation confirmed it without restoring any data.
+
+Both Arcturus HTTPS hostnames and the original Astra hostname returned healthy
+responses. Original Astra and Caddy process IDs stayed unchanged. No transient
+maintenance worker remained running. The live game is still at its original
+position awaiting the user's Retry; the private test move was not copied into
+it. Compaction and the new policy are active, but the user's next live move has
+not yet been observed.
 
 Private diagnostic copies and reports remain under the experimental account's
 `operator-checks/turn11-*` directories. They contain game data and are not
