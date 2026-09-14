@@ -16,12 +16,16 @@ configuration has not changed. Before a later server cutover,
 handle host-only session cookies and passwordless-account continuity, preserve
 replay paths, and avoid adding links that promote the expensive Astra site.
 
-**Arcturus SES identity created; DKIM DNS pending:** On September 14 UTC, the
+**Arcturus DKIM DNS published; SES verification pending:** On September 14 UTC, the
 AWS console created `arcturuschess.com` in Oregon (`us-west-2`) with Easy DKIM,
 2048-bit signing, signatures enabled, no custom MAIL FROM, and email feedback
 forwarding enabled. The three generated CNAMEs are in the incremental
-[GoDaddy SES import file](deploy/dns/arcturuschess.com.ses.txt); they still need
-publishing. Keep the existing DMARC record. Account-level suppression is
+[GoDaddy SES import file](deploy/dns/arcturuschess.com.ses.txt). Mike imported
+them in his regular browser after GoDaddy's embedded-browser login failed.
+At the September 14 05:04 UTC checkpoint, all three exact name/value pairs
+resolved correctly on both GoDaddy authoritative nameservers and `1.1.1.1`.
+The refreshed SES console still showed identity and DKIM verification pending.
+The existing DMARC record is retained. Account-level suppression is
 enabled for bounces and complaints. The account remains healthy but in the SES
 sandbox (200 messages/day, one/second); the existing production-access support
 case already contains Mike's detailed response and says "Customer action

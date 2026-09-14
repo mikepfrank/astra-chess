@@ -36,7 +36,7 @@ data verified through DNS. It predates the SES additions and is a reference,
 not an additive import file. GoDaddy should continue managing the SOA serial
 and timing fields.
 
-## SES identity verification: DNS pending
+## SES DNS published; AWS verification pending
 
 On September 14, 2026 UTC, a new `arcturuschess.com` identity was created in
 Amazon SES **US West (Oregon), us-west-2**. Its status is **Verification
@@ -44,10 +44,20 @@ pending**. Easy DKIM uses RSA 2048 for both current and next signing keys, with
 signatures enabled. Custom MAIL FROM is not configured. Email feedback
 forwarding is enabled; no SNS notification topics are configured.
 
-Import [arcturuschess.com.ses.txt](arcturuschess.com.ses.txt) to add the exact
-three CNAME records supplied by this identity, each with TTL 3600 seconds.
+Mike imported the three DKIM records in his regular browser. At the September
+14 **05:04 UTC** checkpoint, all three exact CNAME name/value pairs matched
+this identity's records on `ns03.domaincontrol.com`, `ns04.domaincontrol.com`
+and public resolver `1.1.1.1`. The refreshed SES console still showed identity
+**Verification pending** and DKIM **Pending**. DNS publication is complete;
+AWS verification is not yet confirmed. No repeated import is needed.
+
+[arcturuschess.com.ses.txt](arcturuschess.com.ses.txt) is the applied import file
+for the exact three CNAME records supplied by this identity, each with TTL
+3600 seconds. Retain it as the reproducible record of the additions.
 [arcturuschess.com.ses.csv](arcturuschess.com.ses.csv) is a reference copy of
 those records, not the GoDaddy import file.
+
+For reference, the import procedure is:
 
 1. Export the current GoDaddy zone as a backup.
 2. In the domain's **DNS** page, choose **Actions → Import Zone File**, select
