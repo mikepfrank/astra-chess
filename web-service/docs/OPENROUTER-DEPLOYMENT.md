@@ -334,3 +334,37 @@ application unit or game database.
 To stop experimental traffic, stop `or-chess.service`; retain its private
 game records and budget ledger for recovery. Change only the new hostname's
 proxy route if rolling back the experiment. Do not reset its spending baseline.
+
+## Explicit context recovery
+
+When the provider returns incoherent continuations despite correct host state,
+inspect the private rollout and provider receipts first. A completed HTTP
+request without a submitted move is different from a timeout or output limit.
+Do not replace the model, reset its thread, or change a game's saved persona to
+recover it.
+
+The operator command `tools/ops/compact_player_context.py` can compact one
+existing experimental thread. Test the proposed recovery on a private copy
+before applying it to a live continuation. It makes a paid provider request
+using that thread's existing conversation. Preserve a coherent backup, stop
+only the experimental service, confirm all workers are idle, and run as its
+service account with the normal protected provider environment:
+
+```sh
+python tools/ops/compact_player_context.py \
+  --data-dir /home/or-chess/.local/share/or-chess \
+  --game-id GAME_ID --expected-version SAVED_VERSION \
+  --stopped-unit or-chess.service \
+  --codex /home/or-chess/.local/share/or-chess-runtime/codex/bin/codex
+```
+
+The command refuses an active unit, remaining worker processes, stale game
+version, missing thread, or non-OpenRouter game. It never starts a chess turn,
+emits public chat, or changes game/clock documents. It preserves the thread ID,
+saved prompt, reasoning/output settings and 250K automatic-compaction policy.
+Provider usage is reserved and settled normally; receipts remain private.
+
+Inspect the maintenance receipt and game hashes before restarting the
+experimental service. Then validate a normal continuation. A successful
+compaction alone does not prove that play has recovered. Never restore the
+pre-compaction usage ledger over newly billed requests.

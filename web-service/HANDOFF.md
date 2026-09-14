@@ -6,6 +6,15 @@ baseline and its deployment history are preserved below.
 
 ## September 13–14, 2026: Arcturus experimental branch
 
+**New-game continuation incident, recovery pending:** a game stalled after
+Black's tenth move despite correct host state and completed provider responses.
+Offline Linux checks preserve the current board/tool ordering and standard
+reasoning fields. A same-thread compaction maintenance command is prepared;
+the copied-game provider test and live recovery await explicit user permission
+after automatic approval review rejected resending the existing conversation.
+No live changes were made for this incident. See the
+[investigation and recovery status](validation/2026-09-14-context-recovery.md).
+
 **Arcturus isolated mail checks passed; live mail remains disabled:** staged
 code `011c4b8` passed 50 focused Linux mail, identity and monitor tests. On
 September 14, the operator-only delivery check ran from **05:38:53 to 05:40

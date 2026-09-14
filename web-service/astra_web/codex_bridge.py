@@ -472,6 +472,28 @@ class CodexPlayer:
 
     async def run(self, game_id: str, snapshot: dict, tool_handler: ToolHandler,
                   emit: Emitter, thread_id: str | None = None, *, player_binding=None) -> dict:
+        return await self._action(game_id, snapshot, tool_handler, emit, thread_id,
+                                  player_binding=player_binding)
+
+    async def compact(self, game_id: str, snapshot: dict, tool_handler: ToolHandler,
+                      thread_id: str, *, player_binding=None) -> dict:
+        """Compact one existing thread without starting play or publishing text.
+
+        The caller owns admission, usage settlement, exclusive game access and
+        durable backup. Only _thread, _usage and _compaction lifecycle callbacks
+        can reach its handler. The stored prompt and runtime profile still apply.
+        """
+        if not isinstance(thread_id, str) or not thread_id:
+            raise CodexError('Explicit compaction requires an existing Codex thread')
+
+        async def reject_public_text(text):
+            raise CodexError('Explicit compaction cannot publish public text')
+
+        return await self._action(game_id, snapshot, tool_handler, reject_public_text,
+                                  thread_id, player_binding=player_binding, compact_only=True)
+
+    async def _action(self, game_id, snapshot, tool_handler, emit, thread_id,
+                      *, player_binding=None, compact_only=False):
         if not isinstance(game_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", game_id):
             raise CodexError("Invalid internal game identifier")
         if game_id in self._active_games:
@@ -492,11 +514,12 @@ class CodexPlayer:
                     try:
                         return await self._run(game_id, snapshot, tool_handler, emit, thread_id,
                                                transport_profile=transport, gateway_token=gateway.token,
-                                               player_binding=binding)
+                                               player_binding=binding, compact_only=compact_only)
                     finally:
                         data_root = Path(self.config.data_dir).resolve()
                         folder = _private_directory(data_root / 'players' / game_id, data_root)
                         _write_json(folder / f'provider-requests-{time.time_ns()}.json', {
+                            **({'action_kind': 'compaction_only'} if compact_only else {}),
                             'requested_model': profile.model, 'routing': profile.routing,
                             'requests': gateway.evidence, 'request_count': gateway.request_count,
                             'budget_check_count': gateway.budget_check_count,
@@ -508,12 +531,13 @@ class CodexPlayer:
                             'runtime_reasoning_policy': {
                                 'effort': profile.reasoning,
                                 'max_output_tokens': profile.max_output_tokens}})
-            return await self._run(game_id, snapshot, tool_handler, emit, thread_id, player_binding=binding)
+            return await self._run(game_id, snapshot, tool_handler, emit, thread_id,
+                                   player_binding=binding, compact_only=compact_only)
         finally:
             self._active_games.discard(game_id)
 
     async def _run(self, game_id, snapshot, tool_handler, emit, thread_id,
-                   transport_profile=None, gateway_token=None, player_binding=None):
+                   transport_profile=None, gateway_token=None, player_binding=None, compact_only=False):
         binding = player_binding or new_player_binding(self.config)
         profile = runtime_profile_for_binding(binding, self.config)
         transport_profile = transport_profile or profile
@@ -531,6 +555,8 @@ class CodexPlayer:
             raise CodexError("Stored Codex recovery metadata could not be read") from exc
         if state.get("thread_id") and thread_id and state["thread_id"] != thread_id:
             raise CodexError("Stored Codex thread IDs disagree; operator reconciliation is required")
+        if compact_only and (not state.get('thread_id') or state['thread_id'] != thread_id):
+            raise CodexError('Explicit compaction requires an existing recorded Codex thread')
         thread_id = thread_id or state.get("thread_id")
         recorded_profile = state.get('player_profile')
         if recorded_profile is not None and not player_profiles_compatible(recorded_profile, identity):
@@ -573,6 +599,7 @@ class CodexPlayer:
         turn_started = False
         finished = False
         compactions = {}
+        matched_compactions = set()
         active_compaction = None
         emitted_items = set()
         public_chars = 0
@@ -634,6 +661,7 @@ class CodexPlayer:
                         return
                     await tool_handler("_compaction", {"phase": "completed", "item_id": item_id})
                     compactions[item_id] = "completed"
+                    matched_compactions.add(item_id)
                     active_compaction = None
                 return
             if method == "thread/tokenUsage/updated":
@@ -666,6 +694,8 @@ class CodexPlayer:
                         if isinstance(item_id, str):
                             emitted_items.add(item_id)
                         return
+                    if compact_only:
+                        raise CodexError('Explicit compaction cannot publish public text')
                     if item_id and item_id not in emitted_items and isinstance(text, str) and text.strip():
                         public_chars += len(text)
                         if len(text) > MAX_PUBLIC_TEXT or public_chars > MAX_PUBLIC_TEXT * 4:
@@ -681,6 +711,9 @@ class CodexPlayer:
                     raise CodexError("Codex action was interrupted or failed; game state is preserved")
                 if active_compaction is not None:
                     raise CodexError("Codex completed a turn with unfinished compaction")
+                if compact_only and (len(compactions) != 1
+                        or matched_compactions != set(compactions)):
+                    raise CodexError('Explicit compaction completed without its expected lifecycle')
                 finished = True
             elif method == "model/rerouted":
                 raise CodexError("Codex attempted to reroute the requested model")
@@ -699,6 +732,8 @@ class CodexPlayer:
                     raise CodexError("Codex time request belongs to another thread")
                 await rpc.send({"id": request_id, "result": {"currentTimeAt": int(time.time())}})
             elif method == "item/tool/call":
+                if compact_only:
+                    raise CodexError('Explicit compaction cannot call chess tools')
                 name = params.get("tool")
                 args = params.get("arguments")
                 if (name not in TOOL_NAMES or params.get("namespace") is not None
@@ -780,18 +815,25 @@ class CodexPlayer:
                         or response.get("instructionSources")):
                     raise CodexError("Codex effective model, permissions or instructions differ from the audited configuration")
                 turn_requested = True
-                response = await rpc.request("turn/start", {
-                    "threadId": thread_id, "model": profile.model, "effort": profile.reasoning,
-                    "approvalPolicy": "never", "approvalsReviewer": "user",
-                    "environments": [], "runtimeWorkspaceRoots": [],
-                    "sandboxPolicy": {"type": "readOnly", "networkAccess": False},
-                    "summary": "none", "input": [{"type": "text", "text":
-                        _event_input(game_id, snapshot)}]})
-                response_turn_id = response.get("turn", {}).get("id")
-                if not isinstance(response_turn_id, str) or (turn_id and turn_id != response_turn_id):
-                    raise CodexError("Codex returned an invalid active turn")
-                turn_id = response_turn_id
-                turn_started = True
+                if compact_only:
+                    # Resume telemetry established the prior usage baseline.
+                    # Any usage after this explicit request belongs to this
+                    # operation, even if it precedes its lifecycle start event.
+                    turn_started = True
+                    await rpc.request('thread/compact/start', {'threadId': thread_id})
+                else:
+                    response = await rpc.request("turn/start", {
+                        "threadId": thread_id, "model": profile.model, "effort": profile.reasoning,
+                        "approvalPolicy": "never", "approvalsReviewer": "user",
+                        "environments": [], "runtimeWorkspaceRoots": [],
+                        "sandboxPolicy": {"type": "readOnly", "networkAccess": False},
+                        "summary": "none", "input": [{"type": "text", "text":
+                            _event_input(game_id, snapshot)}]})
+                    response_turn_id = response.get("turn", {}).get("id")
+                    if not isinstance(response_turn_id, str) or (turn_id and turn_id != response_turn_id):
+                        raise CodexError("Codex returned an invalid active turn")
+                    turn_id = response_turn_id
+                    turn_started = True
                 while not finished:
                     await rpc.dispatch(await rpc.read())
                 return {"thread_id": thread_id, "turn_id": turn_id,
