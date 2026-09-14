@@ -1,0 +1,12 @@
+[Unit]
+Description=Check hourly for new Arcturus Chess games
+
+[Timer]
+# Offset from Astra's top-of-hour digest to avoid simultaneous SES sends.
+OnCalendar=*-*-* *:05:00
+RandomizedDelaySec=60
+Persistent=true
+Unit=or-chess-game-notify.service
+
+[Install]
+WantedBy=timers.target

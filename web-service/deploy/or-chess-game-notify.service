@@ -1,0 +1,63 @@
+[Unit]
+Description=Email the Arcturus Chess operator about newly started games
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=or-chess
+Group=or-chess
+WorkingDirectory=/home/or-chess/astra-chess/web-service
+# Only the dedicated read-only mail configuration is visible in this namespace.
+# Never load service.env or model credentials into this independent notifier.
+Environment=HOME=/home/or-chess/.local/state/or-chess-monitor
+Environment=PATH=/usr/bin:/bin
+Environment=PYTHONNOUSERSITE=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+UnsetEnvironment=OPENAI_API_KEY CODEX_API_KEY OPENROUTER_API_KEY CHESS_GATEWAY_TOKEN
+ExecStart=/home/or-chess/astra-chess/web-service/.venv/bin/python tools/ops/notify_new_games.py --data-dir /home/or-chess/.local/share/or-chess --state-dir /home/or-chess/.local/state/or-chess-monitor --config /home/or-chess/.config/or-chess-monitor/config.json
+TimeoutStartSec=120
+Restart=no
+UMask=0077
+LimitCORE=0
+NoNewPrivileges=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=tmpfs
+BindReadOnlyPaths=/home/or-chess/astra-chess
+BindReadOnlyPaths=/home/or-chess/.local/share/or-chess-runtime
+BindReadOnlyPaths=/home/or-chess/.config/or-chess-monitor/config.json
+# SQLite may create/lock WAL sidecars even for a mode=ro connection.
+# Allow that metadata work, while mounting the actual database read-only.
+BindPaths=/home/or-chess/.local/share/or-chess
+ReadWritePaths=/home/or-chess/.local/share/or-chess
+ReadOnlyPaths=/home/or-chess/.local/share/or-chess/astra.sqlite3
+InaccessiblePaths=-/home/or-chess/.local/share/or-chess/players
+InaccessiblePaths=-/home/or-chess/.local/share/or-chess/games
+InaccessiblePaths=-/home/or-chess/.local/share/or-chess/operator-checks
+InaccessiblePaths=-/home/or-chess/.local/share/or-chess/replay-archives
+InaccessiblePaths=-/home/or-chess/.local/share/or-chess/public-replays
+InaccessiblePaths=-/home/or-chess/.local/share/or-chess/openrouter-budget.json
+InaccessiblePaths=-/home/or-chess/.local/share/or-chess/openrouter-budget.json.lock
+InaccessiblePaths=-/home/or-chess/.config/or-chess/service.env
+BindPaths=/home/or-chess/.local/state/or-chess-monitor
+ReadWritePaths=/home/or-chess/.local/state/or-chess-monitor
+ProtectProc=invisible
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=128M
+CPUQuota=10%
+TasksMax=16
+LimitNOFILE=128
+Nice=10

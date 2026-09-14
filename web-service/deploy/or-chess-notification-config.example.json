@@ -1,0 +1,16 @@
+{
+  "recipient": "operator@example.net",
+  "from_address": "notifications@arcturuschess.com",
+  "feedback_address": "operator@example.net",
+  "site_name": "Arcturus chess",
+  "timezone": "America/Chicago",
+  "subject_prefix": "Arcturus chess",
+  "transport": {
+    "type": "smtp",
+    "host": "email-smtp.us-west-2.amazonaws.com",
+    "port": 587,
+    "security": "starttls",
+    "username": "REPLACE_WITH_DEDICATED_SMTP_USERNAME",
+    "password": "REPLACE_WITH_DEDICATED_SMTP_PASSWORD"
+  }
+}
