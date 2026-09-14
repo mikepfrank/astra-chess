@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "application_commit": "011c4b8400f217d60b5a8e8ee0947b010e9a7b3e",
+  "check_started_utc": "2026-09-14T05:38:53Z",
+  "scope": "Operator-authorized delivery and HTTP lifecycle checks using staged code, disposable accounts, a synthetic game and separate monitor state.",
+  "origin": "https://arcturuschess.com",
+  "source": "Separate Linux mail staging checkout using the existing Python runtime; real SES SMTP with required STARTTLS.",
+  "credentials": "Existing operator SMTP credentials loaded privately for this check; source configuration unchanged, no persistent credentials installed in the live Arcturus service.",
+  "verification": {
+    "focused_linux_tests_passed": 50,
+    "smtp_accepted_messages": 3,
+    "verification_email_from": "accounts@arcturuschess.com",
+    "password_reset_email_from": "accounts@arcturuschess.com",
+    "synthetic_monitor_email_from": "notifications@arcturuschess.com",
+    "arcturus_subjects_and_body_verified": true,
+    "canonical_verification_and_reset_links_verified": true,
+    "verification_http_lifecycle_passed": true,
+    "verification_token_reuse_rejected": true,
+    "reset_http_lifecycle_passed": true,
+    "reset_token_reuse_rejected": true,
+    "old_session_revoked": true,
+    "old_password_rejected": true,
+    "new_password_login_succeeded": true,
+    "saved_fixture_game_preserved": true,
+    "monitor_initialization_and_synthetic_new_game_detection_passed": true,
+    "monitor_no_news_second_run_sent_nothing": true,
+    "user_confirmed_all_three_gmail_inbox_messages": true,
+    "user_screenshot_showed_inbox_labels_and_arcturus_subjects": true,
+    "received_spf_dkim_dmarc_headers_inspected": false,
+    "bounce_feedback_delivery_tested": false
+  },
+  "preservation": {
+    "real_player_database_opened_by_test": false,
+    "live_service_configuration_changed": false,
+    "live_service_processes_unchanged": true,
+    "disposable_credentials_accounts_and_tokens_cleaned": true,
+    "paid_model_calls": 0
+  },
+  "remaining_activation": {
+    "ses_region": "us-west-2",
+    "ses_identity": "Verified",
+    "ses_dkim": "Successful; signing enabled",
+    "ses_account": "Sandbox: 200 messages per day, one per second",
+    "live_email_reset_available": false,
+    "public_smtp_configuration_installed": false,
+    "arcturus_recurring_monitor_installed": false,
+    "public_recovery_requires": "SES production approval, confirmed bounce-feedback handling, private SMTP configuration, and controlled live activation.",
+    "recurring_monitor_requires": "Separate or-chess private configuration, baseline and scheduler; this test did not enable recurring notifications."
+  }
+}

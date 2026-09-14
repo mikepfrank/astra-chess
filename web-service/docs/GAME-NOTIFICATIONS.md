@@ -5,6 +5,9 @@ sends one plain-text email only when it finds new game IDs. It uses Python's
 standard library, no LLM, no tactical search and no additional installed mail
 server. It runs as `astra` on Lightsail even when the development laptop is off.
 This is a new-game notification, not a page-visit tracker or a model-usage alert.
+The installed scheduler described here belongs to the original Astra service.
+The separate Arcturus staged check is recorded at the end of this document;
+it did not install or activate an Arcturus scheduler.
 
 The sender is [`tools/ops/notify_new_games.py`](../tools/ops/notify_new_games.py).
 The scheduler templates are [`astra-game-notify.service`](../deploy/astra-game-notify.service)
@@ -271,3 +274,44 @@ checkpoint; the prior 13-test Windows/Linux runs remain the unit-test evidence.
 The setup documentation was updated without changing the sender implementation.
 Always refresh live timer/state status instead of treating this dated snapshot
 as proof that delivery continues to work indefinitely.
+
+### September 14 Arcturus staged notification check
+
+Staged code `011c4b8` adds optional `site_name` body branding (default
+`Astra chess`) and `feedback_address`, a single monitored mailbox used for the
+Return-Path header. `subject_prefix` remains independently configurable and
+defaults to the site name. Existing Astra configuration is compatible. A
+pending digest keeps its exact saved bytes; a change to its feedback destination
+requires deliberate queue review, just like a changed sender or recipient.
+
+Fifty focused Linux mail, identity and monitor tests passed. During the
+September 14 **05:38:53–05:40 UTC** operator-only check, a root-private disposable
+monitor initialized an empty fixture baseline, observed one synthetic game and
+handed off an **Arcturus chess delivery TEST** digest from
+`notifications@arcturuschess.com` to Mike's authorized operator address. The
+message used Arcturus body branding and the new sender domain for its
+Message-ID, with the monitored feedback address set explicitly. SES accepted
+the message. The checkpoint advanced once, and the next no-news run sent
+nothing. Mike confirmed receiving all three messages from the combined check
+and supplied a Gmail screenshot showing them in the inbox. Received-message
+authentication headers were not inspected.
+
+The check used the existing operator SMTP credentials in private disposable
+storage; the original monitor's configuration, state and service were unchanged.
+It opened no actual player database and made no LLM call. Temporary credentials,
+accounts and token files were removed after the combined recovery/monitor check.
+The private test receipt is under `/var/lib/arcturus-mail-check`; the
+[sanitized validation record](../experiments/arcturus-mail-2026-09-14.json)
+contains the checkpoint evidence.
+
+At this checkpoint, Arcturus has no installed separate monitor configuration or
+notification service/timer, and neither live application has recovery SMTP
+enabled, rechecked at **05:41 UTC**, with all three live service PIDs unchanged.
+The branding update `011c4b8` was tested only in staging; the live checkout is
+`e73d81d`. SES remains in the sandbox, confirmed at **05:31 UTC** with limits of
+200 messages/day and one/second. Sending notifications to a verified operator
+can work within that sandbox; public recovery needs production access.
+Activating Arcturus notifications requires separate `or-chess` configuration,
+state, initial real-game baseline and units, plus the same namespace and delivery
+checks described above. Do not reuse the original Astra monitor's checkpoint or
+enable its timer for the Arcturus database.

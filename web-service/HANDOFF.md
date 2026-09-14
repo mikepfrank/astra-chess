@@ -6,6 +6,38 @@ baseline and its deployment history are preserved below.
 
 ## September 13–14, 2026: Arcturus experimental branch
 
+**Arcturus isolated mail checks passed; live mail remains disabled:** staged
+code `011c4b8` passed 50 focused Linux mail, identity and monitor tests. On
+September 14, the operator-only delivery check ran from **05:38:53 to 05:40
+UTC**. SES accepted three test messages: recovery verification and password
+reset from `accounts@arcturuschess.com`, plus a synthetic new-game digest from
+`notifications@arcturuschess.com`, all to Mike's authorized operator address.
+Mike confirmed receiving all three and supplied a Gmail screenshot showing them
+in the inbox. Received-message authentication headers were not inspected.
+
+The disposable HTTP account passed verification, reset, token-reuse rejection,
+old-session revocation, rejection of the old password and login with the new
+password. Canonical links used the new domain. Its synthetic monitor sent one
+new-game digest, then sent nothing on a no-news check; the fixture game remained
+intact after reset. Temporary account, credential and token files were removed.
+Only root's private disposable test used the existing operator SMTP credentials;
+the original configuration was read without modification. No actual player
+database was opened, no LLM call occurred and no live service configuration was
+changed. All three live service PIDs remained unchanged. The private test
+receipt is under `/var/lib/arcturus-mail-check`; see the
+[sanitized validation record](experiments/arcturus-mail-2026-09-14.json).
+
+Both live applications still have SMTP unset and report
+`email_reset_available=false`, rechecked at **05:41 UTC**. Branding code
+`011c4b8` was used only in staging; the live checkout remains `e73d81d`.
+Arcturus has no installed separate monitor configuration or notification
+unit/timer. A fresh SES check at **05:31 UTC**
+confirmed sandbox limits of 200 messages/day and one/second. General recovery
+still awaits production access and feedback/delivery validation; notification
+activation requires its own configuration, baseline, namespace checks and timer.
+See [password recovery](docs/PASSWORD-RECOVERY.md) and
+[game notifications](docs/GAME-NOTIFICATIONS.md) for the staged-test boundary.
+
 **New domain active:** `https://arcturuschess.com` is now Arcturus's preferred
 public hostname and canonical application origin. At September 14
 **05:26:45 UTC**, code `17789dc` was deployed after an idle check and coherent
@@ -44,10 +76,10 @@ The existing DMARC record is retained. Account-level suppression is
 enabled for bounces and complaints. The account remains healthy but in the SES
 sandbox (200 messages/day, one/second); the existing production-access support
 case already contains Mike's detailed response and says "Customer action
-completed." No additional support reply or email was sent. Arcturus SMTP,
-notification scheduling, sender permissions and email branding still need
-configuration and delivery/feedback validation. Verified DKIM and the working
-website do not enable mail or remove the SES sandbox restrictions.
+completed." No additional support reply or email was sent during DNS
+preparation; the later isolated mail check is recorded above. Live Arcturus
+SMTP and notification scheduling still need separate activation. Verified DKIM
+and the working website do not remove the SES sandbox restrictions.
 
 **Max reasoning for future games:** GLM profile v4 now selects `max` and a
 32,768-token ceiling per provider response, including reasoning. Saved v2/v3

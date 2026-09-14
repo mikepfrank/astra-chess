@@ -94,11 +94,27 @@ information needed** for production access, but the support case shows
 already filed, with no newer AWS reply visible at this September 14 UTC check.
 AWS's response is pending; no additional reply was sent. Domain/DKIM
 verification does not remove sandbox restrictions
-or activate Arcturus email. Application SMTP configuration, sender permissions,
-branding and canonical URLs, delivery and feedback tests, and a separate
-notification timer remain follow-up work. No email was sent while preparing
-these files. See [password recovery](../../docs/PASSWORD-RECOVERY.md) for the
-separate activation requirements.
+or activate Arcturus email. The DNS preparation sent no mail. A subsequent
+operator-only staged check of code `011c4b8` ran at **05:38:53–05:40 UTC**:
+SES accepted Arcturus verification, reset and synthetic new-game notification
+messages from addresses on the new domain, and the disposable HTTP lifecycle
+and monitor checkpoint/no-news checks passed. Fifty focused Linux regressions
+preceded that test. Mike confirmed receipt of all three and supplied a Gmail
+screenshot showing them in the inbox; received-message authentication headers
+were not inspected. See the
+[sanitized mail validation record](../../experiments/arcturus-mail-2026-09-14.json).
+
+The existing SMTP credentials were used only in root-private disposable test
+storage; no actual player database or live service configuration changed.
+At **05:41 UTC**, both live applications still reported recovery mail
+unavailable, with all three service PIDs unchanged. The mail-branding code
+`011c4b8` remains staged; the live checkout is `e73d81d`. Arcturus
+has no separate monitor configuration or notification unit/timer installed.
+SES's **05:31 UTC** sandbox check still showed 200 messages/day and one/second.
+Live SMTP configuration, production access for general recipients,
+feedback/delivery validation and separate notification activation remain
+follow-up work. See [password recovery](../../docs/PASSWORD-RECOVERY.md) and
+[notifications](../../docs/GAME-NOTIFICATIONS.md) for the activation boundaries.
 
 ## Server activation and account continuity
 

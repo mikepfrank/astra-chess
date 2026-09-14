@@ -162,3 +162,46 @@ prerequisites are confirmed bounce-feedback delivery, SES production approval,
 a gated configuration restart with private SMTP settings, and a controlled
 operator-owned end-to-end live recovery check. There is no need to repeat the
 completed code deployment or migrate player data manually.
+
+## September 14, 2026 Arcturus staged mail check
+
+Arcturus's canonical website is `https://arcturuschess.com`; its SES identity
+and DKIM are verified in Oregon. A fresh **05:31 UTC** account check still
+showed SES sandbox restrictions: 200 messages/day and one message/second.
+Both live chess applications have SMTP unset and
+`email_reset_available=false`. This check did not enable public recovery.
+
+Staged code `011c4b8` makes recovery subjects and body text follow the configured
+persona, preserving the original Astra defaults. Verification/reset URLs and
+Message-ID domains use the canonical application origin. Fifty focused Linux
+mail, identity and monitor tests passed before real delivery testing.
+
+From **05:38:53 to 05:40 UTC**, a root-private disposable application/database
+used the existing operator SMTP credentials, read from the original monitor
+configuration without changing it. SES accepted an Arcturus verification email
+and a password-reset email from `accounts@arcturuschess.com` to Mike's explicitly
+authorized operator address. The account name identified it as a test requiring
+no user action; the monitored feedback destination was the operator address.
+Mike confirmed receipt and supplied a Gmail screenshot showing both recovery
+messages and the synthetic monitor message in the inbox. Received-message
+authentication headers were not inspected.
+
+The test respected the real recovery cooldown and exercised the tokens through
+the disposable app's HTTP interface. It confirmed the address, reset the
+password, rejected reuse of both tokens, revoked the old session, rejected the
+old password and accepted the new one. Its saved fixture game remained intact,
+and every emailed link used the new domain. Temporary account, credential and
+token files were removed. No actual player database was opened, no LLM call was
+made and no live application SMTP setting or service was changed.
+
+This confirms staged SMTP acceptance, inbox receipt for these messages and
+account lifecycle behavior. It does not establish live recovery availability,
+remove the sandbox, or confirm bounce-feedback receipt. At **05:41 UTC**, live
+recovery remained unavailable and all three live service PIDs were unchanged.
+Branding code `011c4b8` remains staged; the live checkout is `e73d81d`.
+Public activation still requires SES production approval, feedback validation,
+deployment of the staged branding code, private Arcturus SMTP configuration
+and a controlled check of that configuration. See the
+[sanitized validation record](../experiments/arcturus-mail-2026-09-14.json).
+The separate [notification check](GAME-NOTIFICATIONS.md) also does not enable
+recovery.
