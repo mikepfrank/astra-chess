@@ -1,0 +1,22 @@
+; Desired complete record inventory based on the supplied GoDaddy screenshot
+; and public DNS checked 2026-09-14 UTC. FOR REFERENCE, NOT ADDITIVE IMPORT.
+; GoDaddy manages NS and SOA. The SOA below is the observed snapshot; let
+; GoDaddy maintain its serial and timers. Use the changes.zone file to import.
+$ORIGIN arcturuschess.com.
+$TTL 3600
+
+@  3600  IN  SOA  ns03.domaincontrol.com. dns.jomax.net. (
+    2026091302 ; observed serial, managed by GoDaddy
+    28800      ; refresh
+    7200       ; retry
+    604800     ; expire
+    600        ; negative-cache TTL
+)
+
+@               3600  IN  NS     ns03.domaincontrol.com.
+@               3600  IN  NS     ns04.domaincontrol.com.
+@               3600  IN  A      54.190.167.232
+www             3600  IN  CNAME  arcturuschess.com.
+pay             3600  IN  CNAME  paylinks.commerce.godaddy.com.
+_domainconnect  3600  IN  CNAME  _domainconnect.gd.domaincontrol.com.
+_dmarc          3600  IN  TXT    "v=DMARC1; p=quarantine; adkim=r; aspf=r; rua=mailto:dmarc_rua@onsecureserver.net;"

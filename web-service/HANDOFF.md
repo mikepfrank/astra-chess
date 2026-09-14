@@ -6,6 +6,15 @@ baseline and its deployment history are preserved below.
 
 ## September 13, 2026: Arcturus experimental branch
 
+**New domain requested; DNS prepared only:** Mike purchased `arcturuschess.com`
+and wants it to be Arcturus's preferred public hostname, reducing promotion of
+the more expensive original Astra service. See [the GoDaddy DNS files](deploy/dns/README.md).
+Only the apex A record needs changing; the existing `www` CNAME is already
+correct. Keep unrelated DNS and GoDaddy-managed records. Neither DNS nor live
+hostname/origin configuration has been changed. Before a later server cutover,
+handle host-only session cookies and passwordless-account continuity, preserve
+replay paths, and avoid adding links that promote the expensive Astra site.
+
 **Max reasoning for future games:** GLM profile v4 now selects `max` and a
 32,768-token ceiling per provider response, including reasoning. Saved v2/v3
 games retain High/8,192; their existing context-only upgrade to v3 remains
