@@ -11,7 +11,7 @@ import time
 from .config import REPO_ROOT
 from .store import DailyResourceLimit
 from . import chess_game as game
-from .player_profiles import profile_for, verify_game_profile, game_player_binding
+from .player_profiles import profile_for, verify_game_profile, game_player_binding, saved_player_name
 
 
 class ChessClockExhausted(TimeoutError):
@@ -187,12 +187,12 @@ class Supervisor:
         if state['status'] not in {'active', 'finished'}:
             return
         if not self.available:
-            self.store.mutate(game_id, lambda s: s.update(worker={'state': 'disabled', 'message': 'Astra is waiting for the operator to configure the model connection. Your game is saved.'}), kind='worker_unavailable')
+            self.store.mutate(game_id, lambda s: s.update(worker={'state': 'disabled', 'message': f'{saved_player_name(s)} is waiting for the operator to configure the model connection. Your game is saved.'}), kind='worker_unavailable')
             return
         if len(self.tasks) >= 16:
             self.store.mutate(game_id, lambda s: s.update(worker={'state': 'error', 'message': 'All waiting places are occupied. Your game is saved; retry shortly.'}), kind='queue_full')
             return
-        self.store.mutate(game_id, lambda s: s.update(worker={'state': 'queued', 'message': 'Waiting for Astra’s next available place.'}), kind='queued')
+        self.store.mutate(game_id, lambda s: s.update(worker={'state': 'queued', 'message': f'Waiting for {saved_player_name(s)}’s next available place.'}), kind='queued')
         self.tasks[game_id] = asyncio.create_task(self._run(game_id))
 
     async def close(self):
@@ -233,7 +233,7 @@ class Supervisor:
             raise
         except ChessClockExhausted:
             self.store.mutate(game_id, lambda s: s.update(worker={'state': 'error',
-                'message': 'Astra’s earned thinking allowance is exhausted. The game remains saved.'}),
+                'message': f'{saved_player_name(s)}’s earned thinking allowance is exhausted. The game remains saved.'}),
                 kind='clock_exhausted')
         except DailyResourceLimit:
             # Admission spent nothing. Do not automatically retry the same denial.
@@ -244,7 +244,7 @@ class Supervisor:
         except Exception as error:
             # Internal error text belongs in operator evidence, not a player-facing traceback.
             self.store.audit(game_id, 'worker_error', {'type': type(error).__name__, 'message': str(error)[:1000]})
-            self.store.mutate(game_id, lambda s: s.update(worker={'state': 'error', 'message': 'Astra’s response was interrupted. Your game and conversation are saved; you can retry.'}), kind='worker_error')
+            self.store.mutate(game_id, lambda s: s.update(worker={'state': 'error', 'message': f'{saved_player_name(s)}’s response was interrupted. Your game and conversation are saved; you can retry.'}), kind='worker_error')
         finally:
             self.tasks.pop(game_id, None)
             if game_id in self.rerun and not self.stopping:
@@ -262,7 +262,7 @@ class Supervisor:
         own_turn = not post_game and game.side_to_move(state) == state['astra_side']
         balance = game.clock(state)['remaining_seconds']
         if own_turn and balance <= 0:
-            self.store.mutate(game_id, lambda s: s.update(worker={'state': 'error', 'message': 'Astra’s earned thinking allowance is exhausted. The game remains saved.'}), kind='clock_exhausted')
+            self.store.mutate(game_id, lambda s: s.update(worker={'state': 'error', 'message': f'{saved_player_name(s)}’s earned thinking allowance is exhausted. The game remains saved.'}), kind='clock_exhausted')
             return
         reservation = self.store.reserve()
         started = time.monotonic()
@@ -288,8 +288,8 @@ class Supervisor:
                    'allocation': allocation, 'paused_seconds': 0.0, 'pause': None, 'pause_items': set()}
         def thinking_worker(s):
             return {'state': 'thinking', 'message': (
-                'Astra is considering your message.' if s['status'] == 'finished'
-                else 'Astra is considering the position.')}
+                f'{saved_player_name(s)} is considering your message.' if s['status'] == 'finished'
+                else f'{saved_player_name(s)} is considering the position.')}
 
         def begin(s):
             s['worker'] = thinking_worker(s)
@@ -390,7 +390,7 @@ class Supervisor:
                     def pause_clock(s):
                         s['compaction_pause'] = {'item_id': item_id, 'attempt_id': control['attempt_id'],
                             'started_at': stamp, 'clock_paused': s['active_started'] is not None}
-                        s['worker'] = {'state': 'compacting', 'message': 'Astra is preparing conversation context.'}
+                        s['worker'] = {'state': 'compacting', 'message': f'{saved_player_name(s)} is preparing conversation context.'}
                     self.store.mutate(game_id, pause_clock, kind='compaction_started', body=args)
                     control['pause_items'].add(item_id)
                     control['pause'] = {'item_id': item_id, 'monotonic': monotonic}
@@ -488,7 +488,7 @@ class Supervisor:
                 if available < 0.2:
                     raise ValueError('Use the remaining time to review and choose your move.')
                 self.store.mutate(game_id, lambda s: s.update(worker={
-                    'state': 'calculating', 'message': 'Astra’s tactical engine is calculating.'}),
+                    'state': 'calculating', 'message': f'{saved_player_name(s)}’s tactical engine is calculating.'}),
                     kind='calculation_started', body={'attempt_id': control['attempt_id']})
                 completed = False
                 try:
@@ -499,7 +499,7 @@ class Supervisor:
                         # Never overwrite a newer lifecycle state while a query
                         # is being cancelled or the human ends the game.
                         if s['worker']['state'] == 'calculating':
-                            s['worker'] = ({'state': 'thinking', 'message': 'Astra is considering the position.'}
+                            s['worker'] = ({'state': 'thinking', 'message': f'{saved_player_name(s)} is considering the position.'}
                                 if s['status'] == 'active' else {'state': 'idle', 'message': ''})
                     self.store.mutate(game_id, calculation_ended, kind='calculation_ended',
                         body={'attempt_id': control['attempt_id'], 'completed': completed})
@@ -607,7 +607,7 @@ class Supervisor:
                             break
                         if soft_target:
                             raise ChessClockExhausted('The earned chess-clock allowance is exhausted')
-                        raise TimeoutError('Astra response deadline reached')
+                        raise TimeoutError('Player response deadline reached')
                     await asyncio.wait({run}, timeout=min(0.25, max(.01, remaining_turn())))
                 # Cancellation can leave unreported provider usage. Keep the
                 # normal conservative reservation settlement for this case.
@@ -650,7 +650,7 @@ class Supervisor:
                             # A later conversation failure remains retryable.
                             s['worker'] = {'state': 'idle', 'message': ''}
                         else:
-                            s['worker'] = {'state': 'error', 'message': 'Astra’s response stopped. Your game and conversation are saved; retry when ready.'}
+                            s['worker'] = {'state': 'error', 'message': f'{saved_player_name(s)}’s response stopped. Your game and conversation are saved; retry when ready.'}
                 try:
                     self.store.mutate(game_id, settle, kind='response_settled' if post_game else 'clock_settled', body={'elapsed': time.monotonic()-started,
                         'tokens': control['tokens'], 'attempt_id': control['attempt_id'], 'ply': control['ply'],

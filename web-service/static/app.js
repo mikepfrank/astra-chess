@@ -2,7 +2,7 @@ import {BoardView, START_FEN, pieceImage, pieceNames, renderCaptures, formatCloc
 
 const $=id=>document.getElementById(id);
 const state={user:null,csrf:null,config:null,game:null,gameId:null,pending:false,mode:'register',next:null,polling:false,resetToken:null,verifyToken:null,recovery:null,identityVersion:0,identityLoaded:false,messageKey:null,availabilityChecking:false,availabilityError:null,lastAvailabilityCheck:0};
-const playerName=()=>state.game?.player_name||state.config?.player_name||'Astra';
+const playerName=()=>state.game?.player_name||state.config?.player_name||'Your opponent';
 const accountUI={session:0,busy:false,loaded:false,controller:null};
 const identityUI={session:0,busy:false,pendingLink:null};
 const verificationUI={session:0,busy:false,controller:null};
@@ -110,7 +110,7 @@ function updateSiteAddressNotice(){
 function playerReady(){return state.config?.player_available===true&&!state.availabilityError;}
 function updatePlayerIdentity(){
   const name=playerName();
-  const siteName=state.config?.player_name||'Astra';
+  const siteName=state.config?.player_name||'AI';
   const experimental=siteName!=='Astra';
   document.title=`${siteName} Chess · ${experimental?'Experimental':'Public beta'}`;
   document.querySelector('meta[name="description"]').content=experimental?`Play chess with ${siteName}, an experimental language-model opponent using Astra's chess harness and tactical engine.`:'Play a thoughtful game of chess with Astra: language-model deliberation and a small tactical engine built from scratch.';
@@ -143,7 +143,7 @@ function updatePlayerIdentity(){
 function updateAvailability(){
   updateSiteAddressNotice();
   updatePlayerIdentity();
-  const name=state.config?.player_name||'Astra';
+  const name=state.config?.player_name||'Your opponent';
   $('black-first-label').textContent=`${name} moves first`;
   const available=playerReady();
   const checking=state.availabilityChecking;
@@ -230,8 +230,11 @@ function renderMessages(){
 function canChat(game){return ['active','finished'].includes(game?.status);}
 function responseStatusText(game){
   const name=playerName();
-  if(game.worker?.state==='error')return game.worker.message||`${name}’s response was interrupted. You can retry.`;
-  if(game.worker?.state==='disabled')return game.worker.message||`${name} is unavailable. Your game is saved.`;
+  // Older saved host notices used Astra for every persona. Adapt only this
+  // status field; recorded conversation and historical attribution stay intact.
+  const message=game.worker?.message?.replace(/\bAstra\b/g,()=>name);
+  if(game.worker?.state==='error')return message||`${name}’s response was interrupted. You can retry.`;
+  if(game.worker?.state==='disabled')return message||`${name} is unavailable. Your game is saved.`;
   if(game.worker?.state==='queued')return `${name} will be with you shortly. Your response is queued.`;
   if(game.worker?.state==='compacting')return `${name} is compacting its conversation context. `+(game.clock?.paused?'Its chess clock is paused.':'It will continue when the context is ready.');
   if(game.worker?.state==='calculating')return `${name}’s tactical engine is calculating. ${name} will review the result next.`;

@@ -15,7 +15,7 @@ class Conflict(ValueError):
 class DailyResourceLimit(ValueError):
     """A known admission denial with a fixed, player-safe explanation."""
     code = 'daily_resource_limit'
-    public_message = ('Astra cannot start another response within the service’s daily resource allowance. '
+    public_message = ('The chess player cannot start another response within the service’s daily resource allowance. '
                       'Your game is saved; please return later or ask the operator to increase the allowance.')
 
     def __init__(self):

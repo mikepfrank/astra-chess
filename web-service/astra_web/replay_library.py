@@ -526,7 +526,7 @@ def install_replay_library(app, config, store, owned, body):
     async def archive_download(request: Request, game_id: str, archive_id: str):
         owned(request, game_id)
         page = await asyncio.to_thread(library.download, game_id, archive_id)
-        return standalone_response(page, filename=f'astra-replay-{archive_id}.html')
+        return standalone_response(page, filename=f'chess-replay-{archive_id}.html')
 
     @app.post('/api/games/{game_id}/archive/publish')
     async def archive_publish(request: Request, game_id: str):

@@ -1,5 +1,5 @@
 // Fully intercepted operator UI QA: no site, account, game, mail or model access.
-const {launchBrowser,outputDir}=require('./support.cjs');
+const {launchBrowser,outputDir,bounded}=require('./support.cjs');
 const fs=require('node:fs/promises'),path=require('node:path'),assert=require('node:assert/strict');
 const origin='http://monitor-preview.local';
 const protectedUser={id:'operator-fixture',name:'Operator preview',protected:true};
@@ -50,11 +50,11 @@ async function visible(data,hidden){await data.page.evaluate(value=>{Object.defi
     assert.equal(await owner.page.locator('#monitor-rows tr').count(),3);
     assert.match(await owner.page.locator('#monitor-rows tr').first().innerText(),/<img src=x onerror=alert\(1\)>/);
     assert.equal(await owner.page.locator('#monitor-rows img').count(),0,'Player names are text, never markup');
-    assert.match(await owner.page.locator('#monitor-rows').innerText(),/Astra won; checkmate/);
+    assert.match(await owner.page.locator('#monitor-rows').innerText(),/AI won; checkmate/);
     assert.match(await owner.page.locator('#monitor-rows').innerText(),/Listed · with chat/);
     assert.match(await owner.page.locator('#monitor-rows').innerText(),/Unlisted link · moves only/);
     assert.match(await owner.page.locator('#monitor-rows').innerText(),/Awaiting human move/);
-    assert.match(await owner.page.locator('#monitor-rows').innerText(),/Astra calculating/);
+    assert.match(await owner.page.locator('#monitor-rows').innerText(),/AI calculating/);
     assert.match(await owner.page.locator('#monitor-excluded').innerText(),/2 known test games/);
     await owner.page.locator('#monitor-search').fill('completed');assert.equal(await owner.page.locator('#monitor-rows tr').count(),1);
     await owner.page.locator('#monitor-filter').selectOption('unfinished');assert.equal(await owner.page.locator('#monitor-rows tr').count(),0);assert.equal(await owner.page.locator('#monitor-empty').isVisible(),true);
@@ -62,7 +62,7 @@ async function visible(data,hidden){await data.page.evaluate(value=>{Object.defi
     await owner.page.locator('#monitor-filter').selectOption('all');
     await owner.page.screenshot({path:path.join(outputDir,'monitor-desktop.png'),fullPage:true});
     owner.snapshot.games[1].active_response=true;owner.snapshot.games[1].worker_state='compacting';await refresh(owner);
-    assert.match(await owner.page.locator('#monitor-rows').innerText(),/Astra won; checkmate · Astra compacting \(post-game chat\)/,'Finished outcomes retain current post-game worker activity');
+    assert.match(await owner.page.locator('#monitor-rows').innerText(),/AI won; checkmate · AI compacting \(post-game chat\)/,'Finished outcomes retain current post-game worker activity');
     owner.snapshot.games[1].active_response=false;owner.snapshot.games[1].worker_state='idle';
 
     owner.status=503;await refresh(owner);
@@ -95,8 +95,10 @@ async function visible(data,hidden){await data.page.evaluate(value=>{Object.defi
     assert.equal(await owner.page.locator('#monitor-rows').innerText(),'','Leaving page scrubs cached private DOM');
     await owner.page.evaluate(()=>window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true})));
     await owner.page.waitForFunction(()=>document.getElementById('monitor-rows').children.length===3);
-    let releaseHidden;owner.hold=route=>new Promise(resolve=>{releaseHidden=async()=>{await route.fulfill({json:owner.snapshot}).catch(()=>{});resolve();};});
+    let releaseHidden,receiveHidden;const hiddenReceived=new Promise(resolve=>{receiveHidden=resolve;});
+    owner.hold=route=>new Promise(resolve=>{releaseHidden=async()=>{await route.fulfill({json:owner.snapshot}).catch(()=>{});resolve();};receiveHidden();});
     await owner.page.locator('#monitor-refresh').click();await owner.page.waitForFunction(()=>document.getElementById('monitor-refresh').disabled);
+    await bounded(hiddenReceived,'Intercepted hidden-tab refresh');
     await visible(owner,true);assert.equal(await owner.page.locator('#monitor-rows').innerText(),'','Hidden tabs clear private data immediately');
     owner.status=401;await releaseHidden();assert.equal(await owner.page.locator('#monitor-rows').innerText(),'','An older response cannot repopulate a hidden tab');
     await visible(owner,false);await owner.page.waitForFunction(()=>!document.getElementById('monitor-refresh').disabled);

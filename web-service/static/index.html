@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark"><meta name="description" content="Play a thoughtful game of chess with Astra: language-model deliberation and a small tactical engine built from scratch.">
-  <title>Astra Chess · Public beta</title>
+  <meta name="color-scheme" content="dark"><meta name="description" content="Play a thoughtful game of chess with an AI opponent: language-model deliberation and a small tactical engine built from scratch.">
+  <title>Chess · Public beta</title>
   <link rel="stylesheet" href="/static/style.css"><script type="module" src="/static/app.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#board">Skip to chessboard</a>
   <header class="site-header">
-    <a id="site-brand" class="brand" href="/" aria-label="Astra Chess home"><span id="brand-mark" class="brand-mark" aria-hidden="true">A</span><span><span id="brand-name">ASTRA</span><span class="brand-sub">CHESS CLUB</span></span></a>
+    <a id="site-brand" class="brand" href="/" aria-label="Chess home"><span id="brand-mark" class="brand-mark" aria-hidden="true">A</span><span><span id="brand-name">CHESS</span><span class="brand-sub">CHESS CLUB</span></span></a>
     <span id="site-badge" class="beta-badge">PUBLIC BETA</span>
     <nav aria-label="Your chess games"><a id="monitor-link" class="text-button small" href="/monitor/" hidden>Monitor</a><button id="games-button" class="text-button">Your games</button><button id="account-button" class="outline small">Take a seat</button></nav>
   </header>
   <main class="page-shell">
-    <div class="intro"><h1 id="play-title">Play Astra</h1><p class="intro-note">Take your time. You can return to a saved game over several days.</p></div>
+    <div class="intro"><h1 id="play-title">Play chess</h1><p class="intro-note">Take your time. You can return to a saved game over several days.</p></div>
     <aside id="site-address-notice" class="notice site-address-notice" aria-label="New website address" hidden>
       <p><span id="site-address-label"></span> <a id="canonical-site-link" rel="noreferrer"></a></p>
       <p>Sign in there with your existing name and password. <span id="site-address-password-note">If your account has no password, add one in Your account here before moving to keep access to your games.</span></p>
@@ -22,31 +22,31 @@
     <div id="availability-banner" class="notice availability-notice" hidden><span id="availability-text"></span><button id="availability-check" class="outline small" type="button">Check availability</button></div>
     <div class="play-layout">
       <section class="board-column" aria-label="Your game">
-        <label class="evaluation-preference"><input id="show-astra-evaluation" type="checkbox" aria-controls="astra-evaluation"> <span id="evaluation-preference-label">Show Astra's evaluation</span></label>
+        <label class="evaluation-preference"><input id="show-astra-evaluation" type="checkbox" aria-controls="astra-evaluation"> <span id="evaluation-preference-label">Show your opponent's evaluation</span></label>
         <section id="astra-evaluation" class="astra-evaluation" role="status" aria-live="polite" aria-atomic="true" hidden>
-          <p class="evaluation-summary"><span id="evaluation-summary-label">Astra's tactical engine evaluated the position resulting from its last move as:</span> <strong id="astra-evaluation-value"></strong></p>
+          <p class="evaluation-summary"><span id="evaluation-summary-label">Your opponent's tactical engine evaluated the position resulting from its last move as:</span> <strong id="astra-evaluation-value"></strong></p>
           <div class="evaluation-details">
             <p id="astra-evaluation-context" class="evaluation-context"></p>
             <p id="astra-evaluation-mate-note" class="evaluation-context" hidden>Mate-in count = your maximum remaining turns.</p>
           </div>
         </section>
-        <div class="player-row"><div class="player-identity"><span id="top-avatar" class="avatar astra-avatar">A</span><div><strong id="top-name">Astra</strong><span id="top-detail" class="muted">Your opponent</span></div></div><div class="player-right"><span id="top-status" class="player-status">READY WHEN YOU ARE</span><span id="astra-clock" class="clock" title="Astra's remaining thinking time">—</span></div></div>
+        <div class="player-row"><div class="player-identity"><span id="top-avatar" class="avatar astra-avatar">A</span><div><strong id="top-name">Opponent</strong><span id="top-detail" class="muted">Your opponent</span></div></div><div class="player-right"><span id="top-status" class="player-status">READY WHEN YOU ARE</span><span id="astra-clock" class="clock" title="Your opponent's remaining thinking time">—</span></div></div>
         <div id="top-captures" class="capture-tray" aria-label="No captured pieces"></div>
-        <div class="board-container"><div id="board" class="chessboard"></div><div id="welcome-overlay" class="board-overlay"><div><span class="eyebrow">YOUR CHESS TABLE</span><h2 id="welcome-title">Take a seat.</h2><p id="welcome-description">Choose a side and meet Astra across the board.</p><button id="welcome-new" class="primary">Start a game <span aria-hidden="true">↗</span></button></div></div></div>
+        <div class="board-container"><div id="board" class="chessboard"></div><div id="welcome-overlay" class="board-overlay"><div><span class="eyebrow">YOUR CHESS TABLE</span><h2 id="welcome-title">Take a seat.</h2><p id="welcome-description">Choose a side and meet your opponent across the board.</p><button id="welcome-new" class="primary">Start a game <span aria-hidden="true">↗</span></button></div></div></div>
         <div id="bottom-captures" class="capture-tray" aria-label="No captured pieces"></div>
         <div class="player-row bottom"><div class="player-identity"><span class="avatar human-avatar" id="human-avatar">Y</span><div><strong id="bottom-name">You</strong><span id="bottom-detail" class="muted">Choose White or Black</span></div></div><span id="bottom-status" class="player-status">MAKE YOURSELF AT HOME</span></div>
         <div class="board-toolbar"><span id="board-hint" class="muted" aria-live="polite">Click or tap a piece, then its destination.</span><button id="flip-board" class="text-button small" title="Flip board">↕ Flip</button></div>
         <div id="game-status" class="game-status" role="status"><span class="status-dot"></span><span id="game-status-text">A fresh game, at your own pace.</span></div>
         <div id="draw-banner" class="notice draw-banner" hidden><span id="draw-text"></span><div><button id="accept-draw" class="primary small">Accept draw</button><button id="decline-draw" class="outline small">Decline</button></div></div>
-        <div class="game-actions"><button id="new-game" class="primary small">New game</button><button id="offer-draw" class="outline small" disabled>Offer draw</button><button id="claim-draw" class="outline small" hidden>Claim draw</button><button id="resign" class="text-button small" disabled>Resign</button><button id="resume-game" class="primary small" hidden>Resume game</button><button id="retry-worker" class="outline small" hidden>Retry Astra</button><button id="save-replay" class="outline small" hidden>Save/share replay</button><a id="download-pgn" class="text-button small" hidden download>Download PGN</a></div>
-        <details class="about-method"><summary id="method-title">What makes an Astra game different?</summary><p id="method-description">Astra combines language-model deliberation with a tactical engine written from scratch. It chooses which positions to investigate, reviews the evidence, and decides what to play. No external chess engines, opening books, game databases, or endgame tablebases guide its moves.</p><p id="method-conversation">Astra may explain an idea or keep a plan to itself. The conversation is part of the game. Its time budget is separate from yours; you can take your time.</p><p id="model-detail" class="muted"></p></details>
+        <div class="game-actions"><button id="new-game" class="primary small">New game</button><button id="offer-draw" class="outline small" disabled>Offer draw</button><button id="claim-draw" class="outline small" hidden>Claim draw</button><button id="resign" class="text-button small" disabled>Resign</button><button id="resume-game" class="primary small" hidden>Resume game</button><button id="retry-worker" class="outline small" hidden>Retry reply</button><button id="save-replay" class="outline small" hidden>Save/share replay</button><a id="download-pgn" class="text-button small" hidden download>Download PGN</a></div>
+        <details class="about-method"><summary id="method-title">What makes this game different?</summary><p id="method-description">Your opponent combines language-model deliberation with a tactical engine written from scratch. It chooses which positions to investigate, reviews the evidence, and decides what to play. No external chess engines, opening books, game databases, or endgame tablebases guide its moves.</p><p id="method-conversation">Your opponent may explain an idea or keep a plan to itself. The conversation is part of the game. Its time budget is separate from yours; you can take your time.</p><p id="model-detail" class="muted"></p></details>
       </section>
       <aside class="conversation-column">
         <section class="chat-card" aria-labelledby="chat-title"><div class="card-heading"><div><p class="eyebrow">ACROSS THE BOARD</p><h2 id="chat-title">The conversation</h2></div><span id="connection-status" class="connection"><i></i>Connecting</span></div>
           <div id="messages" class="messages" role="log" aria-live="polite" aria-relevant="additions"><div class="conversation-empty"><span class="conversation-symbol" aria-hidden="true">“</span><p>More than a silent opponent.</p><span>Ask about an idea, talk through the last move, or simply enjoy the game.</span></div></div>
           <form id="message-form" class="composer">
-            <label id="message-label" class="sr-only" for="message-input">Message to Astra</label>
-            <textarea id="message-input" rows="2" maxlength="2000" placeholder="Say something to Astra…" disabled></textarea>
+            <label id="message-label" class="sr-only" for="message-input">Message to your opponent</label>
+            <textarea id="message-input" rows="2" maxlength="2000" placeholder="Say something to your opponent…" disabled></textarea>
             <div class="composer-footer">
               <div class="composer-tools"><button id="emoji-toggle" type="button" class="text-button small" aria-expanded="false" aria-controls="emoji-picker" disabled><span aria-hidden="true">☺</span> Emoji</button><span id="message-count">0 / 2000</span></div>
               <button id="send-message" type="submit" class="primary small" disabled>Send <span aria-hidden="true">↑</span></button>
@@ -58,7 +58,7 @@
         <section class="moves-card" aria-labelledby="moves-title"><div class="card-heading"><h2 id="moves-title">The scoresheet</h2><span id="move-count" class="muted">No moves yet</span></div><div class="moves-head"><span>#</span><span>White</span><span>Black</span></div><div id="moves" class="move-list"><p class="empty-note">The first move is still ahead.</p></div></section>
       </aside>
     </div>
-    <footer class="site-footer"><span id="site-footer-label">Astra Chess · Public beta</span><a href="/games/" target="_blank" rel="noopener">Public games ↗</a></footer>
+    <footer class="site-footer"><span id="site-footer-label">Chess · Public beta</span><a href="/games/" target="_blank" rel="noopener">Public games ↗</a></footer>
   </main>
   <div id="toast" class="toast" role="alert" hidden></div>
   <dialog id="identity-dialog" aria-labelledby="identity-title"><button class="dialog-close" data-close aria-label="Close">×</button><p class="eyebrow">WELCOME TO THE CLUB</p><h2 id="identity-title">What should we call you?</h2><p id="identity-description" class="muted">A guest name is all you need. This browser will remember your seat.</p><p id="identity-existing-account" class="field-note" hidden>Already have an account? Sign in with your existing name and password.</p><div id="identity-tabs" class="tabs"><button id="register-tab" class="active" type="button">Join as a guest</button><button id="login-tab" type="button">Sign in</button></div><form id="identity-form"><div id="name-field" class="field"><label for="identity-name">Display name</label><input id="identity-name" name="username" autocomplete="username" maxlength="40" required></div><div id="password-field" class="field"><label id="password-label" for="identity-password">Password <span class="muted">(optional)</span></label><input id="identity-password" type="password" name="password" autocomplete="new-password" maxlength="200"><p id="password-help" class="field-note">Add a password to use your name on other devices and enable optional memory.</p></div><div id="email-field" class="field" hidden><label for="identity-email">Recovery email <span class="muted">(optional)</span></label><input id="identity-email" type="email" autocomplete="email" maxlength="254"><p class="field-note">We will send a confirmation link. Confirm your email to enable password recovery. You can also add it later in your account.</p></div><p id="identity-error" class="form-error" role="alert" hidden></p><button id="identity-submit" type="submit" class="primary wide">Take a seat</button><button id="identity-reload" type="button" class="outline wide" hidden>Reload to check sign-in status</button><button id="forgot-password" type="button" class="text-button wide small">Forgot your password?</button></form><p id="guest-warning" class="field-note">Without a password, your guest identity is tied to this browser. Clearing its cookies can lose access. Games and messages are recorded; use discretion.</p></dialog>
@@ -75,7 +75,7 @@
       <p id="recovery-message" class="field-note" role="status" hidden></p>
       <p id="recovery-error" class="form-error" role="alert" hidden></p>
       <button id="recovery-refresh" class="text-button small" type="button">Refresh recovery status</button>
-    </section><section id="memory-section" hidden><form id="memory-form"><label class="check-label"><input id="memory-enabled" type="checkbox"> <span id="memory-choice-label">Let Astra remember context I choose between games</span></label><p class="field-note">Optional, editable context for future games. Keep secrets and sensitive information out. Turning this off stops using it.</p><label id="memory-text-label" for="memory-text">What would you like Astra to remember?</label><textarea id="memory-text" rows="5" maxlength="4000" placeholder="For example: I enjoy slower games and discussing endgames."></textarea><button class="outline wide" type="submit">Save memory preferences</button></form></section><button id="logout" class="text-button wide">Sign out</button></dialog>
+    </section><section id="memory-section" hidden><form id="memory-form"><label class="check-label"><input id="memory-enabled" type="checkbox"> <span id="memory-choice-label">Let your opponent remember context I choose between games</span></label><p class="field-note">Optional, editable context for future games. Keep secrets and sensitive information out. Turning this off stops using it.</p><label id="memory-text-label" for="memory-text">What would you like your opponent to remember?</label><textarea id="memory-text" rows="5" maxlength="4000" placeholder="For example: I enjoy slower games and discussing endgames."></textarea><button class="outline wide" type="submit">Save memory preferences</button></form></section><button id="logout" class="text-button wide">Sign out</button></dialog>
   <dialog id="verify-email-dialog" aria-labelledby="verify-email-title" aria-describedby="verify-email-status">
     <button class="dialog-close" data-close aria-label="Close">×</button>
     <p class="eyebrow">ACCOUNT RECOVERY</p><h2 id="verify-email-title">Confirm your email.</h2>
@@ -90,7 +90,7 @@
     <h2 id="new-title">Which side is yours?</h2>
     <p id="new-description" class="muted">White makes the first move. Black has the first reply.</p>
     <div id="new-availability" class="notice" role="status" hidden></div>
-    <div id="side-options" class="side-options"><button id="play-white" class="side-choice"><span id="white-choice-piece"></span><strong>Play White</strong><span>You move first</span></button><button id="play-black" class="side-choice"><span id="black-choice-piece"></span><strong>Play Black</strong><span id="black-first-label">Astra moves first</span></button></div>
+    <div id="side-options" class="side-options"><button id="play-white" class="side-choice"><span id="white-choice-piece"></span><strong>Play White</strong><span>You move first</span></button><button id="play-black" class="side-choice"><span id="black-choice-piece"></span><strong>Play Black</strong><span id="black-first-label">Your opponent moves first</span></button></div>
     <p id="new-saved-note" class="field-note">Your previous games remain in “Your games.” Unfinished games can be resumed.</p>
     <p id="new-error" class="form-error" role="alert" hidden></p>
     <button id="new-check-availability" class="primary wide" type="button" hidden>Check again</button>

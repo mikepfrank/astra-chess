@@ -48,7 +48,7 @@ def create_app(config=None, player_factory=None):
                 finally:
                     await replay_library.close()
 
-    app = FastAPI(title='Astra Chess', docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
+    app = FastAPI(title=f'{persona_for(config).display_name} Chess', docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     app.state.identity, app.state.store, app.state.supervisor, app.state.config = identity, store, supervisor, config
     origin_hosts = {origin: origin_host_authorities(origin)
                     for origin in (config.origin, *config.additional_origins)}
@@ -203,7 +203,7 @@ def create_app(config=None, player_factory=None):
             elif act == 'message':
                 last = [m for m in s['messages'] if m['author'] == 'human' and m['created_at'] > time.time()-60]
                 if len(last) >= config.max_messages_per_minute:
-                    raise ValueError('Please give Astra a moment before sending another message.')
+                    raise ValueError(f'Please give {saved_player_name(s)} a moment before sending another message.')
                 if not isinstance(data.get('text'), str):
                     raise ValueError('Message text is required.')
                 game.message(s, 'human', data['text'])
@@ -215,11 +215,11 @@ def create_app(config=None, player_factory=None):
                 s['draw_offer'] = 'human'
             elif act == 'accept_draw':
                 if s['draw_offer'] != 'astra':
-                    raise ValueError('There is no Astra draw offer to accept.')
+                    raise ValueError(f'There is no {saved_player_name(s)} draw offer to accept.')
                 game.finish(s, '1/2-1/2', 'agreement')
             elif act == 'decline_draw':
                 if s['draw_offer'] != 'astra':
-                    raise ValueError('There is no Astra draw offer to decline.')
+                    raise ValueError(f'There is no {saved_player_name(s)} draw offer to decline.')
                 s['draw_offer'] = None
             elif act == 'claim_draw':
                 if game.side_to_move(s) != s['human_side'] or not game.claimable(s, data.get('move')):
@@ -227,7 +227,7 @@ def create_app(config=None, player_factory=None):
                 game.finish(s, '1/2-1/2', 'draw_claim')
             elif act in ('resume', 'retry'):
                 if act == 'retry' and s['worker']['state'] not in ('error', 'disabled'):
-                    raise ValueError('There is no interrupted Astra response to retry.')
+                    raise ValueError(f'There is no interrupted {saved_player_name(s)} response to retry.')
                 if act == 'resume':
                     s['status'] = 'active'
             else:
@@ -246,7 +246,7 @@ def create_app(config=None, player_factory=None):
     @app.get('/api/games/{game_id}/pgn')
     async def download_pgn(request: Request, game_id: str):
         state = owned(request, game_id)
-        return PlainTextResponse(game.pgn(state), media_type='application/x-chess-pgn', headers={'Content-Disposition': 'attachment; filename="astra-game.pgn"'})
+        return PlainTextResponse(game.pgn(state), media_type='application/x-chess-pgn', headers={'Content-Disposition': 'attachment; filename="chess-game.pgn"'})
 
     @app.post('/api/games/{game_id}/share')
     async def share(request: Request, game_id: str):

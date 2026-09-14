@@ -4,18 +4,18 @@ let snapshot=null,timer=null,controller=null,requestVersion=0,stopped=false;
 const number=value=>Number.isFinite(value)?value.toLocaleString():'—';
 function date(value){const parsed=new Date(value);return value&&!Number.isNaN(parsed.valueOf())?parsed.toLocaleString():null;}
 function append(parent,tag,text,className){const node=document.createElement(tag);node.textContent=text;if(className)node.className=className;parent.append(node);return node;}
-function workerStatus(row){return {compacting:'Astra compacting',calculating:'Astra calculating',queued:'Astra queued'}[row.worker_state]||'Astra thinking';}
+function workerStatus(row){return {compacting:'AI compacting',calculating:'AI calculating',queued:'AI queued'}[row.worker_state]||'AI thinking';}
 function status(row){
   if(row.status==='finished'){
-    const outcome={win:'Human won',loss:'Astra won',draw:'Draw'}[row.human_outcome]||'Finished';
+    const outcome={win:'Human won',loss:'AI won',draw:'Draw'}[row.human_outcome]||'Finished';
     const reason={checkmate:'checkmate',resignation:'resignation',stalemate:'stalemate',agreement:'draw agreed',insufficient_material:'insufficient material',fifty_moves:'fifty-move rule',threefold_repetition:'repetition',timeout:'time expired'}[row.termination]||String(row.termination||'').replaceAll('_',' ');
     return outcome+(reason?'; '+reason:'')+(row.active_response?' · '+workerStatus(row)+' (post-game chat)':'');
   }
   if(row.status==='suspended')return 'Suspended · can resume';
   if(row.active_response)return workerStatus(row);
-  if(['error','interrupted'].includes(row.worker_state))return 'Astra interrupted · retry available';
+  if(['error','interrupted'].includes(row.worker_state))return 'AI interrupted · retry available';
   if(row.waiting_for==='human')return 'Awaiting human move';
-  if(row.waiting_for==='astra')return 'Awaiting Astra';
+  if(row.waiting_for==='astra')return 'Awaiting AI';
   return 'Unfinished';
 }
 function replays(cell,row){
@@ -51,7 +51,7 @@ function renderRows(){
 function render(data){
   snapshot=data;$('monitor-access').hidden=true;$('monitor-data').hidden=false;
   const summary=$('monitor-summary');summary.replaceChildren();
-  for(const [value,label] of [[data.summary.player_games,'Player games'],[data.summary.finished_player_games,'Finished'],[data.summary.unfinished_player_games,'Unfinished'],[data.activity.active_responses,'Astra responses in progress']]){
+  for(const [value,label] of [[data.summary.player_games,'Player games'],[data.summary.finished_player_games,'Finished'],[data.summary.unfinished_player_games,'Unfinished'],[data.activity.active_responses,'AI responses in progress']]){
     const card=append(summary,'div','');append(card,'strong',number(value));append(card,'span',label);
   }
   const budget=data.today_budget;
