@@ -97,6 +97,114 @@ class NewGameMonitorTests(unittest.TestCase):
         self.assertFalse(self.run_monitor()['sent'])
         self.assertEqual(len(self.sent), 1)
 
+    def test_default_astra_branding_and_sender_domain_message_id_are_preserved(self):
+        self.initialize()
+        self.game(1)
+        self.run_monitor()
+        message = message_from_bytes(self.sent[0], policy=default)
+        self.assertEqual(message['Subject'], 'Astra chess: 1 new game')
+        self.assertTrue(message.get_content().startswith('New Astra chess games — snapshot '))
+        self.assertRegex(str(message['Message-ID']), r'^<[0-9a-f]{32}@example\.com>$')
+        self.assertIsNone(message['Return-Path'])
+
+    def test_arcturus_branding_canonical_sender_domain_and_feedback_header(self):
+        self.config.update(site_name='Arcturus Chess', from_address='notifications@arcturuschess.com',
+                           feedback_address='owner@example.com')
+        self.write_config()
+        self.initialize()
+        game_id = self.game(1)
+        self.run_monitor()
+        message = message_from_bytes(self.sent[0], policy=default)
+        self.assertEqual(message['From'], 'notifications@arcturuschess.com')
+        self.assertEqual(message['To'], 'owner@example.com')
+        self.assertEqual(message['Subject'], 'Arcturus Chess: 1 new game')
+        self.assertEqual(message.get_all('Return-Path'), ['owner@example.com'])
+        self.assertRegex(str(message['Message-ID']), r'^<[0-9a-f]{32}@arcturuschess\.com>$')
+        self.assertTrue(message.get_content().startswith('New Arcturus Chess games — snapshot '))
+        self.assertNotIn('Astra', message.get_content())
+        self.assertEqual(self.saved()['reported_ids'], [game_id])
+
+    def test_explicit_subject_prefix_remains_independent_of_site_name(self):
+        self.config.update(site_name='Arcturus Chess', subject_prefix='Private game monitor')
+        self.write_config()
+        self.initialize()
+        self.game(1)
+        self.run_monitor()
+        message = message_from_bytes(self.sent[0], policy=default)
+        self.assertEqual(message['Subject'], 'Private game monitor: 1 new game')
+        self.assertIn('New Arcturus Chess games', message.get_content())
+
+    def test_branding_change_does_not_rewrite_legacy_pending_bytes_or_baseline(self):
+        original = self.game(1)
+        self.initialize()
+        first = self.game(2)
+        attempted = []
+        def fail(encoded, config):
+            attempted.append(encoded)
+            raise RuntimeError('retry')
+        with self.assertRaises(monitor.MonitorError):
+            self.run_monitor(sender=fail)
+        pending = self.saved()['pending']
+        self.assertNotIn('feedback_address', pending)  # Existing schema-1 queue remains valid.
+        self.config.update(site_name='Arcturus Chess', subject_prefix='Arcturus notifications')
+        self.write_config()
+        later = self.game(3)
+        before = (self.state / 'state.json').read_bytes()
+        preview = self.run_monitor(dry_run=True)
+        self.assertTrue(preview['preview'].startswith('New Astra chess games'))
+        self.assertEqual((self.state / 'state.json').read_bytes(), before)
+        self.assertEqual(self.saved()['reported_ids'], [original])
+        self.run_monitor()
+        self.assertEqual(self.sent[0], attempted[0])
+        self.assertIn(pending['message_id'].encode(), self.sent[0])
+        self.assertEqual(self.saved()['reported_ids'], [original, first])
+        self.run_monitor()
+        message = message_from_bytes(self.sent[1], policy=default)
+        self.assertTrue(message.get_content().startswith('New Arcturus Chess games'))
+        self.assertEqual(message['Subject'], 'Arcturus notifications: 1 new game')
+        self.assertEqual(self.saved()['reported_ids'], [original, first, later])
+
+    def test_pending_feedback_change_is_refused_without_state_or_message_changes(self):
+        self.config['feedback_address'] = 'owner@example.com'
+        self.write_config()
+        self.initialize()
+        self.game(1)
+        attempted = []
+        def fail(encoded, config):
+            attempted.append(encoded)
+            raise RuntimeError('retry')
+        with self.assertRaises(monitor.MonitorError):
+            self.run_monitor(sender=fail)
+        before = (self.state / 'state.json').read_bytes()
+        for feedback in ('other@example.com', None):
+            with self.subTest(feedback=feedback):
+                if feedback is None:
+                    self.config.pop('feedback_address')
+                else:
+                    self.config['feedback_address'] = feedback
+                self.write_config()
+                with self.assertRaisesRegex(monitor.MonitorError, 'feedback address differs'):
+                    self.run_monitor()
+                self.assertEqual((self.state / 'state.json').read_bytes(), before)
+                self.assertEqual(self.sent, [])
+        self.config['feedback_address'] = 'owner@example.com'
+        self.write_config()
+        self.run_monitor()
+        self.assertEqual(self.sent[0], attempted[0])
+
+    def test_adding_feedback_does_not_silently_modify_legacy_pending_message(self):
+        self.initialize()
+        self.game(1)
+        with self.assertRaises(monitor.MonitorError):
+            self.run_monitor(sender=lambda *_: (_ for _ in ()).throw(RuntimeError('retry')))
+        before = (self.state / 'state.json').read_bytes()
+        self.config['feedback_address'] = 'owner@example.com'
+        self.write_config()
+        with self.assertRaisesRegex(monitor.MonitorError, 'feedback address differs'):
+            self.run_monitor()
+        self.assertEqual((self.state / 'state.json').read_bytes(), before)
+        self.assertEqual(self.sent, [])
+
     def test_failure_retry_freezes_message_id_and_batch_then_reports_later_games(self):
         self.initialize()
         first = self.game(1)
@@ -154,6 +262,12 @@ class NewGameMonitorTests(unittest.TestCase):
         for key, bad in (('recipient', 'one@example.com,two@example.com'),
                          ('recipient', 'Name <one@example.com>'),
                          ('from_address', 'one@example.com\r\nBcc: two@example.com'),
+                         ('feedback_address', 'one@example.com,two@example.com'),
+                         ('feedback_address', 'Name <one@example.com>'),
+                         ('feedback_address', 'one@example.com\r\nBcc: two@example.com'),
+                         ('feedback_address', ''), ('feedback_address', None),
+                         ('site_name', ''), ('site_name', '   '), ('site_name', 123),
+                         ('site_name', 'X' * 81), ('site_name', 'Chess\nBcc: bad'),
                          ('subject_prefix', 'Chess\nBcc: bad')):
             with self.subTest(key=key, bad=bad):
                 saved = self.config.get(key)
@@ -236,6 +350,24 @@ class MonitorTransportTests(unittest.TestCase):
         names = [call[0] for call in smtp.mock_calls]
         self.assertLess(names.index('starttls'), names.index('login'))
         smtp.sendmail.assert_called_once_with('from@example.com', ['to@example.com'], b'test message')
+
+    def test_feedback_header_does_not_change_smtp_envelope_sender_or_recipient(self):
+        smtp = MagicMock()
+        smtp.__enter__.return_value = smtp
+        smtp.sendmail.return_value = {}
+        config = dict(from_address='notifications@arcturuschess.com', recipient='owner@example.com',
+                      feedback_address='owner@example.com', timezone='UTC', site_name='Arcturus Chess',
+                      subject_prefix='Arcturus Chess',
+                      transport=dict(type='smtp', host='smtp.example.com', port=465, security='tls'))
+        games = [dict(id='1' * 32, name='Player', human_side='white', created_at=1000,
+                      status='active', last_move='1. e4')]
+        pending = monitor._queue(games, config, datetime(2026, 9, 14, tzinfo=timezone.utc))
+        encoded = monitor._pending_bytes(pending, config)
+        with patch.object(monitor.smtplib, 'SMTP_SSL', return_value=smtp):
+            monitor.handoff(encoded, config)
+        smtp.sendmail.assert_called_once_with('notifications@arcturuschess.com', ['owner@example.com'], encoded)
+        message = message_from_bytes(encoded, policy=default)
+        self.assertEqual(message['Return-Path'], 'owner@example.com')
 
     def test_sendmail_uses_fixed_argv_without_shell(self):
         config = dict(from_address='from@example.com', recipient='to@example.com',

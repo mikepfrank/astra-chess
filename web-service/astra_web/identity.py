@@ -23,6 +23,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
 
 from .config import Config, is_bare_email
+from .player_profiles import persona_for
 
 
 COOKIE_NAME = "astra_session"
@@ -448,6 +449,7 @@ class Identity:
                 db.execute("DELETE FROM auth_resets WHERE token_hash=?", (hashed,))
 
     def _send_email(self, recipient: str, reset_url: str, *, verification: bool = False, name: str | None = None):
+        player_name = persona_for(self.config).display_name
         message = EmailMessage()
         message["From"] = self.config.smtp_from
         message["To"] = recipient
@@ -456,15 +458,15 @@ class Identity:
         if self.config.smtp_feedback_address:
             message["Return-Path"] = self.config.smtp_feedback_address
         if verification:
-            message["Subject"] = "Verify your Astra chess recovery email"
+            message["Subject"] = f"Verify your {player_name} chess recovery email"
             message.set_content((f"Player account: {name}\n\n" if name else "") +
-                                "Confirm this address for recovery of your Astra chess account.\n\n"
+                                f"Confirm this address for recovery of your {player_name} chess account.\n\n"
                                 f"Open this link, then choose Confirm email within 24 hours:\n{reset_url}\n\n"
                                 "If you did not request this, ignore this email. Recovery has not been enabled for this address.")
         else:
-            message["Subject"] = "Reset your Astra chess password"
+            message["Subject"] = f"Reset your {player_name} chess password"
             message.set_content((f"Player account: {name}\n\n" if name else "") +
-                                "A password reset was requested for your Astra chess account.\n\n"
+                                f"A password reset was requested for your {player_name} chess account.\n\n"
                                 f"Choose a new password here within one hour:\n{reset_url}\n\n"
                                 "If you did not request this, ignore this email. Your password has not changed.")
         context = ssl.create_default_context()

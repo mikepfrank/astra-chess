@@ -11,6 +11,21 @@ The scheduler templates are [`astra-game-notify.service`](../deploy/astra-game-n
 and [`astra-game-notify.timer`](../deploy/astra-game-notify.timer). The timer is
 independent of the chess service: installing it does not restart a player's turn.
 
+Alternate deployments can set `site_name` (for example, `Arcturus chess`) in
+their own private monitor configuration. The default remains `Astra chess`;
+the subject defaults to the site name unless `subject_prefix` is supplied.
+An optional bare `feedback_address` supplies the SES SMTP Return-Path header
+for forwarded bounce/complaint notices, while the envelope sender remains
+`from_address`. Use a monitored, verified operator mailbox during sandbox tests.
+SES can rewrite delivered Message-ID and Return-Path headers; submitted values
+are not a substitute for checking received authentication and feedback.
+
+Each installation needs separate data/config/state paths and its own baseline.
+Changing branding preserves already queued bytes. Changing sender, recipient,
+or feedback address refuses a pending send until its existing destination is
+restored or the operator explicitly reconciles the queue. Legacy queues without
+a feedback address continue unchanged when the new setting is absent.
+
 ## Delivery contract
 
 - Initialize once to record existing game IDs without emailing historical games.

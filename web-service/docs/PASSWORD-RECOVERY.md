@@ -30,6 +30,12 @@ No migration silently assumes that an old address belongs to the player.
 The game service's SMTP settings are separate from the hourly notification
 monitor's private JSON file. Configuring the monitor does not enable recovery.
 
+Subjects and message text use the deployment's configured persona name. Links
+and the submitted Message-ID domain use its canonical `ASTRA_ORIGIN`, including
+when a player initiated recovery from an allowed old-host alias. Arcturus mail
+therefore uses Arcturus wording and `https://arcturuschess.com` links. Preserving
+the old website alias does not require preserving the old email identity.
+
 | Setting | Purpose |
 | --- | --- |
 | `ASTRA_SMTP_HOST` | Outbound SMTP endpoint; SES Oregon uses `email-smtp.us-west-2.amazonaws.com`. |

@@ -79,11 +79,19 @@ def load_config(path):
         config = json.loads(path.read_text(encoding='utf-8'))
     except (json.JSONDecodeError, UnicodeError):
         raise MonitorError('Monitor configuration must be a JSON object.') from None
-    if not isinstance(config, dict) or set(config) - {'recipient', 'from_address', 'timezone', 'subject_prefix', 'transport'}:
+    if not isinstance(config, dict) or set(config) - {'recipient', 'from_address', 'feedback_address',
+                                                    'site_name', 'timezone', 'subject_prefix', 'transport'}:
         raise MonitorError('Unsupported monitor configuration fields.')
     for key in ('recipient', 'from_address'):
         config[key] = _address(config.get(key))
-    prefix = config.get('subject_prefix', 'Astra chess')
+    if 'feedback_address' in config:
+        config['feedback_address'] = _address(config['feedback_address'])
+    site_name = config.get('site_name', 'Astra chess')
+    if (not isinstance(site_name, str) or not 1 <= len(site_name) <= 80 or not site_name.strip()
+            or any(not c.isprintable() for c in site_name)):
+        raise MonitorError('The site name must be one nonblank printable line of at most 80 characters.')
+    config['site_name'] = site_name
+    prefix = config.get('subject_prefix', site_name)
     if not isinstance(prefix, str) or not 1 <= len(prefix) <= 80 or any(not c.isprintable() for c in prefix):
         raise MonitorError('The subject prefix must be one printable line of at most 80 characters.')
     config['subject_prefix'] = prefix
@@ -255,7 +263,7 @@ def _queue(games, config, now, *, batch_limit=MAX_BATCH_GAMES):
     overflow = len(games) - len(selected)
     zone = _zone(config['timezone'])
     snapshot = now.astimezone(timezone.utc).isoformat(timespec='seconds')
-    lines = [f"New Astra chess games — snapshot {snapshot}", '']
+    lines = [f"New {config.get('site_name', 'Astra chess')} games — snapshot {snapshot}", '']
     for index, game in enumerate(selected, 1):
         lines.extend([f"{index}. {game['name']} — playing {game['human_side']}",
                       f"   Started: {_stamp(game['created_at'], zone) or 'Unknown'}",
@@ -267,6 +275,10 @@ def _queue(games, config, now, *, batch_limit=MAX_BATCH_GAMES):
     body = '\n'.join(lines) + '\n'
     message = EmailMessage(policy=SMTP)
     message['From'], message['To'] = config['from_address'], config['recipient']
+    if config.get('feedback_address'):
+        # SES SMTP forwards bounce/complaint feedback to this DATA header's
+        # address, while retaining the configured sender for SMTP MAIL FROM.
+        message['Return-Path'] = config['feedback_address']
     message['Subject'] = f"{config['subject_prefix']}: {len(selected)} new game{'s' if len(selected) != 1 else ''}"
     message['Date'] = format_datetime(now.astimezone(timezone.utc))
     message_id = '<' + uuid.uuid4().hex + '@' + config['from_address'].split('@')[1] + '>'
@@ -277,14 +289,19 @@ def _queue(games, config, now, *, batch_limit=MAX_BATCH_GAMES):
         if len(selected) > 1:
             return _queue(games, config, now, batch_limit=len(selected) // 2)
         raise MonitorError('Digest exceeds its size bound; retain the checkpoint and reduce the configured batch size in code.')
-    return dict(ids=[game['id'] for game in selected], recipient=config['recipient'], from_address=config['from_address'],
-                message_id=message_id, message=base64.b64encode(encoded).decode('ascii'),
-                body=body, queued_at=snapshot, overflow=overflow)
+    pending = dict(ids=[game['id'] for game in selected], recipient=config['recipient'], from_address=config['from_address'],
+                   message_id=message_id, message=base64.b64encode(encoded).decode('ascii'),
+                   body=body, queued_at=snapshot, overflow=overflow)
+    if config.get('feedback_address'):
+        pending['feedback_address'] = config['feedback_address']
+    return pending
 
 
 def _pending_bytes(pending, config):
     if pending.get('recipient') != config['recipient'] or pending.get('from_address') != config['from_address']:
         raise MonitorError('The queued digest sender/recipient differs from current settings. Restore the intended settings or review the private queue before proceeding.')
+    if pending.get('feedback_address') != config.get('feedback_address'):
+        raise MonitorError('The queued digest feedback address differs from current settings. Restore the intended settings or review the private queue before proceeding.')
     if (not isinstance(pending.get('ids'), list) or not pending['ids'] or len(pending['ids']) > MAX_BATCH_GAMES
             or any(not isinstance(value, str) or TOKEN.fullmatch(value) is None for value in pending['ids'])):
         raise MonitorError('The queued digest has invalid game identifiers; retain the state for review.')
