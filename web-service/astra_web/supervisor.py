@@ -14,9 +14,15 @@ from . import chess_game as game
 from .player_profiles import profile_for, verify_game_profile, game_player_binding
 
 
+class ChessClockExhausted(TimeoutError):
+    """Earned chess time was used, rather than lost to a harness failure."""
+
+
 def interruption_kind(error):
     if isinstance(error, asyncio.CancelledError):
         return 'service_interrupted'
+    if isinstance(error, ChessClockExhausted):
+        return 'clock_exhausted'
     if isinstance(error, TimeoutError):
         return 'time_limit'
     if isinstance(error, (ConnectionError, OSError)):
@@ -225,6 +231,10 @@ class Supervisor:
                 await self._active_run(game_id)
         except asyncio.CancelledError:
             raise
+        except ChessClockExhausted:
+            self.store.mutate(game_id, lambda s: s.update(worker={'state': 'error',
+                'message': 'Astra’s earned thinking allowance is exhausted. The game remains saved.'}),
+                kind='clock_exhausted')
         except DailyResourceLimit:
             # Admission spent nothing. Do not automatically retry the same denial.
             self.rerun.discard(game_id)
@@ -264,9 +274,17 @@ class Supervisor:
         else:
             allocation = self.config.ordinary_seconds if post_game else min(60, self.config.ordinary_seconds)
         critical_allocation = min(self.config.critical_seconds, balance, 2 * balance / horizon) if own_turn else allocation
-        control = {'deadline': started + allocation, 'queries': 0, 'candidate': False, 'root_query': False,
+        soft_target = own_turn and getattr(self.config, 'model_profile', 'astra') == 'openrouter-glm'
+        if soft_target:
+            allocation = min(self.config.ordinary_seconds, balance)
+            critical_allocation = min(self.config.critical_seconds, balance)
+        hard_allocation = balance if soft_target else allocation
+        control = {'deadline': started + hard_allocation, 'target_deadline': started + allocation,
+                   'target_warning_recorded': False, 'post_action_deadline': None,
+                   'queries': 0, 'candidate': False, 'root_query': False,
                    'chosen': False, 'tokens': None, 'usage_complete': False, 'public_messages': 0, 'ply': len(state['moves']),
-                   'stopped_clock': False, 'query_paths': [], 'attempt_id': secrets.token_hex(12), 'error_kind': None,
+                   'stopped_clock': False, 'elapsed_at_clock_stop': None,
+                   'query_paths': [], 'attempt_id': secrets.token_hex(12), 'error_kind': None,
                    'allocation': allocation, 'paused_seconds': 0.0, 'pause': None, 'pause_items': set()}
         def thinking_worker(s):
             return {'state': 'thinking', 'message': (
@@ -280,7 +298,7 @@ class Supervisor:
                 s['active_paused_seconds'] = 0.0
             if own_turn:
                 s['active_started'] = wall_started
-                s['active_deadline'] = wall_started + allocation
+                s['active_deadline'] = wall_started + hard_allocation
         self.store.mutate(game_id, begin, kind='worker_started', body={'attempt_id': control['attempt_id'],
             'ply': control['ply'], 'fen': state['fen'], 'own_turn': own_turn})
 
@@ -294,19 +312,54 @@ class Supervisor:
                     'charged_seconds': charged, 'own_moves_before_credit': s['own_moves'],
                     'paused_seconds': s.get('active_paused_seconds', 0.0),
                     'remaining_before_credit': remaining, 'attempt_id': control['attempt_id'],
-                    'ply': control['ply'], 'fen': state['fen'], 'outcome': outcome or ('interrupted' if control['error_kind'] else 'completed'),
+                    'ply': control['ply'], 'fen': state['fen'], 'outcome': outcome or (
+                        'clock_exhausted' if control['error_kind'] == 'clock_exhausted' else
+                        'interrupted' if control['error_kind'] else 'completed'),
                     'error_kind': control['error_kind']})
                 s['clock_used'] += charged
                 s['active_started'] = None
                 s['active_deadline'] = None
                 s['active_paused_seconds'] = 0.0
                 control['stopped_clock'] = True
+                control['elapsed_at_clock_stop'] = charged
 
         def remaining_turn():
             now = control['pause']['monotonic'] if control['pause'] else time.monotonic()
             return max(0.0, control['deadline'] - now)
 
+        def turn_timing():
+            now = control['pause']['monotonic'] if control['pause'] else time.monotonic()
+            elapsed = (control['elapsed_at_clock_stop'] if control['chosen'] and control['stopped_clock']
+                       else max(0.0, now - started - control['paused_seconds']))
+            remaining_target = max(0.0, control['allocation'] - elapsed)
+            exceeded = remaining_target <= 0
+            if exceeded and not control['target_warning_recorded']:
+                self.store.audit(game_id, 'turn_target_exceeded', {
+                    'attempt_id': control['attempt_id'], 'ply': control['ply'],
+                    'target_seconds': control['allocation']})
+                control['target_warning_recorded'] = True
+            warning = None
+            if exceeded:
+                warning = ('This turn exceeded its intended time target. The action is already accepted '
+                    'and the chess clock has stopped; no additional move is needed.' if control['chosen'] else
+                    'Your intended turn-time target has been exceeded. Time continues to count '
+                    'against your chess clock; finish the required checks and submit your move promptly.')
+            return {'target_seconds': control['allocation'], 'elapsed_seconds': elapsed,
+                'remaining_target_seconds': remaining_target, 'target_exceeded': exceeded,
+                'remaining_clock_seconds': game.clock(self.store.get(game_id))['remaining_seconds'],
+                'warning': warning}
+
         async def tool(name, args):
+            result = await handle_tool(name, args)
+            if soft_target and not name.startswith('_'):
+                timing = turn_timing()
+                result = {**result, 'turn_timing': timing}
+                if isinstance(result.get('current_attempt'), dict):
+                    result['current_attempt'] = {**result['current_attempt'],
+                        'target_exceeded': timing['target_exceeded']}
+            return result
+
+        async def handle_tool(name, args):
             if not isinstance(args, dict):
                 raise ValueError('Tool arguments must be an object.')
             if name == '_thread':
@@ -355,6 +408,7 @@ class Supervisor:
                         body=dict(args, paused_seconds=duration))
                     control['paused_seconds'] += duration
                     control['deadline'] += duration
+                    control['target_deadline'] += duration
                     control['pause'] = None
                 else:
                     # Never infer missing start time or refund retrospectively.
@@ -404,9 +458,12 @@ class Supervisor:
             if name == 'chess_critical':
                 if not own_turn or set(args) != {'reason'} or not 1 <= len(str(args['reason'])) <= 1000:
                     raise ValueError('A concrete critical-position reason is required.')
-                control['allocation'] = critical_allocation
-                control['deadline'] = started + critical_allocation + control['paused_seconds']
-                self.store.mutate(game_id, lambda s: s.update(active_deadline=wall_started + critical_allocation
+                if not soft_target:
+                    control['allocation'] = critical_allocation
+                    control['target_deadline'] = started + critical_allocation + control['paused_seconds']
+                    control['deadline'] = control['target_deadline']
+                deadline_allocation = hard_allocation if soft_target else critical_allocation
+                self.store.mutate(game_id, lambda s: s.update(active_deadline=wall_started + deadline_allocation
                     + s.get('active_paused_seconds', 0.0)), kind='critical', body=args, increment=False)
                 return {'remaining_turn_seconds': remaining_turn()}
             if name == 'chess_candidate':
@@ -492,6 +549,10 @@ class Supervisor:
                     s['decisions'].append(dict(ply=control['ply'], **args))
                 self.store.mutate(game_id, choose, kind='astra_action', body=args)
                 control['chosen'] = action in {'move', 'resign', 'accept_draw', 'claim_draw'}
+                if soft_target and control['chosen']:
+                    # Once play succeeds, allow only brief final commentary.
+                    # The long earned-clock allowance is for deciding a move.
+                    control['post_action_deadline'] = time.monotonic() + 15
                 return {'accepted': True, 'game': game.model_snapshot(self.store.get(game_id))}
             raise ValueError('Unknown tool. Only the chess service tools are available.')
 
@@ -513,20 +574,53 @@ class Supervisor:
             snapshot = game.model_snapshot(self.store.get(game_id))
             snapshot['memory'] = self.identity.memory_for_user(state['user_id'])
             snapshot['remaining_turn_seconds'] = allocation
+            if soft_target:
+                snapshot['hard_response_seconds'] = hard_allocation
+                snapshot['remaining_turn_seconds'] = hard_allocation
+                snapshot['turn_timing'] = turn_timing()
             options = {'thread_id': state['thread_id']}
             if not self.player_factory:
                 options['player_binding'] = game_player_binding(self.store.get(game_id), self.config)
             run = asyncio.create_task(player.run(game_id, snapshot, tool, emit, **options))
             try:
+                post_action_timeout = False
                 while not run.done():
-                    if remaining_turn() <= 0:
+                    timing = turn_timing() if soft_target else None
+                    tail_expired = (soft_target and control['chosen']
+                        and time.monotonic() >= control['post_action_deadline'])
+                    if remaining_turn() <= 0 or tail_expired:
+                        if control['chosen']:
+                            # The authoritative action and own-clock settlement
+                            # already succeeded. Stop trailing model work at the
+                            # same deadline without making the player retry an
+                            # accepted move. Parent cancellation still propagates
+                            # through gather; unrelated model errors stay errors.
+                            run.cancel()
+                            outcome = (await asyncio.gather(run, return_exceptions=True))[0]
+                            if isinstance(outcome, BaseException) and not isinstance(outcome, asyncio.CancelledError):
+                                raise outcome
+                            post_action_timeout = True
+                            self.store.audit(game_id, 'post_action_timeout', {
+                                'attempt_id': control['attempt_id'], 'ply': control['ply'],
+                                'current_ply': len(self.store.get(game_id)['moves']),
+                                'usage_complete': False})
+                            break
+                        if soft_target:
+                            raise ChessClockExhausted('The earned chess-clock allowance is exhausted')
                         raise TimeoutError('Astra response deadline reached')
                     await asyncio.wait({run}, timeout=min(0.25, max(.01, remaining_turn())))
-                result = await run
+                # Cancellation can leave unreported provider usage. Keep the
+                # normal conservative reservation settlement for this case.
+                result = None if post_action_timeout else await run
                 if result and result.get('usage_tokens') is not None:
                     control['tokens'] = result['usage_tokens']
                     control['usage_complete'] = True
                 latest = self.store.get(game_id)
+                if (soft_target and not control['chosen'] and remaining_turn() <= 0
+                        and latest['status'] == 'active' and len(latest['moves']) == control['ply']):
+                    # A provider can complete between deadline polls without
+                    # choosing. Used chess time must not become a retry refund.
+                    raise ChessClockExhausted('The earned chess-clock allowance is exhausted')
                 if own_turn and not control['chosen'] and latest['status'] == 'active' and len(latest['moves']) == control['ply']:
                     raise ValueError('The player finished without submitting a move.')
                 self.store.mutate(game_id, lambda s: s.update(worker={'state': 'idle', 'message': ''}), kind='worker_completed')

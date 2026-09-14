@@ -53,7 +53,17 @@ selected model, not a guaranteed speed or a model substitution. See
 | Cumulative token ceiling per action | At most 2,000,000, including repeated input and compaction; smaller operator overrides remain effective |
 | Daily token allowance | Selected Arcturus deployment override: 200,000,000; shared application default: 20,000,000 |
 | Chess clock | 90 minutes, +30 seconds per own move, +30 minutes after move 40 |
-| Ordinary / critical turn targets | 120 / 240 seconds, reduced by earned balance |
+| Own-turn thinking target | 120 seconds is a soft target; overruns warn the model and continue charging its earned chess clock |
+
+For OpenRouter own-turns, provider waits and continued reasoning beyond two
+minutes do not cause a turn failure. The host reports `turn_timing` with the
+planning target, elapsed time, remaining earned clock, and an overrun warning
+on subsequent chess tool replies. Clock exhaustion and genuine connection or
+token-limit errors remain stopping conditions. After an accepted move, a
+15-second allowance for trailing text ends quietly if exhausted. The bridge
+uses the host's earned-clock allowance instead of its usual five-minute
+process fallback for these own-turns. Compaction retains its existing clock
+pause accounting. Astra's original time policy is unchanged.
 
 The supervisor retains authoritative moves, clocks, legal-action checks,
 independent candidate registration, mandatory current-position search and private

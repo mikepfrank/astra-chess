@@ -9,7 +9,7 @@ from unittest.mock import patch
 from astra_web import chess_game as game
 from astra_web.config import Config
 from astra_web.store import Store
-from astra_web.supervisor import Supervisor
+from astra_web.supervisor import ChessClockExhausted, Supervisor
 
 
 class FakeTime:
@@ -340,6 +340,308 @@ class CompactionClockTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(state['clock_used'], 320)
         self.assertEqual(state['clock_events'][0]['charged_seconds'], 120)
         self.assertEqual(state['clock_events'][0]['paused_seconds'], 100)
+
+    async def test_deadline_after_accepted_move_stops_trailing_work_and_completes(self):
+        cancelled = asyncio.Event()
+
+        async def script(tool, emit):
+            self.time.advance(10)
+            await self.move(tool)
+            await tool('_usage', {'tokens': 123})
+            await emit('Fixture move commentary.')
+            self.time.advance(111)
+            try:
+                await asyncio.Event().wait()
+            finally:
+                cancelled.set()
+
+        supervisor = self.player(script)
+        await supervisor._active_run(self.game_id)
+        state = self.current()
+        self.assertTrue(cancelled.is_set())
+        self.assertEqual(state['worker'], {'state': 'idle', 'message': ''})
+        self.assertEqual([move['uci'] for move in state['moves']], ['e2e4'])
+        self.assertEqual(state['clock_used'], 210)
+        self.assertEqual(len(state['clock_events']), 1)
+        self.assertEqual(state['clock_events'][0]['outcome'], 'accepted_action')
+        self.assertIsNone(state['active_started'])
+        self.assertEqual(state['messages'][-1]['text'], 'Fixture move commentary.')
+        self.assertEqual(self.closed, 1)
+        with self.store.connection() as db:
+            self.assertEqual(tuple(db.execute('SELECT tokens,reserved FROM budget').fetchone()),
+                             (self.config.max_turn_tokens, 0))
+            kinds = [row[0] for row in db.execute('SELECT kind FROM events')]
+        self.assertEqual(kinds.count('post_action_timeout'), 1)
+        self.assertEqual(kinds.count('worker_completed'), 1)
+        refunded = self.store.mutate(self.game_id, lambda s: None, transaction_hook=lambda s, db:
+            supervisor.refund_retry_clock(s, db, 'accepted-timeout-fixture'))
+        self.assertEqual(refunded['clock_used'], 210)
+        self.assertNotIn('clock_refunds', refunded)
+
+    async def test_deadline_before_move_remains_an_error(self):
+        async def script(tool, emit):
+            self.time.advance(121)
+            await asyncio.Event().wait()
+
+        with self.assertRaisesRegex(TimeoutError, 'response deadline'):
+            await self.player(script)._active_run(self.game_id)
+        state = self.current()
+        self.assertEqual(state['moves'], [])
+        self.assertEqual(state['worker']['state'], 'error')
+        with self.store.connection() as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM events WHERE kind='post_action_timeout'").fetchone()[0], 0)
+
+    async def test_post_move_model_error_is_not_hidden_by_elapsed_deadline(self):
+        from astra_web.codex_bridge import CodexError
+
+        async def script(tool, emit):
+            self.time.advance(10)
+            await self.move(tool)
+            self.time.advance(111)
+            raise CodexError('Fixture model validation failed')
+
+        with self.assertRaisesRegex(CodexError, 'model validation'):
+            await self.player(script)._active_run(self.game_id)
+        state = self.current()
+        self.assertEqual([move['uci'] for move in state['moves']], ['e2e4'])
+        self.assertEqual(state['worker']['state'], 'error')
+        self.assertEqual(state['clock_used'], 210)
+        with self.store.connection() as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM events WHERE kind='post_action_timeout'").fetchone()[0], 0)
+
+    async def test_cancellation_during_post_move_timeout_cleanup_still_propagates(self):
+        cleanup_started = asyncio.Event()
+
+        async def script(tool, emit):
+            self.time.advance(10)
+            await self.move(tool)
+            self.time.advance(111)
+            try:
+                await asyncio.Event().wait()
+            except asyncio.CancelledError:
+                cleanup_started.set()
+                await asyncio.Event().wait()
+
+        task = asyncio.create_task(self.player(script)._active_run(self.game_id))
+        await asyncio.wait_for(cleanup_started.wait(), 2)
+        task.cancel()
+        with self.assertRaises(asyncio.CancelledError):
+            await task
+        state = self.current()
+        self.assertEqual([move['uci'] for move in state['moves']], ['e2e4'])
+        self.assertEqual(state['clock_used'], 210)
+        with self.store.connection() as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM events WHERE kind='worker_completed'").fetchone()[0], 0)
+            self.assertEqual(tuple(db.execute('SELECT tokens,reserved FROM budget').fetchone()),
+                             (self.config.max_turn_tokens, 0))
+
+
+class OpenRouterTurnTargetTests(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        self.config = Config(data_dir=Path(folder.name), player_mode='disabled',
+                             model_profile='openrouter-glm', persona='arcturus')
+        self.config.validate()
+        self.time = FakeTime()
+        for module in ('supervisor', 'chess_game', 'store'):
+            clock_patch = patch(f'astra_web.{module}.time', self.time)
+            clock_patch.start()
+            self.addCleanup(clock_patch.stop)
+        self.store = Store(self.config)
+        self.state = game.new_game({'id': 'fixture', 'name': 'Fixture'}, 'black', self.config)
+        self.state['clock_used'] = 200.0
+        self.store.create(self.state)
+        self.game_id = self.state['id']
+        self.snapshots = []
+        self.closed = 0
+        self.query_available = []
+
+    current = CompactionClockTests.current
+    move = CompactionClockTests.move
+
+    def player(self, script):
+        owner = self
+
+        class Player:
+            def __init__(self, config):
+                pass
+
+            async def run(self, game_id, snapshot, tool, emit, thread_id=None):
+                owner.snapshots.append(snapshot)
+                return await script(tool, emit)
+
+            async def close(self):
+                owner.closed += 1
+
+        supervisor = Supervisor(self.config, self.store,
+            SimpleNamespace(memory_for_user=lambda _: ''), Player)
+
+        async def query(game_id, state, args, available):
+            self.query_available.append(available)
+            return {'fallback': False}, 'fixture.result.json'
+
+        supervisor._query = query
+        return supervisor
+
+    async def test_provider_delay_exceeds_soft_target_warns_and_counts_until_move(self):
+        replies = []
+
+        async def script(tool, emit):
+            current = self.current()
+            self.assertEqual(current['active_deadline'] - current['active_started'], 5200)
+            self.time.advance(130)
+            # Let the supervisor notice the slow provider before another tool
+            # arrives. Warning audit must still be written only once.
+            await asyncio.sleep(.3)
+            replies.append(await tool('chess_status', {}))
+            replies.append(await tool('chess_candidate', {'move': 'e2e4', 'concern': 'Late fixture candidate'}))
+            replies.append(await tool('chess_query', {'seconds': 1}))
+            replies.append(await tool('chess_choose', {'action': 'move', 'move': 'e2e4', 'note': 'Late fixture move'}))
+            return {'usage_tokens': 123}
+
+        await self.player(script)._active_run(self.game_id)
+        state = self.current()
+        self.assertEqual(state['worker']['state'], 'idle')
+        self.assertEqual(state['moves'][0]['uci'], 'e2e4')
+        self.assertEqual(state['clock_used'], 330)
+        self.assertEqual(state['clock_events'][0]['charged_seconds'], 130)
+        self.assertEqual(self.snapshots[0]['hard_response_seconds'], 5200)
+        self.assertEqual(self.snapshots[0]['turn_timing']['target_seconds'], 120)
+        self.assertTrue(all(reply['turn_timing']['target_exceeded'] for reply in replies))
+        self.assertTrue(all(reply['turn_timing']['elapsed_seconds'] == 130 for reply in replies))
+        self.assertTrue(all(reply['turn_timing']['warning'] for reply in replies))
+        self.assertIn('Time continues to count', replies[0]['turn_timing']['warning'])
+        self.assertIn('already accepted', replies[-1]['turn_timing']['warning'])
+        self.assertIn('clock has stopped', replies[-1]['turn_timing']['warning'])
+        self.assertNotIn('submit your move', replies[-1]['turn_timing']['warning'])
+        self.assertTrue(replies[0]['current_attempt']['target_exceeded'])
+        self.assertGreater(self.query_available[0], 120)
+        with self.store.connection() as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM events WHERE kind='turn_target_exceeded'").fetchone()[0], 1)
+            self.assertEqual(tuple(db.execute('SELECT tokens,reserved FROM budget').fetchone()), (123, 0))
+        self.assertNotIn('clock_refunds', state)
+
+    async def test_earned_clock_exhaustion_stops_and_cannot_be_refunded_as_slow_service(self):
+        self.store.mutate(self.game_id, lambda s: s.update(clock_used=5395))
+
+        async def script(tool, emit):
+            self.time.advance(5)
+            await asyncio.Event().wait()
+
+        supervisor = self.player(script)
+        with self.assertRaises(ChessClockExhausted):
+            await supervisor._active_run(self.game_id)
+        state = self.current()
+        self.assertEqual(state['moves'], [])
+        self.assertEqual(state['clock_used'], 5400)
+        self.assertEqual(game.clock(state)['remaining_seconds'], 0)
+        self.assertEqual(state['clock_events'][0]['outcome'], 'clock_exhausted')
+        refunded = self.store.mutate(self.game_id, lambda s: None, transaction_hook=lambda s, db:
+            supervisor.refund_retry_clock(s, db, 'exhausted-fixture'))
+        self.assertEqual(refunded['clock_used'], 5400)
+        self.assertNotIn('clock_refunds', refunded)
+        self.assertEqual(self.snapshots[0]['hard_response_seconds'], 5)
+
+    async def test_connection_error_before_move_stays_an_error_after_target(self):
+        async def script(tool, emit):
+            self.time.advance(130)
+            raise ConnectionError('Fixture provider connection failed')
+
+        with self.assertRaises(ConnectionError):
+            await self.player(script)._active_run(self.game_id)
+        state = self.current()
+        self.assertEqual(state['worker']['state'], 'error')
+        self.assertEqual(state['clock_events'][0]['error_kind'], 'connection_error')
+        self.assertEqual(state['clock_used'], 330)
+        self.assertEqual(state['moves'], [])
+
+    async def test_critical_request_retains_the_two_minute_warning_target(self):
+        async def script(tool, emit):
+            self.time.advance(100)
+            critical = await tool('chess_critical', {'reason': 'Fixture tactical check'})
+            self.assertEqual(critical['turn_timing']['target_seconds'], 120)
+            self.time.advance(30)
+            status = await tool('chess_status', {})
+            self.assertTrue(status['turn_timing']['target_exceeded'])
+            self.assertEqual(status['turn_timing']['elapsed_seconds'], 130)
+            self.assertEqual(status['turn_timing']['target_seconds'], 120)
+            await self.move(tool)
+            return {'usage_tokens': 5}
+
+        await self.player(script)._active_run(self.game_id)
+        self.assertEqual(self.current()['clock_used'], 330)
+
+    async def test_completion_without_move_at_hard_deadline_is_clock_exhaustion(self):
+        self.store.mutate(self.game_id, lambda s: s.update(clock_used=5395))
+
+        async def script(tool, emit):
+            self.time.advance(5)
+            return {'usage_tokens': 123}
+
+        supervisor = self.player(script)
+        with self.assertRaises(ChessClockExhausted):
+            await supervisor._active_run(self.game_id)
+        state = self.current()
+        self.assertEqual(state['clock_used'], 5400)
+        self.assertEqual(state['clock_events'][0]['outcome'], 'clock_exhausted')
+        refunded = self.store.mutate(self.game_id, lambda s: None, transaction_hook=lambda s, db:
+            supervisor.refund_retry_clock(s, db, 'completed-exhaustion-fixture'))
+        self.assertEqual(refunded['clock_used'], 5400)
+        self.assertNotIn('clock_refunds', refunded)
+
+    async def test_post_move_tail_uses_short_grace_and_never_spends_remaining_chess_time(self):
+        async def script(tool, emit):
+            self.time.advance(130)
+            await self.move(tool)
+            self.time.advance(15)
+            await asyncio.Event().wait()
+
+        await self.player(script)._active_run(self.game_id)
+        state = self.current()
+        self.assertEqual(state['worker']['state'], 'idle')
+        self.assertEqual(state['moves'][0]['uci'], 'e2e4')
+        self.assertEqual(state['clock_used'], 330)
+        with self.store.connection() as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM events WHERE kind='post_action_timeout'").fetchone()[0], 1)
+
+    async def test_short_move_followed_by_commentary_tail_cannot_create_an_overrun_warning(self):
+        replies = []
+
+        async def script(tool, emit):
+            self.time.advance(110)
+            await self.move(tool)
+            self.time.advance(14)
+            replies.append(await tool('chess_status', {}))
+            self.time.advance(1)
+            await asyncio.Event().wait()
+
+        await self.player(script)._active_run(self.game_id)
+        state = self.current()
+        self.assertEqual(state['clock_used'], 310)
+        self.assertEqual(replies[0]['turn_timing']['elapsed_seconds'], 110)
+        self.assertFalse(replies[0]['turn_timing']['target_exceeded'])
+        self.assertIsNone(replies[0]['turn_timing']['warning'])
+        with self.store.connection() as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM events WHERE kind='turn_target_exceeded'").fetchone()[0], 0)
+
+    async def test_compaction_preserves_soft_target_pause_and_hard_clock_deadline(self):
+        async def script(tool, emit):
+            self.time.advance(100)
+            await tool('_compaction', {'phase': 'started', 'item_id': 'fixture-pause'})
+            self.time.advance(90)
+            await tool('_compaction', {'phase': 'completed', 'item_id': 'fixture-pause'})
+            status = await tool('chess_status', {})
+            self.assertEqual(status['turn_timing']['elapsed_seconds'], 100)
+            self.assertFalse(status['turn_timing']['target_exceeded'])
+            current = self.current()
+            self.assertEqual(current['active_deadline'] - current['active_started'], 5290)
+            self.time.advance(30)
+            await self.move(tool)
+            return {'usage_tokens': 7}
+
+        await self.player(script)._active_run(self.game_id)
+        self.assertEqual(self.current()['clock_used'], 330)
 
 
 if __name__ == '__main__':

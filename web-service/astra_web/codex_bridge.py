@@ -176,6 +176,22 @@ def _event_input(game_id, snapshot):
             "This marker does not replace live host state.\n" + json.dumps(marker))
 
 
+def _action_timeout_seconds(config, profile, snapshot, *, compact_only=False):
+    """Keep the transport ceiling above an OpenRouter turn's earned clock.
+
+    hard_response_seconds is supplied only by the host supervisor, never by
+    opponent messages or model tool arguments. The supervisor enforces the
+    actual chess clock; this is a separate bound on a stranded child process.
+    """
+    configured = float(getattr(config, 'codex_timeout_seconds', 300))
+    if compact_only or profile.name != 'openrouter-glm' or 'hard_response_seconds' not in snapshot:
+        return configured
+    earned = snapshot['hard_response_seconds']
+    if type(earned) not in (int, float) or not 0 < earned <= 86_400:
+        raise CodexError('Invalid host-supplied response clock allowance')
+    return max(configured, earned + 300)
+
+
 def _verify_effective_config(config, model, reasoning, profile=None):
     """Refuse ambient managed/local configuration that widens the tool surface."""
     profile = profile or get_profile()
@@ -777,7 +793,8 @@ class CodexPlayer:
 
         rpc = _Rpc(process, on_event, on_request)
         try:
-            async with asyncio.timeout(float(getattr(self.config, "codex_timeout_seconds", 300))):
+            async with asyncio.timeout(_action_timeout_seconds(
+                    self.config, profile, snapshot, compact_only=compact_only)):
                 initialized = await rpc.request("initialize", {
                     "clientInfo": {"name": "astra_chess", "title": "Astra Chess", "version": "0.1.0"},
                     "capabilities": {"experimentalApi": True}})

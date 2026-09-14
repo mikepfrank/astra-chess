@@ -58,13 +58,44 @@ receipt. The board, clock, chat transcript and game thread are retained. An
 operator backup is required before use; historical data must not be restored
 over new usage or game writes.
 
-**Not yet applied or proven to restore this game:** automatic approval review
-blocked the copied-game OpenRouter compaction test pending explicit user
-permission to resend that conversation. The user was asked to authorize the
-bounded test and subsequent live recovery. No paid recovery request, live
-compaction, service restart, or chess move has occurred in this investigation.
-The live checkout remains unchanged. Do not report the game as fixed until a
-real continuation succeeds.
+The operator explicitly authorized the copied-conversation test and recovery
+on September 14 after automatic approval review initially blocked the request.
+The refreshed copy included a later failed retry; that retry had an incomplete
+provider stream, in addition to the earlier context-confusion failures.
+
+At 15:45 UTC, real compaction on the copy succeeded through Parasail using the
+same thread, saved prompt, Max reasoning and 32,768 output allowance. It used
+138,750 input and 3,932 output tokens, cost $0.0227785, and preserved the entire
+game document. The following request carried only 8,703 input tokens.
+
+The first normal continuation timed out waiting for its second provider stream
+within the ordinary 120-second allocation. A second continuation completed the
+candidate/query/choose workflow and committed a legal check evasion in the copy.
+The tactical query rejected the model's initial candidate, and the model used
+that evidence to choose its final move. The accepted move stopped the chess
+clock after 104.415 seconds.
+
+This exposed a separate supervisor bug: follow-up text generation exceeded the
+same turn deadline after the move had already been committed, leaving the
+worker marked as an error. The recovery candidate handles that narrow case as
+a completed action with a privately audited commentary timeout. It still
+terminates the Codex process and charges conservatively when final usage is
+unknown. Actual connection failures remain errors; the ordinary thinking-time
+target follows the soft policy below.
+
+The operator subsequently requested a soft two-minute thinking target for
+Arcturus. Under that policy, an ordinary provider wait or continued reasoning
+past 120 seconds does not abort an own-turn response. All such elapsed time
+counts against the earned classical clock; tool responses warn the model after
+the target is exceeded. The earned clock, token budget, and genuine transport
+errors remain operational bounds. Once a move is committed, trailing text has
+a short grace period and cannot convert the committed move into an error.
+The bridge's independent process bound follows the host's earned-clock
+allowance, preventing its old five-minute fallback from cutting a valid longer
+turn short. This policy is scoped to OpenRouter own-turns.
+
+Live compaction and deployment are recorded below when completed. The private
+test move is not copied into the live game.
 
 Private diagnostic copies and reports remain under the experimental account's
 `operator-checks/turn11-*` directories. They contain game data and are not
