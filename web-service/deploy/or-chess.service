@@ -17,7 +17,8 @@ Environment=ASTRA_CODEX_BIN=/home/or-chess/.local/share/or-chess-runtime/codex/b
 Environment=ASTRA_PLAYER=codex
 Environment=ASTRA_MODEL_PROFILE=openrouter-glm
 Environment=ASTRA_PERSONA=arcturus
-Environment=ASTRA_ORIGIN=https://arcturus.astraplayschess.com
+Environment=ASTRA_ORIGIN=https://arcturuschess.com
+Environment=ASTRA_ADDITIONAL_ORIGINS=https://arcturus.astraplayschess.com
 Environment=ASTRA_MAX_WORKERS=1
 Environment=HOME=/home/or-chess/.local/share/or-chess
 Environment=PATH=/usr/local/bin:/usr/bin:/bin

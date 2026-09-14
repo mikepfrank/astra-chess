@@ -27,6 +27,8 @@ class OpenRouterServiceCheckTests(unittest.TestCase):
         self.assertIn('ASTRA_OPENROUTER_BUDGET_PATH=/home/or-chess/.local/share/or-chess/openrouter-budget.json', environment)
         self.assertIn('ASTRA_MODEL_PROFILE=openrouter-glm', environment)
         self.assertIn('ASTRA_PERSONA=arcturus', environment)
+        self.assertIn('ASTRA_ORIGIN=https://arcturuschess.com', environment)
+        self.assertIn('ASTRA_ADDITIONAL_ORIGINS=https://arcturus.astraplayschess.com', environment)
         self.assertFalse(any('ExecStart=' in arg for arg in command))
         self.assertNotIn('--live', command)
 

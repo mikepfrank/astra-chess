@@ -777,6 +777,16 @@ textarea::placeholder,input::placeholder {
   color:#ded1a9;
   margin-bottom:18px;
 }
+.site-address-notice p+p {
+  margin-top:5px;
+}
+.site-address-notice a {
+  text-decoration:underline;
+  overflow-wrap:anywhere;
+}
+#identity-existing-account {
+  margin-bottom:18px;
+}
 .draw-banner {
   margin:12px 0;
   display:flex;

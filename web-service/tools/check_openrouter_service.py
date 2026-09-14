@@ -44,7 +44,8 @@ def preflight():
         'shared_budget_path': os.environ.get('ASTRA_OPENROUTER_BUDGET_PATH') == str(BUDGET),
         'fixed_profile': config.model_profile == 'openrouter-glm' and config.persona == 'arcturus',
         'single_codex_worker': config.player_mode == 'codex' and config.max_workers == 1,
-        'https_origin': config.origin == 'https://arcturus.astraplayschess.com' and config.secure_cookies,
+        'https_origin': config.origin == 'https://arcturuschess.com' and config.secure_cookies,
+        'legacy_origin_alias': config.additional_origins == ('https://arcturus.astraplayschess.com',),
         'python_312': sys.version_info[:2] == (3, 12),
     }
     # Refuse unexpected paths before creating any disposable probes.

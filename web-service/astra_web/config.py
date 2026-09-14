@@ -1,11 +1,48 @@
 from dataclasses import dataclass, field
+import ipaddress
 from pathlib import Path
 import os
 import re
+from urllib.parse import urlsplit
 
 
 APP_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = APP_ROOT.parent
+
+
+def origin_host_authorities(origin):
+    """Validate a bare HTTP(S) origin and return its exact Host representations."""
+    if (not isinstance(origin, str) or not 1 <= len(origin) <= 2048
+            or any(ord(char) <= 32 or ord(char) >= 127 for char in origin)):
+        raise ValueError('Origins must be bare ASCII HTTP(S) origins')
+    try:
+        parts = urlsplit(origin)
+        hostname, port = parts.hostname, parts.port
+        if (parts.scheme not in {'http', 'https'} or not hostname
+                or parts.username is not None or parts.password is not None
+                or origin != parts.scheme + '://' + parts.netloc
+                or parts.netloc != parts.netloc.lower()):
+            raise ValueError
+        if ':' in hostname:
+            ipaddress.IPv6Address(hostname)
+            host = '[' + hostname + ']'
+        else:
+            if (len(hostname) > 253 or not re.fullmatch(
+                    r'[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?'
+                    r'(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*', hostname)):
+                raise ValueError
+            host = hostname
+        if port is not None and not 1 <= port <= 65535:
+            raise ValueError
+        # Reject ambiguous authorities such as an empty port or zero padding.
+        if parts.netloc != host + (':' + str(port) if port is not None else ''):
+            raise ValueError
+    except ValueError:
+        raise ValueError('Origins must contain only an HTTP(S) scheme, hostname and optional port') from None
+    default_port = 443 if parts.scheme == 'https' else 80
+    if port is None or port == default_port:
+        return frozenset({host, host + ':' + str(default_port)})
+    return frozenset({host + ':' + str(port)})
 
 
 def is_bare_email(value: str) -> bool:
@@ -23,6 +60,9 @@ def is_bare_email(value: str) -> bool:
 class Config:
     data_dir: Path = field(default_factory=lambda: Path(os.getenv("ASTRA_DATA_DIR", str(APP_ROOT / "var"))).resolve())
     origin: str = field(default_factory=lambda: os.getenv("ASTRA_ORIGIN", "http://127.0.0.1:8788").rstrip("/"))
+    additional_origins: tuple[str, ...] = field(default_factory=lambda: tuple(
+        part.strip() for part in os.getenv('ASTRA_ADDITIONAL_ORIGINS', '').split(','))
+        if os.getenv('ASTRA_ADDITIONAL_ORIGINS', '').strip() else ())
     model_profile: str = field(default_factory=lambda: os.getenv("ASTRA_MODEL_PROFILE", "astra"))
     persona: str | None = field(default_factory=lambda: os.getenv("ASTRA_PERSONA"))
     model: str | None = None
@@ -70,6 +110,16 @@ class Config:
 
     def validate(self):
         from .player_profiles import persona_for, profile_for
+        origin_host_authorities(self.origin)
+        if not isinstance(self.additional_origins, tuple) or len(self.additional_origins) > 8:
+            raise ValueError('ASTRA_ADDITIONAL_ORIGINS must be a tuple of at most eight origins')
+        origins = (self.origin, *self.additional_origins)
+        for alias in self.additional_origins:
+            origin_host_authorities(alias)
+            if urlsplit(alias).scheme != urlsplit(self.origin).scheme:
+                raise ValueError('Additional origins must use the canonical origin scheme')
+        if len(set(origins)) != len(origins):
+            raise ValueError('Configured origins must be distinct')
         profile = profile_for(self)
         persona_for(self)
         if profile.name == 'openrouter-glm' and self.max_workers != 1:

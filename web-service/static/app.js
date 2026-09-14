@@ -88,6 +88,24 @@ function setIdentity(result){
   $('account-button').textContent=state.user?state.user.name:'Take a seat';
   if(!state.game)$('bottom-name').textContent=state.user?.name||'You';
   $('human-avatar').textContent=(state.user?.name||'Y').slice(0,1).toUpperCase();
+  updateSiteAddressNotice();
+}
+function updateSiteAddressNotice(){
+  let canonical=null;
+  try{
+    const value=state.config?.canonical_origin,url=new URL(value);
+    if(['http:','https:'].includes(url.protocol)&&url.origin===value)canonical=url;
+  }catch{}
+  const alias=canonical&&canonical.origin!==location.origin;
+  $('site-address-notice').hidden=!alias;
+  $('identity-existing-account').hidden=!canonical||alias||!['register','login'].includes(state.mode);
+  if(!alias){$('canonical-site-link').removeAttribute('href');return;}
+  $('site-address-label').textContent=`${state.config?.player_name||'This chess site'} has a new address:`;
+  // This is a manual navigation. Never transfer account or email-link tokens,
+  // the current query/fragment, or browser storage to the other origin.
+  $('canonical-site-link').href=canonical.origin+'/';
+  $('canonical-site-link').textContent=canonical.host;
+  $('site-address-password-note').hidden=state.user?.has_password===true;
 }
 function playerReady(){return state.config?.player_available===true&&!state.availabilityError;}
 function updatePlayerIdentity(){
@@ -123,6 +141,7 @@ function updatePlayerIdentity(){
   if(!state.game){$('top-name').textContent=name;$('top-avatar').textContent=name.slice(0,1).toUpperCase();}
 }
 function updateAvailability(){
+  updateSiteAddressNotice();
   updatePlayerIdentity();
   const name=state.config?.player_name||'Astra';
   $('black-first-label').textContent=`${name} moves first`;
@@ -388,6 +407,7 @@ function setIdentityMode(mode){
   identityUI.session++;setIdentityBusy(false);$('identity-reload').hidden=true;
   if(mode!=='reset')state.resetToken=null;
   state.mode=mode;$('identity-error').hidden=true;$('identity-password').value='';$('identity-email').value='';
+  updateSiteAddressNotice();
   $('identity-tabs').hidden=!['register','login'].includes(mode);
   $('register-tab').classList.toggle('active',mode==='register');$('login-tab').classList.toggle('active',mode==='login');
   const titles={register:'What should we call you?',login:'Welcome back.',protect:'Keep your seat.',forgot:'Recover your account.',reset:'Choose a new password.'};

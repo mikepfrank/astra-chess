@@ -1,10 +1,44 @@
 # Arcturus experimental deployment
 
-This deployment serves `arcturus.astraplayschess.com` from the separate
+The preferred address is `arcturuschess.com`, served from the separate
 `or-chess` Linux account. It retains the Codex driver, selects the
 `openrouter-glm` profile (`z-ai/glm-5.3-flash:nitro`, Max reasoning for new games), and binds
 new games to the Arcturus persona. The original Astra account, application
 unit, repository and game data remain independently operated.
+
+## Canonical domain and existing accounts
+
+The experimental unit sets `ASTRA_ORIGIN=https://arcturuschess.com` and
+`ASTRA_ADDITIONAL_ORIGINS=https://arcturus.astraplayschess.com`. The optional
+comma-separated alias setting defaults to empty in other deployments. Each
+request must use an explicitly configured Host; writes require that host's own
+Origin and the existing session/CSRF checks. Listing two origins never permits
+cross-host writes. `/api/config` exposes only the preferred `canonical_origin`.
+
+Keep the old Arcturus hostname serving the same application and data. Cookies
+remain host-only: existing passwords work at the new address, but visitors must
+sign in there. Passwordless visitors should use **Your account → Add a password**
+on the old address before moving. Its manual new-address notice explains this;
+the new address does not link back to the original Astra domain. Game IDs,
+replay paths, saved player bindings and recovery records stay in the same data
+directory. Recovery links use the preferred origin. No account tokens or browser
+storage are copied between domains.
+
+After the idle-only application/unit update and installed-namespace preflight,
+run `tools/ops/activate_arcturus_domain.py` on the server as root in default plan
+mode. Review its successful route/config validation, then use `--apply` with
+`--expected-config-sha256` from that plan. The helper appends only the new apex
+proxy and HTTPS `www` 308 redirect, preserving the original configuration bytes,
+bind-mounted inode, original routes and all three service process identities.
+It reloads the verified Caddy process through pinned-PID SIGUSR1. Backups and
+reports are private under `/var/lib/arcturus-domain-activation`. A failed
+activation attempts to restore and verify the original routes; any concurrent
+unknown configuration edit requires manual reconciliation.
+
+Verify real certificates, `www` path/query preservation, old/new Arcturus health,
+replay continuity and unchanged original Astra routes. Compare saved table,
+private-file and budget hashes around maintenance. This change requires no paid
+model calls or emails. Website activation does not enable SES mail delivery.
 
 ## Max reasoning for new games
 

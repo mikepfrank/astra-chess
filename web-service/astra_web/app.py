@@ -4,12 +4,10 @@ from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 import json
 import time
-from urllib.parse import urlsplit
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
-from starlette.middleware.trustedhost import TrustedHostMiddleware
-from .config import Config, APP_ROOT
+from .config import Config, APP_ROOT, origin_host_authorities
 from .identity import Identity, router as identity_router, require_user
 from .store import Store, Conflict
 from .supervisor import Supervisor
@@ -52,12 +50,18 @@ def create_app(config=None, player_factory=None):
 
     app = FastAPI(title='Astra Chess', docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     app.state.identity, app.state.store, app.state.supervisor, app.state.config = identity, store, supervisor, config
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=[urlsplit(config.origin).hostname])
+    origin_hosts = {origin: origin_host_authorities(origin)
+                    for origin in (config.origin, *config.additional_origins)}
+    allowed_hosts = frozenset().union(*origin_hosts.values())
     rate = defaultdict(deque)
     auth_slots = asyncio.Semaphore(2)
 
     @app.middleware('http')
     async def boundary(request, call_next):
+        hosts = request.headers.getlist('host')
+        if len(hosts) != 1 or hosts[0].lower() not in allowed_hosts:
+            return JSONResponse({'detail': 'Host is not allowed.'}, status_code=400)
+        host = hosts[0].lower()
         path = request.url.path
         mutating = request.method not in {'GET', 'HEAD', 'OPTIONS'}
         ip = request.client.host if request.client else 'local'
@@ -77,7 +81,10 @@ def create_app(config=None, player_factory=None):
             return JSONResponse({'detail': 'Please wait a moment before trying again.'}, status_code=429, headers={'Retry-After':'60'})
         bucket.append(now)
         if mutating:
-            if request.headers.get('origin') != config.origin:
+            origins = request.headers.getlist('origin')
+            # Aliases retain their own host-only sessions. An explicitly allowed
+            # alias is still a different origin: never permit cross-host writes.
+            if len(origins) != 1 or host not in origin_hosts.get(origins[0], ()):
                 return JSONResponse({'detail': 'Origin is not allowed.'}, status_code=403)
             if request.headers.get('content-type', '').split(';')[0] != 'application/json' and request.method != 'DELETE':
                 return JSONResponse({'detail': 'Use application/json.'}, status_code=415)
@@ -145,6 +152,7 @@ def create_app(config=None, player_factory=None):
     @app.get('/api/config')
     async def public_config():
         return dict(player_available=supervisor.available, player_mode=config.player_mode,
+                    canonical_origin=config.origin,
                     model=config.model, reasoning=config.reasoning, suspend_hours=config.suspend_hours,
                     player_name=persona_for(config).display_name,
                     model_name=profile_for(config).display_name,
