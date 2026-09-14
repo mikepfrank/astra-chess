@@ -6,16 +6,22 @@ baseline and its deployment history are preserved below.
 
 ## September 13–14, 2026: Arcturus experimental branch
 
-**Two-worker trial prepared, activation pending:** the experimental configuration
-now permits one or two workers, and its deployment unit selects two with a
-200% aggregate CPU ceiling and a 128-task cap. The native Linux audit found
-that two Codex processes exhaust 64 tasks because their threads count too;
-128 passed with a 96-task peak. Shared OpenRouter budget checks wait for their
-existing lock; inference can overlap across games. Max reasoning and all clock
-and spending settings remain unchanged. Local scheduler, gateway, budget and
-profile tests passed, plus a native two-process mocked-provider audit. See the
-[parallel-worker validation](validation/2026-09-14-parallel-workers.md) for the
-Linux and deployment checkpoint.
+**Two-worker trial is live:** `565c057` was activated on September 14 at
+**21:12 UTC / 16:12 CDT**, after the queue became idle. One Arcturus web
+supervisor admits two distinct game actions, with verified aggregate limits
+of 200% CPU, 2 GiB memory and 128 tasks. Native Codex threads exhausted the old
+64-task ceiling in staging; the corrected audit passed before and after process
+restart, with task peaks of 84–96 and no limit hits. Shared OpenRouter budget
+checks wait for their existing lock; inference can overlap across games.
+Max reasoning and all clock/spending settings remain unchanged.
+
+151 focused Linux tests passed; the six affected service checks were rerun
+after the task-cap correction. Native Linux and Windows audits used mock
+providers, never paid calls or player data. The brief Arcturus-only proxy gate
+was removed after startup. All 13 game documents, database table digests and
+private files matched, and original Astra/Caddy PIDs stayed unchanged. At
+21:12:44 UTC, HTTPS health passed and all nine unfinished games awaited humans.
+See the [parallel-worker validation](validation/2026-09-14-parallel-workers.md).
 
 **Player-name copy update is live:** `3c43bf7` was deployed at the idle
 maintenance checkpoint on September 14 at 20:07 UTC. Worker notices and action

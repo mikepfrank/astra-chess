@@ -21,7 +21,9 @@ and settlement remain transactional across the two active games.
 
 Max reasoning, 32,768 output tokens, 250,000-token compaction, the 200-million
 daily allowance and the soft 120-second own-turn target are unchanged. This
-work does not modify the original Astra service, Caddy or any recorded game.
+work does not modify the original Astra service or any recorded game. The
+deployment briefly gated only Arcturus at Caddy, then restored its exact original
+configuration bytes and inode without restarting Caddy.
 
 ## Local validation
 
@@ -64,6 +66,50 @@ same-thread restart. Kernel `pids.peak` was 96, with zero task-limit hits;
 were 200% and 2 GiB. The final candidate therefore also raises `TasksMax` to 128.
 This observed memory peak is for a small mocked context, not full live games.
 
-Final candidate validation and idle activation are pending. Record the deployed
-commit, effective limits and state-preservation receipt here after activation.
-Only Arcturus may be restarted.
+Final candidate `565c057d2da396f88965db186cf96254231de115` passed the six affected
+service checks on Windows and Linux after the task-cap correction. Its native
+Linux audit used the exact candidate unit limits with no override. Both
+concurrent-request rendezvous, all eight mocked requests, isolated histories
+and same-thread restart passed. Kernel task peak was 84, task-limit hits zero,
+and synthetic memory peak 77,963,264 bytes (about 74.4 MiB). The private receipt
+is bound to the full candidate commit. All live service PIDs were unchanged
+during staging tests, and transient units were stopped and collected.
+
+The queue was idle at 21:11:30 UTC. Deployment then validated and temporarily
+installed an Arcturus-only HTTP 503 gate with `Retry-After: 30`, verified the
+original Astra routes and process, rechecked idle state and the absence of child
+processes, stopped only Arcturus, and created a coherent private full-data backup.
+It fast-forwarded the experimental checkout and installed the three unit changes:
+worker count, CPU ceiling and task cap. The namespace preflight used a named,
+bounded transient unit, with explicit cleanup before application startup.
+
+Activation succeeded at the **21:12 UTC / 16:12 CDT** checkpoint. Actual running
+process environment selected two workers; actual cgroup limits were
+`cpu.max=200000 100000`, `memory.max=2147483648`, and `pids.max=128`. The preflight
+confirmed Max, 32,768 output, 250,000 compaction and 200-million daily tokens.
+All **13** saved game documents, every database table digest, and private-file
+hashes including the shared budget matched before/after deployment. Original
+Astra/Caddy PIDs and unit definitions were unchanged. Caddy retained its inode
+and PID; the gate restored every original configuration byte.
+
+At 21:12:44 UTC, canonical Arcturus, its legacy alias, and original Astra all
+returned HTTPS health 200. There were nine unfinished games, all waiting for
+humans, and no active responses, replay builds or reserved tokens. No paid model
+request, live chess action, clock refund, or saved player-profile migration was
+performed by the deployment. Live provider throughput and memory use with two
+long contexts remain observations for normal beta play, not claims from the mock.
+
+Private receipts are retained on the host: the backup set is
+`parallel-workers-20260914T211203Z`; the restored maintenance-gate receipt is
+`gate-079ouu4l`; native audit receipts are under
+`operator-checks/parallel-native-565c057/`. These contain operator evidence and
+are not public replay artifacts.
+
+The successfully used maintenance gate is preserved as
+`tools/ops/arcturus_maintenance_gate.py`, resolving the reviewed activation
+primitives from its sibling module. Five additional offline Windows tests
+passed: Arcturus-only edits, unexpected-layout rejection, exact restoration
+after a failed deployment body, no mutation on validation failure, and
+preservation of unrelated concurrent edits with a manual recovery receipt.
+The versioned helper has no standalone apply action; the operations guide
+describes its required place around drain, update and restart cleanup.

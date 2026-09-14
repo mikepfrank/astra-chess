@@ -120,7 +120,8 @@ including repeated context and compaction. Smaller operator overrides remain
 effective. The daily default remains 20,000,000 tokens, and the lifetime $50
 usage-delta allowance and $5 admission reserve are unchanged. Daily admission
 reserves the action ceiling and conservatively charges incomplete attempts.
-The one-worker, half-CPU and 2 GiB limits remain unchanged.
+At that checkpoint, the one-worker, half-CPU and 2 GiB limits were unchanged.
+The September 14 concurrency update below supersedes the first two limits.
 
 The update passed 347 Windows service tests (two platform skips), a staged Linux
 Codex 0.154.0 compaction/resume lifecycle, installed-unit namespace preflight,
@@ -150,7 +151,7 @@ This is an Arcturus deployment override: the shared application's
 
 The allowance applies to the existing UTC-day token ledger; retain its used
 and reserved counters. The 2,000,000-token action ceiling, 500-turn daily limit,
-single worker, $50 lifetime usage-delta budget and $5 admission reserve still
+two-worker deployment ceiling, $50 lifetime usage-delta budget and $5 admission reserve still
 apply independently. Raising the daily token allowance does not reset or expand
 the dollar budget. No application source change is required.
 
@@ -195,6 +196,12 @@ either model request could start: systemd counts threads as tasks, and the two
 Codex processes each start many threads. With 128 tasks, the audit completed
 with a kernel-recorded peak of 96 and no task-limit rejections. This is a mock
 provider test, not a peak-memory or sustained-load benchmark.
+
+This configuration was activated at 21:12 UTC on September 14, after an idle
+checkpoint, an Arcturus-only proxy admission gate and a coherent private backup.
+All 13 saved games and private data were preserved; only the experimental app
+restarted. The gate restored Caddy's exact original bytes, inode and PID.
+See the [test and activation record](../validation/2026-09-14-parallel-workers.md).
 
 ## Prepare and validate
 

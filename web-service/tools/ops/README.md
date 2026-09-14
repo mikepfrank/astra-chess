@@ -153,7 +153,8 @@ for service-specific paths, backups, units, and rollout history.
    copy and inspect its result before touching the running service. Use a
    coherent earlier backup or the tool's source-stability checks; retry if
    concurrent activity prevents a consistent copy.
-4. At the coordinated idle boundary, stop the application and re-check the
+4. Gate new requests at the proxy and recheck that existing work has drained.
+   At the coordinated idle boundary, stop the application and re-check the
    saved state before changing code. Take the definitive coherent private
    backup now, with the writer stopped, as described in the deployment
    walkthrough. Preserve game records, clocks, usage, legacy links, and replay
@@ -178,6 +179,19 @@ local-development checkpoint helper, with a fixed local `var/` path and a
 written digest file. Use the read-only report for portable inspection; use the
 full coordinated procedure for deployment, rather than treating that older
 guard's limited digest as complete preservation evidence.
+
+For the reviewed Arcturus host,
+[arcturus_maintenance_gate.py](arcturus_maintenance_gate.py) provides a root-only
+`arcturus_maintenance_gate()` context manager. It temporarily returns 503 with
+`Retry-After: 30` for only the canonical and legacy Arcturus proxy blocks.
+It validates the candidate, preserves Caddy's configuration inode and process,
+and verifies original Astra routes. It has no standalone apply command.
+Enter it before the final idle check; keep application rollback/restart cleanup
+inside the context so the app is healthy before the gate restores access.
+If work started just before gating, allow it to finish or leave the gate and
+defer deployment. Never treat successful gate entry as evidence that existing
+workers have stopped. Exact original bytes and a private recovery receipt are
+saved on the host; interruption or host-loss recovery is described in the module.
 
 ## Validation
 
