@@ -6,12 +6,24 @@ baseline and its deployment history are preserved below.
 
 ## September 13–14, 2026: Arcturus experimental branch
 
+**Player-name copy update is live:** `3c43bf7` was deployed at the idle
+maintenance checkpoint on September 14 at 20:07 UTC. Worker notices and action
+errors use the game's saved persona; the browser adapts legacy saved status
+messages without rewriting conversations. Initial HTML, monitor labels and
+download filenames use neutral copy where no game identity is available.
+Historical Astra attribution remains intentional. All eight game documents,
+database table contents and private files matched around deployment; original
+Astra/Caddy PIDs were unchanged. Max reasoning and clock policy are unchanged.
+Refresh an already-open page to load the new script. See the
+[copy audit and validation](validation/2026-09-14-status-names.md).
+
 **Context recovery and soft turn target are live:** code `18c910d` is deployed
 to the isolated Arcturus service. A private copy recovered from the stalled
 continuation and completed a legal move through the normal tactical workflow.
 At approximately 16:11 UTC on September 14, the live thread was compacted in
 place; all saved game documents, including its board and clock, stayed identical.
-The game remains on the original position awaiting the user's Retry. OpenRouter
+At that checkpoint, the game awaited the user's Retry; Mike subsequently
+confirmed that play had resumed smoothly and continued beyond move 12. OpenRouter
 own-turns now treat 120 seconds as a soft warning target while continuing to
 charge earned clock time. A committed move gets 15 seconds for trailing text;
 that text timing out no longer marks the move as failed. All 87 targeted Linux
