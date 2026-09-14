@@ -73,7 +73,7 @@ selected model, not a guaranteed speed or a model substitution. See
 | --- | --- |
 | Driver | Codex app-server, direct function tools |
 | Model | `z-ai/glm-5.3-flash:nitro` |
-| Reasoning setting | `max` |
+| Reasoning setting | `max` for move decisions; `high` for chat-only responses |
 | Context window / compaction trigger | 1,310,720 / 250,000 total-context tokens |
 | Output ceiling | 32,768 tokens per provider request, including reasoning |
 | Gateway byte limits | 8 MiB per request; 2 MiB per upstream SSE event |
@@ -82,6 +82,7 @@ selected model, not a guaranteed speed or a model substitution. See
 | Daily token allowance | Selected Arcturus deployment override: 200,000,000; shared application default: 20,000,000 |
 | Chess clock | 90 minutes, +30 seconds per own move, +30 minutes after move 40 |
 | Own-turn thinking target | 120 seconds is a soft target; overruns warn the model and continue charging its earned chess clock |
+| Chat allowance | 600 seconds, without chess-clock charges; a human move supersedes pending chat |
 
 For OpenRouter own-turns, provider waits and continued reasoning beyond two
 minutes do not cause a turn failure. The host reports `turn_timing` with the
@@ -93,14 +94,24 @@ uses the host's earned-clock allowance instead of its usual five-minute
 process fallback for these own-turns. Compaction retains its existing clock
 pause accounting. Astra's original time policy is unchanged.
 
+Chat during the human's turn and after the game uses High reasoning for current
+v4 games. The supervisor selects the response kind from authoritative game
+state; the gateway and Codex configuration/resume/turn-start requests all enforce
+that setting. The next move decision uses Max again on the same saved thread.
+Chat retains the 32K output ceiling and a 600-second allowance, plus a separate
+900-second bridge ceiling. If the human moves during chat, its old response is
+canceled before a fresh move worker starts, and stale text/query results cannot
+reach the new position. See the [chat-policy validation](validation/2026-09-14-chat-deadline.md).
+
 The supervisor retains authoritative moves, clocks, legal-action checks,
 independent candidate registration, mandatory current-position search and private
 query evidence. The model still reviews counterplay and chooses its move. There
 is no automatic engine-only move or model downgrade when an action fails.
 
 New games and saved Codex recovery state bind the model profile, prompt hash and
-tool-schema hash. Profile v4 selects Max reasoning and a 32,768-token response
-ceiling for new games. Existing High games retain their recorded effort and
+tool-schema hash. Profile v4 records Max move reasoning and a 32,768-token response
+ceiling for new games; the separate per-action chat policy does not rewrite
+that provenance or its replay label. Existing High games retain their recorded effort and
 8,192-token ceiling, including post-game conversation; their replay labels and
 saved prompts are not rewritten. Runtime selection accepts only the known saved
 profiles, and the gateway validates each request against that trusted selection.

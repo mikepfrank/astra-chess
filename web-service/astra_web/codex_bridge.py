@@ -488,9 +488,10 @@ class CodexPlayer:
             await _terminate(process)
 
     async def run(self, game_id: str, snapshot: dict, tool_handler: ToolHandler,
-                  emit: Emitter, thread_id: str | None = None, *, player_binding=None) -> dict:
+                  emit: Emitter, thread_id: str | None = None, *, player_binding=None,
+                  response_kind=None) -> dict:
         return await self._action(game_id, snapshot, tool_handler, emit, thread_id,
-                                  player_binding=player_binding)
+                                  player_binding=player_binding, response_kind=response_kind)
 
     async def compact(self, game_id: str, snapshot: dict, tool_handler: ToolHandler,
                       thread_id: str, *, player_binding=None) -> dict:
@@ -510,7 +511,9 @@ class CodexPlayer:
                                   thread_id, player_binding=player_binding, compact_only=True)
 
     async def _action(self, game_id, snapshot, tool_handler, emit, thread_id,
-                      *, player_binding=None, compact_only=False):
+                      *, player_binding=None, compact_only=False, response_kind=None):
+        if compact_only and response_kind is not None:
+            raise CodexError('Explicit compaction must retain the saved reasoning policy')
         if not isinstance(game_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", game_id):
             raise CodexError("Invalid internal game identifier")
         if game_id in self._active_games:
@@ -520,7 +523,7 @@ class CodexPlayer:
         self._active_games.add(game_id)
         try:
             binding = player_binding or new_player_binding(self.config)
-            profile = runtime_profile_for_binding(binding, self.config)
+            profile = runtime_profile_for_binding(binding, self.config, response_kind=response_kind)
             if profile.name == 'openrouter-glm':
                 from .openrouter_gateway import OpenRouterGateway
                 key = os.environ.get(profile.env_key)
@@ -531,12 +534,14 @@ class CodexPlayer:
                     try:
                         return await self._run(game_id, snapshot, tool_handler, emit, thread_id,
                                                transport_profile=transport, gateway_token=gateway.token,
-                                               player_binding=binding, compact_only=compact_only)
+                                               player_binding=binding, compact_only=compact_only,
+                                               response_kind=response_kind)
                     finally:
                         data_root = Path(self.config.data_dir).resolve()
                         folder = _private_directory(data_root / 'players' / game_id, data_root)
                         _write_json(folder / f'provider-requests-{time.time_ns()}.json', {
                             **({'action_kind': 'compaction_only'} if compact_only else {}),
+                            'runtime_response_kind': 'compaction' if compact_only else response_kind,
                             'requested_model': profile.model, 'routing': profile.routing,
                             'requests': gateway.evidence, 'request_count': gateway.request_count,
                             'budget_check_count': gateway.budget_check_count,
@@ -549,14 +554,18 @@ class CodexPlayer:
                                 'effort': profile.reasoning,
                                 'max_output_tokens': profile.max_output_tokens}})
             return await self._run(game_id, snapshot, tool_handler, emit, thread_id,
-                                   player_binding=binding, compact_only=compact_only)
+                                   player_binding=binding, compact_only=compact_only,
+                                   response_kind=response_kind)
         finally:
             self._active_games.discard(game_id)
 
     async def _run(self, game_id, snapshot, tool_handler, emit, thread_id,
-                   transport_profile=None, gateway_token=None, player_binding=None, compact_only=False):
+                   transport_profile=None, gateway_token=None, player_binding=None, compact_only=False,
+                   response_kind=None):
+        if compact_only and response_kind is not None:
+            raise CodexError('Explicit compaction must retain the saved reasoning policy')
         binding = player_binding or new_player_binding(self.config)
-        profile = runtime_profile_for_binding(binding, self.config)
+        profile = runtime_profile_for_binding(binding, self.config, response_kind=response_kind)
         transport_profile = transport_profile or profile
         identity = binding['profile']
         data_root = Path(self.config.data_dir).resolve()
@@ -590,6 +599,7 @@ class CodexPlayer:
         state['runtime_reasoning_policy'] = {
             'effort': profile.reasoning,
             'max_output_tokens': profile.max_output_tokens}
+        state['runtime_response_kind'] = 'compaction' if compact_only else response_kind
         env = _child_environment(player_root, codex_home, include_key=gateway_token is None, env_key=profile.env_key)
         if gateway_token is not None:
             env[transport_profile.env_key] = gateway_token

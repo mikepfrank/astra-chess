@@ -47,6 +47,11 @@ PROFILES = {
 GLM_HIGH_PROFILE = replace(PROFILES['openrouter-glm'], reasoning='high',
                            version=3, max_output_tokens=8192)
 
+# Host-selected chat turns use High while retaining the current game's 32K
+# output allowance and identity. This is a runtime policy, not a saved profile
+# migration or a selectable new-game model.
+GLM_CHAT_PROFILE = replace(PROFILES['openrouter-glm'], reasoning='high')
+
 
 def trusted_runtime_profile(profile):
     """Accept only complete installed profiles, never arbitrary saved settings."""
@@ -55,7 +60,7 @@ def trusted_runtime_profile(profile):
     try:
         encoded = json.dumps(asdict(profile), sort_keys=True, allow_nan=False)
         return any(encoded == json.dumps(asdict(known), sort_keys=True, allow_nan=False)
-                   for known in (*PROFILES.values(), GLM_HIGH_PROFILE))
+                   for known in (*PROFILES.values(), GLM_HIGH_PROFILE, GLM_CHAT_PROFILE))
     except (TypeError, ValueError):
         return False
 
@@ -288,12 +293,18 @@ def game_player_binding(state, config):
             'prompt': prompt, 'persona': persona}
 
 
-def runtime_profile_for_binding(binding, config):
-    """Revalidate a private bridge binding and return its installed runtime.
+def runtime_profile_for_binding(binding, config, *, response_kind=None):
+    """Revalidate a private binding and select its host-authorized runtime.
 
     Max is a new-game default, not a migration for existing High games. Both
-    the model driver and gateway consume this same per-game runtime selection.
+    the model driver and gateway consume this same per-action selection. The
+    caller supplies the response kind from authoritative game state; neither
+    model text nor the model-visible snapshot selects its own reasoning level.
+    None keeps the saved policy for existing callers and explicit compaction.
     """
+    if response_kind is not None and (type(response_kind) is not str
+                                     or response_kind not in ('chat', 'move')):
+        raise ValueError('Response kind must be chat, move, or None')
     if not isinstance(binding, dict) or not isinstance(binding.get('profile'), dict):
         raise ValueError('Game player binding is invalid')
     saved = binding['profile']
@@ -304,7 +315,10 @@ def runtime_profile_for_binding(binding, config):
     verified = game_player_binding(state, config)
     if verified != binding:
         raise ValueError('Game player binding differs from its verified snapshot')
-    return _game_runtime_profile(saved, config)
+    profile = _game_runtime_profile(saved, config)
+    if response_kind == 'chat' and profile == PROFILES['openrouter-glm']:
+        return GLM_CHAT_PROFILE
+    return profile
 
 
 def verify_game_profile(state, config):

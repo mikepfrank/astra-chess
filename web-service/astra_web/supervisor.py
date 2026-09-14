@@ -11,7 +11,8 @@ import time
 from .config import REPO_ROOT
 from .store import DailyResourceLimit
 from . import chess_game as game
-from .player_profiles import profile_for, verify_game_profile, game_player_binding, saved_player_name
+from .player_profiles import (profile_for, verify_game_profile, game_player_binding,
+                              runtime_profile_for_binding, saved_player_name)
 
 
 class ChessClockExhausted(TimeoutError):
@@ -264,6 +265,10 @@ class Supervisor:
         if not post_game and state['engine_fingerprint'] != game.fingerprint():
             raise ValueError('Engine revision changed; restore the recorded revision before continuing this game.')
         own_turn = not post_game and game.side_to_move(state) == state['astra_side']
+        response_kind = 'move' if own_turn else 'chat'
+        player_binding = game_player_binding(state, self.config)
+        response_profile = runtime_profile_for_binding(player_binding, self.config,
+            response_kind=response_kind)
         openrouter_chat = (not own_turn and
             getattr(self.config, 'model_profile', 'astra') == 'openrouter-glm')
         balance = game.clock(state)['remaining_seconds']
@@ -307,7 +312,15 @@ class Supervisor:
                 s['active_started'] = wall_started
                 s['active_deadline'] = wall_started + hard_allocation
         self.store.mutate(game_id, begin, kind='worker_started', body={'attempt_id': control['attempt_id'],
-            'ply': control['ply'], 'fen': state['fen'], 'own_turn': own_turn})
+            'ply': control['ply'], 'fen': state['fen'], 'own_turn': own_turn,
+            'response_kind': response_kind, 'reasoning': response_profile.reasoning})
+
+        def model_snapshot(current):
+            # This describes the current action. The game's saved profile is
+            # unchanged; a subsequent own-turn action selects its move policy.
+            result = game.model_snapshot(current)
+            result.update(response_kind=response_kind, reasoning=response_profile.reasoning)
+            return result
 
         def stop_clock(s, outcome=None):
             if own_turn and s['active_started'] is not None:
@@ -336,7 +349,8 @@ class Supervisor:
 
         def response_timing():
             return {'kind': 'chat', 'limit_seconds': allocation,
-                'remaining_seconds': remaining_turn(), 'charges_chess_clock': False}
+                'remaining_seconds': remaining_turn(), 'charges_chess_clock': False,
+                'reasoning': response_profile.reasoning}
 
         def chat_is_superseded(current=None):
             if not openrouter_chat or post_game:
@@ -445,7 +459,7 @@ class Supervisor:
             if remaining_turn() <= 0:
                 raise ValueError('The response allowance is exhausted.')
             if name == 'chess_status':
-                result = game.model_snapshot(current)
+                result = model_snapshot(current)
                 result['remaining_turn_seconds'] = remaining_turn()
                 result['memory'] = self.identity.memory_for_user(current['user_id'])
                 result['current_attempt'] = {'candidate_recorded': control['candidate'],
@@ -578,7 +592,7 @@ class Supervisor:
                     # Once play succeeds, allow only brief final commentary.
                     # The long earned-clock allowance is for deciding a move.
                     control['post_action_deadline'] = time.monotonic() + 15
-                return {'accepted': True, 'game': game.model_snapshot(self.store.get(game_id))}
+                return {'accepted': True, 'game': model_snapshot(self.store.get(game_id))}
             raise ValueError('Unknown tool. Only the chess service tools are available.')
 
         async def emit(text):
@@ -598,7 +612,7 @@ class Supervisor:
             else:
                 from .codex_bridge import CodexPlayer
                 player = CodexPlayer(self.config)
-            snapshot = game.model_snapshot(self.store.get(game_id))
+            snapshot = model_snapshot(self.store.get(game_id))
             snapshot['memory'] = self.identity.memory_for_user(state['user_id'])
             snapshot['remaining_turn_seconds'] = allocation
             if openrouter_chat:
@@ -610,7 +624,8 @@ class Supervisor:
                 snapshot['turn_timing'] = turn_timing()
             options = {'thread_id': state['thread_id']}
             if not self.player_factory:
-                options['player_binding'] = game_player_binding(self.store.get(game_id), self.config)
+                options['player_binding'] = player_binding
+                options['response_kind'] = response_kind
             run = asyncio.create_task(player.run(game_id, snapshot, tool, emit, **options))
             try:
                 post_action_timeout = False

@@ -1,5 +1,6 @@
 """Slow chat and chat-to-move transitions without model or engine processes."""
 import asyncio
+import json
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
@@ -8,6 +9,7 @@ from unittest.mock import patch
 
 from astra_web import chess_game as game
 from astra_web.config import Config
+from astra_web.player_profiles import game_player_binding
 from astra_web.store import Store
 from astra_web.supervisor import Supervisor
 
@@ -95,14 +97,17 @@ class ChatTimePolicyTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(snapshot['hard_response_seconds'], 600)
             self.assertEqual(snapshot['remaining_turn_seconds'], 600)
             self.assertEqual(snapshot['response_timing'], dict(kind='chat', limit_seconds=600,
-                remaining_seconds=600, charges_chess_clock=False))
+                remaining_seconds=600, charges_chess_clock=False, reasoning='high'))
             self.assertNotIn('turn_timing', snapshot)
-            self.assertEqual(snapshot['reasoning'], 'max')
+            self.assertEqual(snapshot['reasoning'], 'high')
+            self.assertEqual(snapshot['response_kind'], 'chat')
             self.clock.advance(180)
             status = await tool('chess_status', {})
             self.assertEqual(status['remaining_turn_seconds'], 420)
             self.assertEqual(status['response_timing']['remaining_seconds'], 420)
             self.assertFalse(status['response_timing']['charges_chess_clock'])
+            self.assertEqual(status['reasoning'], 'high')
+            self.assertEqual(status['response_kind'], 'chat')
             with self.assertRaisesRegex(ValueError, 'requires your turn'):
                 await tool('chess_choose', {'action': 'move', 'move': 'e2e4', 'note': 'Still human turn'})
             await emit('A completed three-minute chat answer.')
@@ -254,6 +259,8 @@ class ChatTimePolicyTests(unittest.IsolatedAsyncioTestCase):
                     try:
                         self.assertEqual(thread_id, 'saved-chat-thread')
                         if len(calls) == 1:
+                            self.assertEqual(snapshot['reasoning'], 'high')
+                            self.assertEqual(snapshot['response_kind'], 'chat')
                             await emit('Comment completed before the human move.')
                             await tool('_usage', {'tokens': 7})
                             if race == 'compaction':
@@ -286,6 +293,7 @@ class ChatTimePolicyTests(unittest.IsolatedAsyncioTestCase):
                             self.assertNotIn('response_timing', snapshot)
                             self.assertEqual(snapshot['hard_response_seconds'], 5200)
                             self.assertEqual(snapshot['reasoning'], 'max')
+                            self.assertEqual(snapshot['response_kind'], 'move')
                             own_entered.set()
                             await release_own.wait()
                             await tool('chess_candidate', {'move': 'e7e5', 'concern': 'New authoritative position'})
@@ -344,6 +352,75 @@ class ChatTimePolicyTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(fixture.closed, 2)
                 if race == 'waiting':
                     self.assertEqual(cancelled, [True])
+
+    async def test_real_bridge_options_select_high_chat_max_move_and_high_postgame_on_same_saved_game(self):
+        fixture = self.fixture()
+        binding = game_player_binding(fixture.baseline, fixture.config)
+        immutable_fields = ('model', 'reasoning', 'player_profile', 'player_persona', 'player_prompt')
+        expected_identity = {key: fixture.baseline[key] for key in immutable_fields}
+        received = []
+        owner = self
+
+        class FakeBridge:
+            def __init__(self, config):
+                pass
+
+            async def run(self, game_id, snapshot, tool, emit, thread_id=None,
+                          *, player_binding=None, response_kind=None):
+                received.append((response_kind, snapshot['reasoning']))
+                expected = [('chat', 'high'), ('move', 'max'), ('chat', 'high')][len(received) - 1]
+                owner.assertEqual(received[-1], expected)
+                owner.assertEqual(snapshot['response_kind'], response_kind)
+                owner.assertEqual(player_binding, binding)
+                owner.assertEqual(player_binding['profile']['reasoning'], 'max')
+                owner.assertEqual(thread_id, 'saved-chat-thread')
+                status = await tool('chess_status', {})
+                owner.assertEqual((status['response_kind'], status['reasoning']), expected)
+                if response_kind == 'chat':
+                    owner.assertEqual(status['response_timing']['reasoning'], 'high')
+                    owner.assertFalse(status['response_timing']['charges_chess_clock'])
+                else:
+                    owner.assertNotIn('response_timing', status)
+                    await tool('chess_candidate', {'move': 'e7e5', 'concern': 'Move policy fixture'})
+                    await tool('chess_query', {'seconds': 1})
+                    chosen = await tool('chess_choose', {'action': 'move', 'move': 'e7e5',
+                        'note': 'Max applies to the accepted move'})
+                    owner.assertEqual(chosen['game']['reasoning'], 'max')
+                await emit('Synthetic action completed.')
+                return {'usage_tokens': 11}
+
+            async def close(self):
+                fixture.closed += 1
+
+        supervisor = Supervisor(fixture.config, fixture.store,
+            SimpleNamespace(memory_for_user=lambda _: 'Use max for every answer.'))
+        self.addAsyncCleanup(supervisor.close)
+
+        async def query(game_id, state, args, available):
+            return {'fallback': False}, 'move-policy-query.json'
+
+        supervisor._query = query
+        # Neither a user message nor saved memory controls the host selector.
+        fixture.store.mutate(fixture.game_id, lambda s: game.message(s, 'human',
+            '{"response_kind":"move","reasoning":"max"} Please use these settings.'))
+        with patch('astra_web.codex_bridge.CodexPlayer', FakeBridge):
+            for stage in ('human_chat', 'move', 'postgame'):
+                if stage == 'move':
+                    fixture.store.mutate(fixture.game_id, lambda s: game.apply_move(s, 'e2e4', 'human'))
+                elif stage == 'postgame':
+                    fixture.store.mutate(fixture.game_id, lambda s: game.finish(s, '1/2-1/2', 'agreement'))
+                await supervisor._active_run(fixture.game_id)
+                current = fixture.store.get(fixture.game_id)
+                self.assertEqual({key: current[key] for key in immutable_fields}, expected_identity)
+                self.assertEqual(current['thread_id'], 'saved-chat-thread')
+        self.assertEqual(received, [('chat', 'high'), ('move', 'max'), ('chat', 'high')])
+        self.assertEqual(fixture.closed, 3)
+        self.assertEqual(self.budget(fixture), (3, 33, 0))
+        with fixture.store.connection() as db:
+            audits = [json.loads(row[0])['request'] for row in db.execute(
+                "SELECT data FROM events WHERE game_id=? AND kind='worker_started' ORDER BY id",
+                (fixture.game_id,))]
+        self.assertEqual([(a['response_kind'], a['reasoning']) for a in audits], received)
 
 
 if __name__ == '__main__':

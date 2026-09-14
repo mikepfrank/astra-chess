@@ -33,6 +33,16 @@ clock. Max reasoning, per-response output cap, daily token admission, provider
 spending guard and own-turn clock policy remain unchanged. Astra keeps its
 existing chat and bridge deadlines.
 
+Current v4 Arcturus games use High reasoning for chat during the human's turn
+and after the game, and Max for move decisions. The host derives the response
+kind from the authoritative board/status, then passes it as a separate trusted
+bridge argument. Gateway validation, Codex configuration, thread resume and
+turn start all use the selected effort. Private per-action receipts record it.
+The saved game's original Max profile, persona, prompt and replay metadata do
+not change. Earlier High/8K games and Astra/Ultra preserve their recorded
+policies. Automatic compaction within chat inherits High; a separate explicit
+operator compaction uses the saved policy. Neither changes the 250K threshold.
+
 A human move supersedes an in-flight human-turn chat. The old worker is
 canceled and reaped before the already queued chess response can start. Stale
 public text and tactical results cannot be persisted after supersession.
@@ -48,4 +58,14 @@ direct text, tool text and tactical-query completion). Independent source review
 confirmed stale callbacks cannot write into the new ply and the old process is
 reaped before one successor starts. Tests used disposable data and fake players.
 
-Exact-commit Linux checks, idle deployment and a live retry remain pending.
+The same 50 checks passed on Linux at exact commit `16e2bd8`, with no failures
+or skips. The idle guard deferred the first deployment attempt until a response
+finished. At **22:07:33 UTC**, the Arcturus-only gate enclosed backup, code update,
+namespace preflight and restart. All 14 game documents, database table digests,
+private files, environment and service units remained unchanged. Original Astra
+and Caddy process IDs were unchanged, and the gate restored its exact previous
+configuration. The private backup is `chat-deadline-20260914T220733Z`.
+
+Before the live retry, Mike requested High reasoning for chat while retaining
+Max for move decisions. That per-response policy is being implemented and will
+be validated separately before the pending chat is retried.

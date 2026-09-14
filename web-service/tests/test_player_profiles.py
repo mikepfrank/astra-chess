@@ -13,7 +13,7 @@ from astra_web.config import APP_ROOT, Config
 from astra_web.player_profiles import (
     game_player_binding, get_profile, persona_for, player_prompt, profile_for,
     player_profiles_compatible, profile_identity, verify_game_profile,
-    runtime_profile_for_binding, trusted_runtime_profile, GLM_HIGH_PROFILE,
+    runtime_profile_for_binding, trusted_runtime_profile, GLM_HIGH_PROFILE, GLM_CHAT_PROFILE,
 )
 from astra_web.supervisor import Supervisor
 
@@ -361,10 +361,11 @@ class PlayerRuntimeCompatibilityTests(ProfileFixture, unittest.TestCase):
     def test_trusted_runtime_rejects_partial_or_unknown_historical_profiles(self):
         from dataclasses import replace
         self.assertTrue(trusted_runtime_profile(GLM_HIGH_PROFILE))
+        self.assertTrue(trusted_runtime_profile(GLM_CHAT_PROFILE))
         self.assertTrue(trusted_runtime_profile(get_profile('openrouter-glm')))
         for profile in (replace(GLM_HIGH_PROFILE, max_output_tokens=32768),
                         replace(GLM_HIGH_PROFILE, version=3.0),
-                        replace(get_profile('openrouter-glm'), reasoning='high')):
+                        replace(get_profile('openrouter-glm'), reasoning='low')):
             self.assertFalse(trusted_runtime_profile(profile))
         config = self.config(model_profile='openrouter-glm')
         state = self.state(config)

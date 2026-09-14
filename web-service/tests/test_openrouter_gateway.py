@@ -135,7 +135,7 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
         for profile in (get_profile('astra'), {'reasoning': 'high'},
                         replace(current, max_output_tokens=8192),
                         replace(current, max_output_tokens=65536),
-                        replace(current, reasoning='high'),
+                        replace(current, reasoning='low'),
                         replace(current, provider='other-provider'),
                         replace(current, version=5)):
             with self.subTest(profile=profile), self.assertRaisesRegex(GatewayError, 'invalid_gateway_profile'):
