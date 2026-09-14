@@ -7,7 +7,8 @@ Each action retains its own Codex process, home, thread and gateway. The
 supervisor still serializes work within each game. OpenRouter configuration
 permits one or two workers; other profiles and local defaults are unchanged.
 The Arcturus unit selects two workers and raises its aggregate CPU ceiling from
-50% to 200%. Its 2 GiB memory cap, 64-task cap and lower scheduling priority
+50% to 200%. Its task/thread cap rises from 64 to 128, as required by the
+native Linux test below; the 2 GiB memory cap and lower scheduling priority
 remain. This does not create a second web process or a second database owner.
 
 The shared OpenRouter budget check waits up to 30 seconds for the existing
@@ -46,6 +47,23 @@ live provider throughput or peak tactical-search memory use.
 
 ## Linux and activation
 
-Pending staging validation and an idle live-service checkpoint. Record the
-candidate commit, Linux results, effective resource limits and state-preservation
-receipt here after activation. Only Arcturus may be restarted.
+Staged candidate `a85311f` passed 151 focused Linux tests with no skips or
+failures. In addition to the five suites above, these covered service behavior,
+compaction clocks, retry refunds, supervisor limits, daily allowances and
+OpenRouter resource accounting.
+
+The native Codex 0.154.0 audit exposed a real blocker under the original
+64-task cap: two CLIs exhausted it, and the gateway could not start a Python
+thread for its mocked budget check. The kernel reported `pids.current=64` and
+53 task-limit hits. No live service or game was changed.
+
+Repeating the same test in an isolated transient service with 128 tasks passed
+both concurrent-request rendezvous and all eight mocked requests, including
+same-thread restart. Kernel `pids.peak` was 96, with zero task-limit hits;
+`memory.peak` was 80,175,104 bytes (about 76.5 MiB). The CPU and memory ceilings
+were 200% and 2 GiB. The final candidate therefore also raises `TasksMax` to 128.
+This observed memory peak is for a small mocked context, not full live games.
+
+Final candidate validation and idle activation are pending. Record the deployed
+commit, effective limits and state-preservation receipt here after activation.
+Only Arcturus may be restarted.

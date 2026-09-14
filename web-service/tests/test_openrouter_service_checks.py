@@ -18,7 +18,7 @@ class OpenRouterServiceCheckTests(unittest.TestCase):
             '--property=User=or-chess', '--property=Group=or-chess',
             '--property=ProtectHome=tmpfs', '--property=ProtectSystem=strict',
             '--property=NoNewPrivileges=true', '--property=CPUQuota=200%',
-            '--property=Nice=10', '--property=MemoryMax=2G', '--property=TasksMax=64',
+            '--property=Nice=10', '--property=MemoryMax=2G', '--property=TasksMax=128',
             '--property=UnsetEnvironment=OPENAI_API_KEY CODEX_API_KEY',
             '--property=EnvironmentFile=/home/or-chess/.config/or-chess/service.env',
         ):

@@ -174,7 +174,7 @@ explicitly removed from the unit environment.
 
 The private filesystem uses `ProtectHome=tmpfs`, selective binds, and a
 read-only system. Resource limits cover the application and its descendants
-together: 2 GiB memory, 64 tasks, 1,024 file descriptors, up to two logical
+together: 2 GiB memory, 128 tasks, 1,024 file descriptors, up to two logical
 CPUs (`CPUQuota=200%`), and `Nice=10`. The service uses one web supervisor with
 `ASTRA_MAX_WORKERS=2`, allowing two distinct game actions and tactical searches
 to overlap. Model reasoning remains Max. These limits bound the experiment;
@@ -189,6 +189,12 @@ provider-usage request. Inference is not held under that lock. The $50 baseline
 and $5 admission reserve remain; reported usage can lag in-flight requests.
 Local/default configurations remain at one worker and OpenRouter permits only
 one or two. Keep a single web application process owning the data directory.
+
+The native Linux concurrency audit exhausted the original 64-task cap before
+either model request could start: systemd counts threads as tasks, and the two
+Codex processes each start many threads. With 128 tasks, the audit completed
+with a kernel-recorded peak of 96 and no task-limit rejections. This is a mock
+provider test, not a peak-memory or sustained-load benchmark.
 
 ## Prepare and validate
 

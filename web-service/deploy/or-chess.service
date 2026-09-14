@@ -53,7 +53,7 @@ RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 MemoryMax=2G
 CPUQuota=200%
 Nice=10
-TasksMax=64
+TasksMax=128
 LimitNOFILE=1024
 
 [Install]

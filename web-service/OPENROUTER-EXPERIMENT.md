@@ -27,7 +27,8 @@ the new `or-chess` account and `arcturus.astraplayschess.com` test hostname.
   configuration, data directory and loopback port 8792. Shared host capacity
   is bounded separately with a two-CPU aggregate quota, lower scheduling
   priority and a 2 GiB memory ceiling for the experiment. One web supervisor
-  admits at most two concurrent Codex actions in distinct games.
+  admits at most two concurrent Codex actions in distinct games. The task cap
+  is 128 because the native CLI's threads also count toward that limit.
 
 Read the [hosted handoff](HANDOFF.md), [architecture](docs/ARCHITECTURE.md) and
 [player instructions](prompts/player.md) for the preserved chess workflow.

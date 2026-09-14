@@ -8,7 +8,9 @@ baseline and its deployment history are preserved below.
 
 **Two-worker trial prepared, activation pending:** the experimental configuration
 now permits one or two workers, and its deployment unit selects two with a
-200% aggregate CPU ceiling. Shared OpenRouter budget checks wait for their
+200% aggregate CPU ceiling and a 128-task cap. The native Linux audit found
+that two Codex processes exhaust 64 tasks because their threads count too;
+128 passed with a 96-task peak. Shared OpenRouter budget checks wait for their
 existing lock; inference can overlap across games. Max reasoning and all clock
 and spending settings remain unchanged. Local scheduler, gateway, budget and
 profile tests passed, plus a native two-process mocked-provider audit. See the

@@ -100,7 +100,7 @@ def preflight():
     limits = {name: (cgroup / name).read_text().strip()
               for name in ('memory.max', 'pids.max', 'cpu.max')}
     checks['memory_limit'] = limits['memory.max'] == str(2 * 1024 ** 3)
-    checks['process_limit'] = limits['pids.max'] == '64'
+    checks['process_limit'] = limits['pids.max'] == '128'
     quota, period = limits['cpu.max'].split()
     checks['cpu_limit'] = quota != 'max' and 0 < int(quota) <= 2 * int(period)
     checks['nice_priority'] = os.getpriority(os.PRIO_PROCESS, 0) == 10
