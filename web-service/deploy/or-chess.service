@@ -19,7 +19,7 @@ Environment=ASTRA_MODEL_PROFILE=openrouter-glm
 Environment=ASTRA_PERSONA=arcturus
 Environment=ASTRA_ORIGIN=https://arcturuschess.com
 Environment=ASTRA_ADDITIONAL_ORIGINS=https://arcturus.astraplayschess.com
-Environment=ASTRA_MAX_WORKERS=1
+Environment=ASTRA_MAX_WORKERS=2
 Environment=HOME=/home/or-chess/.local/share/or-chess
 Environment=PATH=/usr/local/bin:/usr/bin:/bin
 Environment=PYTHONNOUSERSITE=1
@@ -51,7 +51,7 @@ LockPersonality=true
 RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 # Aggregate limits cover the web process and all model/tool descendants.
 MemoryMax=2G
-CPUQuota=50%
+CPUQuota=200%
 Nice=10
 TasksMax=64
 LimitNOFILE=1024

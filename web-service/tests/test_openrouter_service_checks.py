@@ -17,7 +17,7 @@ class OpenRouterServiceCheckTests(unittest.TestCase):
         for value in (
             '--property=User=or-chess', '--property=Group=or-chess',
             '--property=ProtectHome=tmpfs', '--property=ProtectSystem=strict',
-            '--property=NoNewPrivileges=true', '--property=CPUQuota=50%',
+            '--property=NoNewPrivileges=true', '--property=CPUQuota=200%',
             '--property=Nice=10', '--property=MemoryMax=2G', '--property=TasksMax=64',
             '--property=UnsetEnvironment=OPENAI_API_KEY CODEX_API_KEY',
             '--property=EnvironmentFile=/home/or-chess/.config/or-chess/service.env',
@@ -26,6 +26,7 @@ class OpenRouterServiceCheckTests(unittest.TestCase):
         environment = next(arg for arg in command if arg.startswith('--property=Environment='))
         self.assertIn('ASTRA_OPENROUTER_BUDGET_PATH=/home/or-chess/.local/share/or-chess/openrouter-budget.json', environment)
         self.assertIn('ASTRA_MODEL_PROFILE=openrouter-glm', environment)
+        self.assertIn('ASTRA_MAX_WORKERS=2', environment)
         self.assertIn('ASTRA_PERSONA=arcturus', environment)
         self.assertIn('ASTRA_ORIGIN=https://arcturuschess.com', environment)
         self.assertIn('ASTRA_ADDITIONAL_ORIGINS=https://arcturus.astraplayschess.com', environment)

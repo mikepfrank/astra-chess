@@ -1,12 +1,16 @@
 """Isolated credential and budget checks; no real network or model requests."""
 import contextlib
+from concurrent.futures import ThreadPoolExecutor
 import getpass
 import io
 import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
+import threading
+import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -209,11 +213,98 @@ class OpenRouterSetupTests(unittest.TestCase):
             setup.require_budget(KEY, transport=self.transport())
         self.assertTrue(self.ledger.is_file())
 
-    def test_concurrent_budget_checks_fail_closed(self):
-        self.ledger.parent.mkdir(parents=True)
-        with setup.ProcessLock(self.ledger.with_suffix(".json.lock")):
-            self.assert_error("budget_busy", self.require)
-        self.assertFalse(self.ledger.exists())
+    def test_concurrent_checks_wait_and_observe_the_same_initial_baseline(self):
+        fetching, release, waiting = threading.Event(), threading.Event(), threading.Event()
+        calls = []
+        original_lock = setup.ProcessLock
+
+        class ObservedLock(original_lock):
+            def __enter__(self):
+                try:
+                    return super().__enter__()
+                except RuntimeError:
+                    waiting.set()
+                    raise
+
+        def fetch(request):
+            calls.append(request)
+            if len(calls) == 1:
+                fetching.set()
+                if not release.wait(5):
+                    raise AssertionError('Concurrent budget test did not release its first fetch')
+            return httpx.Response(200, json=self.body(limit=None, limit_remaining=None,
+                usage=100 + len(calls), byok_usage=20))
+
+        with patch.object(setup, 'ProcessLock', ObservedLock), ThreadPoolExecutor(max_workers=2) as pool:
+            first = pool.submit(setup.require_budget, KEY, self.ledger, transport=httpx.MockTransport(fetch))
+            try:
+                self.assertTrue(fetching.wait(5))
+                second = pool.submit(setup.require_budget, KEY, self.ledger, transport=httpx.MockTransport(fetch))
+                self.assertTrue(waiting.wait(5))
+                self.assertFalse(second.done())
+                self.assertEqual(len(calls), 1, 'Waiting must cover the provider fetch, not just the file write')
+            finally:
+                release.set()
+            self.assertEqual(first.result(timeout=5)['spent_usd'], 0)
+            self.assertEqual(second.result(timeout=5)['spent_usd'], 1)
+        saved = json.loads(self.ledger.read_text())
+        self.assertEqual(saved['initial_usage_usd'], '101')
+        self.assertEqual(saved['usage_usd'], '102')
+        self.assertEqual(saved['initial_byok_usage_usd'], '20')
+        self.assertEqual(saved['remaining_usd'], '49')
+
+    def test_check_waits_for_another_process_to_release_the_budget_lock(self):
+        self.require()
+        lock_path = self.ledger.with_suffix('.json.lock')
+        code = ('import sys\nfrom astra_web.process_lock import ProcessLock\n'
+                'with ProcessLock(sys.argv[1]):\n'
+                ' print("locked", flush=True)\n'
+                ' sys.stdin.readline()\n')
+        holder = subprocess.Popen([sys.executable, '-c', code, str(lock_path)],
+            cwd=Path(setup.__file__).resolve().parent.parent, stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+        def close_holder():
+            if holder.poll() is None:
+                holder.kill()
+            holder.communicate(timeout=5)
+
+        self.addCleanup(close_holder)
+        self.assertEqual(holder.stdout.readline().strip(), 'locked')
+        waiting = threading.Event()
+        original_lock = setup.ProcessLock
+
+        class ObservedLock(original_lock):
+            def __enter__(self):
+                try:
+                    return super().__enter__()
+                except RuntimeError:
+                    waiting.set()
+                    raise
+
+        with patch.object(setup, 'ProcessLock', ObservedLock), ThreadPoolExecutor(max_workers=1) as pool:
+            check = pool.submit(self.require, self.body(usage=1.5))
+            try:
+                self.assertTrue(waiting.wait(5))
+                self.assertFalse(check.done())
+            finally:
+                holder.communicate('\n', timeout=5)
+            self.assertEqual(check.result(timeout=5)['spent_usd'], 1)
+        self.assertEqual(holder.returncode, 0)
+
+    def test_budget_lock_timeout_fails_closed_without_fetching_or_changing_ledger(self):
+        self.require()
+        before = self.ledger.read_bytes()
+        with setup.ProcessLock(self.ledger.with_suffix('.json.lock')), \
+                patch.object(setup, 'BUDGET_LOCK_WAIT_SECONDS', .06):
+            started = time.monotonic()
+            self.assert_error('budget_busy', setup.require_budget, KEY, self.ledger,
+                transport=httpx.MockTransport(lambda request: self.fail('Lock timeout must not fetch telemetry')))
+            elapsed = time.monotonic() - started
+        self.assertGreaterEqual(elapsed, .04)
+        self.assertLess(elapsed, 3)
+        self.assertEqual(self.ledger.read_bytes(), before)
+        self.assertEqual(self.require()['spent_usd'], 0, 'The timed-out waiter must not leave a lock held')
 
     def test_safe_http_errors_redirects_and_size_bounds(self):
         cases = {401: "invalid_key", 403: "access_denied", 429: "rate_limited",

@@ -125,12 +125,13 @@ class PlayerProfileConfigTests(ProfileFixture, unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'must match the selected chess profile'):
             profile_for(legacy)
 
-    def test_glm_experiments_require_exactly_one_worker(self):
-        for count in (0, 2, 16):
+    def test_glm_experiments_allow_one_or_two_workers(self):
+        for count in (0, 3, 16, True, 1.5):
             with self.subTest(count=count):
-                with self.assertRaisesRegex(ValueError, 'require one worker'):
+                with self.assertRaisesRegex(ValueError, 'support one or two workers'):
                     self.config(model_profile='openrouter-glm', max_workers=count).validate()
         self.config(model_profile='openrouter-glm', max_workers=1).validate()
+        self.config(model_profile='openrouter-glm', max_workers=2).validate()
         self.config(model_profile='astra', max_workers=2).validate()
 
     def test_available_uses_only_selected_profiles_credential(self):

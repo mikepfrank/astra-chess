@@ -6,6 +6,15 @@ baseline and its deployment history are preserved below.
 
 ## September 13–14, 2026: Arcturus experimental branch
 
+**Two-worker trial prepared, activation pending:** the experimental configuration
+now permits one or two workers, and its deployment unit selects two with a
+200% aggregate CPU ceiling. Shared OpenRouter budget checks wait for their
+existing lock; inference can overlap across games. Max reasoning and all clock
+and spending settings remain unchanged. Local scheduler, gateway, budget and
+profile tests passed, plus a native two-process mocked-provider audit. See the
+[parallel-worker validation](validation/2026-09-14-parallel-workers.md) for the
+Linux and deployment checkpoint.
+
 **Player-name copy update is live:** `3c43bf7` was deployed at the idle
 maintenance checkpoint on September 14 at 20:07 UTC. Worker notices and action
 errors use the game's saved persona; the browser adapts legacy saved status

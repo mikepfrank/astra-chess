@@ -43,7 +43,8 @@ def preflight():
         'codex_path': config.codex_bin == str(CODEX),
         'shared_budget_path': os.environ.get('ASTRA_OPENROUTER_BUDGET_PATH') == str(BUDGET),
         'fixed_profile': config.model_profile == 'openrouter-glm' and config.persona == 'arcturus',
-        'single_codex_worker': config.player_mode == 'codex' and config.max_workers == 1,
+        'bounded_codex_workers': (config.player_mode == 'codex'
+            and type(config.max_workers) is int and config.max_workers in (1, 2)),
         'https_origin': config.origin == 'https://arcturuschess.com' and config.secure_cookies,
         'legacy_origin_alias': config.additional_origins == ('https://arcturus.astraplayschess.com',),
         'python_312': sys.version_info[:2] == (3, 12),
@@ -101,12 +102,13 @@ def preflight():
     checks['memory_limit'] = limits['memory.max'] == str(2 * 1024 ** 3)
     checks['process_limit'] = limits['pids.max'] == '64'
     quota, period = limits['cpu.max'].split()
-    checks['cpu_limit'] = quota != 'max' and int(quota) * 2 <= int(period)
+    checks['cpu_limit'] = quota != 'max' and 0 < int(quota) <= 2 * int(period)
     checks['nice_priority'] = os.getpriority(os.PRIO_PROCESS, 0) == 10
     version = _codex_version(config)
     checks['reviewed_codex_version'] = version == 'codex-cli 0.154.0'
     return {'checks': checks, 'limits': limits,
             'runtime': {'profile_version': profile.version, 'reasoning': profile.reasoning,
+                        'max_workers': config.max_workers,
                         'max_output_tokens': profile.max_output_tokens,
                         'context_window': profile.context_window, 'compact_limit': profile.compact_limit,
                         'max_turn_tokens': config.max_turn_tokens, 'max_daily_tokens': config.max_daily_tokens},

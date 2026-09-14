@@ -20,6 +20,7 @@ the private budget fingerprint must not enter model context or public records.
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
 from decimal import Decimal, InvalidOperation
 import hashlib
 import json
@@ -29,6 +30,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import time
 
 import httpx
 
@@ -42,6 +44,8 @@ PROFILE = "openrouter-glm"
 MAX_BUDGET = Decimal("50")
 STOP_REMAINING = Decimal("5")
 MAX_JSON_BYTES = 65536
+BUDGET_LOCK_WAIT_SECONDS = 30
+BUDGET_LOCK_POLL_SECONDS = .05
 MESSAGES = {
     "saved": "OpenRouter credential and local experiment budget saved for this Windows user.",
     "invalid_key": "OpenRouter rejected the credential. Nothing was saved.",
@@ -50,7 +54,7 @@ MESSAGES = {
     "budget_low": "The OpenRouter experiment has $5 or less remaining; no new model action is permitted.",
     "budget_changed": "The experiment credential or recorded usage changed. Budget reconciliation is required before continuing.",
     "budget_unreadable": "The private OpenRouter budget record could not be safely read or updated.",
-    "budget_busy": "Another OpenRouter budget check is active. Retry after it finishes.",
+    "budget_busy": "Another OpenRouter budget check did not finish within the allowed wait. Retry shortly.",
     "rate_limited": "OpenRouter budget verification was rate limited. No model action was started.",
     "service_unavailable": "OpenRouter budget verification is temporarily unavailable. No model action was started.",
     "connection_failed": "Could not securely verify the OpenRouter budget. No model action was started.",
@@ -163,13 +167,36 @@ def _ledger(path):
         raise OpenRouterSetupError("budget_unreadable") from None
 
 
+@contextmanager
+def _budget_lock(path):
+    """Wait only for budget telemetry; leave the service singleton lock unchanged."""
+    deadline = time.monotonic() + BUDGET_LOCK_WAIT_SECONDS
+    while True:
+        lock = ProcessLock(path)
+        try:
+            lock.__enter__()
+        except RuntimeError:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise OpenRouterSetupError("budget_busy") from None
+            time.sleep(min(BUDGET_LOCK_POLL_SECONDS, remaining))
+            if time.monotonic() >= deadline:
+                raise OpenRouterSetupError("budget_busy") from None
+        else:
+            break
+    try:
+        yield
+    finally:
+        lock.__exit__(None, None, None)
+
+
 def _check_budget(key, ledger_path, transport, *, persist):
     key = _key(key)
     path = Path(ledger_path or os.getenv('ASTRA_OPENROUTER_BUDGET_PATH') or APP_ROOT / "var" / "openrouter-budget.json")
     key_hash = hashlib.sha256(key.encode("utf-8")).hexdigest()
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
-        with ProcessLock(path.with_suffix(path.suffix + ".lock")):
+        with _budget_lock(path.with_suffix(path.suffix + ".lock")):
             previous = _ledger(path)
             if previous is not None and previous["key_sha256"] != key_hash:
                 raise OpenRouterSetupError("budget_changed")
@@ -212,7 +239,10 @@ def require_budget(key, ledger_path: Path | None = None, *, transport=None):
     """Verify/pin cumulative usage before model work; suitable for to_thread.
 
     The default ledger belongs to the worktree, not a disposable game's data
-    directory. A nonblocking OS lock serializes fetch/read/write across callers.
+    directory. Callers wait at most thirty seconds to acquire the shared OS lock;
+    it covers the ledger read, telemetry fetch and write, never model inference.
+    Cancelling an asyncio.to_thread caller does not stop this synchronous check:
+    it may finish its bounded wait and telemetry update, but starts no model work.
     The returned dict contains no key, hash, account label, or raw response.
     """
     return _check_budget(key, ledger_path, transport, persist=True)

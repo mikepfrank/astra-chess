@@ -174,11 +174,21 @@ explicitly removed from the unit environment.
 
 The private filesystem uses `ProtectHome=tmpfs`, selective binds, and a
 read-only system. Resource limits cover the application and its descendants
-together: 2 GiB memory, 64 tasks, 1,024 file descriptors, half of one logical
-CPU (`CPUQuota=50%`), and `Nice=10`. These reduce interference with production;
+together: 2 GiB memory, 64 tasks, 1,024 file descriptors, up to two logical
+CPUs (`CPUQuota=200%`), and `Nice=10`. The service uses one web supervisor with
+`ASTRA_MAX_WORKERS=2`, allowing two distinct game actions and tactical searches
+to overlap. Model reasoning remains Max. These limits bound the experiment;
 they are not a reservation of separate physical resources. Keep the complete
 Codex bundle, including its helper executables and resources, in the bound
 runtime directory.
+
+The initial one-worker/50% CPU restriction is superseded by the September 14
+two-worker trial. Its budget check uses a bounded cross-process lock wait:
+30 seconds to acquire the lock, retrying every 50 ms, followed by the existing
+provider-usage request. Inference is not held under that lock. The $50 baseline
+and $5 admission reserve remain; reported usage can lag in-flight requests.
+Local/default configurations remain at one worker and OpenRouter permits only
+one or two. Keep a single web application process owning the data directory.
 
 ## Prepare and validate
 

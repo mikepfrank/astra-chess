@@ -25,8 +25,9 @@ the new `or-chess` account and `arcturus.astraplayschess.com` test hostname.
   worktree's `web-service/var`.
 - The Lightsail trial uses a separate `or-chess` Linux account, service,
   configuration, data directory and loopback port 8792. Shared host capacity
-  is bounded separately with a half-CPU quota, lower scheduling priority and
-  2 GiB memory ceiling for the experiment.
+  is bounded separately with a two-CPU aggregate quota, lower scheduling
+  priority and a 2 GiB memory ceiling for the experiment. One web supervisor
+  admits at most two concurrent Codex actions in distinct games.
 
 Read the [hosted handoff](HANDOFF.md), [architecture](docs/ARCHITECTURE.md) and
 [player instructions](prompts/player.md) for the preserved chess workflow.
@@ -49,7 +50,7 @@ selected model, not a guaranteed speed or a model substitution. See
 | Context window / compaction trigger | 1,310,720 / 250,000 total-context tokens |
 | Output ceiling | 32,768 tokens per provider request, including reasoning |
 | Gateway byte limits | 8 MiB per request; 2 MiB per upstream SSE event |
-| Active workers | One |
+| Active workers | Two on the selected Arcturus deployment; local/default configuration remains one |
 | Cumulative token ceiling per action | At most 2,000,000, including repeated input and compaction; smaller operator overrides remain effective |
 | Daily token allowance | Selected Arcturus deployment override: 200,000,000; shared application default: 20,000,000 |
 | Chess clock | 90 minutes, +30 seconds per own move, +30 minutes after move 40 |
@@ -146,8 +147,9 @@ request, while retaining a separate 2 MiB cap for each upstream SSE event.
 These are byte limits, independent of the model's token window. This permits
 larger repeated-context requests without relaxing the output-event bound.
 
-Every provider request receives a fresh budget check. The gateway disallows
-concurrent requests and does not retry HTTP requests or follow redirects. The
+Every provider request receives a fresh budget check. Each game's gateway
+disallows overlapping requests within that gateway and does not retry HTTP
+requests or follow redirects; distinct games have independent gateways. The
 bridge also rejects unexpected capabilities and model rerouting. The alpha build
 is admitted only for this experimental profile; the original Astra profile's
 audited-version policy remains separate.
@@ -172,8 +174,14 @@ Remaining allowance is the smaller of `$50 - combined usage increases` and the
 provider's remaining key allowance, when one is reported. New actions and
 provider requests stop at $5 or less remaining. This is **local usage-delta
 admission control, not a provider-enforced hard spending cap**: usage reporting
-delay and work already in flight can exceed an allowance. The one-worker limit,
-output ceiling and $5 reserve provide additional bounds for the small first trial.
+delay and work already in flight can exceed an allowance. At most two active
+workers, the output ceiling and the retained $5 reserve bound this small trial.
+The dollar guard retains its existing provider-usage accounting rather than
+introducing per-request dollar reservations. Shared budget checks wait up to
+30 seconds for the existing cross-process lock, with 50 ms retries. Only the
+short usage-check/ledger transaction is serialized; model inference overlaps.
+A timeout fails closed without starting a provider request. Daily token
+reservations remain transactional and account for both active games.
 OpenRouter documents the [usage fields](https://openrouter.ai/docs/api_reference/limits)
 and [request-time cap limitations](https://openrouter.zendesk.com/hc/en-us/articles/51680687417499-Can-I-create-one-API-key-per-user-with-its-own-spending-limit-Management-API-keys).
 

@@ -78,7 +78,7 @@ def stream_response(serial, variant, call_tool):
                    for event in events).encode() + b'data: [DONE]\n\n'
 
 
-def inspect_request(body, variant, serial):
+def inspect_request(body, variant, serial, tool_result=TOOL_RESULT):
     items = body.get('input', [])
     if not isinstance(items, list):
         raise bridge.CodexError('Reasoning fixture input is not an item list')
@@ -123,13 +123,17 @@ def inspect_request(body, variant, serial):
                 output = json.loads(output[0].get('text', ''))
         except (ValueError, TypeError, AttributeError):
             output = None
-        report['status_snapshot_exact'] = output == TOOL_RESULT
+        report['status_snapshot_exact'] = output == tool_result
     report['reasoning_call_result_order'] = bool(reasoning_index is not None and len(calls) == len(outputs) == 1
         and reasoning_index < calls[0][0] < outputs[0][0])
     return report
 
 
-async def audit_case(codex, version, audit_dir, variant):
+async def audit_case(codex, version, audit_dir, variant, *, tool_result=None,
+                     upstream_observer=None):
+    # Optional fixture hooks let the parallel-process audit rendezvous actual
+    # upstream requests and distinguish each isolated tool-result history.
+    tool_result = TOOL_RESULT if tool_result is None else tool_result
     root = Path(tempfile.mkdtemp(prefix=f'reasoning-{variant}-', dir=audit_dir)).resolve()
     home = bridge._private_directory(root / 'codex-home', root)
     workspace = bridge._private_directory(root / 'workspace', root)
@@ -139,7 +143,8 @@ async def audit_case(codex, version, audit_dir, variant):
     instructions = new_player_binding(Config(model_profile='openrouter-glm', persona='arcturus'))['prompt']
     report = {'variant': variant, 'candidate_version': version, 'audit_directory': str(root),
               'external_provider_contacted': False, 'real_credentials_inherited': False,
-              'requests': [], 'turn_statuses': [], 'tool_calls': [], 'audit_completed': False}
+              'requests': [], 'turn_statuses': [], 'tool_calls': [], 'audit_completed': False,
+              'codex_home': str(home), 'process_ids': []}
     process = rpc = None
     thread_id = None
     done = False
@@ -155,7 +160,12 @@ async def audit_case(codex, version, audit_dir, variant):
                 or body.get('model') != selected.model
                 or body.get('reasoning') != {'effort': selected.reasoning}):
             raise bridge.CodexError('Reasoning fixture request boundaries differ')
-        report['requests'].append(inspect_request(body, variant, serial))
+        report['requests'].append(inspect_request(body, variant, serial, tool_result))
+        if upstream_observer is not None:
+            await upstream_observer(serial, process, {
+                'codex_home': str(home), 'thread_id': thread_id,
+                'gateway_base_url': gateway.base_url,
+                'gateway_token_sha256': hashlib.sha256(gateway.token.encode()).hexdigest()})
         return httpx.Response(200, content=stream_response(serial, variant, serial in (1, 3)),
                               headers={'content-type': 'text/event-stream'})
 
@@ -171,7 +181,7 @@ async def audit_case(codex, version, audit_dir, variant):
             raise bridge.CodexError('Reasoning fixture requested an unexpected host capability')
         report['tool_calls'].append('chess_status')
         await rpc.send({'id': request_id, 'result': {'success': True,
-            'contentItems': [{'type': 'inputText', 'text': json.dumps(TOOL_RESULT)}]}})
+            'contentItems': [{'type': 'inputText', 'text': json.dumps(tool_result)}]}})
 
     async def event(method, params):
         nonlocal done
@@ -186,6 +196,8 @@ async def audit_case(codex, version, audit_dir, variant):
 
     try:
         async with gateway:
+            report['gateway_base_url'] = gateway.base_url
+            report['gateway_token_sha256'] = hashlib.sha256(gateway.token.encode()).hexdigest()
             profile = replace(selected, base_url=gateway.base_url, env_key='CHESS_GATEWAY_TOKEN')
             (home / 'config.toml').write_text(bridge._config_text(profile.model, profile.reasoning, profile), encoding='utf-8')
             env = bridge._child_environment(root, home, include_key=False, env_key=profile.env_key)
@@ -204,6 +216,7 @@ async def audit_case(codex, version, audit_dir, variant):
                 process = await bridge._spawn(str(codex), 'app-server', '--stdio', '--strict-config',
                     cwd=str(workspace), env=env, stdin=asyncio.subprocess.PIPE,
                     stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL, limit=bridge.MAX_RPC_BYTES)
+                report['process_ids'].append(process.pid)
                 rpc = bridge._Rpc(process, event, fixture_tool)
                 async with asyncio.timeout(30):
                     initialized = await rpc.request('initialize', {'clientInfo': {
@@ -234,6 +247,7 @@ async def audit_case(codex, version, audit_dir, variant):
                     if not observed_thread or (resumed and observed_thread != thread_id):
                         raise bridge.CodexError('Reasoning fixture thread identity differs')
                     thread_id = observed_thread
+                    report['thread_id'] = thread_id
                     report['same_thread_resumed'] = resumed
                     done = False
                     await rpc.request('turn/start', {'threadId': thread_id, 'model': profile.model,

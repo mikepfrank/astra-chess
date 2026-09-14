@@ -216,7 +216,7 @@ All optional environment variables are listed here; `config.py` contains limits.
 | `ASTRA_PLAYER` | `disabled` | Set to `codex` for the real player; `test` is reserved for injected test fixtures |
 | `ASTRA_CODEX_BIN` | `codex` | Reviewed Codex executable |
 | `OPENAI_API_KEY` | absent | Service operator's API key |
-| `ASTRA_MAX_WORKERS` | `1` | Simultaneous active Codex actions/engine searches |
+| `ASTRA_MAX_WORKERS` | `1` | Simultaneous active Codex actions/engine searches inside one web supervisor; OpenRouter accepts 1–2, with the Arcturus service selecting 2 |
 | `ASTRA_MAX_DAILY_TURNS` | `500` | UTC daily admitted model-action limit, including chat and failed attempts |
 | `ASTRA_MAX_TURN_TOKENS` | `3000000` | Reservation and stop threshold for one model action, including input/context tokens |
 | `ASTRA_MAX_DAILY_TOKENS` | `20000000` | Daily admission allowance, including outstanding reservations |

@@ -122,8 +122,9 @@ class Config:
             raise ValueError('Configured origins must be distinct')
         profile = profile_for(self)
         persona_for(self)
-        if profile.name == 'openrouter-glm' and self.max_workers != 1:
-            raise ValueError('Initial OpenRouter experiments require one worker')
+        if profile.name == 'openrouter-glm' and (
+                type(self.max_workers) is not int or self.max_workers not in (1, 2)):
+            raise ValueError('OpenRouter experiments support one or two workers')
         if self.player_mode not in {"disabled", "codex", "test"}:
             raise ValueError("ASTRA_PLAYER must be disabled, codex, or test")
         if self.max_workers < 1 or self.max_workers > 16:
