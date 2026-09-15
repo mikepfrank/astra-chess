@@ -55,6 +55,16 @@
           </form>
           <p class="discretion">Games and messages are logged. Please keep personal or sensitive information out of the conversation. Replays stay private unless you share them.</p>
         </section>
+        <section id="move-thinking" class="thinking-card" aria-labelledby="move-thinking-title" hidden>
+          <fieldset aria-describedby="move-thinking-help"><legend id="move-thinking-title">Move thinking</legend>
+            <div class="thinking-options">
+              <label><input id="move-thinking-high" type="radio" name="move-thinking" value="high"><span><strong>High</strong><small>Faster play</small></span></label>
+              <label><input id="move-thinking-max" type="radio" name="move-thinking" value="max"><span><strong>Max</strong><small>Deeper thinking</small></span></label>
+            </div>
+          </fieldset>
+          <p id="move-thinking-help">Applies to the next AI turn and later turns. Chat replies always use High.</p>
+          <p id="move-thinking-active" class="field-note" hidden>A turn already in progress keeps its current setting.</p>
+        </section>
         <section class="moves-card" aria-labelledby="moves-title"><div class="card-heading"><h2 id="moves-title">The scoresheet</h2><span id="move-count" class="muted">No moves yet</span></div><div class="moves-head"><span>#</span><span>White</span><span>Black</span></div><div id="moves" class="move-list"><p class="empty-note">The first move is still ahead.</p></div></section>
       </aside>
     </div>

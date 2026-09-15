@@ -1,6 +1,6 @@
 const $=id=>document.getElementById(id);
 const intervalMs=30000,deadlineMs=10000;
-let snapshot=null,timer=null,controller=null,requestVersion=0,stopped=false;
+let snapshot=null,timer=null,controller=null,requestVersion=0,stopped=false,pageIndex=0;
 const number=value=>Number.isFinite(value)?value.toLocaleString():'—';
 function date(value){const parsed=new Date(value);return value&&!Number.isNaN(parsed.valueOf())?parsed.toLocaleString():null;}
 function append(parent,tag,text,className){const node=document.createElement(tag);node.textContent=text;if(className)node.className=className;parent.append(node);return node;}
@@ -33,8 +33,11 @@ function renderRows(){
   const query=$('monitor-search').value.trim().toLocaleLowerCase(),filter=$('monitor-filter').value;
   const games=snapshot.games.filter(row=>(!query||String(row.name).toLocaleLowerCase().includes(query))&&(filter==='all'||(row.status==='finished')===(filter==='finished')));
   games.sort((a,b)=>(Date.parse(b.updated_at)||0)-(Date.parse(a.updated_at)||0)||String(a.game_id).localeCompare(String(b.game_id)));
+  const pageSize=Number($('monitor-page-size').value),pageCount=Math.ceil(games.length/pageSize);
+  pageIndex=Math.max(0,Math.min(pageIndex,pageCount-1));
+  const start=pageIndex*pageSize,end=Math.min(start+pageSize,games.length);
   const fragment=document.createDocumentFragment();
-  for(const row of games){
+  for(const row of games.slice(start,end)){
     const tr=document.createElement('tr'),player=append(tr,'td','');
     append(player,'span',row.name||'Unknown','monitor-player');
     const started=date(row.created_at),updated=date(row.updated_at);
@@ -46,8 +49,14 @@ function renderRows(){
     replays(append(tr,'td',''),row);fragment.append(tr);
   }
   $('monitor-rows').replaceChildren(fragment);$('monitor-empty').hidden=games.length!==0;
-  $('monitor-count').textContent=`${number(games.length)} of ${number(snapshot.games.length)} games`;
+  const range=games.length?`${number(start+1)}–${number(end)}`:'0';
+  const total=games.length===snapshot.games.length?'':` (${number(snapshot.games.length)} total)`;
+  $('monitor-count').textContent=`Showing ${range} of ${number(games.length)} games${total}`;
+  $('monitor-page').textContent=pageCount?`Page ${number(pageIndex+1)} of ${number(pageCount)}`:'No pages';
+  $('monitor-newer').disabled=pageIndex===0;
+  $('monitor-older').disabled=pageIndex+1>=pageCount;
 }
+function firstPage(){pageIndex=0;renderRows();}
 function render(data){
   snapshot=data;$('monitor-access').hidden=true;$('monitor-data').hidden=false;
   const summary=$('monitor-summary');summary.replaceChildren();
@@ -61,9 +70,10 @@ function render(data){
   renderRows();
 }
 function clearPrivate(){
-  snapshot=null;$('monitor-data').hidden=true;
-  for(const id of ['monitor-summary','monitor-rows','monitor-count','monitor-budget','monitor-excluded'])$(id).replaceChildren();
-  $('monitor-search').value='';$('monitor-filter').value='all';
+  snapshot=null;pageIndex=0;$('monitor-data').hidden=true;
+  for(const id of ['monitor-summary','monitor-rows','monitor-count','monitor-page','monitor-budget','monitor-excluded'])$(id).replaceChildren();
+  $('monitor-search').value='';$('monitor-filter').value='all';$('monitor-page-size').value='10';
+  $('monitor-newer').disabled=true;$('monitor-older').disabled=true;
 }
 function access(statusCode){
   clearPrivate();$('monitor-access').hidden=false;
@@ -104,8 +114,11 @@ async function refresh(){
   }
 }
 $('monitor-refresh').addEventListener('click',refresh);
-$('monitor-search').addEventListener('input',renderRows);
-$('monitor-filter').addEventListener('change',renderRows);
+$('monitor-search').addEventListener('input',firstPage);
+$('monitor-filter').addEventListener('change',firstPage);
+$('monitor-page-size').addEventListener('change',firstPage);
+$('monitor-newer').addEventListener('click',()=>{pageIndex--;renderRows();});
+$('monitor-older').addEventListener('click',()=>{pageIndex++;renderRows();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseAndClear();else refresh();});
 window.addEventListener('online',refresh);
 window.addEventListener('pagehide',()=>{stopped=true;pauseAndClear();});

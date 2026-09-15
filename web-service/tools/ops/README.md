@@ -27,6 +27,18 @@ It is an opt-in mail sender; the read-only report and migration rehearsal do not
 
 ## Preserved Arcturus audit helpers
 
+The September 15 UI release adds `tests/check_ui_controls.py FULL_COMMIT_SHA`
+for an exact clean-checkout regression receipt. Together with the native mocked
+four-action reasoning audit, its receipt is required by
+[deploy_arcturus_ui.py](deploy_arcturus_ui.py). The deployment helper requires
+explicit installed/candidate SHAs and the exact `/home/or-chess/ui-staging/SHORTSHA`
+directory; it validates the changed-file allowlist, waits for an idle snapshot,
+gates Arcturus admissions, backs up private data/configuration and checks every
+game/table/file digest across an Arcturus-only restart. It preserves the original
+Astra/Caddy processes and installed units/timers. Code rollback never restores a
+player database. Use the validation record for the actual activated revision;
+running a helper is not itself proof of successful deployment.
+
 The following helpers were promoted from ignored scratch storage during the
 September 14 housekeeping checkpoint. Their new CLI/import boundaries were
 checked offline; preservation did not repeat live email or service-namespace

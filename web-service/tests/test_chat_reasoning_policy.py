@@ -57,7 +57,7 @@ class ChatReasoningPolicyTests(unittest.IsolatedAsyncioTestCase):
         self.public.append(text)
 
     async def run_fixture(self, binding, *, response_kind=None, thread_id=None,
-                          compact=False, snapshot=None):
+                          compact=False, snapshot=None, move_reasoning=None):
         source = self.root / 'policy-app-server.py'
         source.write_text(FAKE_SERVER.replace('SCENARIO', repr(
             'v154_explicit_success' if compact else 'v154_success'), 1), encoding='utf-8')
@@ -113,7 +113,8 @@ class ChatReasoningPolicyTests(unittest.IsolatedAsyncioTestCase):
                 return await self.player.compact('policy-game', {}, self.handler, thread_id,
                                                   player_binding=binding)
             return await self.player.run('policy-game', snapshot or {}, self.handler, self.emit,
-                thread_id, player_binding=binding, response_kind=response_kind)
+                thread_id, player_binding=binding, response_kind=response_kind,
+                move_reasoning=move_reasoning)
 
     def saved_state(self):
         return json.loads((self.root / 'players/policy-game/bridge-state.json').read_text())
@@ -175,6 +176,45 @@ class ChatReasoningPolicyTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.upstream[-1]['tools'], [])
         self.assertEqual(self.upstream[-1]['reasoning'], {'effort': 'max'})
         self.assertEqual(self.upstream[-1]['max_output_tokens'], 32768)
+
+    async def test_selected_high_move_and_high_chat_then_max_move_share_thread_and_gateway_policy(self):
+        binding = new_player_binding(self.config)
+        original = copy.deepcopy(binding)
+        thread_id = None
+        for kind, preference, expected in [('move', 'max', 'max'), ('move', 'high', 'high'),
+                                            ('chat', 'max', 'high'), ('move', 'max', 'max')]:
+            result = await self.run_fixture(binding, response_kind=kind, move_reasoning=preference,
+                thread_id=thread_id, snapshot={'reasoning': 'ultra', 'move_reasoning': 'ultra'})
+            if thread_id:
+                self.assertEqual(result['thread_id'], thread_id)
+            thread_id = result['thread_id']
+            self.assertEqual(result['reasoning'], expected)
+            self.assertEqual(self.upstream[-1]['reasoning'], {'effort': expected})
+            self.assertEqual(self.upstream[-1]['max_output_tokens'], 32768)
+            self.assertEqual(self.saved_state()['player_profile'], original['profile'])
+            self.assertEqual(self.saved_state()['runtime_reasoning_policy']['effort'], expected)
+        self.assertEqual(binding, original)
+        self.assertEqual([row['params']['effort'] for row in self.wires if row.get('method') == 'turn/start'],
+                         ['max', 'high', 'high', 'max'])
+        self.assertTrue(all(not gateway.rejections for gateway in self.gateways))
+        self.assertFalse(self.player._processes)
+
+    async def test_invalid_preference_and_legacy_override_fail_before_process_or_gateway(self):
+        binding = new_player_binding(self.config)
+        legacy = copy.deepcopy(binding)
+        legacy['profile'].update(version=3, reasoning='high', max_output_tokens=8192)
+        with patch.object(bridge, '_spawn') as spawn, \
+                patch.object(gateway_module, 'OpenRouterGateway') as gateway:
+            for value in ('HIGH', 'ultra', '', True, 0, [], {}):
+                with self.subTest(value=value), self.assertRaises(ValueError):
+                    await self.player.run('policy-game', {}, self.handler, self.emit,
+                        player_binding=binding, response_kind='move', move_reasoning=value)
+            for saved, kind in ((legacy, 'move'), (binding, None)):
+                with self.assertRaises(ValueError):
+                    await self.player.run('policy-game', {}, self.handler, self.emit,
+                        player_binding=saved, response_kind=kind, move_reasoning='max')
+        spawn.assert_not_called()
+        gateway.assert_not_called()
 
     async def test_legacy_high_game_preserves_its_original_8k_allowance(self):
         binding = new_player_binding(self.config)

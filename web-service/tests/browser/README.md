@@ -17,6 +17,12 @@ production server merely to run the web service.
 | `support.cjs` | Portable dependency loading, fixture identity check, output paths and bounded waits. |
 | `recovery.cjs` | Fully intercepted account/recovery requests: add/change/resend/remove, explicit verification, expired links, fragment cleanup, cross-browser reset, stale responses after close/logout, and desktop/mobile layout. No server, mail or real account is used. |
 | `monitor.cjs` | Fully intercepted private monitor: authorization states, table escaping, refresh/stale handling, access loss and desktop/mobile layout. No real game records are used. |
+| `move_reasoning.cjs` | Fully intercepted board control: High/Max persistence, pending/active response display, conflict recovery, keyboard and mobile layout, historical/finished visibility. Builds a synthetic snapshot with `.venv` Python; no real player actions or model calls. |
+
+The monitor check also covers default ten-row pages, larger sizes, page boundaries,
+filter resets and refresh clamping. Run `node tests/browser/monitor.cjs` and
+`node tests/browser/move_reasoning.cjs` independently of a fixture server.
+The latter accepts `ASTRA_TEST_PYTHON` for an existing application interpreter.
 
 All generated access cookies, synthetic fixtures, databases, screenshots,
 downloads and any redirected logs belong in ignored `web-service/var/browser-qa/`.

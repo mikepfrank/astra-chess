@@ -27,7 +27,8 @@
       <div class="monitor-filters">
         <label for="monitor-search">Find a player<input id="monitor-search" type="search" placeholder="Player name" maxlength="100" autocomplete="off"></label>
         <label for="monitor-filter">Games<select id="monitor-filter"><option value="all">All games</option><option value="unfinished">Unfinished</option><option value="finished">Finished</option></select></label>
-        <p id="monitor-count" class="muted"></p>
+        <label for="monitor-page-size">Games per page<select id="monitor-page-size"><option value="10" selected>10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select></label>
+        <p id="monitor-count" class="muted" role="status" aria-live="polite"></p>
       </div>
       <div class="monitor-table-wrap" role="region" aria-label="Game inventory; scroll horizontally on smaller screens" tabindex="0">
         <table id="monitor-table">
@@ -37,6 +38,11 @@
         </table>
       </div>
       <p id="monitor-empty" class="monitor-empty muted" hidden>No games match these filters.</p>
+      <nav class="monitor-pagination" aria-label="Game pages">
+        <button id="monitor-newer" class="outline small" type="button" aria-controls="monitor-table" disabled>← Newer games</button>
+        <span id="monitor-page" class="muted"></span>
+        <button id="monitor-older" class="outline small" type="button" aria-controls="monitor-table" disabled>Older games →</button>
+      </nav>
       <p id="monitor-budget" class="monitor-budget muted"></p>
       <p id="monitor-excluded" class="muted" hidden></p>
       <p class="monitor-note muted">Refreshes every 30 seconds while this page is visible. Unfinished games are saved games; they do not establish whether a player is currently online.</p>

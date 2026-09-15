@@ -1,6 +1,6 @@
 # OpenRouter chess experiment
 
-Current overview: September 14, 2026; see [HANDOFF.md](HANDOFF.md) for the latest
+Current overview: September 15, 2026; see [HANDOFF.md](HANDOFF.md) for the latest
 verified deployment checkpoint and deferred work. Mike selected Codex CLI as the first driver,
 `z-ai/glm-5.3-flash` as the first model, throughput-oriented routing and a $50
 initial local experiment budget. This branch implements that configuration with
@@ -13,6 +13,13 @@ gateway checks the complete pinned instructions on every provider request.
 The [isolated Linux deployment guide](docs/OPENROUTER-DEPLOYMENT.md) describes
 the separate `or-chess` account, canonical `arcturuschess.com` hostname, and
 the retained `arcturus.astraplayschess.com` alias.
+
+Current v4 games default to Max for moves and High for chat. A per-game board
+control can select High or Max for future move responses without changing the
+saved player identity. The choice persists until changed; it is captured when
+each worker begins, so an ongoing response retains its effort. Chat stays High
+regardless of this preference. Both settings retain the 32,768 output allowance
+and 250K compaction threshold. Earlier profiles keep their recorded policy.
 
 ## Scope and isolation
 

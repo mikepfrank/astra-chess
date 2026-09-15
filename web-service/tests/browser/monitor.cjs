@@ -6,6 +6,12 @@ const protectedUser={id:'operator-fixture',name:'Operator preview',protected:tru
 const noReplay={saved:false,building:false,shared:false,listed:false};
 function game(overrides={}){return {game_id:'game-one',name:'Player preview',human_side:'white',status:'active',result:null,human_outcome:null,termination:null,ply:18,last_move:'9… Ne4',created_at:'2026-09-12T19:00:00+00:00',updated_at:'2026-09-12T20:00:00+00:00',last_human_activity:'2026-09-12T19:58:00+00:00',worker_state:'idle',active_response:false,waiting_for:'human',replays:{moves:{...noReplay},chat:{...noReplay}},...overrides};}
 function inventory(){return {schema_version:1,as_of:'2026-09-12T20:10:00+00:00',timezone:'UTC',summary:{total_games:3,player_games:3,qa_games:0,finished_player_games:1,unfinished_player_games:2,excluded_games:2},activity:{active_responses:1,building_replays:0,reserved_tokens:0,idle_snapshot:false},today_budget:{day:'2026-09-12',tokens:1234567,turns:67,reserved:0},max_daily_tokens:100000000,games:[game(),game({game_id:'game-two',name:'Completed preview',human_side:'black',status:'finished',human_outcome:'loss',termination:'checkmate',last_move:'17. Bxd7#',updated_at:'2026-09-12T20:05:00+00:00',replays:{moves:{...noReplay,saved:true,shared:true},chat:{...noReplay,saved:true,shared:true,listed:true}}}),game({game_id:'game-three',name:'<img src=x onerror=alert(1)> & "Player"',active_response:true,worker_state:'calculating',waiting_for:'astra',updated_at:'2026-09-12T20:09:00+00:00'})]};}
+function pagedInventory(){
+  const snapshot=inventory();
+  snapshot.games=Array.from({length:34},(_,index)=>game({game_id:`page-game-${index}`,name:`Page player ${String(index+1).padStart(2,'0')}`,status:index%3===0?'finished':'active',updated_at:new Date(Date.parse('2026-09-12T20:00:00Z')-index*60000).toISOString()}));
+  snapshot.summary={...snapshot.summary,total_games:34,player_games:34,finished_player_games:12,unfinished_player_games:22};
+  return snapshot;
+}
 const contexts=[],errors=[];
 async function fixture(browser,options={}){
   const data={snapshot:inventory(),user:{...protectedUser},operator:true,status:200,requests:0,calls:[],hold:null,...options};
@@ -65,6 +71,61 @@ async function visible(data,hidden){await data.page.evaluate(value=>{Object.defi
     assert.match(await owner.page.locator('#monitor-rows').innerText(),/AI won; checkmate · AI compacting \(post-game chat\)/,'Finished outcomes retain current post-game worker activity');
     owner.snapshot.games[1].active_response=false;owner.snapshot.games[1].worker_state='idle';
 
+    const paged=await fixture(browser,{snapshot:pagedInventory()});
+    assert.equal(await paged.page.locator('#monitor-page-size').inputValue(),'10');
+    assert.equal(await paged.page.locator('#monitor-rows tr').count(),10,'Default page contains ten games');
+    assert.equal(await paged.page.locator('#monitor-count').innerText(),'Showing 1–10 of 34 games');
+    assert.equal(await paged.page.locator('#monitor-page').innerText(),'Page 1 of 4');
+    assert.equal(await paged.page.locator('#monitor-newer').isDisabled(),true);
+    assert.equal(await paged.page.locator('#monitor-older').isDisabled(),false);
+    const pagingRequests=paged.requests;
+    await paged.page.locator('#monitor-older').click();
+    assert.equal(await paged.page.locator('#monitor-rows .monitor-player').first().innerText(),'Page player 11');
+    assert.equal(await paged.page.locator('#monitor-count').innerText(),'Showing 11–20 of 34 games');
+    await paged.page.locator('#monitor-older').click();await paged.page.locator('#monitor-older').click();
+    assert.equal(await paged.page.locator('#monitor-rows tr').count(),4);
+    assert.equal(await paged.page.locator('#monitor-page').innerText(),'Page 4 of 4');
+    assert.equal(await paged.page.locator('#monitor-older').isDisabled(),true);
+    await paged.page.locator('#monitor-newer').click();
+    assert.equal(await paged.page.locator('#monitor-page').innerText(),'Page 3 of 4');
+    await paged.page.locator('#monitor-filter').selectOption('finished');
+    assert.equal(await paged.page.locator('#monitor-count').innerText(),'Showing 1–10 of 12 games (34 total)','Changing filter returns to first page');
+    await paged.page.locator('#monitor-older').click();
+    assert.equal(await paged.page.locator('#monitor-rows tr').count(),2);
+    await paged.page.locator('#monitor-search').fill('Page player 34');
+    assert.equal(await paged.page.locator('#monitor-count').innerText(),'Showing 1–1 of 1 games (34 total)','Searching also returns to first page');
+    await paged.page.locator('#monitor-search').fill('');await paged.page.locator('#monitor-filter').selectOption('all');
+    await paged.page.locator('#monitor-older').click();await paged.page.locator('#monitor-page-size').selectOption('25');
+    assert.equal(await paged.page.locator('#monitor-count').innerText(),'Showing 1–25 of 34 games','Changing page size returns to first page');
+    await paged.page.locator('#monitor-older').click();
+    assert.equal(await paged.page.locator('#monitor-count').innerText(),'Showing 26–34 of 34 games');
+    for(const size of ['50','100']){
+      await paged.page.locator('#monitor-page-size').selectOption(size);
+      assert.equal(await paged.page.locator('#monitor-rows tr').count(),34);
+      assert.equal(await paged.page.locator('#monitor-older').isDisabled(),true);
+    }
+    assert.equal(paged.requests,pagingRequests,'Paging, filtering and changing page size use the authorized snapshot without extra requests');
+    await paged.page.locator('#monitor-page-size').selectOption('10');
+    await paged.page.locator('#monitor-older').click();await paged.page.locator('#monitor-older').click();await paged.page.locator('#monitor-older').click();
+    await refresh(paged);
+    assert.equal(await paged.page.locator('#monitor-page').innerText(),'Page 4 of 4','Refresh preserves the selected page');
+    paged.snapshot.games=paged.snapshot.games.slice(0,21);await refresh(paged);
+    assert.equal(await paged.page.locator('#monitor-count').innerText(),'Showing 21–21 of 21 games','Refresh clamps a page when its rows disappear');
+    assert.equal(await paged.page.locator('#monitor-page').innerText(),'Page 3 of 3');
+    await paged.page.locator('#monitor-search').fill('No such player');
+    assert.equal(await paged.page.locator('#monitor-count').innerText(),'Showing 0 of 0 games (21 total)');
+    assert.equal(await paged.page.locator('#monitor-empty').isVisible(),true);
+    assert.equal(await paged.page.locator('#monitor-newer').isDisabled(),true);
+    assert.equal(await paged.page.locator('#monitor-older').isDisabled(),true);
+    await paged.page.locator('#monitor-search').fill('');
+    paged.snapshot=pagedInventory();await refresh(paged);
+    await paged.page.screenshot({path:path.join(outputDir,'monitor-pagination-desktop.png'),fullPage:true});
+    await paged.page.locator('#monitor-page-size').selectOption('25');paged.status=401;await refresh(paged);
+    assert.equal(await paged.page.locator('#monitor-count').innerText(),'');
+    assert.equal(await paged.page.locator('#monitor-page').innerText(),'','Access loss also scrubs pagination metadata');
+    assert.equal(await paged.page.locator('#monitor-page-size').inputValue(),'10');
+    assert.equal(await paged.page.locator('#monitor-rows tr').count(),0);
+
     owner.status=503;await refresh(owner);
     assert.equal(await owner.page.locator('#monitor-rows tr').count(),3,'Failed refresh preserves last snapshot');
     assert.match(await owner.page.locator('#monitor-status').innerText(),/Stale snapshot/);
@@ -106,7 +167,7 @@ async function visible(data,hidden){await data.page.evaluate(value=>{Object.defi
 
     const denied=await fixture(browser,{status:403});assert.match(await denied.page.locator('#monitor-access-title').innerText(),/cannot view/);assert.equal(await denied.page.locator('#monitor-data').isVisible(),false);
     const anonymous=await fixture(browser,{status:401});assert.match(await anonymous.page.locator('#monitor-access-title').innerText(),/Sign in/);
-    const mobile=await fixture(browser,{mobile:true});
+    const mobile=await fixture(browser,{mobile:true,snapshot:pagedInventory()});
     assert.equal(await mobile.page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true,'Mobile page does not overflow');
     assert.equal(await mobile.page.locator('.monitor-table-wrap').evaluate(el=>el.scrollWidth>el.clientWidth),true,'Mobile table scrolls inside its own region');
     await mobile.page.screenshot({path:path.join(outputDir,'monitor-mobile.png'),fullPage:true});
@@ -122,6 +183,6 @@ async function visible(data,hidden){await data.page.evaluate(value=>{Object.defi
     await wrongLogin.page.locator('#identity-name').fill('Ordinary preview');await wrongLogin.page.locator('#identity-password').fill('fixture-password');await wrongLogin.page.locator('#identity-submit').click();
     await wrongLogin.page.waitForFunction(()=>document.getElementById('toast').textContent.includes('does not have monitor access'));
     assert.equal(new URL(wrongLogin.page.url()).pathname,'/');assert.equal(await wrongLogin.page.locator('#monitor-link').isVisible(),false);
-    assert.deepEqual(errors,[]);console.log('Monitor browser QA passed: private access, escaped names, filters/statuses/replays, stale recovery, bounded visible polling, no overlap, logout/pagehide clearing, desktop/mobile and safe sign-in return.');
+    assert.deepEqual(errors,[]);console.log('Monitor browser QA passed: private access, escaped names, filters/statuses/replays, ten-game pagination and page sizes, boundary navigation, refresh clamping, stale recovery, bounded visible polling, no overlap, logout/pagehide clearing, desktop/mobile and safe sign-in return.');
   }finally{for(const context of contexts)await context.close();await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

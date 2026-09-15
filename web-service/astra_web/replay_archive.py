@@ -25,6 +25,7 @@ GAME_FIELDS = {'id', 'name', 'human_side', 'astra_side', 'model', 'reasoning', '
                'termination', 'created_at', 'updated_at', 'exported_at', 'initial_fen',
                'status', 'engine_fingerprint'}
 MOVE_FIELDS = {'uci', 'san', 'fen', 'captured', 'actor', 'at'}
+MOVE_REASONING_LEVELS = {'none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max', 'ultra'}
 MESSAGE_FIELDS = {'author', 'name', 'ply', 'text', 'created_at'}
 EVALUATION_FIELDS = {'score_pawns', 'mate_in_moves', 'mate_for', 'ply', 'uci', 'san', 'completed_depth'}
 PROVENANCE_FIELDS = {'query_index', 'hash_format', 'result_sha256', 'request_sha256',
@@ -110,8 +111,12 @@ def _validate_record(record):
                'human_side': meta['human_side'], 'astra_side': meta['astra_side'], 'own_moves': 0}
     previous = created
     for index, move in enumerate(moves):
-        if not isinstance(move, dict) or set(move) != MOVE_FIELDS:
+        if (not isinstance(move, dict) or not MOVE_FIELDS <= set(move)
+                or set(move) - MOVE_FIELDS - {'reasoning'}):
             raise ValueError('Invalid archive move fields.')
+        if 'reasoning' in move and (move['actor'] != 'astra' or type(move['reasoning']) is not str
+                                    or move['reasoning'] not in MOVE_REASONING_LEVELS):
+            raise ValueError('Invalid archive move reasoning.')
         stamp = _timestamp(move['at'])
         if not previous <= stamp <= updated or move['actor'] not in ('human', 'astra'):
             raise ValueError(f'Invalid move timestamp or author at ply {index + 1}.')
@@ -230,7 +235,9 @@ def make_record(state, data_dir, *, exported_at=None):
         meta = {key: state[key] for key in GAME_FIELDS - {'exported_at', 'initial_fen'}}
         meta.update(exported_at=time.time() if exported_at is None else exported_at,
                     initial_fen=game.START_FEN, player_name=saved_player_name(state))
-        moves = [{key: move[key] for key in MOVE_FIELDS} for move in state['moves']]
+        moves = [{key: move[key] for key in MOVE_FIELDS} |
+                 ({'reasoning': move['reasoning']} if move['actor'] == 'astra' and 'reasoning' in move else {})
+                 for move in state['moves']]
         if state.get('fen') != (moves[-1]['fen'] if moves else game.START_FEN):
             raise ValueError('Recorded final FEN disagrees with the archived move sequence.')
         messages = [{key: message[key] for key in MESSAGE_FIELDS - {'name'}} |
@@ -278,7 +285,8 @@ def record_pgn(record):
         headers.update(Event=f'{name} Chess Public Beta', Site=f'{name} Chess',
                        White=names['white'], Black=names['black'], Result=meta['result'],
                        Termination=meta['termination'], Model=meta['model'],
-                       Reasoning=meta['reasoning'], EngineSHA256=meta['engine_fingerprint'])
+                       Reasoning=game.reasoning_used(dict(meta, moves=record['moves'])),
+                       EngineSHA256=meta['engine_fingerprint'])
         def escape(value):
             return str(value).replace('\\', '\\\\').replace('"', '\\"').replace('\n', ' ').replace('\r', ' ')
         notation = pgn.split('\n\n', 1)[1]
@@ -336,13 +344,14 @@ def build_archive(record, output):
         raise
     meta = record['game']
     player_name = meta.get('player_name', 'Astra')
+    reasoning = game.reasoning_used(dict(meta, moves=record['moves']))
     with tempfile.TemporaryDirectory(prefix='astra-replay-') as directory:
         folder = Path(directory)
         pgn_path = folder / ('hosted-' + meta['id'] + '.pgn')
         pgn_path.write_text(record_pgn(record), encoding='utf-8')
         metadata_path = folder / 'metadata.json'
         metadata_path.write_text(_json({'hosted-' + meta['id']: {'model': player_name,
-            'thinkingLevel': meta['reasoning'].title(), 'playerSide': meta['astra_side']}}), encoding='utf-8')
+            'thinkingLevel': reasoning.title(), 'playerSide': meta['astra_side']}}), encoding='utf-8')
         builder.ROOT, builder.REPLAY_METADATA = APP_ROOT, metadata_path
         temporary_page = folder / 'replay.html'
         builder.build(pgn_path, temporary_page, subtitle='Hosted service game · ' + meta['model'], ending=_ending(record))
@@ -371,7 +380,7 @@ def build_archive(record, output):
     data['playerName'] = player_name
     data['messages'] = deepcopy(record['messages'])
     data['archive'] = {'gameId': meta['id'], 'createdAt': meta['created_at'], 'exportedAt': meta['exported_at'],
-        'model': meta['model'], 'reasoning': meta['reasoning'], 'playerName': player_name,
+        'model': meta['model'], 'reasoning': reasoning, 'playerName': player_name,
         'source': 'hosted_service', 'messageCount': len(record['messages'])}
     page = page[:start] + _json(data).replace('<', '\\u003c') + page[end:]
     output = Path(output)

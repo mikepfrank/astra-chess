@@ -1,4 +1,4 @@
-"""Actual Codex CLI: Max -> High -> Max on one disposable, mocked game thread.
+"""Actual Codex CLI: selectable moves and fixed High chat on one mocked thread.
 
 No real credentials, provider calls, chess moves or player records are used.
 Only structural evidence is reported; retained protocol text is synthetic.
@@ -77,10 +77,13 @@ async def audit(codex, output):
         with patch.dict(os.environ, {'OPENROUTER_API_KEY': 'synthetic-chat-reasoning-key'}), \
                 patch('astra_web.openrouter_setup.require_budget', return_value={'remaining_usd': 49}), \
                 patch('astra_web.openrouter_gateway.OpenRouterGateway', FixtureGateway):
-            for active_kind, active_effort in [('move', 'max'), ('chat', 'high'), ('move', 'max')]:
+            for active_kind, preference, active_effort in [
+                    ('move', 'max', 'max'), ('move', 'high', 'high'),
+                    ('chat', 'max', 'high'), ('move', 'max', 'max')]:
                 async with asyncio.timeout(40):
                     result = await player.run('synthetic-chat-policy', {'ply': 0, 'hard_response_seconds': 600},
-                        handler, emit, thread_id, player_binding=binding, response_kind=active_kind)
+                        handler, emit, thread_id, player_binding=binding, response_kind=active_kind,
+                        move_reasoning=preference)
                 if thread_id is not None:
                     assert result['thread_id'] == thread_id
                 thread_id = result['thread_id']
@@ -91,16 +94,16 @@ async def audit(codex, output):
                 assert state['runtime_reasoning_policy']['max_output_tokens'] == 32768
                 assert state['runtime_context_policy']['compact_limit'] == 250000
                 assert not player._processes and not player._active_games
-                report['actions'].append({'kind': active_kind, 'effort': active_effort,
+                report['actions'].append({'kind': active_kind, 'effort': active_effort, 'move_preference': preference,
                     'same_thread': state['thread_id'] == thread_id, 'original_identity_preserved': True,
                     'process_reaped': True})
         assert binding == original
-        assert len(public) == 3 and len(report['requests']) == 6
+        assert len(public) == 4 and len(report['requests']) == 8
         assert all(gateway.request_count == 2 and gateway.budget_check_count == 2
                    and not gateway.rejections and all(row.get('stream_complete') for row in gateway.evidence)
                    for gateway in gateways)
         report.update(success=True, cli_version=state['cli_version'],
-                      immutable_binding_preserved=True, completed_actions=3)
+                      immutable_binding_preserved=True, completed_actions=4)
     finally:
         await player.close()
         (root / 'audit.json').write_text(json.dumps(report, indent=2))

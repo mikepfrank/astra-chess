@@ -47,10 +47,40 @@ PROFILES = {
 GLM_HIGH_PROFILE = replace(PROFILES['openrouter-glm'], reasoning='high',
                            version=3, max_output_tokens=8192)
 
-# Host-selected chat turns use High while retaining the current game's 32K
+# Host-selected High turns retain the current game's 32K
 # output allowance and identity. This is a runtime policy, not a saved profile
 # migration or a selectable new-game model.
 GLM_CHAT_PROFILE = replace(PROFILES['openrouter-glm'], reasoning='high')
+
+
+def move_reasoning_options(state):
+    """Advertise only installed v4 GLM settings; old identities stay immutable."""
+    saved = state.get('player_profile')
+    expected = asdict(PROFILES['openrouter-glm'])
+    if not isinstance(saved, dict):
+        return []
+    try:
+        # JSON equality also rejects bool/int and float/int substitutions.
+        matches = (json.dumps({key: saved.get(key) for key in expected}, sort_keys=True,
+                              allow_nan=False) == json.dumps(expected, sort_keys=True))
+    except (TypeError, ValueError):
+        return []
+    if matches and all(state.get(key) == expected[key] for key in ('model', 'reasoning')):
+        return ['high', 'max']
+    return []
+
+
+def move_reasoning_for_game(state):
+    """Read the durable host preference without changing original provenance."""
+    options = move_reasoning_options(state)
+    if not options:
+        if 'move_reasoning' in state:
+            raise ValueError('Move reasoning selection is unavailable for this game profile')
+        return None
+    value = state.get('move_reasoning', state['reasoning'])
+    if type(value) is not str or value not in options:
+        raise ValueError('Move reasoning must be high or max')
+    return value
 
 
 def trusted_runtime_profile(profile):
@@ -293,14 +323,15 @@ def game_player_binding(state, config):
             'prompt': prompt, 'persona': persona}
 
 
-def runtime_profile_for_binding(binding, config, *, response_kind=None):
+def runtime_profile_for_binding(binding, config, *, response_kind=None, move_reasoning=None):
     """Revalidate a private binding and select its host-authorized runtime.
 
     Max is a new-game default, not a migration for existing High games. Both
     the model driver and gateway consume this same per-action selection. The
     caller supplies the response kind from authoritative game state; neither
     model text nor the model-visible snapshot selects its own reasoning level.
-    None keeps the saved policy for existing callers and explicit compaction.
+    The optional move preference is captured by the host at worker admission;
+    it is never read from model-visible input. None keeps the saved move policy.
     """
     if response_kind is not None and (type(response_kind) is not str
                                      or response_kind not in ('chat', 'move')):
@@ -316,7 +347,14 @@ def runtime_profile_for_binding(binding, config, *, response_kind=None):
     if verified != binding:
         raise ValueError('Game player binding differs from its verified snapshot')
     profile = _game_runtime_profile(saved, config)
+    if move_reasoning is not None:
+        if response_kind is None or profile != PROFILES['openrouter-glm']:
+            raise ValueError('Move reasoning selection requires a current GLM response')
+        if type(move_reasoning) is not str or move_reasoning not in ('high', 'max'):
+            raise ValueError('Move reasoning must be high or max')
     if response_kind == 'chat' and profile == PROFILES['openrouter-glm']:
+        return GLM_CHAT_PROFILE
+    if response_kind == 'move' and move_reasoning == 'high':
         return GLM_CHAT_PROFILE
     return profile
 

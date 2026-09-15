@@ -12,7 +12,7 @@ from .config import REPO_ROOT
 from .store import DailyResourceLimit
 from . import chess_game as game
 from .player_profiles import (profile_for, verify_game_profile, game_player_binding,
-                              runtime_profile_for_binding, saved_player_name)
+                              runtime_profile_for_binding, saved_player_name, move_reasoning_for_game)
 
 
 class ChessClockExhausted(TimeoutError):
@@ -267,8 +267,11 @@ class Supervisor:
         own_turn = not post_game and game.side_to_move(state) == state['astra_side']
         response_kind = 'move' if own_turn else 'chat'
         player_binding = game_player_binding(state, self.config)
+        # Freeze the player's preference for this response. Later UI changes
+        # apply to the next admitted response, never a running provider action.
+        move_reasoning = move_reasoning_for_game(state)
         response_profile = runtime_profile_for_binding(player_binding, self.config,
-            response_kind=response_kind)
+            response_kind=response_kind, move_reasoning=move_reasoning)
         openrouter_chat = (not own_turn and
             getattr(self.config, 'model_profile', 'astra') == 'openrouter-glm')
         balance = game.clock(state)['remaining_seconds']
@@ -564,6 +567,7 @@ class Supervisor:
                     if action == 'move':
                         stop_clock(s, 'accepted_action')
                         game.apply_move(s, args['move'], 'astra')
+                        s['moves'][-1]['reasoning'] = response_profile.reasoning
                     elif action == 'resign':
                         stop_clock(s, 'accepted_action')
                         game.finish(s, '1-0' if s['human_side'] == 'white' else '0-1', 'resignation')
@@ -585,7 +589,8 @@ class Supervisor:
                         s['draw_offer'] = None
                     else:
                         raise ValueError('Unsupported chess action.')
-                    s['decisions'].append(dict(ply=control['ply'], **args))
+                    s['decisions'].append(dict(ply=control['ply'], reasoning=response_profile.reasoning,
+                        response_kind=response_kind, attempt_id=control['attempt_id'], **args))
                 self.store.mutate(game_id, choose, kind='astra_action', body=args)
                 control['chosen'] = action in {'move', 'resign', 'accept_draw', 'claim_draw'}
                 if soft_target and control['chosen']:
@@ -626,6 +631,7 @@ class Supervisor:
             if not self.player_factory:
                 options['player_binding'] = player_binding
                 options['response_kind'] = response_kind
+                options['move_reasoning'] = move_reasoning
             run = asyncio.create_task(player.run(game_id, snapshot, tool, emit, **options))
             try:
                 post_action_timeout = False

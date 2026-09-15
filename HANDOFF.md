@@ -1,5 +1,15 @@
 # Handoff: Arcturus development worktree
 
+## September 15: monitor pages and move-thinking preference
+
+The current requested update is prepared in this worktree: the private monitor
+defaults to ten rows with size/page controls, and current v4 Arcturus games have
+a persisted High/Max selector for future move responses. Chat stays High; a
+running response keeps its captured effort. Existing game identity, clocks and
+threads are preserved. See [web-service/HANDOFF.md](web-service/HANDOFF.md) and
+[the UI validation record](web-service/validation/2026-09-15-ui-controls.md) for
+activation status. September 14 checkpoints below are historical.
+
 ## Current branch checkpoint — September 14, 2026
 
 This checkout is **`openrouter-worktree` on `codex/openrouter-chess`**, the

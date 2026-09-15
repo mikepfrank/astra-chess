@@ -135,7 +135,8 @@ function updatePlayerIdentity(){
   if(current){
     const model=current.model_name||current.model||'configured by operator';
     const label=name==='Astra'?(current.model||'configured by operator'):`${name} · ${model}`;
-    $('model-detail').textContent=`Player: ${label}${current.reasoning?' · '+current.reasoning+' reasoning':''}. ${state.config?.suspend_hours?`Inactive games suspend after ${state.config.suspend_hours} hours and can be resumed.`:''}`;
+    const thinking=current.move_reasoning_options?.length?`${current.move_reasoning} for moves · high for chat`:current.reasoning?`${current.reasoning} reasoning`:'';
+    $('model-detail').textContent=`Player: ${label}${thinking?' · '+thinking:''}. ${state.config?.suspend_hours?`Inactive games suspend after ${state.config.suspend_hours} hours and can be resumed.`:''}`;
   }
   if(!state.game){$('astra-clock').title=`${name}’s remaining thinking time`;$('retry-worker').textContent=`Retry ${name}`;}
   if(!state.game){$('top-name').textContent=name;$('top-avatar').textContent=name.slice(0,1).toUpperCase();}
@@ -257,6 +258,17 @@ function playerStatusText(game,side){
   if(['compacting','calculating','thinking','queued','error','disabled'].includes(worker))return worker.toUpperCase();
   return turn===side?`${playerName().toUpperCase()}’S MOVE`:'';
 }
+function renderMoveThinking(game){
+  const options=game?.move_reasoning_options||[];
+  const available=options.includes('high')&&options.includes('max')&&game.status!=='finished';
+  $('move-thinking').hidden=!available;
+  for(const effort of ['high','max']){
+    const input=$('move-thinking-'+effort);
+    input.checked=available&&game.move_reasoning===effort;
+    input.disabled=!available||state.pending;
+  }
+  $('move-thinking-active').hidden=!available||!['thinking','calculating','compacting'].includes(game.worker?.state);
+}
 function renderGame(game){
   if(game.id!==state.game?.id)closeEmojiPicker();
   if(archiveUI.gameId&&archiveUI.gameId!==game.id)closeArchiveDialog();
@@ -314,6 +326,7 @@ function renderGame(game){
   $('save-replay').hidden=game.status!=='finished';
   $('download-pgn').hidden=false;$('download-pgn').href=`/api/games/${encodeURIComponent(game.id)}/pgn`;
   updateComposer();
+  renderMoveThinking(game);
   $('message-input').placeholder=game.status==='finished'?`Discuss the game with ${playerName()}…`:`Say something to ${playerName()}…`;
   for(const id of ['accept-draw','decline-draw','claim-draw','resume-game','retry-worker'])$(id).disabled=state.pending;
   if(game.status==='finished')$('board-hint').textContent=`Game complete. You can discuss it with ${playerName()}.`;
@@ -361,6 +374,7 @@ function clearPrivateView(){
   $('offer-draw').disabled=true;$('resign').disabled=true;
   for(const id of ['draw-banner','claim-draw','resume-game','retry-worker','save-replay','download-pgn'])$(id).hidden=true;
   renderAstraEvaluation(null);
+  renderMoveThinking(null);
   renderMessages();renderMoves();
 }
 async function act(action,extra={}){
@@ -376,6 +390,13 @@ async function act(action,extra={}){
     return false;
   }finally{state.pending=false;if(state.game)renderGame(state.game);}
 }
+for(const effort of ['high','max'])$('move-thinking-'+effort).addEventListener('change',async event=>{
+  if(!event.target.checked||!state.game)return;
+  const gameId=state.game.id;
+  if(state.game.move_reasoning===effort)return;
+  const saved=await act('set_move_reasoning',{reasoning:effort});
+  if(saved&&state.gameId===gameId)toast(`${titleCase(effort)} selected for future move responses. Chat stays on High.`);
+});
 function choosePromotion(moves,side){
   const options=$('promotion-options');options.replaceChildren();
   return new Promise(resolve=>{

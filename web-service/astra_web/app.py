@@ -16,7 +16,8 @@ from .replay_library import install_replay_library
 from .experiment_library import install_experiment_library
 from .operator_monitor import install_operator_monitor
 from . import chess_game as game
-from .player_profiles import profile_for, persona_for, saved_player_name
+from .player_profiles import (profile_for, persona_for, saved_player_name,
+                              verify_game_profile, move_reasoning_options)
 
 
 def create_app(config=None, player_factory=None):
@@ -185,21 +186,32 @@ def create_app(config=None, player_factory=None):
     async def action(request: Request, game_id: str):
         owned(request, game_id)
         data = await body(request)
-        if set(data) - {'action', 'move', 'text', 'version', 'request_id'}:
+        if set(data) - {'action', 'move', 'text', 'version', 'request_id', 'reasoning'}:
             raise ValueError('Unsupported action fields.')
         if type(data.get('version')) is not int or not isinstance(data.get('request_id'), str) or not 8 <= len(data['request_id']) <= 100:
             raise ValueError('Actions require a board version and a unique request ID.')
         act = data.get('action')
         if not isinstance(act, str):
             raise ValueError('A game action must be a string.')
+        if 'reasoning' in data and act != 'set_move_reasoning':
+            raise ValueError('Reasoning is only accepted when selecting move reasoning.')
+        if act == 'set_move_reasoning' and set(data) != {'action', 'reasoning', 'version', 'request_id'}:
+            raise ValueError('Select high or max with a board version and request ID.')
         def apply(s):
             if s['status'] == 'finished' and act not in ('message', 'retry'):
                 raise ValueError('This game has finished.')
-            if s['status'] == 'suspended' and act not in ('resume', 'resign'):
+            if s['status'] == 'suspended' and act not in ('resume', 'resign', 'set_move_reasoning'):
                 raise ValueError('Resume the saved game first.')
             s['last_human_activity'] = time.time()
             if act == 'move':
                 game.apply_move(s, data.get('move'), 'human')
+            elif act == 'set_move_reasoning':
+                verify_game_profile(s, config)
+                if not move_reasoning_options(s):
+                    raise ValueError('Move reasoning selection is unavailable for this game profile.')
+                if type(data['reasoning']) is not str or data['reasoning'] not in ('high', 'max'):
+                    raise ValueError('Move reasoning must be high or max.')
+                s['move_reasoning'] = data['reasoning']
             elif act == 'message':
                 last = [m for m in s['messages'] if m['author'] == 'human' and m['created_at'] > time.time()-60]
                 if len(last) >= config.max_messages_per_minute:

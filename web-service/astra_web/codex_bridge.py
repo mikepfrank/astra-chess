@@ -489,9 +489,10 @@ class CodexPlayer:
 
     async def run(self, game_id: str, snapshot: dict, tool_handler: ToolHandler,
                   emit: Emitter, thread_id: str | None = None, *, player_binding=None,
-                  response_kind=None) -> dict:
+                  response_kind=None, move_reasoning=None) -> dict:
         return await self._action(game_id, snapshot, tool_handler, emit, thread_id,
-                                  player_binding=player_binding, response_kind=response_kind)
+                                  player_binding=player_binding, response_kind=response_kind,
+                                  move_reasoning=move_reasoning)
 
     async def compact(self, game_id: str, snapshot: dict, tool_handler: ToolHandler,
                       thread_id: str, *, player_binding=None) -> dict:
@@ -511,8 +512,8 @@ class CodexPlayer:
                                   thread_id, player_binding=player_binding, compact_only=True)
 
     async def _action(self, game_id, snapshot, tool_handler, emit, thread_id,
-                      *, player_binding=None, compact_only=False, response_kind=None):
-        if compact_only and response_kind is not None:
+                      *, player_binding=None, compact_only=False, response_kind=None, move_reasoning=None):
+        if compact_only and (response_kind is not None or move_reasoning is not None):
             raise CodexError('Explicit compaction must retain the saved reasoning policy')
         if not isinstance(game_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,100}", game_id):
             raise CodexError("Invalid internal game identifier")
@@ -523,7 +524,8 @@ class CodexPlayer:
         self._active_games.add(game_id)
         try:
             binding = player_binding or new_player_binding(self.config)
-            profile = runtime_profile_for_binding(binding, self.config, response_kind=response_kind)
+            profile = runtime_profile_for_binding(binding, self.config, response_kind=response_kind,
+                                                  move_reasoning=move_reasoning)
             if profile.name == 'openrouter-glm':
                 from .openrouter_gateway import OpenRouterGateway
                 key = os.environ.get(profile.env_key)
@@ -535,7 +537,7 @@ class CodexPlayer:
                         return await self._run(game_id, snapshot, tool_handler, emit, thread_id,
                                                transport_profile=transport, gateway_token=gateway.token,
                                                player_binding=binding, compact_only=compact_only,
-                                               response_kind=response_kind)
+                                               response_kind=response_kind, move_reasoning=move_reasoning)
                     finally:
                         data_root = Path(self.config.data_dir).resolve()
                         folder = _private_directory(data_root / 'players' / game_id, data_root)
@@ -555,17 +557,18 @@ class CodexPlayer:
                                 'max_output_tokens': profile.max_output_tokens}})
             return await self._run(game_id, snapshot, tool_handler, emit, thread_id,
                                    player_binding=binding, compact_only=compact_only,
-                                   response_kind=response_kind)
+                                   response_kind=response_kind, move_reasoning=move_reasoning)
         finally:
             self._active_games.discard(game_id)
 
     async def _run(self, game_id, snapshot, tool_handler, emit, thread_id,
                    transport_profile=None, gateway_token=None, player_binding=None, compact_only=False,
-                   response_kind=None):
-        if compact_only and response_kind is not None:
+                   response_kind=None, move_reasoning=None):
+        if compact_only and (response_kind is not None or move_reasoning is not None):
             raise CodexError('Explicit compaction must retain the saved reasoning policy')
         binding = player_binding or new_player_binding(self.config)
-        profile = runtime_profile_for_binding(binding, self.config, response_kind=response_kind)
+        profile = runtime_profile_for_binding(binding, self.config, response_kind=response_kind,
+                                              move_reasoning=move_reasoning)
         transport_profile = transport_profile or profile
         identity = binding['profile']
         data_root = Path(self.config.data_dir).resolve()

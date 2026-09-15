@@ -5,7 +5,7 @@ import secrets
 import sys
 import time
 from .config import REPO_ROOT
-from .player_profiles import new_player_binding, saved_player_name
+from .player_profiles import new_player_binding, saved_player_name, move_reasoning_options
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -159,9 +159,22 @@ def snapshot(state, internal=False):
     result['model_name'] = profile.get('display_name', 'Astra')
     result['persona_id'] = persona.get('name', 'astra' if profile.get('name', 'astra') == 'astra' else 'legacy-glm')
     result['persona_version'] = persona.get('version', 1)
+    result['move_reasoning_options'] = move_reasoning_options(state)
+    result['move_reasoning'] = state.get('move_reasoning', state['reasoning'])
     if internal:
         result.update(history_fens=history(state), candidates=state['candidates'][-3:], decisions=state['decisions'][-3:])
     return result
+
+
+def reasoning_used(state):
+    """Summarize accepted AI moves, with the saved initial level for older moves.
+
+    The next-turn preference and chat-only reasoning do not describe played moves.
+    Keep the original configuration as the fallback when no AI move was played.
+    """
+    levels = {move.get('reasoning', state['reasoning']) for move in state['moves']
+              if move['actor'] == 'astra'}
+    return ' / '.join(sorted(levels or {state['reasoning']}))
 
 
 def pgn(state):
@@ -173,13 +186,13 @@ def pgn(state):
     names = {state['human_side']: state['name'], state['astra_side']: player_name}
     headers = {'Event': 'Astra Chess Public Beta', 'Site': 'Astra Chess', 'White': names['white'],
                'Black': names['black'], 'Result': state['result'], 'Termination': state['termination'],
-               'AstraModel': state['model'], 'AstraReasoning': state['reasoning'],
+               'AstraModel': state['model'], 'AstraReasoning': reasoning_used(state),
                'EngineSHA256': state['engine_fingerprint']}
     if profile.get('name') not in (None, 'astra') or persona.get('name') not in (None, 'astra'):
         headers.pop('AstraModel')
         headers.pop('AstraReasoning')
         headers.update(Event=f'{player_name} Chess Public Beta', Site=f'{player_name} Chess',
-                       Model=state['model'], Reasoning=state['reasoning'],
+                       Model=state['model'], Reasoning=reasoning_used(state),
                        PlayerProfile=profile['name'])
     if persona:
         headers.update(PlayerPersona=persona['name'], PersonaVersion=persona['version'])

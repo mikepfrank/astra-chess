@@ -92,6 +92,62 @@ class ReplayArchiveTests(unittest.TestCase):
         for private in (secret, 'private-user-id', 'private-message-0'):
             self.assertNotIn(private, encoded)
 
+    def test_reasoning_summary_ignores_chat_human_moves_and_unplayed_preference(self):
+        state = {'reasoning': 'max', 'move_reasoning': 'high', 'moves': [],
+                 'messages': [{'author': 'astra', 'reasoning': 'high'}]}
+        self.assertEqual(game.reasoning_used(state), 'max', 'No AI moves retains the saved initial level')
+        state['moves'] = [{'actor': 'human', 'reasoning': 'ultra'}, {'actor': 'astra'}]
+        self.assertEqual(game.reasoning_used(state), 'max', 'Older AI moves use the saved initial level')
+        state['moves'].append({'actor': 'astra', 'reasoning': 'high'})
+        before = deepcopy(state)
+        self.assertEqual(game.reasoning_used(state), 'high / max')
+        self.assertEqual(state, before)
+        state['moves'][1]['reasoning'] = 'high'
+        state['move_reasoning'] = 'max'
+        self.assertEqual(game.reasoning_used(state), 'high', 'A future Max selection does not label completed High moves as Max')
+
+    def test_new_replay_labels_and_pgn_use_recorded_move_reasoning(self):
+        for levels, expected in ((('high', 'high'), 'high'), (('max', 'max'), 'max'),
+                                 (('max', 'high'), 'high / max'), ((None, 'high'), 'high / max')):
+            with self.subTest(levels=levels):
+                state = deepcopy(self.state)
+                state.update(reasoning='max', move_reasoning='high')
+                for move, level in zip((state['moves'][1], state['moves'][3]), levels):
+                    if level is not None:
+                        move['reasoning'] = level
+                state['moves'][0]['reasoning'] = 'untrusted human field'
+                before = deepcopy(state)
+                record = self.record(state)
+                self.assertEqual(record['game']['reasoning'], 'max', 'Preserve initial configuration for legacy fallback')
+                self.assertNotIn('reasoning', record['moves'][0], 'Human moves cannot contribute a model reasoning label')
+                self.assertEqual([move.get('reasoning') for move in record['moves'] if move['actor'] == 'astra'], list(levels))
+                self.assertIn(f'[AstraReasoning "{expected}"]', game.pgn(state))
+                self.assertIn(f'[Reasoning "{expected}"]', archive.record_pgn(record))
+                loaded = archive.load_record(self.write_record(record))
+                html = self.build(loaded)
+                data = EmbeddedReplay(html).value()
+                self.assertIn(f'<h1>Astra ({expected.title()}) vs. Fixture player</h1>', html)
+                self.assertEqual(data['headers']['Reasoning'], expected)
+                self.assertEqual(data['archive']['reasoning'], expected)
+                self.assertEqual(state, before, 'Archiving never rewrites the game or its initial profile')
+                self.assertEqual(loaded, record)
+
+    def test_optional_archive_move_reasoning_is_bounded_and_only_for_ai_moves(self):
+        for invalid in (None, True, 42, [], 'extreme', 'high' * 100):
+            with self.subTest(value=invalid):
+                state = deepcopy(self.state)
+                state['moves'][1]['reasoning'] = invalid
+                with self.assertRaisesRegex(ValueError, 'move reasoning'):
+                    self.record(state)
+                record = self.record()
+                record['moves'][1]['reasoning'] = invalid
+                with self.assertRaisesRegex(ValueError, 'move reasoning'):
+                    archive.load_record(self.write_record(record))
+        record = self.record()
+        record['moves'][0]['reasoning'] = 'high'
+        with self.assertRaisesRegex(ValueError, 'move reasoning'):
+            archive.load_record(self.write_record(record))
+
     def test_invalid_move_and_result_evidence_is_rejected(self):
         changes = {
             'unfinished': lambda s: s.update(status='active'),

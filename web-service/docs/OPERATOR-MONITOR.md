@@ -45,6 +45,14 @@ as the existing [operator report helper](../tools/ops/README.md).
 
 ## Refresh behavior and interpretation
 
+The Arcturus monitor initially displays ten games in newest-activity order.
+Choose 10, 25, 50 or 100 games per page and use Newer/Older to navigate. Search
+and status filters apply to the whole fetched inventory, then pagination;
+changing either filter or page size returns to page one. The range count reflects
+the filtered list, while summary cards continue to describe the whole service.
+Refresh retains the selected page where possible and clamps it if results shrink.
+Pagination is local to the authorized view; it makes no extra API requests.
+
 The page refreshes every 30 seconds while visible, with a manual refresh button.
 Requests have a deadline and do not overlap. Returning to the tab requests a
 fresh snapshot. A temporary connection failure leaves the last snapshot visible

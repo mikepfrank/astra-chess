@@ -366,7 +366,8 @@ class ChatTimePolicyTests(unittest.IsolatedAsyncioTestCase):
                 pass
 
             async def run(self, game_id, snapshot, tool, emit, thread_id=None,
-                          *, player_binding=None, response_kind=None):
+                          *, player_binding=None, response_kind=None, move_reasoning=None):
+                owner.assertEqual(move_reasoning, 'max')
                 received.append((response_kind, snapshot['reasoning']))
                 expected = [('chat', 'high'), ('move', 'max'), ('chat', 'high')][len(received) - 1]
                 owner.assertEqual(received[-1], expected)
@@ -421,6 +422,53 @@ class ChatTimePolicyTests(unittest.IsolatedAsyncioTestCase):
                 "SELECT data FROM events WHERE game_id=? AND kind='worker_started' ORDER BY id",
                 (fixture.game_id,))]
         self.assertEqual([(a['response_kind'], a['reasoning']) for a in audits], received)
+
+    async def test_move_preference_is_frozen_for_active_turn_and_next_turn_uses_new_value(self):
+        fixture = self.fixture()
+        fixture.store.mutate(fixture.game_id, lambda s: game.apply_move(s, 'e2e4', 'human'))
+        received = []
+
+        async def behavior(snapshot, tool, emit, thread_id):
+            received.append(snapshot['reasoning'])
+            self.assertEqual(thread_id, 'saved-chat-thread')
+            if len(received) == 1:
+                self.assertEqual(snapshot['reasoning'], 'max')
+                self.clock.advance(5)
+                before = fixture.store.get(fixture.game_id)
+                fixture.store.mutate(fixture.game_id, lambda s: s.update(move_reasoning='high'))
+                status = await tool('chess_status', {})
+                self.assertEqual(status['reasoning'], 'max')
+                self.assertEqual(status['move_reasoning'], 'high')
+                self.assertEqual(fixture.store.get(fixture.game_id)['active_started'], before['active_started'])
+                move = 'e7e5'
+            else:
+                self.assertEqual(snapshot['reasoning'], 'high')
+                move = 'b8c6'
+            self.clock.advance(10)
+            await tool('chess_candidate', {'move': move, 'concern': 'Reasoning preference fixture'})
+            await tool('chess_query', {'seconds': 1})
+            await tool('chess_choose', {'action': 'move', 'move': move, 'note': 'Chosen runtime retained'})
+            return {'usage_tokens': 11}
+
+        supervisor = self.supervisor(fixture, behavior)
+
+        async def query(game_id, state, args, available):
+            return {'fallback': False}, 'preference-query.json'
+
+        supervisor._query = query
+        await supervisor._active_run(fixture.game_id)
+        fixture.store.mutate(fixture.game_id, lambda s: game.apply_move(s, 'g1f3', 'human'))
+        await supervisor._active_run(fixture.game_id)
+        final = fixture.store.get(fixture.game_id)
+        self.assertEqual(received, ['max', 'high'])
+        self.assertEqual([m['reasoning'] for m in final['moves'] if m['actor'] == 'astra'], received)
+        self.assertEqual([d['reasoning'] for d in final['decisions']], received)
+        self.assertEqual([e['charged_seconds'] for e in final['clock_events']], [15, 10])
+        self.assertEqual(final['clock_used'], 225)
+        self.assertEqual(final['reasoning'], 'max')
+        self.assertEqual(final['player_profile'], fixture.baseline['player_profile'])
+        self.assertEqual(final['move_reasoning'], 'high')
+        self.assertEqual(supervisor.rerun, set())
 
 
 if __name__ == '__main__':

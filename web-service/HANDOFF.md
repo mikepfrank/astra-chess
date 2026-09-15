@@ -4,6 +4,35 @@ For the separate `codex/openrouter-chess` experimental branch, start with the
 [September 13 alternate-model orientation](OPENROUTER-EXPERIMENT.md). The hosted
 baseline and its deployment history are preserved below.
 
+## September 15: selectable move thinking and paginated monitor
+
+Prepared for Arcturus only; activation results belong in
+[the UI controls validation record](validation/2026-09-15-ui-controls.md).
+The monitor defaults to ten most recently active games, with 10/25/50/100 page
+sizes and Newer/Older navigation. Search/filter changes restart at page one;
+refresh preserves the page when possible. Summary totals remain service-wide.
+
+Current v4 GLM games expose **Move thinking: High / Max** between conversation
+and scoresheet. The owner can change it during play; it persists per game until
+changed again. Max remains the default. The host captures the preference when
+a worker begins: a running response is never restarted or reconfigured by the
+toggle. Queued responses use the preference at admission. Chat and post-game
+replies remain High. The control does not schedule work or charge clock time;
+it uses existing ownership, origin/CSRF, version and request-id protections.
+Older High/8K games and original Astra retain their policy; no control is offered.
+
+Keep original saved model/profile/prompt/persona/thread metadata intact. Accepted
+AI moves now record effective reasoning for new PGN/replay descriptions; a
+preference change without a played move is not evidence that effort was used.
+Existing saved archives are not regenerated during deployment.
+
+Mike reports the monitor showed 14 player games and periodic new-game emails
+were arriving on September 15. The read-only 17:27 UTC report confirmed idle
+workers and 17 total stored games (including the three excluded QA games).
+This is a dated snapshot, not a claim about present activity. Continue checking
+fresh state before restarting. Image uploads remain deferred and general
+password recovery remains disabled.
+
 ## Resume checklist — September 14 housekeeping checkpoint
 
 - Work only in `openrouter-worktree`, branch `codex/openrouter-chess`, remote

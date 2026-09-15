@@ -518,12 +518,27 @@ nav {
   padding-top:4px;
   min-width:0;
 }
-.chat-card,.moves-card {
+.chat-card,.moves-card,.thinking-card {
   background:var(--panel);
   border:1px solid var(--line);
   border-radius:9px;
   overflow:hidden;
 }
+.thinking-card { padding:18px 20px; }
+.thinking-card fieldset { border:0; padding:0; margin:0; min-width:0; }
+.thinking-card legend { font-size:18px; font-weight:600; margin-bottom:12px; }
+.thinking-options { display:flex; gap:0; }
+.thinking-options label { flex:1; position:relative; cursor:pointer; }
+.thinking-options input { position:absolute; opacity:0; width:1px; height:1px; }
+.thinking-options span { display:flex; flex-direction:column; align-items:center; gap:3px; padding:11px 8px; border:1px solid var(--line); }
+.thinking-options label:first-child span { border-radius:6px 0 0 6px; }
+.thinking-options label:last-child span { border-radius:0 6px 6px 0; }
+.thinking-options small { color:var(--muted); font-size:12px; }
+.thinking-options input:checked + span { background:var(--accent); border-color:var(--accent); color:var(--bg); }
+.thinking-options input:checked + span small { color:inherit; }
+.thinking-options input:focus-visible + span { outline:2px solid var(--text); outline-offset:3px; }
+.thinking-options input:disabled + span { opacity:.55; cursor:default; }
+.thinking-card p { font-size:12px; line-height:1.6; color:var(--muted); margin:11px 0 0; }
 .card-heading {
   display:flex;
   justify-content:space-between;
