@@ -6,6 +6,17 @@ baseline and its deployment history are preserved below.
 
 ## September 15: selectable move thinking and paginated monitor
 
+**New diagnosis: post-game chat can be hidden by Codex tool-output truncation.**
+[Exact native-CLI reproduction](validation/2026-09-15-chat-context-truncation.md)
+confirmed that recent human messages in five saved `chess_status` outputs were
+cut from the middle before reaching GLM. The full private rollout still contains
+them, so saved output alone does not prove model visibility. This explains the
+operator's ignored questions and repeated claims of no new messages. All five
+actions completed without errors. A tested explicit tool-output budget and
+bounded message-prioritizing context are the proposed repair; no live runtime
+change has been made for this diagnosis. The 250K compaction/32K response limits
+are separate from this issue.
+
 **Live on Arcturus at `3e2bb62`, September 15 at 17:43 UTC.** Activation results are in
 [the UI controls validation record](validation/2026-09-15-ui-controls.md).
 The monitor defaults to ten most recently active games, with 10/25/50/100 page
