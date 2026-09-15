@@ -267,7 +267,6 @@ function renderMoveThinking(game){
     input.checked=available&&game.move_reasoning===effort;
     input.disabled=!available||state.pending;
   }
-  $('move-thinking-active').hidden=!available||!['thinking','calculating','compacting'].includes(game.worker?.state);
 }
 function renderGame(game){
   if(game.id!==state.game?.id)closeEmojiPicker();

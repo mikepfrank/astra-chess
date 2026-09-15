@@ -54,7 +54,7 @@ const fixture=JSON.parse(execFileSync(python,['-c',[
     assert.match(await page.locator('#model-detail').textContent(),/high for moves.*high for chat/);
     const board=game.fen,clock=structuredClone(game.clock),messages=structuredClone(game.messages);
     game={...game,worker:{state:'thinking',message:'Thinking'},version:game.version+1};
-    await page.reload();await page.locator('#move-thinking-active').waitFor({state:'visible'});
+    await page.reload();await card.waitFor({state:'visible'});
     hold=true;await max.click();await page.waitForFunction(()=>document.getElementById('move-thinking-max').disabled);
     assert.equal(await high.isDisabled(),true);assert.ok(release);release();hold=false;
     await page.waitForFunction(()=>document.getElementById('move-thinking-max').checked&&!document.getElementById('move-thinking-max').disabled);

@@ -51,6 +51,8 @@ Live HTML/CSS delivery was verified. Python runtime code stays `3e2bb62`.
 The next copy-only refinement uses Mike's exact labels: "AI thinking level
 during moves:" and "Applies during upcoming AI turns. Thinking between turns
 is High." It changes no runtime policy and also needs no service restart.
+The redundant active-turn notice underneath is removed, along with its
+JavaScript visibility update; the remaining help is the only explanatory line.
 
 ## Resume checklist — September 14 housekeeping checkpoint
 
