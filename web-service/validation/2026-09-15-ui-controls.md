@@ -38,6 +38,38 @@ across 162 tests, covering authenticated preference actions, frozen effort and
 clock behavior, bridge/profile validation, service, persona and evaluation
 regressions. The independent board-selector source review found no blocker.
 
-Export regression, exact-commit Linux checks and activation results will be
-recorded here once complete. Until that activation record is added, the last
-verified live code remains `ce668680f429290a07b3615774288895fa248ce1`.
+The additional export/identity/branding checks ran 32 tests: 30 passed and two
+existing Windows symlink-permission cases were skipped. No historical generated
+archives were changed.
+
+## Linux verification and activation
+
+Exact release `3e2bb627fe509213366eef3e9f85a673a52f0b8c` passed 265 tests:
+264 passed and the Windows-only process case was skipped. Linux Codex 0.154.0
+completed all four actions on the same thread, with eight mocked provider
+requests and no real credentials or upstream calls. The 32K response cap, 250K
+compaction trigger and original identity were verified. Receipts remain in
+the private staged checkout's `web-service/var`.
+
+The Arcturus-only deployment completed in the **17:43 UTC / 12:43 CDT** window
+on September 15. The final idle checks passed before stopping. All 18 stored
+game documents, every database-table digest and private-file digest matched
+across restart. Configuration, all service units, both notification timers,
+and original Astra/Caddy process IDs were unchanged. The private backup and
+receipt are under `/home/or-chess/backups/ui-reasoning-20260915T174314Z`.
+The maintenance gate restored its exact Caddy configuration and health passed.
+
+The signed-in live browser showed 15 player games (three QA games excluded),
+ten rows on page one and five on the older page, then returned to page one.
+Mike's current saved game displayed the High/Max control with Max selected,
+unchanged 53 plies and 46:48 clock. Verification submitted no live move, chat
+or preference. These counts and game state are dated observations only.
+
+## Compact-layout follow-up
+
+Mike requested smaller controls beside the label. Static HTML/CSS now place
+“Move thinking:” and High/Max on one compact row, with one short help line.
+The row wraps at narrow widths; radio labels, keyboard focus and descriptions
+are retained. The intercepted selector suite passed again, and the mobile
+render and independent accessibility review passed. This follow-up needs only
+a verified static-file fast-forward, with no application restart or game pause.

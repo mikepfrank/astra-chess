@@ -2,13 +2,15 @@
 
 ## September 15: monitor pages and move-thinking preference
 
-The current requested update is prepared in this worktree: the private monitor
+The requested update is live at `3e2bb62` as of September 15, 17:43 UTC: the private monitor
 defaults to ten rows with size/page controls, and current v4 Arcturus games have
 a persisted High/Max selector for future move responses. Chat stays High; a
 running response keeps its captured effort. Existing game identity, clocks and
 threads are preserved. See [web-service/HANDOFF.md](web-service/HANDOFF.md) and
 [the UI validation record](web-service/validation/2026-09-15-ui-controls.md) for
-activation status. September 14 checkpoints below are historical.
+activation status. The follow-up compact selector uses one row plus a short
+help line; it changes static HTML/CSS only and needs no application restart.
+September 14 checkpoints below are historical.
 
 ## Current branch checkpoint — September 14, 2026
 

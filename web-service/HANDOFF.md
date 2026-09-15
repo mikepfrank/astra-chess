@@ -6,7 +6,7 @@ baseline and its deployment history are preserved below.
 
 ## September 15: selectable move thinking and paginated monitor
 
-Prepared for Arcturus only; activation results belong in
+**Live on Arcturus at `3e2bb62`, September 15 at 17:43 UTC.** Activation results are in
 [the UI controls validation record](validation/2026-09-15-ui-controls.md).
 The monitor defaults to ten most recently active games, with 10/25/50/100 page
 sizes and Newer/Older navigation. Search/filter changes restart at page one;
@@ -32,6 +32,20 @@ workers and 17 total stored games (including the three excluded QA games).
 This is a dated snapshot, not a claim about present activity. Continue checking
 fresh state before restarting. Image uploads remain deferred and general
 password recovery remains disabled.
+
+The release passed 265 exact-commit Linux checks (264 passed, one Windows-only
+skip) and the real Linux Codex 0.154.0 four-action/eight-request mocked-provider
+audit. All 18 stored game documents, database tables and private files were
+preserved across the idle/gated deployment. Original Astra/Caddy process IDs,
+all units/configuration and both notification timers were unchanged. A browser
+check saw 15 player games, default ten rows, and correct Older/Newer navigation;
+Mike's saved game showed the enabled selector with Max still selected. No live
+move, chat, or preference was submitted for verification.
+
+Mike then requested a more compact selector: the label and smaller High/Max
+buttons share one row, with short help underneath. This follow-up touches only
+static HTML/CSS and documentation; deploy it by clean exact fast-forward without
+restarting the application. The initial application runtime stays `3e2bb62`.
 
 ## Resume checklist — September 14 housekeeping checkpoint
 
