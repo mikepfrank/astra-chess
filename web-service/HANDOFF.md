@@ -12,7 +12,7 @@ The monitor defaults to ten most recently active games, with 10/25/50/100 page
 sizes and Newer/Older navigation. Search/filter changes restart at page one;
 refresh preserves the page when possible. Summary totals remain service-wide.
 
-Current v4 GLM games expose **Move thinking: High / Max** between conversation
+Current v4 GLM games expose **AI thinking level during moves: High / Max** between conversation
 and scoresheet. The owner can change it during play; it persists per game until
 changed again. Max remains the default. The host captures the preference when
 a worker begins: a running response is never restarted or reconfigured by the
@@ -47,6 +47,10 @@ buttons share one row, with short help underneath. This follow-up touches only
 static HTML/CSS and documentation. It is **live at checkout `672b21c`** after a
 clean exact fast-forward, with all three application/proxy process IDs unchanged.
 Live HTML/CSS delivery was verified. Python runtime code stays `3e2bb62`.
+
+The next copy-only refinement uses Mike's exact labels: "AI thinking level
+during moves:" and "Applies during upcoming AI turns. Thinking between turns
+is High." It changes no runtime policy and also needs no service restart.
 
 ## Resume checklist — September 14 housekeeping checkpoint
 

@@ -78,3 +78,8 @@ five-file diff contained only HTML/CSS and documentation, all three service PIDs
 were unchanged, and live HTML/CSS responses contained the new compact markup
 and sizing. Later documentation-only commits record this result; they do not
 imply a further running-code change.
+
+Mike's subsequent wording refinement changes only the two selector labels to
+"AI thinking level during moves:" and "Applies during upcoming AI turns.
+Thinking between turns is High." The existing intercepted browser checks
+passed again; both desktop and mobile renders were visually inspected.
