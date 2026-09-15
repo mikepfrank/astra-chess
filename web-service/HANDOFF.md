@@ -44,8 +44,9 @@ move, chat, or preference was submitted for verification.
 
 Mike then requested a more compact selector: the label and smaller High/Max
 buttons share one row, with short help underneath. This follow-up touches only
-static HTML/CSS and documentation; deploy it by clean exact fast-forward without
-restarting the application. The initial application runtime stays `3e2bb62`.
+static HTML/CSS and documentation. It is **live at checkout `672b21c`** after a
+clean exact fast-forward, with all three application/proxy process IDs unchanged.
+Live HTML/CSS delivery was verified. Python runtime code stays `3e2bb62`.
 
 ## Resume checklist — September 14 housekeeping checkpoint
 

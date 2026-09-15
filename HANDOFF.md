@@ -8,8 +8,9 @@ a persisted High/Max selector for future move responses. Chat stays High; a
 running response keeps its captured effort. Existing game identity, clocks and
 threads are preserved. See [web-service/HANDOFF.md](web-service/HANDOFF.md) and
 [the UI validation record](web-service/validation/2026-09-15-ui-controls.md) for
-activation status. The follow-up compact selector uses one row plus a short
-help line; it changes static HTML/CSS only and needs no application restart.
+activation status. The compact selector is live at static revision `672b21c`,
+using one row plus a short help line. It was fast-forwarded without restarting
+any service; Python runtime code remains the tested `3e2bb62` release.
 September 14 checkpoints below are historical.
 
 ## Current branch checkpoint — September 14, 2026

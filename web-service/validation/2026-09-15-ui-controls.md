@@ -73,3 +73,8 @@ The row wraps at narrow widths; radio labels, keyboard focus and descriptions
 are retained. The intercepted selector suite passed again, and the mobile
 render and independent accessibility review passed. This follow-up needs only
 a verified static-file fast-forward, with no application restart or game pause.
+It was activated as `672b21c7fcc1d87cc228be6efeec9eb1e1fe20df`: the exact
+five-file diff contained only HTML/CSS and documentation, all three service PIDs
+were unchanged, and live HTML/CSS responses contained the new compact markup
+and sizing. Later documentation-only commits record this result; they do not
+imply a further running-code change.
