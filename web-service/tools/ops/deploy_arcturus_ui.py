@@ -1,4 +1,4 @@
-"""Deploy the reviewed UI controls and tool-output visibility repair.
+"""Deploy the reviewed UI controls, tool-output repair and matchup records.
 
 Run from the exact clean staged commit on the reviewed Lightsail host, as root.
 Requires exact-revision offline and native mocked-provider receipts. Only the
@@ -41,6 +41,7 @@ ALLOWED_PATHS = frozenset({
     'web-service/astra_web/player_profiles.py',
     'web-service/astra_web/replay_archive.py',
     'web-service/astra_web/supervisor.py',
+    'web-service/astra_web/store.py',
     'web-service/deploy/dns/README.md',
     'web-service/deploy/dns/arcturuschess.com.changes.txt',
     'web-service/docs/FUTURE-FEATURES.md',
@@ -58,6 +59,7 @@ ALLOWED_PATHS = frozenset({
     'web-service/tests/audit_or_chess_notifier_namespace.py',
     'web-service/tests/browser/monitor.cjs',
     'web-service/tests/browser/move_reasoning.cjs',
+    'web-service/tests/browser/matchup_record.cjs',
     'web-service/tests/browser/README.md',
     'web-service/tests/check_chat_policy.py',
     'web-service/tests/check_ui_controls.py',
@@ -65,6 +67,7 @@ ALLOWED_PATHS = frozenset({
     'web-service/tests/test_chat_time_policy.py',
     'web-service/tests/test_codex_bridge.py',
     'web-service/tests/test_move_reasoning.py',
+    'web-service/tests/test_matchup_record.py',
     'web-service/tests/test_player_profiles.py',
     'web-service/tests/test_openrouter_gateway.py',
     'web-service/tests/test_replay_archive.py',
@@ -79,6 +82,7 @@ ALLOWED_PATHS = frozenset({
     'web-service/validation/2026-09-14-housekeeping.md',
     'web-service/validation/2026-09-15-ui-controls.md',
     'web-service/validation/2026-09-15-chat-context-truncation.md',
+    'web-service/validation/2026-09-15-matchup-record.md',
 })
 
 

@@ -148,6 +148,7 @@ def create_app(config=None, player_factory=None):
     def snapshot(state):
         public = game.snapshot(state)
         public['last_astra_evaluation'] = latest_astra_evaluation(state, config.data_dir)
+        public['matchup_record'] = store.matchup_record(state)
         return public
 
     @app.get('/api/config')

@@ -22,6 +22,43 @@ class DailyResourceLimit(ValueError):
         super().__init__(self.public_message)
 
 
+def _matchup_identity(state):
+    """Stable saved opponent identity, independent of current site defaults.
+
+    Effort, persona revisions and runtime/profile upgrades do not create a new
+    opponent. True pre-persona GLM games remain legacy-glm, not Arcturus.
+    """
+    profile = state.get('player_profile')
+    if profile is None:
+        profile = {}
+    if not isinstance(profile, dict):
+        return None
+    model = profile.get('canonical_model') or profile.get('model') or state.get('model')
+    if not isinstance(model, str) or not model:
+        return None
+    # Routing aliases do not change the underlying model. Keep all other model
+    # identifiers exact rather than merging arbitrary model/version suffixes.
+    for suffix in (':nitro', ':floor'):
+        if model.endswith(suffix):
+            model = model[:-len(suffix)]
+            break
+    persona = state.get('player_persona', profile.get('persona'))
+    if persona is None:
+        if model == 'gpt-6-astra':
+            name = 'astra'
+        elif model == 'z-ai/glm-5.3-flash':
+            name = 'legacy-glm'
+        else:
+            return None
+    elif isinstance(persona, dict):
+        name = persona.get('name')
+    else:
+        return None
+    if not isinstance(name, str) or not name:
+        return None
+    return name, model
+
+
 class Store:
     def __init__(self, config):
         self.config = config
@@ -75,6 +112,44 @@ class Store:
             rows = db.execute("SELECT state FROM games ORDER BY updated DESC" if user_id is None else
                               "SELECT state FROM games WHERE user_id=? ORDER BY updated DESC", () if user_id is None else (user_id,)).fetchall()
         return [json.loads(r[0]) for r in rows]
+
+    def matchup_record(self, state):
+        """Read-only account/opponent totals; each completed game counts once.
+
+        Deriving from game rows initializes historical totals without a
+        migration, counter writes, or duplicate counts from action retries.
+        Use the supplied current-game snapshot for its row so its inclusion
+        agrees with the board even if that game changes during this read.
+        Other games come from one fresh database read, never a cached counter.
+        """
+        record = dict(completed_games=0, human_wins=0, ai_wins=0, draws=0,
+                      human_points=0, ai_points=0, includes_current_game=False)
+        user_id = state.get('user_id')
+        identity = _matchup_identity(state)
+        if not isinstance(user_id, str) or not user_id or identity is None:
+            return record
+        with self.connection() as db:
+            rows = db.execute('SELECT id,state FROM games WHERE user_id=?', (user_id,)).fetchall()
+        for row in rows:
+            current = row['id'] == state.get('id')
+            other = state if current else json.loads(row['state'])
+            if (other.get('user_id') != user_id or _matchup_identity(other) != identity
+                    or other.get('status') != 'finished'
+                    or other.get('result') not in ('1-0', '0-1', '1/2-1/2')
+                    or other.get('human_side') not in ('white', 'black')
+                    or other.get('astra_side') != ('black' if other['human_side'] == 'white' else 'white')):
+                continue
+            record['completed_games'] += 1
+            record['includes_current_game'] |= current
+            if other['result'] == '1/2-1/2':
+                record['draws'] += 1
+            elif other['result'] == ('1-0' if other['human_side'] == 'white' else '0-1'):
+                record['human_wins'] += 1
+            else:
+                record['ai_wins'] += 1
+        record['human_points'] = record['human_wins'] + record['draws'] / 2
+        record['ai_points'] = record['ai_wins'] + record['draws'] / 2
+        return record
 
     def mutate(self, game_id, fn, *, version=None, request_id=None, body=None, kind='update', increment=True, return_applied=False, transaction_hook=None):
         with self.connection() as db:

@@ -153,6 +153,8 @@ nav {
   line-height:1.7;
   padding-bottom:3px;
 }
+.intro-heading { min-width:0; }
+.matchup-record { margin-top:6px; color:var(--muted); font-size:13px; line-height:1.5; overflow-wrap:anywhere; font-variant-numeric:tabular-nums; }
 .play-layout {
   display:grid;
   grid-template-columns:minmax(0,1.38fr) minmax(300px,1fr);

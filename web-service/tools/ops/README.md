@@ -45,6 +45,11 @@ receipt at `var/native-tool-visibility.json`, produced by
 survive in the actual mocked-provider requests, both immediately and after
 process restart. It does not send messages or make paid calls.
 
+The head-to-head score feature uses this same deployment path. Its totals are
+derived from the existing account-owned completed games; no migration or
+initialization write is needed. The regression runner includes result counting,
+account/persona/model isolation and model-context delivery checks.
+
 The following helpers were promoted from ignored scratch storage during the
 September 14 housekeeping checkpoint. Their new CLI/import boundaries were
 checked offline; preservation did not repeat live email or service-namespace

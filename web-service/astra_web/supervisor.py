@@ -323,6 +323,13 @@ class Supervisor:
             # unchanged; a subsequent own-turn action selects its move policy.
             result = game.model_snapshot(current)
             result.update(response_kind=response_kind, reasoning=response_profile.reasoning)
+            result['matchup_record'] = self.store.matchup_record(current)
+            result['matchup_record_scope'] = (
+                'Server-recorded completed-game results on this site for this human account '
+                'against this AI persona and underlying model. Human/AI fields are relative '
+                'to this matchup; a win is 1 point and a draw is 0.5 each. '
+                'includes_current_game says whether this game\'s result is included. '
+                'These are aggregate totals, not memories of previous positions or conversations.')
             return result
 
         def stop_clock(s, outcome=None):

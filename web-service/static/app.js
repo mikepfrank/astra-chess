@@ -18,6 +18,7 @@ function consumeEmailFragment(){
 }
 const archiveUI={session:0,gameId:null,variant:'moves',variants:{},status:null,busy:null,error:null,uncertain:false,loaded:false,deleteConfirm:false,timer:null,controller:null};
 let toastTimer, pollTimer, promotionResolve, confirmResolve;
+let gameLoadVersion=0, gameLoading=null;
 const titleCase=text=>String(text||'').replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
 const parseDate=value=>new Date(typeof value==='number'&&value<1e12?value*1000:value);
 const EVALUATION_PREFERENCE_KEY='astra-show-evaluation';
@@ -268,6 +269,26 @@ function renderMoveThinking(game){
     input.disabled=!available||state.pending;
   }
 }
+function renderMatchupRecord(game){
+  const record=game?.matchup_record,panel=$('matchup-record');
+  const counts=['completed_games','human_wins','ai_wins','draws'];
+  const valid=state.user&&!gameLoading&&record&&counts.every(key=>Number.isSafeInteger(record[key])&&record[key]>=0)
+    &&record.completed_games===record.human_wins+record.ai_wins+record.draws
+    &&record.human_points===record.human_wins+record.draws/2
+    &&record.ai_points===record.ai_wins+record.draws/2;
+  let score='',details='';
+  if(valid){
+    const points=value=>Number.isInteger(value)?String(value):`${Math.floor(value)||''}½`;
+    const name=playerName(),games=record.completed_games;
+    score=`Head-to-head points: You ${points(record.human_points)} – ${name} ${points(record.ai_points)} · ${games} ${games===1?'game':'games'}`;
+    details=` Your record: ${record.human_wins} ${record.human_wins===1?'win':'wins'}, ${record.draws} ${record.draws===1?'draw':'draws'}, ${record.ai_wins} ${record.ai_wins===1?'loss':'losses'}. A win is 1 point; a draw is ½ point each. ${record.includes_current_game?'Includes this completed game.':'Completed games only.'}`;
+  }
+  panel.hidden=!valid;
+  // Polls update the score without repeatedly announcing an unchanged record.
+  if($('matchup-score').textContent!==score)$('matchup-score').textContent=score;
+  if($('matchup-details').textContent!==details)$('matchup-details').textContent=details;
+  if(details)panel.title=details.trim();else panel.removeAttribute('title');
+}
 function renderGame(game){
   if(game.id!==state.game?.id)closeEmojiPicker();
   if(archiveUI.gameId&&archiveUI.gameId!==game.id)closeArchiveDialog();
@@ -276,6 +297,7 @@ function renderGame(game){
   const oldPly=state.game?.ply;
   state.game=game;state.gameId=game.id;
   updatePlayerIdentity();
+  renderMatchupRecord(game);
   $('welcome-overlay').hidden=true;
   const side=game.human_side, turn=game.fen.split(' ')[1]==='w'?'white':'black';
   const active=game.status==='active', humanTurn=turn===side;
@@ -338,9 +360,16 @@ function rememberGame(id){
   if(state.user)try{localStorage.setItem('astra-game-'+state.user.id,id);}catch{}
 }
 async function loadGame(id){
-  const game=await api(`/api/games/${encodeURIComponent(id)}`);
-  board.flipped=game.human_side==='black';state.messageKey=null;state.game=null;
-  renderGame(game);rememberGame(id);return game;
+  const request=++gameLoadVersion,identityVersion=state.identityVersion;
+  gameLoading=request;renderMatchupRecord(null);
+  try{
+    const game=await api(`/api/games/${encodeURIComponent(id)}`);
+    if(request!==gameLoadVersion||identityVersion!==state.identityVersion)return null;
+    gameLoading=null;board.flipped=game.human_side==='black';state.messageKey=null;state.game=null;
+    renderGame(game);rememberGame(id);return game;
+  }finally{
+    if(gameLoading===request){gameLoading=null;renderMatchupRecord(state.game);}
+  }
 }
 async function poll(){
   clearTimeout(pollTimer);
@@ -361,6 +390,7 @@ async function poll(){
 }
 function clearPrivateView(){
   closeArchiveDialog();
+  gameLoadVersion++;gameLoading=null;renderMatchupRecord(null);
   state.messageKey=null;board.set({fen:START_FEN,flipped:false});
   $('welcome-overlay').hidden=false;updatePlayerIdentity();$('bottom-name').textContent='You';
   $('top-detail').textContent='Your opponent';$('bottom-detail').textContent='Choose White or Black';
@@ -612,6 +642,7 @@ $('logout').addEventListener('click',async()=>{
   try{
     await api('/api/auth/logout',{method:'POST',body:{}});closeDialog('account-dialog');
     state.game=null;state.gameId=null;state.messageKey=null;
+    renderMatchupRecord(null);
     const url=new URL(location.href);url.searchParams.delete('game');history.replaceState(null,'',url);
     // A reload clears every view of the previous player's private game.
     location.reload();

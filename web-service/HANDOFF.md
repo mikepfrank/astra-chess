@@ -6,6 +6,16 @@ baseline and its deployment history are preserved below.
 
 ## September 15: selectable move thinking and paginated monitor
 
+**Head-to-head record requested; implementation pending activation.** The next
+feature displays account-scoped points near the board title and includes the
+same server-derived totals in model status. Wins count one, draws half; only
+completed games with the same user ID/persona/canonical model count. Profile
+version and reasoning changes do not reset it. Historical records initialize
+automatically without a migration. See the
+[matchup record validation](validation/2026-09-15-matchup-record.md) for scope and
+the eventual verified deployment. This is aggregate history, not cross-game
+conversation access or a change to opt-in memory.
+
 **Repaired: post-game chat hidden by Codex tool-output truncation.**
 [Exact native-CLI reproduction](validation/2026-09-15-chat-context-truncation.md)
 confirmed that recent human messages in five saved `chess_status` outputs were
