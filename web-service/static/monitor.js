@@ -4,6 +4,21 @@ let snapshot=null,timer=null,controller=null,requestVersion=0,stopped=false,page
 const number=value=>Number.isFinite(value)?value.toLocaleString():'—';
 function date(value){const parsed=new Date(value);return value&&!Number.isNaN(parsed.valueOf())?parsed.toLocaleString():null;}
 function append(parent,tag,text,className){const node=document.createElement(tag);node.textContent=text;if(className)node.className=className;parent.append(node);return node;}
+async function loadBranding(){
+  const brandingController=new AbortController(),deadline=setTimeout(()=>brandingController.abort(),deadlineMs);
+  try{
+    const response=await fetch('/api/config',{headers:{Accept:'application/json'},credentials:'same-origin',cache:'no-store',signal:brandingController.signal});
+    if(!response.ok)return;
+    const config=await response.json(),name=typeof config.player_name==='string'?config.player_name.trim():'';
+    if(!name)return;
+    $('brand-name').textContent=name.toUpperCase();$('brand-mark').textContent=name.slice(0,1).toUpperCase();
+    $('site-brand').setAttribute('aria-label',`${name} Chess home`);
+    $('site-footer-label').textContent=`${name} Chess · Operator access`;
+    document.title=`Site monitor · ${name} Chess`;
+  }catch{
+    // Public branding failure must not interfere with authorized monitor data.
+  }finally{clearTimeout(deadline);}
+}
 function workerStatus(row){return {compacting:'AI compacting',calculating:'AI calculating',queued:'AI queued'}[row.worker_state]||'AI thinking';}
 function status(row){
   if(row.status==='finished'){
@@ -123,4 +138,5 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)pauseAndCle
 window.addEventListener('online',refresh);
 window.addEventListener('pagehide',()=>{stopped=true;pauseAndClear();});
 window.addEventListener('pageshow',()=>{if(stopped){stopped=false;$('monitor-refresh').disabled=false;refresh();}});
+loadBranding();
 refresh();

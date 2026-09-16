@@ -4,6 +4,17 @@ For the separate `codex/openrouter-chess` experimental branch, start with the
 [September 13 alternate-model orientation](OPENROUTER-EXPERIMENT.md). The hosted
 baseline and its deployment history are preserved below.
 
+## September 16: monitor branding
+
+The monitor's header previously retained the generic CHESS / CHESS CLUB label
+because its separate script never loaded the configured player name. It now
+reads the public `/api/config` independently of private monitor data and applies
+the saved deployment persona to the header name/initial, accessible home label,
+browser title and footer. Config failure leaves neutral branding without
+interfering with authorization or inventory refresh. The existing monitor
+browser regression passed. This changes only static monitor HTML/JS and this
+handoff; deploy by clean fast-forward without a service restart.
+
 ## September 15: selectable move thinking and paginated monitor
 
 **Private chat export live at `aab2df8`, September 16 at 02:05 UTC / September 15
