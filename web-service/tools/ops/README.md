@@ -50,6 +50,11 @@ derived from the existing account-owned completed games; no migration or
 initialization write is needed. The regression runner includes result counting,
 account/persona/model isolation and model-context delivery checks.
 
+Private RTF chat export also uses this deployment path. It reads one owned game
+snapshot without changing game data or scheduling a model action. Its regression
+checks cover transcript order, Unicode/RTF escaping, ownership and read-only
+behavior; browser checks exercise the save picker and normal download fallback.
+
 The following helpers were promoted from ignored scratch storage during the
 September 14 housekeeping checkpoint. Their new CLI/import boundaries were
 checked offline; preservation did not repeat live email or service-namespace

@@ -6,6 +6,14 @@ baseline and its deployment history are preserved below.
 
 ## September 15: selectable move thinking and paginated monitor
 
+**Private chat export requested; implementation pending activation.** A compact
+footer button will save a formatted RTF transcript of accepted moves and all
+public messages, including post-game discussion. Saved ply markers determine
+interleaving; timestamps are display metadata. The download is owner-only and
+does not publish a replay or schedule a model action. See
+[the chat export validation record](validation/2026-09-15-chat-export.md) for
+the final verification/deployment status.
+
 **Head-to-head record live at `6bf99e7`, September 16 at 01:21 UTC / September 15
 at 20:21 CDT.** The feature displays account-scoped points near the board title and includes the
 same server-derived totals in model status. Wins count one, draws half; only

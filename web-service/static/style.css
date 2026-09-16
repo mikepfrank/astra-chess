@@ -783,6 +783,8 @@ textarea::placeholder,input::placeholder {
   padding:19px 0 23px;
   letter-spacing:.3px;
 }
+.footer-actions {display:flex;align-items:center;flex-wrap:wrap;gap:18px;}
+.footer-actions .text-button {padding:0;font-size:inherit;}
 .notice {
   border:1px solid #665b42;
   background:#302d24;

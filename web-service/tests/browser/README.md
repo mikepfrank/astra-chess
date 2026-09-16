@@ -19,6 +19,7 @@ production server merely to run the web service.
 | `monitor.cjs` | Fully intercepted private monitor: authorization states, table escaping, refresh/stale handling, access loss and desktop/mobile layout. No real game records are used. |
 | `move_reasoning.cjs` | Fully intercepted board control: High/Max persistence, pending/active response display, conflict recovery, keyboard and mobile layout, historical/finished visibility. Builds a synthetic snapshot with `.venv` Python; no real player actions or model calls. |
 | `matchup_record.cjs` | Fully intercepted board record: points and draws, completed-game updates, persona labels, orientation, account/game-switch clearing, accessible text and compact desktop/mobile layout. Synthetic snapshots only; no live accounts or model calls. |
+| `chat_export.cjs` | Fully intercepted private RTF download: save picker, cancellation, normal-download fallback, failure handling and stale account/game safeguards. No real chat or model calls. |
 
 The monitor check also covers default ten-row pages, larger sizes, page boundaries,
 filter resets and refresh clamping. Run `node tests/browser/monitor.cjs` and
@@ -26,6 +27,8 @@ filter resets and refresh clamping. Run `node tests/browser/monitor.cjs` and
 The latter accepts `ASTRA_TEST_PYTHON` for an existing application interpreter.
 Run `node tests/browser/matchup_record.cjs` with the same settings to check the
 head-to-head display independently of a fixture server.
+Run `node tests/browser/chat_export.cjs` with the same settings for private
+transcript download behavior. It uses mocked picker handles and synthetic files.
 
 All generated access cookies, synthetic fixtures, databases, screenshots,
 downloads and any redirected logs belong in ignored `web-service/var/browser-qa/`.

@@ -17,6 +17,7 @@ function consumeEmailFragment(){
   const link=consumeEmailFragment();if(link)Object.assign(state,link);
 }
 const archiveUI={session:0,gameId:null,variant:'moves',variants:{},status:null,busy:null,error:null,uncertain:false,loaded:false,deleteConfirm:false,timer:null,controller:null};
+const chatExportUI={request:0,busy:false,controller:null};
 let toastTimer, pollTimer, promotionResolve, confirmResolve;
 let gameLoadVersion=0, gameLoading=null;
 const titleCase=text=>String(text||'').replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
@@ -290,6 +291,7 @@ function renderMatchupRecord(game){
   if(details)panel.title=details.trim();else panel.removeAttribute('title');
 }
 function renderGame(game){
+  if(game.id!==state.gameId)cancelChatExport();
   if(game.id!==state.game?.id)closeEmojiPicker();
   if(archiveUI.gameId&&archiveUI.gameId!==game.id)closeArchiveDialog();
   if(state.game?.id===game.id&&Number(game.version)<Number(state.game.version))return;
@@ -298,6 +300,7 @@ function renderGame(game){
   state.game=game;state.gameId=game.id;
   updatePlayerIdentity();
   renderMatchupRecord(game);
+  renderChatExport();
   $('welcome-overlay').hidden=true;
   const side=game.human_side, turn=game.fen.split(' ')[1]==='w'?'white':'black';
   const active=game.status==='active', humanTurn=turn===side;
@@ -361,14 +364,14 @@ function rememberGame(id){
 }
 async function loadGame(id){
   const request=++gameLoadVersion,identityVersion=state.identityVersion;
-  gameLoading=request;renderMatchupRecord(null);
+  gameLoading=request;renderMatchupRecord(null);cancelChatExport();
   try{
     const game=await api(`/api/games/${encodeURIComponent(id)}`);
     if(request!==gameLoadVersion||identityVersion!==state.identityVersion)return null;
     gameLoading=null;board.flipped=game.human_side==='black';state.messageKey=null;state.game=null;
     renderGame(game);rememberGame(id);return game;
   }finally{
-    if(gameLoading===request){gameLoading=null;renderMatchupRecord(state.game);}
+    if(gameLoading===request){gameLoading=null;renderMatchupRecord(state.game);renderChatExport();}
   }
 }
 async function poll(){
@@ -390,7 +393,7 @@ async function poll(){
 }
 function clearPrivateView(){
   closeArchiveDialog();
-  gameLoadVersion++;gameLoading=null;renderMatchupRecord(null);
+  gameLoadVersion++;gameLoading=null;renderMatchupRecord(null);cancelChatExport();
   state.messageKey=null;board.set({fen:START_FEN,flipped:false});
   $('welcome-overlay').hidden=false;updatePlayerIdentity();$('bottom-name').textContent='You';
   $('top-detail').textContent='Your opponent';$('bottom-detail').textContent='Choose White or Black';
@@ -406,6 +409,73 @@ function clearPrivateView(){
   renderMoveThinking(null);
   renderMessages();renderMoves();
 }
+function renderChatExport(){
+  const button=$('export-chat');
+  button.hidden=!state.user||!state.game?.id||state.gameId!==state.game.id||!!gameLoading;
+  button.disabled=button.hidden||chatExportUI.busy;
+  button.textContent=chatExportUI.busy?'Exporting…':'Export chat';
+}
+function cancelChatExport(){
+  chatExportUI.request++;chatExportUI.controller?.abort();chatExportUI.controller=null;chatExportUI.busy=false;
+  renderChatExport();
+}
+$('export-chat').addEventListener('click',async()=>{
+  if(chatExportUI.busy||!state.user||!state.game?.id||gameLoading)return;
+  const gameId=state.game.id,identityVersion=state.identityVersion,request=++chatExportUI.request;
+  const current=()=>request===chatExportUI.request&&identityVersion===state.identityVersion&&state.gameId===gameId&&!gameLoading&&!!state.user;
+  const date=parseDate(state.game.created_at),day=Number.isNaN(date.getTime())?new Date().toISOString().slice(0,10):date.toISOString().slice(0,10);
+  const filename=`chess-chat-${day}-${gameId.replace(/[^a-z0-9]/gi,'').slice(0,8)}.rtf`;
+  let handle=null,writable=null,timeout=null,timedOut=false;
+  chatExportUI.busy=true;renderChatExport();
+  try{
+    // Open the picker within the click's transient activation, before fetching.
+    if(typeof window.showSaveFilePicker==='function'){
+      try{handle=await window.showSaveFilePicker({suggestedName:filename,types:[{description:'Rich-text transcript',accept:{'application/rtf':['.rtf']}}],excludeAcceptAllOption:true});}
+      catch(error){
+        if(error.name==='AbortError')return;
+        // Some embedded browsers expose the API but disallow native pickers.
+        if(!['SecurityError','NotSupportedError'].includes(error.name))throw error;
+      }
+    }
+    if(!current())return;
+    const controller=new AbortController();chatExportUI.controller=controller;
+    timeout=setTimeout(()=>{timedOut=true;controller.abort();},30000);
+    const response=await fetch(`/api/games/${encodeURIComponent(gameId)}/chat.rtf`,{headers:{Accept:'application/rtf'},credentials:'same-origin',cache:'no-store',signal:controller.signal});
+    if(!current())return;
+    if(!response.ok){
+      const data=await response.json().catch(()=>({}));
+      const error=new Error(typeof data.detail==='string'?data.detail:`Chat export failed (${response.status}).`);error.status=response.status;throw error;
+    }
+    if(!/^(application|text)\/rtf(?:;|$)/i.test(response.headers.get('Content-Type')||''))throw new Error('The server did not return a rich-text transcript. Please try again.');
+    const blob=await response.blob();
+    if(!current())return;
+    clearTimeout(timeout);timeout=null;
+    if(handle){
+      writable=await handle.createWritable();
+      if(!current())return;
+      await writable.write(blob);
+      if(!current())return;
+      await writable.close();writable=null;
+    }else{
+      // Use the browser's ordinary download flow when native pickers are absent.
+      const url=URL.createObjectURL(blob),link=document.createElement('a');
+      link.href=url;link.download=filename;link.hidden=true;document.body.append(link);link.click();link.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),30000);
+    }
+    if(current())toast('Chat transcript exported.');
+  }catch(error){
+    if(!current())return;
+    if(error.status===401){
+      setIdentity({user:null,csrf_token:null});
+      toast('Your session has expired. Sign in again to export your chat.');
+    }else if(timedOut)toast('Chat export timed out. Please try again.');
+    else if(error.name!=='AbortError')toast(error.message||'Chat export failed. Please try again.');
+  }finally{
+    clearTimeout(timeout);
+    if(writable)await writable.abort().catch(()=>{});
+    if(request===chatExportUI.request){chatExportUI.controller=null;chatExportUI.busy=false;renderChatExport();}
+  }
+});
 async function act(action,extra={}){
   if(!state.game||state.pending)return false;
   const game=state.game;state.pending=true;renderGame(game);
@@ -488,7 +558,7 @@ $('identity-form').addEventListener('submit',async event=>{
   event.preventDefault();if(identityUI.busy)return;setIdentityBusy(true);$('identity-error').hidden=true;
   const mode=state.mode,session=identityUI.session,changesIdentity=['register','login','protect','reset'].includes(mode);
   // Invalidate earlier polls and initialization reads before cookies can change.
-  if(changesIdentity)state.identityVersion++;
+  if(changesIdentity){state.identityVersion++;cancelChatExport();}
   const version=state.identityVersion;
   const current=()=>identityUI.session===session&&(changesIdentity||state.identityVersion===version)&&$('identity-dialog').open;
   let reconciled=false,locked=false;
@@ -638,7 +708,7 @@ $('memory-form').addEventListener('submit',async event=>{
 $('logout').addEventListener('click',async()=>{
   if(!state.user)return;
   if(!state.user.protected&&!await confirmAction('Leave this guest seat?','This guest identity has no password. Signing out may lose access to its games; add a password first if you want to keep it.','Sign out'))return;
-  state.identityVersion++;clearAccountUI();clearVerification();state.resetToken=null;
+  state.identityVersion++;cancelChatExport();clearAccountUI();clearVerification();state.resetToken=null;
   try{
     await api('/api/auth/logout',{method:'POST',body:{}});closeDialog('account-dialog');
     state.game=null;state.gameId=null;state.messageKey=null;

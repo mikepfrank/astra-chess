@@ -5,13 +5,14 @@ from contextlib import asynccontextmanager
 import json
 import time
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from .config import Config, APP_ROOT, origin_host_authorities
 from .identity import Identity, router as identity_router, require_user
 from .store import Store, Conflict
 from .supervisor import Supervisor
 from .evaluations import latest_astra_evaluation
+from .chat_export import transcript_rtf
 from .replay_library import install_replay_library
 from .experiment_library import install_experiment_library
 from .operator_monitor import install_operator_monitor
@@ -260,6 +261,12 @@ def create_app(config=None, player_factory=None):
     async def download_pgn(request: Request, game_id: str):
         state = owned(request, game_id)
         return PlainTextResponse(game.pgn(state), media_type='application/x-chess-pgn', headers={'Content-Disposition': 'attachment; filename="chess-game.pgn"'})
+
+    @app.get('/api/games/{game_id}/chat.rtf')
+    async def download_chat(request: Request, game_id: str):
+        state = owned(request, game_id)
+        return Response(transcript_rtf(state), media_type='application/rtf',
+                        headers={'Content-Disposition': 'attachment; filename="chess-chat.rtf"'})
 
     @app.post('/api/games/{game_id}/share')
     async def share(request: Request, game_id: str):
