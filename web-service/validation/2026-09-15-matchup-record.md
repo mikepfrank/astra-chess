@@ -2,8 +2,8 @@
 
 The operator requested a visible cumulative score against the AI and the same
 record in the AI's context after noticing that post-game conversation did not
-recognize a previous matchup. Implementation and local validation are complete;
-exact-commit Linux validation and live activation are still pending below.
+recognize a previous matchup. The feature is live on Arcturus at `6bf99e7`;
+exact-commit validation and preservation evidence are recorded below.
 
 ## Scope and identity
 
@@ -52,4 +52,29 @@ saved records rather than frozen from this scan.
 
 ## Activation
 
-Pending exact-commit Linux receipts and an idle, gated Arcturus deployment.
+- Exact commit: `6bf99e779aa745c6b7dc853050be10f6f2d97946`, committed and pushed
+  on `codex/openrouter-chess`. The isolated Linux checkout ran 277 tests:
+  276 passed, one Windows-only skip, zero failures/errors.
+- Pinned Linux Codex 0.154.0 passed the four-action/eight-request reasoning
+  transition audit and three-case/nine-wire-check long-output audit. Mocked
+  providers and synthetic credentials only; no paid calls or live moves/chat.
+- One first fresh native reasoning fixture failed during `thread/start` with
+  `Codex emitted an event for another game thread`, before any provider request
+  or saved thread. A sequential rerun with structural event-order diagnostics
+  passed without code changes. The bridge was unchanged in this release. Treat
+  this as an unresolved intermittent startup ordering observation if it recurs;
+  do not weaken thread-isolation checks to suppress it.
+- Activation: September 16, 2026 at 01:21:33 UTC / September 15 at 20:21:33 CDT.
+  The existing idle/gated helper backed up private data, fast-forwarded from
+  `ee2cb2e`, restarted only Arcturus, verified health and reopened admissions.
+  The root-only backup receipt is `ui-reasoning-20260916T012133Z`.
+- All 21 stored game documents and database/private-file digests were unchanged.
+  Private configuration, service units and notification timers were unchanged.
+  Original Astra and Caddy PIDs remained `3778964` and `3778975` respectively;
+  Arcturus restarted from `3937581` to `3940929`.
+- A fresh signed-in browser showed the completed operator game with
+  `Head-to-head points: You 0 - Arcturus 2` and two games, plus the explanatory
+  win/draw/loss details. No move, chat or preference change was submitted.
+- Model delivery is verified by supervisor tests for initial context, fresh
+  status and accepted-action snapshots. No live model action was triggered just
+  for verification; existing and new games receive the field on their next one.

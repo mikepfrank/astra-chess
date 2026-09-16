@@ -6,15 +6,23 @@ baseline and its deployment history are preserved below.
 
 ## September 15: selectable move thinking and paginated monitor
 
-**Head-to-head record requested; implementation pending activation.** The next
-feature displays account-scoped points near the board title and includes the
+**Head-to-head record live at `6bf99e7`, September 16 at 01:21 UTC / September 15
+at 20:21 CDT.** The feature displays account-scoped points near the board title and includes the
 same server-derived totals in model status. Wins count one, draws half; only
 completed games with the same user ID/persona/canonical model count. Profile
 version and reasoning changes do not reset it. Historical records initialize
 automatically without a migration. See the
 [matchup record validation](validation/2026-09-15-matchup-record.md) for scope and
-the eventual verified deployment. This is aggregate history, not cross-game
-conversation access or a change to opt-in memory.
+the verified deployment. This is aggregate history, not cross-game
+conversation access or a change to opt-in memory. The signed-in operator board
+shows **You 0 - Arcturus 2, two completed games**; wins count one point, draws
+half each. The score refreshes from stored results and enters the next model
+action, including resumed games. All 21 game documents, database/private-file
+digests, private configuration, original Astra/Caddy PIDs, units and timers
+survived the idle/gated activation unchanged. Linux passed 276 of 277 tests
+(one Windows-only skip), browser checks passed, and native CLI reasoning and
+long-output audits passed. The validation note records one transient native
+startup audit failure before any provider request; the unchanged rerun passed.
 
 **Repaired: post-game chat hidden by Codex tool-output truncation.**
 [Exact native-CLI reproduction](validation/2026-09-15-chat-context-truncation.md)
