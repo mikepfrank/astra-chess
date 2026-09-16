@@ -38,6 +38,10 @@ MODEL_CONTEXT_WINDOW = 400_000
 # Leave headroom below Astra's 272,000-input-token long-context pricing tier.
 # Compaction uses estimated active context, so this is not a hard billing cap.
 AUTO_COMPACT_TOKEN_LIMIT = 250_000
+# Codex otherwise truncates the middle of long dynamic-tool results, hiding
+# recent chat inside chess_status. This transport budget is independent of
+# model response length, compaction, and the game's immutable saved profile.
+GLM_TOOL_OUTPUT_TOKEN_LIMIT = 65_536
 MAX_RPC_BYTES = 2 * 1024 * 1024
 MAX_PUBLIC_TEXT = 6000
 TOOL_NAMES = frozenset({"chess_status", "chess_candidate", "chess_query", "chess_query_details",
@@ -148,6 +152,8 @@ def _config_text(model: str, reasoning: str, profile=None):
              'check_for_update_on_startup = false', 'project_doc_max_bytes = 0',
              'show_raw_agent_reasoning = false', 'model_reasoning_summary = "none"',
              'allow_login_shell = false']
+    if profile.name == 'openrouter-glm':
+        lines.append(f'tool_output_token_limit = {GLM_TOOL_OUTPUT_TOKEN_LIMIT}')
     lines += ['[shell_environment_policy]',
              'inherit = "none"', 'ignore_default_excludes = false', '[features]']
     lines += [f"{feature} = false" for feature in DISABLED_FEATURES]
@@ -204,6 +210,10 @@ def _verify_effective_config(config, model, reasoning, profile=None):
                 "sandbox_mode": "read-only", "web_search": "disabled"}
     if any(config.get(key) != value for key, value in expected.items()):
         raise CodexError("Codex effective configuration differs from the audited configuration")
+    if profile.name == 'openrouter-glm':
+        tool_limit = config.get('tool_output_token_limit')
+        if type(tool_limit) is not int or tool_limit != GLM_TOOL_OUTPUT_TOKEN_LIMIT:
+            raise CodexError('Codex tool output budget differs from the audited configuration')
     features = config.get("features", {})
     if any(features.get(name) is not False for name in DISABLED_FEATURES):
         raise CodexError("Codex did not disable every restricted capability")

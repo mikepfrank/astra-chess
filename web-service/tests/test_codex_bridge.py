@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+import tomllib
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -57,6 +58,10 @@ for wire in sys.stdin:
         if scenario == 'wrong_compaction_scope': conf['model_auto_compact_token_limit_scope'] = 'body_after_prefix'
         if scenario == 'missing_context_window': conf.pop('model_context_window')
         if scenario == 'wrong_context_window': conf['model_context_window'] = 272000
+        if scenario == 'missing_tool_output_limit': conf.pop('tool_output_token_limit')
+        if scenario == 'small_tool_output_limit': conf['tool_output_token_limit'] = 2500
+        if scenario == 'large_tool_output_limit': conf['tool_output_token_limit'] = 131072
+        if scenario == 'float_tool_output_limit': conf['tool_output_token_limit'] = 65536.0
         if scenario == 'wrong_provider_url': conf['model_providers'][conf['model_provider']]['base_url'] = 'https://wrong.invalid/v1'
         send({'id': request['id'], 'result': {'config': conf}})
     elif method in ('thread/start', 'thread/resume'):
@@ -277,6 +282,7 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
                             for env in self.child_envs))
         self.assertIn('code_mode = false', config_text)
         self.assertIn('model_reasoning_effort = "max"', config_text)
+        self.assertEqual(tomllib.loads(config_text)['tool_output_token_limit'], 65_536)
         self.assertNotIn('unit-openrouter-placeholder', config_text)
         saved = json.loads((folder / 'bridge-state.json').read_text())
         self.assertEqual(saved['player_profile']['canonical_model'], 'z-ai/glm-5.3-flash')
@@ -327,6 +333,8 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(resume['config']['model_auto_compact_token_limit'], 250_000)
         self.assertEqual(resume['config']['model_reasoning_effort'], 'high')
         self.assertEqual(saved['runtime_reasoning_policy'], {'effort': 'high', 'max_output_tokens': 8192})
+        self.assertEqual(tomllib.loads((folder / 'codex-home/config.toml').read_text())['tool_output_token_limit'],
+                         65_536)
         self.assertTrue(all(w['params']['effort'] == 'high' for w in self.wires
                             if w.get('method') == 'turn/start'))
         telemetry = [json.loads(p.read_text()) for p in folder.glob('provider-requests-*.json')]
@@ -346,6 +354,22 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
                 await self.run_fake('wrong_provider_url')
         self.assertFalse(any(p.get('method') == 'turn/start' for p in self.wires))
         self.assert_reaped()
+
+    async def test_openrouter_tool_output_budget_must_be_effective_before_start_or_resume(self):
+        self.use_openrouter()
+        with patch('astra_web.openrouter_setup.require_budget', return_value={}):
+            for thread_id in (None, 'test-thread'):
+                if thread_id:
+                    await self.run_fake()
+                for scenario in ('missing_tool_output_limit', 'small_tool_output_limit',
+                                 'large_tool_output_limit', 'float_tool_output_limit'):
+                    with self.subTest(thread_id=thread_id, scenario=scenario):
+                        self.wires.clear()
+                        with self.assertRaisesRegex(bridge.CodexError, 'tool output budget'):
+                            await self.run_fake(scenario, thread_id=thread_id)
+                        self.assertFalse(any(p.get('method') in ('thread/start', 'thread/resume', 'turn/start')
+                                             for p in self.wires))
+                        self.assert_reaped()
 
     async def test_openrouter_budget_denial_prevents_app_server_start(self):
         self.use_openrouter()
@@ -405,6 +429,7 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn('model_context_window = 400000', config_text)
         self.assertIn('model_auto_compact_token_limit = 250000', config_text)
         self.assertIn('model_auto_compact_token_limit_scope = "total"', config_text)
+        self.assertNotIn('tool_output_token_limit', tomllib.loads(config_text))
         for request in self.wires:
             if request.get('method') in ('thread/start', 'thread/resume'):
                 overrides = request['params']['config']

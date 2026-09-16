@@ -80,3 +80,22 @@ Private source transcripts, reasoning, per-message IDs and reproduction homes
 remain excluded from Git. Synthetic local receipts are under
 `var/status-truncation-audit/`; exact Linux receipts remain in the private
 operator-checks directory. This document retains only diagnostic findings.
+
+## Authorized repair
+
+The operator authorized a substantially larger per-tool output budget. The
+repair sets `tool_output_token_limit = 65536` for OpenRouter runtime profiles,
+including existing GLM games. The bridge verifies the effective setting from
+Codex `config/read` before starting or resuming a thread. Missing, altered or
+noninteger values stop the attempt rather than silently accepting truncation.
+This is a transport configuration repair: no saved game profile, persona,
+prompt, thread identity, reasoning preference, chess-clock policy or model
+response ceiling changes. Original Astra configuration is unchanged.
+
+The 52 focused bridge and chat-reasoning tests passed locally. The reusable
+`tests/audit_tool_visibility.py` regression checks actual outgoing tool results
+with 10,000-character Unicode human comments in the middle of 20,000-, 80,000-
+and 160,000-character snapshots. It checks the immediate continuation, history
+after process restart and the next tool response on the resumed thread. Exact
+Linux receipts and preservation-checked activation are required before this
+repair is reported as live.

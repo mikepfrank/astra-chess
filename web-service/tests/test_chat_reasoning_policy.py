@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import sys
 import tempfile
+import tomllib
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -193,6 +194,8 @@ class ChatReasoningPolicyTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(self.upstream[-1]['max_output_tokens'], 32768)
             self.assertEqual(self.saved_state()['player_profile'], original['profile'])
             self.assertEqual(self.saved_state()['runtime_reasoning_policy']['effort'], expected)
+            effective_file = self.root / 'players/policy-game/codex-home/config.toml'
+            self.assertEqual(tomllib.loads(effective_file.read_text())['tool_output_token_limit'], 65_536)
         self.assertEqual(binding, original)
         self.assertEqual([row['params']['effort'] for row in self.wires if row.get('method') == 'turn/start'],
                          ['max', 'high', 'high', 'max'])

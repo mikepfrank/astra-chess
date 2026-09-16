@@ -84,6 +84,7 @@ selected model, not a guaranteed speed or a model substitution. See
 | Reasoning setting | `max` for move decisions; `high` for chat-only responses |
 | Context window / compaction trigger | 1,310,720 / 250,000 total-context tokens |
 | Output ceiling | 32,768 tokens per provider request, including reasoning |
+| Individual tool-output budget | 65,536 tokens, verified from effective Codex configuration before starting a turn |
 | Gateway byte limits | 8 MiB per request; 2 MiB per upstream SSE event |
 | Active workers | Two on the selected Arcturus deployment; local/default configuration remains one |
 | Cumulative token ceiling per action | At most 2,000,000, including repeated input and compaction; smaller operator overrides remain effective |
@@ -91,6 +92,12 @@ selected model, not a guaranteed speed or a model substitution. See
 | Chess clock | 90 minutes, +30 seconds per own move, +30 minutes after move 40 |
 | Own-turn thinking target | 120 seconds is a soft target; overruns warn the model and continue charging its earned chess clock |
 | Chat allowance | 600 seconds, without chess-clock charges; a human move supersedes pending chat |
+
+The per-tool budget is independent of model response length and compaction.
+It applies to OpenRouter runtime configurations, including existing GLM games,
+without changing their saved profiles, prompts or threads. The September 15
+[truncation diagnosis and repair](validation/2026-09-15-chat-context-truncation.md)
+explains why full private rollout contents alone do not prove model visibility.
 
 For OpenRouter own-turns, provider waits and continued reasoning beyond two
 minutes do not cause a turn failure. The host reports `turn_timing` with the

@@ -1,4 +1,4 @@
-"""Deploy the reviewed monitor pagination and selectable move reasoning update.
+"""Deploy the reviewed UI controls and tool-output visibility repair.
 
 Run from the exact clean staged commit on the reviewed Lightsail host, as root.
 Requires exact-revision offline and native mocked-provider receipts. Only the
@@ -54,6 +54,7 @@ ALLOWED_PATHS = frozenset({
     'web-service/static/style.css',
     'web-service/tests/audit_arcturus_public.py',
     'web-service/tests/audit_chat_reasoning.py',
+    'web-service/tests/audit_tool_visibility.py',
     'web-service/tests/audit_or_chess_notifier_namespace.py',
     'web-service/tests/browser/monitor.cjs',
     'web-service/tests/browser/move_reasoning.cjs',
@@ -76,6 +77,7 @@ ALLOWED_PATHS = frozenset({
     'web-service/validation/2026-09-14-chat-deadline.md',
     'web-service/validation/2026-09-14-housekeeping.md',
     'web-service/validation/2026-09-15-ui-controls.md',
+    'web-service/validation/2026-09-15-chat-context-truncation.md',
 })
 
 
@@ -128,6 +130,17 @@ def validate_receipts(stage, commit):
             == [value for value in expected for _ in range(2)]
             and all(r.get('max_output_tokens') == 32768 for r in requests),
             'The native receipt must verify eight transmitted provider requests.')
+    visibility = receipt(stage / 'web-service/var/native-tool-visibility.json', commit)
+    expected_visibility = {
+        'checkout_clean': True, 'exact_commit': True, 'cli_version': '0.154.0',
+        'tool_output_token_limit': 65536, 'external_provider_contacted': False,
+        'real_credentials_inherited': False, 'case_count': 3, 'request_count': 12,
+        'wire_check_count': 9, 'all_status_snapshots_preserved': True,
+        'all_user_messages_preserved': True, 'all_threads_resumed': True,
+    }
+    require(all(type(visibility.get(key)) is type(value) and visibility[key] == value
+                for key, value in expected_visibility.items()),
+            'Native tool visibility must preserve long messages before and after resume.')
     return tests, native
 
 
@@ -226,6 +239,7 @@ def deploy(args):
     require(all(int(pid) > 0 for pid in before_pids.values()), 'A required service is not running.')
     report = {'from_commit': args.from_commit, 'commit': args.to_commit, 'success': False,
               'linux_tests': tests['tests'], 'native_reasoning_actions': 4,
+              'tool_output_token_limit': 65536, 'native_tool_visibility_checks': 9,
               'changed_paths': sorted(changed), 'before_pids': before_pids}
     backup = None
     with arcturus_maintenance_gate() as gate:

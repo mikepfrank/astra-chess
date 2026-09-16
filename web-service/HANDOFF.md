@@ -14,8 +14,13 @@ them, so saved output alone does not prove model visibility. This explains the
 operator's ignored questions and repeated claims of no new messages. All five
 actions completed without errors. A tested explicit tool-output budget and
 bounded message-prioritizing context are the proposed repair; no live runtime
-change has been made for this diagnosis. The 250K compaction/32K response limits
-are separate from this issue.
+change was made during that diagnosis. The 250K compaction/32K response limits
+are separate from this issue. Mike subsequently authorized a substantially larger
+tool budget: the prepared repair sets and verifies **65,536 tokens per tool
+result** for every OpenRouter runtime profile. Saved prompts/profiles/threads and
+the original Astra configuration remain unchanged. Deployment is pending native
+visibility checks and an idle preservation-checked activation; see the linked
+record for the verified outcome.
 
 **Live on Arcturus at `3e2bb62`, September 15 at 17:43 UTC.** Activation results are in
 [the UI controls validation record](validation/2026-09-15-ui-controls.md).
