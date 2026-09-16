@@ -1,5 +1,18 @@
 # Handoff: Arcturus development worktree
 
+## September 15 evening: current live checkpoint
+
+Arcturus is live at code `aab2df8`: private head-to-head points appear near the
+board heading and in the AI's next game context; Export chat in the footer
+downloads a formatted RTF with accepted moves and all messages interleaved by
+recorded ply. Historical completed games initialize scores without a migration.
+The larger 65,536-token tool-output budget also remains active. See
+[web-service/HANDOFF.md](web-service/HANDOFF.md) for current checks, deployment
+receipts and one recorded intermittent native startup-ordering observation.
+Latest activation preserved all 21 saved games and left original Astra/Caddy
+processes, private configuration and timers unchanged. All work is on
+`codex/openrouter-chess`; the checkpoints below are historical.
+
 ## September 15: monitor pages and move-thinking preference
 
 The requested update is live at `3e2bb62` as of September 15, 17:43 UTC: the private monitor

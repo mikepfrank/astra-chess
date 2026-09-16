@@ -2,8 +2,8 @@
 
 The operator requested an Export chat button at the screen bottom that saves a
 human-readable, formatted transcript with game moves and conversation correctly
-interleaved. Implementation and validation are in progress; this note does not
-yet establish live activation.
+interleaved. The feature is live on Arcturus at `aab2df8`; verification and
+preservation evidence follow.
 
 ## Contract
 
@@ -51,6 +51,23 @@ see [the browser API reference](https://developer.mozilla.org/en-US/docs/Web/API
 
 ## Activation
 
-Pending exact-commit Linux checks and the idle/gated deployment with existing
-game-preservation checks. The last pre-release inventory found an active AI
-response; activation must wait for the worker and reservations to clear.
+- Exact code commit `aab2df806a39c41250a3088e43759818066d2066` is committed and
+  pushed on `codex/openrouter-chess`. Its isolated Linux checkout ran 289 tests:
+  288 passed, one Windows-only skip, zero failures/errors.
+- Pinned Linux Codex 0.154.0 passed the four-action/eight-request reasoning audit
+  and three-case/nine-wire-check long-output audit with mocked providers only.
+  No paid calls or live game actions were used for testing.
+- The initial inventory showed one active response; deployment waited. Fresh
+  activity then showed zero responses, replay builds and reserved tokens. The
+  existing helper repeated idle checks inside the Arcturus maintenance gate,
+  took a coherent private backup and fast-forwarded from `aed7a9a`.
+- Activation: September 16, 2026 at 02:05:08 UTC / September 15 at 21:05:08 CDT.
+  Root-only backup receipt: `ui-reasoning-20260916T020508Z`. Only Arcturus restarted,
+  from PID `3940929` to `3943873`; original Astra/Caddy remained `3778964`/`3778975`.
+- All 21 saved game documents, database/table/private-file digests, private
+  configuration, units and notification timers were unchanged. Health passed
+  and the maintenance gate was restored.
+- A fresh signed-in browser confirmed the enabled Export chat footer button on
+  the operator's completed game. Refresh was performed only after checking that
+  the composer had no unsent draft. No live export, message, move or preference
+  was submitted. Actual file/picker and rendering checks used synthetic data.

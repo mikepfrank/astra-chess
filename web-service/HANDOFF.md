@@ -6,13 +6,19 @@ baseline and its deployment history are preserved below.
 
 ## September 15: selectable move thinking and paginated monitor
 
-**Private chat export requested; implementation pending activation.** A compact
-footer button will save a formatted RTF transcript of accepted moves and all
+**Private chat export live at `aab2df8`, September 16 at 02:05 UTC / September 15
+at 21:05 CDT.** A compact footer button saves a formatted RTF transcript of accepted moves and all
 public messages, including post-game discussion. Saved ply markers determine
 interleaving; timestamps are display metadata. The download is owner-only and
 does not publish a replay or schedule a model action. See
 [the chat export validation record](validation/2026-09-15-chat-export.md) for
-the final verification/deployment status.
+verification/deployment evidence. The button opens Save As where supported,
+otherwise the normal browser download flow. Word rendering and browser checks
+passed; Linux passed 288 of 289 tests (one Windows-only skip), plus native Codex
+reasoning and long-output audits. All 21 games, database/private-file digests,
+configuration, original Astra/Caddy PIDs, units and timers were preserved across
+the idle/gated activation. The signed-in completed-game page showed the enabled
+button. No live message, move, preference or export was submitted for QA.
 
 **Head-to-head record live at `6bf99e7`, September 16 at 01:21 UTC / September 15
 at 20:21 CDT.** The feature displays account-scoped points near the board title and includes the
