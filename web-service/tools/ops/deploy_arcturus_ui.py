@@ -63,6 +63,7 @@ ALLOWED_PATHS = frozenset({
     'web-service/tests/check_ui_controls.py',
     'web-service/tests/test_chat_reasoning_policy.py',
     'web-service/tests/test_chat_time_policy.py',
+    'web-service/tests/test_codex_bridge.py',
     'web-service/tests/test_move_reasoning.py',
     'web-service/tests/test_player_profiles.py',
     'web-service/tests/test_openrouter_gateway.py',
