@@ -1,7 +1,7 @@
 # September 15: missing post-game questions caused by tool-output truncation
 
-Diagnosis only; no live runtime configuration, saved game, clock, or prompt was
-changed. The operator requested review of the final exchange of a completed
+During the initial diagnosis, no live runtime configuration, saved game, clock,
+or prompt was changed. The operator requested review of the final exchange of a completed
 81-ply Arcturus game, including whether questions reached the model.
 
 ## Findings
@@ -15,8 +15,8 @@ GLM reasoning content. The gateway receipts retain provider/status/usage
 metadata, not complete outbound request bodies. A complete saved tool output is
 therefore not proof that every character was sent to the model.
 
-Codex applies a separate individual-tool-output budget. The service does not
-currently configure `tool_output_token_limit`. With the pinned CLI and current
+Codex applies a separate individual-tool-output budget. The service did not
+configure `tool_output_token_limit` before this repair. With the pinned CLI and former
 configuration, the middle of sufficiently long tool results is replaced by a
 `chars truncated` marker, retaining roughly 12,000 characters overall.
 `chess_status` puts moves before recent chat, with board/clock metadata and
@@ -97,5 +97,34 @@ The 52 focused bridge and chat-reasoning tests passed locally. The reusable
 with 10,000-character Unicode human comments in the middle of 20,000-, 80,000-
 and 160,000-character snapshots. It checks the immediate continuation, history
 after process restart and the next tool response on the resumed thread. Exact
-Linux receipts and preservation-checked activation are required before this
-repair is reported as live.
+Linux receipts and preservation-checked activation were required before this
+repair could be reported as live.
+
+## Verified activation
+
+Release `4783af4c9b853ce2d51ea9d62c63e35ad88d9ab6` is live after the
+September 16 **00:27 UTC / September 15 19:27 CDT** activation. The exact staged
+Linux commit passed 266 regression checks: 265 passed, one Windows-only skip.
+The native visibility audit passed all nine wire checks across twelve mocked
+requests. The independent four-action/eight-request High/Max audit retained the
+original binding and existing reasoning/response policy. Windows native
+visibility checks had also passed with the same three fixture sizes.
+
+The same five saved status results from the diagnosis were then replayed through
+the updated Linux bridge with High reasoning and production Unicode serialization.
+All five entire results, including every human message, survived in the actual
+mocked-provider input, both immediately and after thread resumption. These were
+fresh disposable threads; no live player action was initiated.
+
+Idle was checked before and within the Arcturus-only maintenance gate. The
+deployment backed up private data and configuration, restarted only Arcturus,
+and verified all 19 saved games, all database-table digests and all private-file
+digests unchanged. Original Astra/Caddy process IDs, every service unit, both
+notification timers and private configuration were unchanged. Health passed and
+the maintenance gate restored its original configuration. The larger tool budget
+will be written and verified when each subsequent GLM action begins, including
+actions on existing saved games. No other site or live conversation was changed.
+
+The activation receipt is retained in the private September 16 00:27 deployment
+backup; exact-commit test/native receipts remain in the private staged checkout.
+Later documentation-only commits record this result and require no restart.

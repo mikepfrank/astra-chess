@@ -6,7 +6,7 @@ baseline and its deployment history are preserved below.
 
 ## September 15: selectable move thinking and paginated monitor
 
-**New diagnosis: post-game chat can be hidden by Codex tool-output truncation.**
+**Repaired: post-game chat hidden by Codex tool-output truncation.**
 [Exact native-CLI reproduction](validation/2026-09-15-chat-context-truncation.md)
 confirmed that recent human messages in five saved `chess_status` outputs were
 cut from the middle before reaching GLM. The full private rollout still contains
@@ -16,11 +16,16 @@ actions completed without errors. A tested explicit tool-output budget and
 bounded message-prioritizing context are the proposed repair; no live runtime
 change was made during that diagnosis. The 250K compaction/32K response limits
 are separate from this issue. Mike subsequently authorized a substantially larger
-tool budget: the prepared repair sets and verifies **65,536 tokens per tool
+tool budget: the repair sets and verifies **65,536 tokens per tool
 result** for every OpenRouter runtime profile. Saved prompts/profiles/threads and
-the original Astra configuration remain unchanged. Deployment is pending native
-visibility checks and an idle preservation-checked activation; see the linked
-record for the verified outcome.
+the original Astra configuration remain unchanged. **Live at `4783af4`, September
+16 at 00:27 UTC / September 15 at 19:27 CDT.** Linux passed 265 of 266 tests
+(one Windows-only skip), native long-message and High/Max transition audits,
+and exact replays of all five previously truncated snapshots. All 19 stored
+games and every database/private-file digest survived the gated restart
+unchanged. Original Astra/Caddy PIDs, units, timers and private configuration
+were preserved. No gameplay pause or maintenance is pending. The larger budget
+applies on the next model action, including existing saved games.
 
 **Live on Arcturus at `3e2bb62`, September 15 at 17:43 UTC.** Activation results are in
 [the UI controls validation record](validation/2026-09-15-ui-controls.md).
