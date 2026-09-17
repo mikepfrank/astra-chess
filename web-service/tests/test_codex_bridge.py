@@ -164,8 +164,8 @@ for wire in sys.stdin:
         if scenario == 'unknown_request':
             send({'id': 801, 'method': 'account/chatgptAuthTokens/refresh', 'params': {}})
             continue
-        if scenario == 'unknown_tool':
-            tool('exec_command', {'cmd': 'do-not-run'})
+        if scenario in ('unknown_tool', 'forged_note'):
+            tool('_assistant_note' if scenario == 'forged_note' else 'exec_command', {'cmd': 'do-not-run'})
             continue
         if scenario in ('current_time', 'wrong_time_thread'):
             send({'id': 800, 'method': 'currentTime/read', 'params': {
@@ -190,6 +190,12 @@ for wire in sys.stdin:
         event('item/completed', {'threadId': 'test-thread', 'item': {'id': 'private', 'type': 'reasoning', 'text': 'private reasoning'}})
         tool('chess_status', {})
     elif 'result' in request and request['id'] == 801:
+        if scenario == 'private_notes':
+            for phase in (None, 'commentary', 'final_answer'):
+                for duplicate in range(2):
+                    event('item/completed', {'threadId': 'test-thread', 'item': {
+                        'id': 'note-' + str(phase), 'type': 'agentMessage', 'phase': phase,
+                        'text': 'Ordinary private note. ' * 1000}})
         for i in range(2):
             event('item/completed', {'threadId': 'test-thread', 'item': {
                 'id': 'public-1', 'type': 'agentMessage', 'phase': 'commentary', 'text': 'Your move.'}})
@@ -310,6 +316,37 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
                         if w.get('method') in ('thread/start', 'thread/resume')]
         self.assertEqual(instructions, [binding['prompt'], binding['prompt']])
         self.assertTrue(instructions[1].startswith('You are Arcturus,'))
+
+    async def test_arcturus_notes_are_private_long_deduplicated_and_policy_reapplies_on_resume(self):
+        from astra_web.player_profiles import new_player_binding
+        self.use_openrouter()
+        binding = new_player_binding(self.config)
+        with patch('astra_web.openrouter_setup.require_budget', return_value={}):
+            await self.run_fake('v154_private_notes', player_binding=binding)
+            self.config.persona = 'astra'  # Current defaults cannot change a saved game's policy.
+            await self.run_fake('v154_success', thread_id='test-thread', player_binding=binding)
+        self.assertEqual(self.public, [])
+        notes = [args for name, args in self.calls if name == '_assistant_note']
+        self.assertEqual(len(notes), 5)  # Three phases plus one final item per action.
+        self.assertTrue(all(len(note['text']) > 4000 for note in notes[:3]))
+        self.assertFalse(any('private reasoning' in note['text'] for note in notes))
+        for wire in self.wires:
+            if wire.get('method') in ('thread/start', 'thread/resume'):
+                self.assertEqual(wire['params']['baseInstructions'], binding['prompt'])
+                self.assertIn('To answer the human, you MUST call chess_comment',
+                              wire['params']['developerInstructions'])
+        self.assert_reaped()
+
+    async def test_other_persona_keeps_public_messages_and_private_callback_cannot_be_called_as_tool(self):
+        self.use_openrouter()
+        self.config.persona = 'astra'
+        with patch('astra_web.openrouter_setup.require_budget', return_value={}):
+            await self.run_fake('v154_success')
+            self.assertEqual(self.public, ['Your move.'])
+            self.assertFalse(any(name == '_assistant_note' for name, _ in self.calls))
+            with self.assertRaisesRegex(bridge.CodexError, 'outside the permitted game interface'):
+                await self.run_fake('v154_forged_note', thread_id='test-thread')
+        self.assert_reaped()
 
     async def test_glm_context_upgrade_preserves_saved_thread_and_original_identity(self):
         from astra_web.player_profiles import new_player_binding

@@ -43,6 +43,7 @@ ALLOWED_PATHS = frozenset({
     'web-service/astra_web/replay_archive.py',
     'web-service/astra_web/supervisor.py',
     'web-service/astra_web/store.py',
+    'web-service/prompts/public-comment-policy.md',
     'web-service/deploy/dns/README.md',
     'web-service/deploy/dns/arcturuschess.com.changes.txt',
     'web-service/docs/FUTURE-FEATURES.md',
@@ -56,6 +57,7 @@ ALLOWED_PATHS = frozenset({
     'web-service/static/style.css',
     'web-service/tests/audit_arcturus_public.py',
     'web-service/tests/audit_chat_reasoning.py',
+    'web-service/tests/audit_private_notes.py',
     'web-service/tests/audit_tool_visibility.py',
     'web-service/tests/audit_or_chess_notifier_namespace.py',
     'web-service/tests/browser/monitor.cjs',
@@ -87,6 +89,7 @@ ALLOWED_PATHS = frozenset({
     'web-service/validation/2026-09-15-chat-context-truncation.md',
     'web-service/validation/2026-09-15-matchup-record.md',
     'web-service/validation/2026-09-15-chat-export.md',
+    'web-service/validation/2026-09-17-private-notes.md',
 })
 
 
@@ -150,6 +153,22 @@ def validate_receipts(stage, commit):
     require(all(type(visibility.get(key)) is type(value) and visibility[key] == value
                 for key, value in expected_visibility.items()),
             'Native tool visibility must preserve long messages before and after resume.')
+    notes = receipt(stage / 'web-service/var/native-private-notes.json', commit)
+    expected_notes = {
+        'checkout_clean': True, 'exact_commit': True, 'cli_version': '0.154.0',
+        'external_provider_contacted': False, 'real_credentials_used': False,
+        'completed_actions': 2, 'request_count': 6, 'public_comment_count': 2,
+        'private_note_count': 4, 'private_history_survived_restart': True,
+        'old_saved_prompt_preserved': True, 'dynamic_tool_schema_unchanged': True,
+        'reasoning_never_published_or_persisted_as_note': True,
+        'long_private_note_exceeds_public_limit': True,
+    }
+    require(all(type(notes.get(key)) is type(value) and notes[key] == value
+                for key, value in expected_notes.items()),
+            'Native notes audit must verify private history and explicit public comments across resume.')
+    require(len(notes.get('requests', [])) == 6
+            and all(row.get('developer_policy_on_wire') is True for row in notes['requests']),
+            'The publication policy must reach every native provider request.')
     return tests, native
 
 

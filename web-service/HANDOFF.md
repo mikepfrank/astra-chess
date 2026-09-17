@@ -4,6 +4,22 @@ For the separate `codex/openrouter-chess` experimental branch, start with the
 [September 13 alternate-model orientation](OPENROUTER-EXPERIMENT.md). The hosted
 baseline and its deployment history are preserved below.
 
+## September 17: explicit public chat and optional internal notes
+
+Prepared: Arcturus's new ordinary assistant text becomes a private saved note;
+only `chess_comment` sends sidebar chat. A trusted developer policy is supplied
+on every thread start/resume without changing saved prompt or tool hashes.
+Native conversation continuity retains the notes; hidden reasoning and tool
+traces are separate and never exported. Existing sidebar history stays intact.
+
+Export chat now offers an unchecked "Include AI's internal notes?" option,
+available after game completion, with owner-only server enforcement. Selected
+notes are interleaved and labeled in muted italic formatting. Default exports
+and public replays stay public-only. See the
+[validation record](validation/2026-09-17-private-notes.md) for checks and live
+activation status. Deploy only after fresh idle checks using the existing gated
+helper, now also requiring the native private-note/policy/resume audit receipt.
+
 ## September 16: monitor branding
 
 The monitor's header previously retained the generic CHESS / CHESS CLUB label

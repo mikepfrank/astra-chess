@@ -12,7 +12,8 @@ from .config import REPO_ROOT
 from .store import DailyResourceLimit
 from . import chess_game as game
 from .player_profiles import (profile_for, verify_game_profile, game_player_binding,
-                              runtime_profile_for_binding, saved_player_name, move_reasoning_for_game)
+                              runtime_profile_for_binding, saved_player_name, move_reasoning_for_game,
+                              private_assistant_notes)
 
 
 class ChessClockExhausted(TimeoutError):
@@ -405,6 +406,25 @@ class Supervisor:
         async def handle_tool(name, args):
             if not isinstance(args, dict):
                 raise ValueError('Tool arguments must be an object.')
+            if name == '_assistant_note':
+                # Private bridge callback, never a model-callable dynamic tool.
+                # Keep ordering anchors without copying private text into public
+                # messages, snapshots, or replay records. Native thread history
+                # already retains the same ordinary assistant message.
+                if (not private_assistant_notes(player_binding)
+                        or set(args) != {'id', 'text', 'phase'}
+                        or not isinstance(args['id'], str) or not 1 <= len(args['id']) <= 200
+                        or args['phase'] not in (None, 'commentary', 'final_answer')
+                        or not isinstance(args['text'], str) or not args['text'].strip()):
+                    raise ValueError('Invalid assistant note event.')
+                def save_note(s):
+                    notes = s.setdefault('assistant_notes', [])
+                    if any(note['id'] == args['id'] for note in notes):
+                        return
+                    notes.append(dict(args, ply=len(s['moves']), created_at=time.time(),
+                        after_message_id=s['messages'][-1]['id'] if s['messages'] else None))
+                self.store.mutate(game_id, save_note, kind='assistant_note', increment=False)
+                return {}
             if name == '_thread':
                 thread_id = str(args['thread_id'])
                 if len(thread_id) > 150:

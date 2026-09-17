@@ -89,6 +89,51 @@ class ChatTimePolicyTests(unittest.IsolatedAsyncioTestCase):
             return db.execute('SELECT count(*) FROM events WHERE game_id=? AND kind=?',
                 (fixture.game_id, kind)).fetchone()[0]
 
+    async def test_notes_survive_storage_without_public_messages_quota_clock_or_replay_leaks(self):
+        from astra_web.chat_export import transcript_rtf
+        from astra_web.replay_archive import make_record
+        for finished in (False, True):
+            fixture = self.fixture(finished=finished)
+            async def behavior(snapshot, tool, emit, thread_id):
+                for index in range(12):
+                    await tool('_assistant_note', {'id': f'private-{index}',
+                        'text': 'Private ordinary note ' + str(index) + ' X' * 4000,
+                        'phase': 'final_answer'})
+                await tool('chess_comment', {'text': 'Intentional public answer.'})
+                await tool('_assistant_note', {'id': 'after-comment', 'text': 'Private closing note.', 'phase': None})
+                # Duplicate delivery must not duplicate the saved note.
+                await tool('_assistant_note', {'id': 'after-comment', 'text': 'Private closing note.', 'phase': None})
+                current = await tool('chess_status', {})
+                self.assertNotIn('assistant_notes', current)
+                return {'usage_tokens': 11}
+            supervisor = self.supervisor(fixture, behavior)
+            await supervisor._active_run(fixture.game_id)
+            state = self.assert_clock_and_board_preserved(fixture)
+            self.assertEqual(state['worker']['state'], 'idle')
+            self.assertEqual([m['text'] for m in state['messages']], ['Intentional public answer.'])
+            self.assertEqual(len(state['assistant_notes']), 13)
+            self.assertEqual(state['assistant_notes'][0]['after_message_id'], None)
+            self.assertEqual(state['assistant_notes'][-1]['after_message_id'], state['messages'][-1]['id'])
+            self.assertEqual(state['assistant_notes'][-1]['ply'], 0)
+            self.assertNotIn('Private ordinary', json.dumps(game.snapshot(state)))
+            self.assertNotIn(b'Private ordinary', transcript_rtf(state))
+            if finished:
+                self.assertNotIn('Private ordinary', json.dumps(make_record(
+                    state, fixture.config.data_dir, exported_at=state['updated_at'])))
+                self.assertIn(b'Private ordinary', transcript_rtf(state, include_notes=True))
+
+    async def test_astra_rejects_private_note_callback_and_retains_ordinary_public_emitter(self):
+        fixture = self.fixture(profile='astra', finished=True)
+        async def behavior(snapshot, tool, emit, thread_id):
+            with self.assertRaises(ValueError):
+                await tool('_assistant_note', {'id': 'no', 'text': 'Must not be stored', 'phase': None})
+            await emit('Original Astra ordinary answer.')
+            return {'usage_tokens': 11}
+        await self.supervisor(fixture, behavior)._active_run(fixture.game_id)
+        state = fixture.store.get(fixture.game_id)
+        self.assertNotIn('assistant_notes', state)
+        self.assertEqual(state['messages'][0]['text'], 'Original Astra ordinary answer.')
+
     async def test_human_turn_chat_can_finish_after_three_minutes_without_charging_clock(self):
         fixture = self.fixture()
 

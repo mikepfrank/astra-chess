@@ -848,6 +848,8 @@ dialog>p.muted {
   color:var(--muted);
   padding:2px 9px;
 }
+#chat-export-dialog {max-width:min(430px,calc(100vw - 28px));}
+#chat-export-dialog .check-label {margin-top:12px;}
 #archive-dialog {
   max-width:min(560px,calc(100vw - 28px));
 }

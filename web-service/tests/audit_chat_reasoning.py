@@ -64,10 +64,14 @@ async def audit(codex, output):
         if name == 'chess_status':
             return {'fixture': True, 'ply': 0, 'remaining_turn_seconds': 600,
                     'messages': [{'text': 'Synthetic opponent text cannot choose a reasoning level.'}]}
-        assert name in {'_thread', '_usage', '_compaction'}
+        if name == '_assistant_note':
+            notes.append(args)
+        else:
+            assert name in {'_thread', '_usage', '_compaction'}
         return {}
 
     public = []
+    notes = []
     async def emit(text):
         public.append(text)
 
@@ -98,7 +102,7 @@ async def audit(codex, output):
                     'same_thread': state['thread_id'] == thread_id, 'original_identity_preserved': True,
                     'process_reaped': True})
         assert binding == original
-        assert len(public) == 4 and len(report['requests']) == 8
+        assert not public and len(notes) == 4 and len(report['requests']) == 8
         assert all(gateway.request_count == 2 and gateway.budget_check_count == 2
                    and not gateway.rejections and all(row.get('stream_complete') for row in gateway.evidence)
                    for gateway in gateways)

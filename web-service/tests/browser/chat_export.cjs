@@ -11,6 +11,7 @@ const fixture=JSON.parse(execFileSync(python,['-c',[
   'print(json.dumps(snapshot(game)))',
 ].join('\n')],{cwd:app,encoding:'utf8'}));
 const rtf='{\\rtf1\\ansi\\uc1 Synthetic chess transcript\\par 1. e4\\par Arcturus: Hello, curator.}';
+const rtfNotes='{\\rtf1\\ansi\\uc1 Synthetic chess transcript\\par AI internal note: saved assistant analysis.}';
 (async()=>{
   const browser=await launchBrowser();
   try{
@@ -46,12 +47,14 @@ const rtf='{\\rtf1\\ansi\\uc1 Synthetic chess transcript\\par 1. e4\\par Arcturu
       if(url.pathname==='/api/auth/recovery')return route.fulfill({json:{available:false}});
       if(url.pathname==='/api/games')return route.fulfill({json:{games:Object.values(games)}});
       if(url.pathname.endsWith('/chat.rtf')){
-        exports.push(url.pathname);assert.equal(request.headers().accept,'application/rtf');
+        exports.push(url.pathname+url.search);assert.equal(request.headers().accept,'application/rtf');
+        const includeNotes=url.searchParams.get('include_notes')==='true';
+        if(includeNotes)assert.equal(games[url.pathname.split('/')[3]].status,'finished','Internal notes are for completed games only');
         if(holdExport)await new Promise(resolve=>{releaseExport=resolve;});
         if(responseMode==='expired')return route.fulfill({status:401,json:{detail:'Session expired'}});
         if(responseMode==='failed')return route.fulfill({status:503,json:{detail:'Export temporarily unavailable'}});
         if(responseMode==='html')return route.fulfill({contentType:'text/html',body:'Not a transcript'});
-        return route.fulfill({contentType:'application/rtf',headers:{'Content-Disposition':'attachment; filename="synthetic.rtf"','Cache-Control':'no-store'},body:rtf});
+        return route.fulfill({contentType:'application/rtf',headers:{'Content-Disposition':'attachment; filename="synthetic.rtf"','Cache-Control':'no-store'},body:includeNotes?rtfNotes:rtf});
       }
       if(url.pathname.startsWith('/api/games/')){
         if(!authenticated)return route.fulfill({status:401,json:{detail:'Session expired'}});
@@ -64,9 +67,11 @@ const rtf='{\\rtf1\\ansi\\uc1 Synthetic chess transcript\\par 1. e4\\par Arcturu
       return route.fulfill({path:path.join(app,'static',relative),contentType:relative.endsWith('.js')?'text/javascript':relative.endsWith('.css')?'text/css':'text/html'});
     });
     const page=await context.newPage();page.setDefaultTimeout(10000);page.on('pageerror',e=>errors.push(e.message));
-    const button=page.locator('#export-chat');
+    const button=page.locator('#export-chat'),dialog=page.locator('#chat-export-dialog'),notes=page.locator('#chat-export-notes'),downloadButton=page.locator('#chat-export-download');
     async function ready(){await button.waitFor({state:'visible'});await page.waitForFunction(()=>!document.getElementById('export-chat').disabled);}
-    async function click(){await button.focus();await page.keyboard.press('Enter');}
+    async function openOptions(){await button.focus();await page.keyboard.press('Enter');await dialog.waitFor({state:'visible'});assert.equal(await notes.isChecked(),false,'Internal notes default off every time');}
+    async function downloadCurrent(){await downloadButton.focus();await page.keyboard.press('Enter');}
+    async function click(includeNotes=false){await openOptions();if(includeNotes)await notes.check();await downloadCurrent();}
     async function mode(value){await page.evaluate(value=>{window.__picker.mode=value;},value);}
     async function stats(){return page.evaluate(()=>({calls:window.__picker.calls.length,writes:window.__picker.writes.length,closed:window.__picker.closed,aborted:window.__picker.aborted,handles:window.__picker.handles}));}
     async function chooseGame(index){await page.locator('#games-button').click();await page.locator('#game-list .saved-game').nth(index).click();}
@@ -74,6 +79,12 @@ const rtf='{\\rtf1\\ansi\\uc1 Synthetic chess transcript\\par 1. e4\\par Arcturu
     await page.goto(origin+'/?game=first');await ready();
     assert.equal(await button.locator('xpath=ancestor::footer').count(),1,'Export belongs at the screen bottom');
     await page.locator('.site-footer').screenshot({path:path.join(outputDir,'chat-export-desktop.png')});
+    await openOptions();assert.equal(await notes.isDisabled(),true);assert.equal(await notes.locator('xpath=..').textContent()," Include AI's internal notes?");
+    assert.match(await page.locator('#chat-export-notes-help').textContent(),/saved assistant notes, not hidden reasoning/);
+    assert.equal(await page.locator('#chat-export-notes-unavailable').isVisible(),true);
+    await dialog.screenshot({path:path.join(outputDir,'chat-export-options-active.png')});
+    await page.locator('#chat-export-cancel').click();await dialog.waitFor({state:'hidden'});assert.equal((await stats()).calls,0);assert.equal(exports.length,0);
+    await openOptions();await page.keyboard.press('Escape');await dialog.waitFor({state:'hidden'});assert.equal((await stats()).calls,0);
     await page.setViewportSize({width:390,height:844});await button.scrollIntoViewIfNeeded();
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
     await page.locator('.site-footer').screenshot({path:path.join(outputDir,'chat-export-mobile.png')});
@@ -88,7 +99,16 @@ const rtf='{\\rtf1\\ansi\\uc1 Synthetic chess transcript\\par 1. e4\\par Arcturu
     await page.evaluate(()=>window.__picker.release());assert.equal(exports.length,1);
     holdGame=null;releaseGame();releaseGame=null;await ready();
     await mode('ok');await click();await page.waitForFunction(()=>window.__picker.closed===2);await ready();assert.equal(exports.at(-1),'/api/games/second/chat.rtf');
-    await chooseGame(2);await ready();await click();await page.waitForFunction(()=>window.__picker.closed===3);await ready();assert.equal(exports.at(-1),'/api/games/third/chat.rtf','Suspended games also export');
+    await chooseGame(2);await ready();await openOptions();assert.equal(await notes.isDisabled(),true);await downloadCurrent();await page.waitForFunction(()=>window.__picker.closed===3);await ready();assert.equal(exports.at(-1),'/api/games/third/chat.rtf','Suspended games also export');
+    // Completed games alone can opt in. Cancel/reopen and each subsequent export reset the option.
+    await chooseGame(1);await ready();await openOptions();assert.equal(await notes.isEnabled(),true);assert.equal(await page.locator('#chat-export-notes-unavailable').isHidden(),true);
+    await notes.check();await page.locator('#chat-export-cancel').click();await dialog.waitFor({state:'hidden'});await openOptions();
+    await page.setViewportSize({width:1280,height:1000});await dialog.screenshot({path:path.join(outputDir,'chat-export-options-desktop.png')});
+    await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);await dialog.screenshot({path:path.join(outputDir,'chat-export-options-mobile.png')});
+    await notes.check();await downloadCurrent();await page.waitForFunction(()=>window.__picker.closed===4);await ready();assert.equal(exports.at(-1),'/api/games/second/chat.rtf?include_notes=true');assert.equal(await page.evaluate(()=>window.__picker.writes.at(-1)),rtfNotes);
+    await click();await page.waitForFunction(()=>window.__picker.closed===5);await ready();assert.equal(exports.at(-1),'/api/games/second/chat.rtf');assert.equal(await page.evaluate(()=>window.__picker.writes.at(-1)),rtf);
+    // Programmatic saved-game selection also closes and clears an open options dialog.
+    await openOptions();await notes.check();await page.evaluate(()=>document.getElementById('games-button').click());await page.locator('#game-list .saved-game').nth(2).click();await ready();await dialog.waitFor({state:'hidden'});assert.equal(await notes.isChecked(),false);
     // An exposed-but-blocked native picker falls back to an ordinary file download.
     await mode('blocked');let downloaded=page.waitForEvent('download');await click();let download=await downloaded;await ready();
     assert.match(download.suggestedFilename(),/^chess-chat-.*-third\.rtf$/);assert.equal(await fs.readFile(await download.path(),'utf8'),rtf);
@@ -107,6 +127,6 @@ const rtf='{\\rtf1\\ansi\\uc1 Synthetic chess transcript\\par 1. e4\\par Arcturu
     holdExport=false;releaseExport();releaseExport=null;
     authenticated=true;await page.goto(origin+'/?game=first');await ready();responseMode='expired';await click();await button.waitFor({state:'hidden'});await page.locator('#toast').filter({hasText:'Sign in again to export'}).waitFor();assert.equal((await stats()).handles,0);
     assert.deepEqual(posts,['/api/auth/logout']);assert.deepEqual(errors,[]);
-    console.log('Chat export UI passed: keyboard and desktop/mobile footer; active/finished/suspended games; picker-before-fetch; cancel; unavailable/blocked picker downloads; MIME/server/disk failures; game-switch/write/auth expiry/logout safeguards. All requests intercepted.');
+    console.log('Chat export UI passed: compact desktop/mobile options; notes default off, finished-only opt-in, query and reset; keyboard/cancel; picker-before-fetch; unavailable/blocked picker downloads; MIME/server/disk failures; game-switch/dialog/write/auth expiry/logout safeguards. All requests intercepted.');
   }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

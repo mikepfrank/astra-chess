@@ -263,9 +263,11 @@ def create_app(config=None, player_factory=None):
         return PlainTextResponse(game.pgn(state), media_type='application/x-chess-pgn', headers={'Content-Disposition': 'attachment; filename="chess-game.pgn"'})
 
     @app.get('/api/games/{game_id}/chat.rtf')
-    async def download_chat(request: Request, game_id: str):
+    async def download_chat(request: Request, game_id: str, include_notes: bool = False):
         state = owned(request, game_id)
-        return Response(transcript_rtf(state), media_type='application/rtf',
+        if include_notes and state['status'] != 'finished':
+            raise HTTPException(409, 'AI internal notes can be exported after the game has finished.')
+        return Response(transcript_rtf(state, include_notes=include_notes), media_type='application/rtf',
                         headers={'Content-Disposition': 'attachment; filename="chess-chat.rtf"'})
 
     @app.post('/api/games/{game_id}/share')

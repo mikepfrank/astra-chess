@@ -141,6 +141,12 @@ def saved_player_name(state):
     return name
 
 
+def private_assistant_notes(binding):
+    """Runtime publication policy, separate from immutable game provenance."""
+    return (binding['profile'].get('name') == 'openrouter-glm'
+            and (binding.get('persona') or {}).get('name') == 'arcturus')
+
+
 def get_profile(name='astra'):
     try:
         return PROFILES[name]

@@ -182,6 +182,89 @@ class ChatExportTests(unittest.TestCase):
         self.assertNotIn('PRIVATE-', text)
         self.assertIn('Before we start.', text)
 
+    def test_notes_require_opt_in_and_default_public_transcript_is_unchanged(self):
+        state = fixture()
+        public = transcript_rtf(state)
+        state['assistant_notes'] = [dict(id='private-note-id', text='Saved ordinary assistant note.',
+            phase='commentary', ply=2, created_at=215, after_message_id=None)]
+        self.assertEqual(transcript_rtf(state), public)
+        self.assertEqual(transcript_rtf(state, include_notes=False), public)
+        included = plain_rtf(transcript_rtf(state, include_notes=True))
+        self.assertIn('[AI internal note — not sent to sidebar]', included)
+        self.assertIn('Saved ordinary assistant note.', included)
+        self.assertIn('1 AI internal notes.', included)
+        self.assertNotIn('private-note-id', included)
+        # Earlier ordinary assistant messages already in the public stream stay public.
+        self.assertIn('Post-game reply.', plain_rtf(public))
+
+    def test_note_anchors_and_ply_interleave_without_timestamp_reordering(self):
+        state = fixture()
+        for index, message in enumerate(state['messages']):
+            message['id'] = f'm{index}'
+        state['assistant_notes'] = [
+            dict(text='Note before any chat.', ply=0, created_at=999, after_message_id=None),
+            dict(text='Note after pregame chat.', ply=0, created_at=1, after_message_id='m0'),
+            dict(text='Note after White before reply.', ply=1, created_at=999, after_message_id='m0'),
+            dict(text='Note after White reply.', ply=1, created_at=1, after_message_id='m1'),
+            dict(text='Note after Black before question.', ply=2, created_at=999, after_message_id='m1'),
+            dict(text='First note after question.', ply=2, created_at=219, after_message_id='m2'),
+            dict(text='Second note after question.', ply=2, created_at=1, after_message_id='m2'),
+            dict(text='Last postgame note.', ply=2, created_at=2, after_message_id='m3'),
+        ]
+        before = copy.deepcopy(state)
+        text = plain_rtf(transcript_rtf(state, include_notes=True))
+        ordered = ['Note before any chat.', 'Before we start.', 'Note after pregame chat.',
+                   '1.e4', 'Note after White before reply.', 'Reply after White.',
+                   'Note after White reply.', '1...e5', 'Note after Black before question.',
+                   'Question after Black.', 'First note after question.',
+                   'Second note after question.', 'Post-game reply.', 'Last postgame note.']
+        self.assertEqual([text.index(item) for item in ordered],
+                         sorted(text.index(item) for item in ordered))
+        self.assertEqual(text.count('[AI internal note — not sent to sidebar]'), 8)
+        self.assertEqual(state, before)
+
+    def test_notes_with_missing_anchors_use_timestamp_fallback_without_dropping_text(self):
+        state = fixture()
+        for index, message in enumerate(state['messages']):
+            message['id'] = f'm{index}'
+        state['assistant_notes'] = [
+            dict(text='Unknown anchor note.', ply=2, created_at=215, after_message_id='missing'),
+            dict(text='Timestamp tie note.', ply=2, created_at=220),
+            dict(text='Undated note.', ply=2),
+            dict(text='Legacy missing-ply note.', created_at=150, after_message_id='m1'),
+        ]
+        text = plain_rtf(transcript_rtf(state, include_notes=True))
+        ordered = ['Reply after White.', 'Legacy missing-ply note.', '1...e5',
+                   'Question after Black.', 'Unknown anchor note.', 'Post-game reply.',
+                   'Timestamp tie note.', 'Undated note.']
+        self.assertEqual([text.index(item) for item in ordered],
+                         sorted(text.index(item) for item in ordered))
+
+    def test_internal_note_is_literal_unicode_and_no_extra_private_metadata_is_exported(self):
+        state = fixture()
+        text = '🐂 棋 Ω {\\field{\\*\\fldinst INCLUDETEXT "secret"}}\\par\\object\nSecond line.'
+        state['assistant_notes'] = [dict(id='PRIVATE-note-id', text=text,
+            phase='PRIVATE-phase', ply=2, created_at=215, after_message_id='PRIVATE-message-id',
+            reasoning='PRIVATE-reasoning', model='PRIVATE-model', prompt='PRIVATE-prompt')]
+        raw = transcript_rtf(state, include_notes=True)
+        decoded = plain_rtf(raw)
+        self.assertIn(text, decoded)
+        self.assertNotIn('PRIVATE-', decoded)
+        self.assertIn(r'\cf3\i ', raw.decode('ascii'))
+        self.assertIn(r'\i0\cf1\par', raw.decode('ascii'))
+        self.assertNotIn(text, plain_rtf(transcript_rtf(state)))
+
+    def test_internal_notes_export_rejects_unfinished_games_and_accepts_legacy_absence(self):
+        state = fixture()
+        included = plain_rtf(transcript_rtf(state, include_notes=True))
+        self.assertIn('0 AI internal notes.', included)
+        self.assertIn('Earlier notes may not have been recorded.', included)
+        for status in ('active', 'suspended'):
+            state['status'] = status
+            with self.assertRaisesRegex(ValueError, 'after the game has finished'):
+                transcript_rtf(state, include_notes=True)
+            self.assertIn('Post-game reply.', plain_rtf(transcript_rtf(state)))
+
 
 class ChatExportApiTests(unittest.TestCase):
     def setUp(self):
@@ -247,6 +330,44 @@ class ChatExportApiTests(unittest.TestCase):
         result = self.client.get(self.url)
         self.assertEqual(result.status_code, 200)
         self.assertIn('Status: Suspended', plain_rtf(result.content))
+
+    def test_internal_notes_opt_in_is_finished_only_owned_and_readonly(self):
+        def set_notes(state):
+            state['assistant_notes'] = [dict(id='note-id', text='PRIVATE-ORDINARY-NOTE',
+                phase='commentary', ply=0, created_at=100, after_message_id=None)]
+        self.store.mutate(self.game_id, set_notes)
+        url = self.url + '?include_notes=true'
+        for status in ('active', 'suspended'):
+            self.store.mutate(self.game_id, lambda state: state.update(status=status))
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 409)
+            self.assertIn('after the game has finished', response.json()['detail'])
+            self.assertNotIn('PRIVATE-ORDINARY-NOTE', response.text)
+            self.assertEqual(self.client.get(self.url + '?include_notes=false').status_code, 200)
+        self.store.mutate(self.game_id, lambda state: game.finish(state, '1/2-1/2', 'agreement'))
+        before = self.store.get(self.game_id)
+        with self.store.connection() as db:
+            events_before = db.execute('SELECT count(*) FROM events').fetchone()[0]
+        with patch.object(self.app.state.supervisor, 'schedule') as schedule:
+            response = self.client.get(url)
+            public = self.client.get(self.url)
+            explicit_public = self.client.get(self.url + '?include_notes=false')
+            schedule.assert_not_called()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers['content-type'], 'application/rtf')
+        self.assertEqual(response.headers['cache-control'], 'no-store')
+        self.assertIn('PRIVATE-ORDINARY-NOTE', plain_rtf(response.content))
+        self.assertNotIn('PRIVATE-ORDINARY-NOTE', plain_rtf(public.content))
+        self.assertEqual(public.content, explicit_public.content)
+        self.assertEqual(self.store.get(self.game_id), before)
+        with self.store.connection() as db:
+            self.assertEqual(db.execute('SELECT count(*) FROM events').fetchone()[0], events_before)
+        with closing(TestClient(self.app)) as other:
+            self.assertEqual(other.get(url).status_code, 401)
+            self.register(other, 'Another owner')
+            denied = other.get(url)
+            self.assertEqual(denied.status_code, 404)
+            self.assertNotIn('PRIVATE-ORDINARY-NOTE', denied.text)
 
 
 if __name__ == '__main__':

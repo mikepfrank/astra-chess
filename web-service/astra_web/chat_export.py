@@ -1,4 +1,4 @@
-"""Owner-downloadable, read-only rich-text transcript of public game events."""
+"""Owner-downloadable transcript, with optional ordinary AI notes after play."""
 from datetime import datetime, timezone
 import math
 
@@ -67,21 +67,69 @@ def _message_ply(message, moves):
                 and move_stamp <= stamp), default=0)
 
 
-def transcript_rtf(state):
-    """Return an RTF snapshot using only public participant/move/chat fields.
+def _transcript_buckets(moves, messages, notes):
+    """Interleave notes using their recorded public-message boundary and ply.
+
+    Message IDs are used only for ordering and never rendered. Notes captured
+    before any public message, or after a message from an earlier position,
+    precede this position's messages. Timestamp inference is only for missing
+    or inconsistent legacy anchors. Append order wins within every boundary.
+    """
+    buckets = [[] for _ in range(len(moves) + 1)]
+    anchors = {}
+    for message in messages:
+        ply = _message_ply(message, moves)
+        if isinstance(message.get('id'), str):
+            anchors[message['id']] = (ply, len(buckets[ply]) + 1)
+        buckets[ply].append(message)
+    note_slots = [[[] for _ in range(len(bucket) + 1)] for bucket in buckets]
+    for note in notes:
+        ply = _message_ply(note, moves)
+        anchor = note.get('after_message_id')
+        slot = None
+        if 'after_message_id' in note and anchor is None:
+            slot = 0
+        elif isinstance(anchor, str) and anchor in anchors:
+            anchor_ply, anchor_slot = anchors[anchor]
+            if anchor_ply == ply:
+                slot = anchor_slot
+            elif anchor_ply < ply:
+                slot = 0
+        if slot is None:
+            stamp = _timestamp(note.get('created_at'))
+            slot = (max((index + 1 for index, message in enumerate(buckets[ply])
+                         if (message_stamp := _timestamp(message.get('created_at'))) is not None
+                         and message_stamp <= stamp), default=0)
+                    if stamp is not None else len(buckets[ply]))
+        note_slots[ply][slot].append(note)
+    result = []
+    for messages_at_ply, slots in zip(buckets, note_slots):
+        events = [('note', note) for note in slots[0]]
+        for index, message in enumerate(messages_at_ply):
+            events.append(('chat', message))
+            events.extend(('note', note) for note in slots[index + 1])
+        result.append(events)
+    return result
+
+
+def transcript_rtf(state, *, include_notes=False):
+    """Return public moves/chat, optionally adding saved ordinary assistant text.
 
     No stored data is changed, and no tool traces, prompts or private identifiers
-    enter the document. Source message text is literal, including any Markdown.
+    enter the document. Notes are a separate stored stream, never hidden model
+    reasoning, and are available only after play. Source text stays literal,
+    including any Markdown. Public exports ignore that stream entirely.
     """
+    if include_notes and state.get('status') != 'finished':
+        raise ValueError('AI internal notes can be exported after the game has finished.')
     human = state['name']
     ai = saved_player_name(state)
     people = {'human': human, 'astra': ai}
     sides = {state['human_side']: human, state['astra_side']: ai}
     moves = state['moves']
     messages = state['messages']
-    buckets = [[] for _ in range(len(moves) + 1)]
-    for message in messages:
-        buckets[_message_ply(message, moves)].append(message)
+    notes = state.get('assistant_notes', []) if include_notes else []
+    buckets = _transcript_buckets(moves, messages, notes)
 
     # All interpolated data passes through _rtf_text; the controls below are
     # fixed document formatting. ASCII output avoids code-page ambiguity.
@@ -110,6 +158,9 @@ def transcript_rtf(state):
     paragraph(f'Status: {status}    Result: {result_text}')
     if state.get('termination'):
         paragraph('Ending: ' + str(state['termination']).replace('_', ' '))
+    if include_notes:
+        paragraph('Includes saved AI internal notes, which were not sent to the sidebar. '
+                  'Earlier notes may not have been recorded.', color=3)
     if any(type(message.get('ply')) is not int or not 0 <= message['ply'] <= len(moves)
            for message in messages):
         paragraph('Some older messages lack a recorded move position. Their placement is inferred '
@@ -124,8 +175,21 @@ def transcript_rtf(state):
         parts.append(r'\pard\li240\sa160\f0\fs22\cf1 '
                      + _rtf_text(message.get('text', '')) + r'\par')
 
-    for message in buckets[0]:
-        chat(message)
+    def internal_note(note):
+        parts.append(r'\pard\keepn\li480\ri240\sb100\sa40\f0\fs22\cf3\i '
+                     + _rtf_text(f'{ai} [AI internal note — not sent to sidebar]')
+                     + ' | ' + _rtf_text(_when(note.get('created_at'))) + r'\i0\par')
+        parts.append(r'\pard\li480\ri240\sa160\f0\fs22\cf3\i '
+                     + _rtf_text(note.get('text', '')) + r'\i0\cf1\par')
+
+    def events_at(ply):
+        for kind, event in buckets[ply]:
+            if kind == 'note':
+                internal_note(event)
+            else:
+                chat(event)
+
+    events_at(0)
     for index, move in enumerate(moves):
         color = 'White' if index % 2 == 0 else 'Black'
         notation = str(index // 2 + 1) + ('.' if index % 2 == 0 else '...') + move['san']
@@ -133,11 +197,11 @@ def transcript_rtf(state):
         parts.append(r'\pard\sb100\sa120\f0\fs22\cf2\b '
                      + _rtf_text(f'{notation}  |  {speaker} ({color})')
                      + r'\b0\cf3  | ' + _rtf_text(_when(move.get('at'))) + r'\cf1\par')
-        for message in buckets[index + 1]:
-            chat(message)
-    if not moves and not messages:
+        events_at(index + 1)
+    if not moves and not messages and not notes:
         paragraph('No moves or chat messages have been recorded yet.', color=3)
-    paragraph(f'End of saved transcript: {len(moves)} plies, {len(messages)} chat messages.',
+    notes_count = f', {len(notes)} AI internal notes' if include_notes else ''
+    paragraph(f'End of saved transcript: {len(moves)} plies, {len(messages)} chat messages{notes_count}.',
               before=200, color=3)
     parts.append('}')
     return '\n'.join(parts).encode('ascii')

@@ -17,7 +17,7 @@ function consumeEmailFragment(){
   const link=consumeEmailFragment();if(link)Object.assign(state,link);
 }
 const archiveUI={session:0,gameId:null,variant:'moves',variants:{},status:null,busy:null,error:null,uncertain:false,loaded:false,deleteConfirm:false,timer:null,controller:null};
-const chatExportUI={request:0,busy:false,controller:null};
+const chatExportUI={request:0,busy:false,controller:null,gameId:null,identityVersion:null};
 let toastTimer, pollTimer, promotionResolve, confirmResolve;
 let gameLoadVersion=0, gameLoading=null;
 const titleCase=text=>String(text||'').replaceAll('_',' ').replace(/^./,c=>c.toUpperCase());
@@ -414,18 +414,36 @@ function renderChatExport(){
   button.hidden=!state.user||!state.game?.id||state.gameId!==state.game.id||!!gameLoading;
   button.disabled=button.hidden||chatExportUI.busy;
   button.textContent=chatExportUI.busy?'Exporting…':'Export chat';
+  const current=!button.hidden&&chatExportUI.gameId===state.gameId&&chatExportUI.identityVersion===state.identityVersion;
+  const notesAvailable=current&&state.game.status==='finished';
+  $('chat-export-notes').disabled=!notesAvailable;
+  if(!notesAvailable)$('chat-export-notes').checked=false;
+  $('chat-export-notes-unavailable').hidden=notesAvailable;
+  $('chat-export-download').disabled=!current||chatExportUI.busy;
 }
 function cancelChatExport(){
   chatExportUI.request++;chatExportUI.controller?.abort();chatExportUI.controller=null;chatExportUI.busy=false;
+  chatExportUI.gameId=null;chatExportUI.identityVersion=null;$('chat-export-notes').checked=false;
+  if($('chat-export-dialog').open)closeDialog('chat-export-dialog');
   renderChatExport();
 }
-$('export-chat').addEventListener('click',async()=>{
+$('export-chat').addEventListener('click',()=>{
   if(chatExportUI.busy||!state.user||!state.game?.id||gameLoading)return;
+  cancelChatExport();chatExportUI.gameId=state.game.id;chatExportUI.identityVersion=state.identityVersion;
+  renderChatExport();openDialog('chat-export-dialog');
+});
+$('chat-export-dialog').addEventListener('close',()=>{
+  if(!$('chat-export-dialog').open&&chatExportUI.gameId)cancelChatExport();
+});
+$('chat-export-download').addEventListener('click',async()=>{
+  if(chatExportUI.busy||!$('chat-export-dialog').open||!state.user||!state.game?.id||gameLoading||chatExportUI.gameId!==state.game.id||chatExportUI.identityVersion!==state.identityVersion)return;
+  const includeNotes=state.game.status==='finished'&&$('chat-export-notes').checked;
   const gameId=state.game.id,identityVersion=state.identityVersion,request=++chatExportUI.request;
   const current=()=>request===chatExportUI.request&&identityVersion===state.identityVersion&&state.gameId===gameId&&!gameLoading&&!!state.user;
   const date=parseDate(state.game.created_at),day=Number.isNaN(date.getTime())?new Date().toISOString().slice(0,10):date.toISOString().slice(0,10);
   const filename=`chess-chat-${day}-${gameId.replace(/[^a-z0-9]/gi,'').slice(0,8)}.rtf`;
   let handle=null,writable=null,timeout=null,timedOut=false;
+  chatExportUI.gameId=null;chatExportUI.identityVersion=null;$('chat-export-notes').checked=false;closeDialog('chat-export-dialog');
   chatExportUI.busy=true;renderChatExport();
   try{
     // Open the picker within the click's transient activation, before fetching.
@@ -440,7 +458,7 @@ $('export-chat').addEventListener('click',async()=>{
     if(!current())return;
     const controller=new AbortController();chatExportUI.controller=controller;
     timeout=setTimeout(()=>{timedOut=true;controller.abort();},30000);
-    const response=await fetch(`/api/games/${encodeURIComponent(gameId)}/chat.rtf`,{headers:{Accept:'application/rtf'},credentials:'same-origin',cache:'no-store',signal:controller.signal});
+    const response=await fetch(`/api/games/${encodeURIComponent(gameId)}/chat.rtf${includeNotes?'?include_notes=true':''}`,{headers:{Accept:'application/rtf'},credentials:'same-origin',cache:'no-store',signal:controller.signal});
     if(!current())return;
     if(!response.ok){
       const data=await response.json().catch(()=>({}));
