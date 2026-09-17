@@ -57,4 +57,39 @@ call is required for validation.
   and the trusted developer policy on every transmitted request. The audit
   reports structure/hashes, never real user text or credentials.
 
-Exact-revision Linux checks and activation results will be recorded below.
+The opt-in synthetic RTF was also opened in a separate hidden Word instance,
+exported to PDF and rendered with Poppler. The one-page preview shows muted
+italic notes with 24pt indentation, and the following public chat correctly
+returns to normal dark text and 12pt indentation. Unicode, literal braces and
+backslashes render correctly. Default RTF bytes are unchanged with versus
+without stored notes. All task-created Word processes were closed. Synthetic
+previews are ignored under `var/browser-qa/internal-note-preview.*`.
+
+## Exact Linux validation and activation
+
+Candidate `bf5b746ddc7ff3546611eb39febfe0d13209dab4` passed 299 Linux tests:
+298 passed, one Windows-only skip, zero failures or errors. The exact clean
+staged checkout also passed native CLI `0.154.0` audits:
+
+- Four actions/eight requests preserve selectable move effort and fixed High chat.
+- Three long-output cases/nine wire checks preserve tool and human text on resume.
+- Two actions/six requests preserve private ordinary notes across process restart,
+  publish exactly two explicit comments, and carry the current developer policy
+  in every actual provider request. Hidden reasoning never enters the note stream.
+
+All upstreams were mocked; no real keys or paid API calls were used.
+
+The fresh idle checks and gated activation completed at **2026-09-17 16:32:04
+UTC / 11:32:04 CDT**. Prior checkout was `9d7bd95`. Backup/receipt:
+`/home/or-chess/backups/ui-reasoning-20260917T163204Z`.
+All **28** saved game documents, every database-table digest and private-file
+digest, private configuration, service units and notification timers remained
+unchanged. Arcturus PID changed `3943873` to `4015431`; original Astra PID
+`3778964` and Caddy PID `3778975` were preserved. Health and namespace checks
+passed and the maintenance gate was restored.
+
+A temporary signed-in live tab confirmed the completed-game Export chat dialog:
+the notes option was enabled and unchecked, with Cancel and Download controls.
+It was closed without downloading or scheduling work; the original user tab
+was preserved without a reload. No game state or user setting was changed for
+browser verification. Existing tabs need a refresh for the new static UI.

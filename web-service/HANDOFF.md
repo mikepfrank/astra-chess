@@ -6,7 +6,8 @@ baseline and its deployment history are preserved below.
 
 ## September 17: explicit public chat and optional internal notes
 
-Prepared: Arcturus's new ordinary assistant text becomes a private saved note;
+**Live at `bf5b746`, September 17, 16:32 UTC / 11:32 CDT.**
+Arcturus's new ordinary assistant text becomes a private saved note;
 only `chess_comment` sends sidebar chat. A trusted developer policy is supplied
 on every thread start/resume without changing saved prompt or tool hashes.
 Native conversation continuity retains the notes; hidden reasoning and tool
@@ -19,6 +20,14 @@ and public replays stay public-only. See the
 [validation record](validation/2026-09-17-private-notes.md) for checks and live
 activation status. Deploy only after fresh idle checks using the existing gated
 helper, now also requiring the native private-note/policy/resume audit receipt.
+Linux passed 298 of 299 tests (one Windows-only skip), plus native CLI 0.154.0
+reasoning, long-tool-output and private-note continuity audits. The gated restart
+preserved all 28 saved games, all database/private-file digests, configuration,
+units and notification timers; original Astra/Caddy PIDs stayed unchanged.
+The signed-in live board showed the new dialog and unchecked enabled option for
+the completed game. No live chat, move, retry, export or paid request was sent
+for QA. A browser refresh loads the new UI; the next model action uses the new
+communication policy automatically, including in existing games.
 
 ## September 16: monitor branding
 

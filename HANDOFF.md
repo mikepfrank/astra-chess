@@ -1,5 +1,21 @@
 # Handoff: Arcturus development worktree
 
+## September 17: explicit comments and optional note export
+
+Live backend `bf5b746`: Arcturus sends sidebar text only through `chess_comment`.
+Ordinary assistant messages remain private notes in the durable game record and
+native Codex conversation. Export chat offers an unchecked notes option after
+game completion; included notes use distinct muted italic formatting. Existing
+visible messages and replay artifacts are preserved. The communication policy
+applies on every start/resume without changing saved model/persona/tool identity.
+
+All 28 stored games and private state survived the gated restart unchanged;
+original Astra and Caddy stayed running. Linux passed 298/299 checks (one skip)
+and native mocked-provider reasoning, tool-visibility and note-continuity audits.
+See [web-service/HANDOFF.md](web-service/HANDOFF.md) and the linked September 17
+validation record. A refresh loads the new export dialog; the next model action
+already uses the new rule. The older checkpoints below are historical.
+
 ## September 15 evening: current live checkpoint
 
 Arcturus is live at code `aab2df8`: private head-to-head points appear near the
