@@ -16,6 +16,12 @@ See [web-service/HANDOFF.md](web-service/HANDOFF.md) and the linked September 17
 validation record. A refresh loads the new export dialog; the next model action
 already uses the new rule. The older checkpoints below are historical.
 
+Mike subsequently authorized one historical test conversion: his completed
+81-ply game now has 99 public messages and 222 optionally exported internal notes.
+The backed-up September 17 repair preserved all moves/text/order and the other
+27 games, with no process restart or paid call. See the September 17 service
+validation note for evidence and the private recovery location.
+
 ## September 15 evening: current live checkpoint
 
 Arcturus is live at code `aab2df8`: private head-to-head points appear near the

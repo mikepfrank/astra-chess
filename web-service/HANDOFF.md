@@ -29,6 +29,16 @@ the completed game. No live chat, move, retry, export or paid request was sent
 for QA. A browser refresh loads the new UI; the next model action uses the new
 communication policy automatically, including in existing games.
 
+**Single-game historical exception, September 17 at 16:56:55 UTC:** Mike then
+explicitly requested reclassifying his finished 81-ply game as a test case. The
+backed-up repair moved 222 ordinary assistant messages to internal notes, leaving
+46 human messages and 53 explicit AI comments (99 sidebar messages). All 402
+ordered move/text events survived exactly in the notes-inclusive representation.
+The other 27 games, clocks/results/moves, native history, historical audit events,
+replay snapshots and all service PIDs were unchanged. This is not a general
+retroactive policy. Both RTF variants rendered successfully; the operation and
+recovery location are recorded in the linked validation document.
+
 ## September 16: monitor branding
 
 The monitor's header previously retained the generic CHESS / CHESS CLUB label

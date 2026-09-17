@@ -115,3 +115,32 @@ SQLite access, coherent private backup, short idle maintenance gate, and one
 transaction changing only this game's messages/notes/version plus an audit event.
 Native history, previously generated replays, other games and services remain
 outside its write scope. Application results are recorded below when complete.
+
+### Applied successfully
+
+The planner's 11 tests and 18 export tests passed locally and again on Linux at
+clean revision `19de4785a7a7a5aa866f24d7c325aed67a092860`. The live dry run found
+exactly one alignment: 280 eligible native events (227 ordinary items and 53
+successful public comments), with five unpublished ordinary items excluded from
+the stored transcript. One additional native comment call lacked successful
+delivery evidence and was not an eligible source.
+
+Applied **2026-09-17 16:56:55 UTC / 11:56:55 CDT**, with original state and source
+hashes checked against that dry run. Private coherent database, exact original
+game row and receipts are under
+`/home/or-chess/game-note-backups/single-game-notes-20260917T165655Z`.
+The target version changed 904 to 905. Its original 321 public messages became
+99 public messages (46 human, 53 explicit comments) plus 222 internal notes.
+The planner proved all **402 events** (81 moves plus 321 texts) remain in exact
+original interleaving with unchanged text, ply and timestamps.
+
+The atomic transaction preserved the target's other fields, all 27 other games,
+all unrelated tables and every historical audit row. Only one metadata audit
+event was added. Native rollout bytes, previously generated replay publications,
+service PIDs and game clock/result remained unchanged. No restart or model/API
+action occurred; the temporary gate was restored and health checks passed.
+
+Both RTF variants rendered from the revised record before commit: 65,456 bytes
+for public-only and 166,746 bytes with the 222 notes. Their hashes are in the
+private receipt. The live board remains accessible and can refresh to the new
+record. No transcript file or private source text was copied into Git.
