@@ -27,6 +27,18 @@ It is an opt-in mail sender; the read-only report and migration rehearsal do not
 
 ## Preserved Arcturus audit helpers
 
+`reclassify_81ply_game.py` is a narrowly authorized historical repair for one
+specific finished 81-ply Arcturus game. Running it without flags only plans the
+change and reports counts/hashes. `--apply` requires both exact dry-run state and
+native-source SHA-256 values. It gates idle Arcturus requests briefly, creates a
+private coherent SQLite and original-row backup, and atomically moves previously
+public ordinary assistant text to the new note stream. It preserves timestamps,
+clocks, moves, thread files, other games, replay snapshots and all service PIDs.
+SQLite connections run and close under the service identity to keep WAL sidecars
+correctly owned. The pure planner is `game_note_reclassification.py`; its tests
+prove unique source alignment, rejection of ambiguous evidence, and exact merged
+transcript order. This is not a blanket migration or a public API.
+
 The September 15 UI release adds `tests/check_ui_controls.py FULL_COMMIT_SHA`
 for an exact clean-checkout regression receipt. Together with the native mocked
 four-action reasoning audit, its receipt is required by

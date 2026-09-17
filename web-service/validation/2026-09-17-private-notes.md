@@ -93,3 +93,25 @@ the notes option was enabled and unchecked, with Cancel and Download controls.
 It was closed without downloading or scheduling work; the original user tab
 was preserved without a reload. No game state or user setting was changed for
 browser verification. Existing tabs need a refresh for the new static UI.
+
+## Owner-requested single-game retrospective test
+
+After the prospective rollout, Mike explicitly requested converting just his
+recent finished 81-ply game as a test case. This is a scoped exception to the
+historical preservation policy above, not an automatic migration of other games.
+
+The read-only inventory found 321 public messages: 46 human, 53 explicit
+`chess_comment` messages, and 222 ordinary assistant messages. The native rollout
+also has unpublished items, so simple position matching is insufficient. The
+repair planner requires a unique ordered subsequence alignment of every stored
+AI message against ordinary assistant items and success-confirmed comment calls.
+Ambiguous or missing evidence aborts. Neither writing style nor hidden reasoning
+is classification evidence. Text, ply, timestamps and complete interleaving must
+survive the conversion exactly; existing note anchors are rebased as needed.
+
+The operation is prepared in `tools/ops/reclassify_81ply_game.py`: read-only by
+default, exact inspected state/source hashes required to apply, service-identity
+SQLite access, coherent private backup, short idle maintenance gate, and one
+transaction changing only this game's messages/notes/version plus an audit event.
+Native history, previously generated replays, other games and services remain
+outside its write scope. Application results are recorded below when complete.
