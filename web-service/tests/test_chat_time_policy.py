@@ -125,14 +125,132 @@ class ChatTimePolicyTests(unittest.IsolatedAsyncioTestCase):
     async def test_astra_rejects_private_note_callback_and_retains_ordinary_public_emitter(self):
         fixture = self.fixture(profile='astra', finished=True)
         async def behavior(snapshot, tool, emit, thread_id):
+            self.assertNotIn('comment_reminder_pending', snapshot)
             with self.assertRaises(ValueError):
                 await tool('_assistant_note', {'id': 'no', 'text': 'Must not be stored', 'phase': None})
             await emit('Original Astra ordinary answer.')
+            self.assertNotIn('comment_reminder_pending', await tool('chess_status', {}))
             return {'usage_tokens': 11}
         await self.supervisor(fixture, behavior)._active_run(fixture.game_id)
         state = fixture.store.get(fixture.game_id)
         self.assertNotIn('assistant_notes', state)
+        self.assertNotIn('comment_reminder_pending', state)
         self.assertEqual(state['messages'][0]['text'], 'Original Astra ordinary answer.')
+
+    async def test_notes_only_reminder_survives_retry_and_clears_only_after_publication(self):
+        for interrupted in (False, True):
+            with self.subTest(interrupted=interrupted):
+                fixture = self.fixture(finished=True)
+                note = {'id': 'unpublished-answer', 'text': 'An answer only in private notes.',
+                        'phase': 'final_answer'}
+
+                async def notes_only(snapshot, tool, emit, thread_id):
+                    self.assertFalse(snapshot['comment_reminder_pending'])
+                    self.assertEqual(await tool('_assistant_note', note), {'recorded': True})
+                    self.assertTrue((await tool('chess_status', {}))['comment_reminder_pending'])
+                    if interrupted:
+                        raise ConnectionError('Synthetic failure after saving the note')
+                    return {'usage_tokens': 11}
+
+                first = self.supervisor(fixture, notes_only)
+                if interrupted:
+                    with self.assertRaises(ConnectionError):
+                        await first._active_run(fixture.game_id)
+                else:
+                    await first._active_run(fixture.game_id)
+                before = self.assert_clock_and_board_preserved(fixture)
+                self.assertTrue(before['comment_reminder_pending'])
+                self.assertEqual(before['messages'], [])
+                self.assertNotIn('comment_reminder_pending', game.snapshot(before))
+
+                async def resumed(snapshot, tool, emit, thread_id):
+                    self.assertEqual(thread_id, 'saved-chat-thread')
+                    self.assertTrue(snapshot['comment_reminder_pending'])
+                    for invalid in ({'text': ' \n\t'}, {'text': None}, {'text': 'Hi', 'extra': True}):
+                        with self.assertRaises(ValueError):
+                            await tool('chess_comment', invalid)
+                        self.assertTrue(fixture.store.get(fixture.game_id)['comment_reminder_pending'])
+                    # A failed transaction must not clear the durable flag or
+                    # consume a successful-comment count for this action.
+                    with patch('astra_web.supervisor.game.message',
+                               side_effect=ValueError('Synthetic message storage failure')):
+                        with self.assertRaises(ValueError):
+                            await tool('chess_comment', {'text': 'This was not committed.'})
+                    self.assertTrue(fixture.store.get(fixture.game_id)['comment_reminder_pending'])
+                    self.assertEqual(fixture.store.get(fixture.game_id)['messages'], [])
+                    self.assertEqual((await tool('chess_comment', {'text': 'The delivered answer.'}))['sent'], True)
+                    self.assertFalse((await tool('chess_status', {}))['comment_reminder_pending'])
+                    await tool('_assistant_note', {'id': 'private-final', 'text': 'Private closing note.',
+                                                  'phase': 'final_answer'})
+                    self.assertFalse(fixture.store.get(fixture.game_id)['comment_reminder_pending'])
+                    return {'usage_tokens': 11}
+
+                # A fresh supervisor represents a restarted service/resumed
+                # saved game: no in-memory counters from the first run survive.
+                await self.supervisor(fixture, resumed)._active_run(fixture.game_id)
+
+                async def duplicate_after_resume(snapshot, tool, emit, thread_id):
+                    self.assertFalse(snapshot['comment_reminder_pending'])
+                    self.assertEqual(await tool('_assistant_note', note), {'recorded': False})
+                    self.assertFalse((await tool('chess_status', {}))['comment_reminder_pending'])
+                    return {'usage_tokens': 11}
+
+                await self.supervisor(fixture, duplicate_after_resume)._active_run(fixture.game_id)
+                final = self.assert_clock_and_board_preserved(fixture)
+                self.assertFalse(final['comment_reminder_pending'])
+                self.assertEqual([m['text'] for m in final['messages']], ['The delivered answer.'])
+                self.assertEqual([n['id'] for n in final['assistant_notes']],
+                                 ['unpublished-answer', 'private-final'])
+                self.assertEqual(final['player_profile'], fixture.baseline['player_profile'])
+                self.assertEqual(final['player_prompt'], fixture.baseline['player_prompt'])
+
+    async def test_existing_notes_bootstrap_reminder_until_successful_comment(self):
+        fixture = self.fixture(finished=True)
+        old_note = {'id': 'pre-reminder-policy', 'text': 'Already saved ordinary assistant text.',
+                    'phase': 'final_answer', 'ply': 0, 'created_at': self.clock.time(),
+                    'after_message_id': None}
+        fixture.store.mutate(fixture.game_id, lambda s: s.update(assistant_notes=[old_note]))
+
+        async def first_resume(snapshot, tool, emit, thread_id):
+            self.assertTrue(snapshot['comment_reminder_pending'])
+            self.assertTrue((await tool('chess_status', {}))['comment_reminder_pending'])
+            return {'usage_tokens': 11}
+
+        await self.supervisor(fixture, first_resume)._active_run(fixture.game_id)
+        unchanged = fixture.store.get(fixture.game_id)
+        self.assertNotIn('comment_reminder_pending', unchanged)
+        self.assertEqual(unchanged['assistant_notes'], [old_note])
+        self.assertEqual(unchanged['messages'], [])
+
+        async def next_resume(snapshot, tool, emit, thread_id):
+            self.assertTrue(snapshot['comment_reminder_pending'])
+            await tool('chess_comment', {'text': 'Now explicitly delivered.'})
+            return {'usage_tokens': 11}
+
+        await self.supervisor(fixture, next_resume)._active_run(fixture.game_id)
+
+        async def after_publication(snapshot, tool, emit, thread_id):
+            self.assertFalse(snapshot['comment_reminder_pending'])
+            return {'usage_tokens': 11}
+
+        await self.supervisor(fixture, after_publication)._active_run(fixture.game_id)
+        final = self.assert_clock_and_board_preserved(fixture)
+        self.assertEqual(final['assistant_notes'], [old_note])
+        self.assertFalse(final['comment_reminder_pending'])
+
+    async def test_new_game_without_notes_does_not_request_reminder_or_create_messages(self):
+        fixture = self.fixture()
+
+        async def behavior(snapshot, tool, emit, thread_id):
+            self.assertFalse(snapshot['comment_reminder_pending'])
+            self.assertFalse((await tool('chess_status', {}))['comment_reminder_pending'])
+            return {'usage_tokens': 11}
+
+        await self.supervisor(fixture, behavior)._active_run(fixture.game_id)
+        state = self.assert_clock_and_board_preserved(fixture)
+        self.assertNotIn('comment_reminder_pending', state)
+        self.assertNotIn('assistant_notes', state)
+        self.assertEqual(state['messages'], [])
 
     async def test_human_turn_chat_can_finish_after_three_minutes_without_charging_clock(self):
         fixture = self.fixture()

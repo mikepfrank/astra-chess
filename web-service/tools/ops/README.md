@@ -57,6 +57,13 @@ receipt at `var/native-tool-visibility.json`, produced by
 survive in the actual mocked-provider requests, both immediately and after
 process restart. It does not send messages or make paid calls.
 
+The private-note policy and conditional publication reminder additionally need
+`var/native-private-notes.json` from `tests/audit_private_notes.py`. The receipt
+must verify three actions/eight requests on a resumed synthetic native thread,
+six private notes/two explicit comments, immutable prompt/tool identity, and
+conditional placement as the final developer input. All provider responses are
+mocked; no live game or paid request is used.
+
 The head-to-head score feature uses this same deployment path. Its totals are
 derived from the existing account-owned completed games; no migration or
 initialization write is needed. The regression runner includes result counting,

@@ -324,6 +324,11 @@ class Supervisor:
             # unchanged; a subsequent own-turn action selects its move policy.
             result = game.model_snapshot(current)
             result.update(response_kind=response_kind, reasoning=response_profile.reasoning)
+            if private_assistant_notes(player_binding):
+                # Older saved games have no marker. If they already contain
+                # notes, remind once until an explicit comment is delivered.
+                result['comment_reminder_pending'] = current.get(
+                    'comment_reminder_pending', bool(current.get('assistant_notes'))) is True
             result['matchup_record'] = self.store.matchup_record(current)
             result['matchup_record_scope'] = (
                 'Server-recorded completed-game results on this site for this human account '
@@ -417,14 +422,19 @@ class Supervisor:
                         or args['phase'] not in (None, 'commentary', 'final_answer')
                         or not isinstance(args['text'], str) or not args['text'].strip()):
                     raise ValueError('Invalid assistant note event.')
+                recorded = False
                 def save_note(s):
+                    nonlocal recorded
                     notes = s.setdefault('assistant_notes', [])
                     if any(note['id'] == args['id'] for note in notes):
                         return
                     notes.append(dict(args, ply=len(s['moves']), created_at=time.time(),
                         after_message_id=s['messages'][-1]['id'] if s['messages'] else None))
+                    if not control['public_messages']:
+                        s['comment_reminder_pending'] = True
+                    recorded = True
                 self.store.mutate(game_id, save_note, kind='assistant_note', increment=False)
-                return {}
+                return {'recorded': recorded}
             if name == '_thread':
                 thread_id = str(args['thread_id'])
                 if len(thread_id) > 150:
@@ -516,8 +526,9 @@ class Supervisor:
                             'candidate': details['candidates'][rank - 1]}
                 return details
             if name == 'chess_comment':
-                if set(args) != {'text'}:
-                    raise ValueError('Expected text only')
+                if (set(args) != {'text'} or not isinstance(args['text'], str)
+                        or not args['text'].strip()):
+                    raise ValueError('Expected nonblank text only')
                 await emit(args['text'])
                 return {'sent': True}
             if len(current['moves']) != control['ply']:
@@ -634,8 +645,12 @@ class Supervisor:
                 return
             if control['public_messages'] >= 8:
                 raise ValueError('Public commentary allowance reached.')
+            def publish(s):
+                game.message(s, 'astra', text)
+                if private_assistant_notes(player_binding):
+                    s['comment_reminder_pending'] = False
+            self.store.mutate(game_id, publish, kind='astra_commentary')
             control['public_messages'] += 1
-            self.store.mutate(game_id, lambda s: game.message(s, 'astra', text), kind='astra_commentary')
 
         player = None
         try:

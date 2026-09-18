@@ -178,6 +178,24 @@ def _config_text(model: str, reasoning: str, profile=None):
     return "\n".join(lines) + "\n"
 
 
+class _CommentReminder:
+    """Mirror successful host publication callbacks within one response action."""
+    def __init__(self, snapshot, handler):
+        self.pending = snapshot.get('comment_reminder_pending') is True
+        self.commented = False
+        self.handler = handler
+
+    async def handle(self, name, args):
+        result = await self.handler(name, args)
+        if name == '_assistant_note' and result.get('recorded') is True and not self.commented:
+            self.pending = True
+        elif (name == 'chess_comment' and result.get('sent') is True
+              and isinstance(args.get('text'), str) and args['text'].strip()):
+            self.commented = True
+            self.pending = False
+        return result
+
+
 def _event_input(game_id, snapshot):
     # Codex compaction preserves user messages. Repeating whole snapshots here
     # would accumulate permanent context even after tool history is summarized.
@@ -550,10 +568,13 @@ class CodexPlayer:
                 key = os.environ.get(profile.env_key)
                 if not key:
                     raise CodexError('OPENROUTER_API_KEY must be configured by the service operator')
-                async with OpenRouterGateway(key, expected_instructions=binding['prompt'], profile=profile) as gateway:
+                reminder = (_CommentReminder(snapshot, tool_handler)
+                            if private_assistant_notes(binding) and not compact_only else None)
+                async with OpenRouterGateway(key, expected_instructions=binding['prompt'], profile=profile,
+                        comment_reminder=(lambda: reminder.pending) if reminder else None) as gateway:
                     transport = replace(profile, base_url=gateway.base_url, env_key='CHESS_GATEWAY_TOKEN')
                     try:
-                        return await self._run(game_id, snapshot, tool_handler, emit, thread_id,
+                        return await self._run(game_id, snapshot, reminder.handle if reminder else tool_handler, emit, thread_id,
                                                transport_profile=transport, gateway_token=gateway.token,
                                                player_binding=binding, compact_only=compact_only,
                                                response_kind=response_kind, move_reasoning=move_reasoning)

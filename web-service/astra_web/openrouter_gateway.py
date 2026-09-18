@@ -35,6 +35,10 @@ ENDPOINT_MODELS = (MODEL, 'z-ai/glm-5.3-flash', 'z-ai/glm-5.3-flash-20260826')
 MAX_REQUEST_BYTES = 8 * 1024 * 1024
 MAX_SSE_EVENT_BYTES = 2 * 1024 * 1024
 MAX_OUTPUT_TOKENS = 32768
+COMMENT_REMINDER = (
+    'Note: Only messages sent using chess_comment() will be displayed to the human player '
+    'in the sidebar chat. Ordinary assistant text is saved as internal notes. '
+    'Use chess_comment() if you intend to reply to the human.')
 
 
 class GatewayError(ValueError):
@@ -131,7 +135,7 @@ class OpenRouterGateway:
     The production default checks the worktree-wide experiment budget each time.
     """
     def __init__(self, api_key, *, transport=None, budget_check=None, expected_instructions=None,
-                 profile=None):
+                 profile=None, comment_reminder=None):
         if not isinstance(api_key, str) or not api_key or '\r' in api_key or '\n' in api_key:
             raise GatewayError('invalid_credential')
         self._api_key = api_key
@@ -143,6 +147,8 @@ class OpenRouterGateway:
         if expected_instructions is not None and (not isinstance(expected_instructions, str) or not expected_instructions.strip()):
             raise GatewayError('invalid_expected_instructions')
         self._expected_instructions = expected_instructions
+        # Host-owned publication state, never inferred from model tool arguments.
+        self._comment_reminder = comment_reminder
         self._transport = transport
         self._budget_check = budget_check or require_budget
         self.token = secrets.token_urlsafe(32)
@@ -218,7 +224,7 @@ class OpenRouterGateway:
                     'headers': [(b'content-type', b'application/json'), (b'cache-control', b'no-store')]})
         await send({'type': 'http.response.body', 'body': body})
 
-    async def _forward(self, payload, send):
+    async def _forward(self, payload, send, *, comment_reminder_added=False):
         try:
             self.budget_check_count += 1
             await asyncio.to_thread(self._budget_check, self._api_key)
@@ -234,6 +240,7 @@ class OpenRouterGateway:
                     'max_output_tokens': self.profile.max_output_tokens,
                     'profile_version': self.profile.version,
                     'request_kind': 'compaction' if payload['tools'] == [] else 'chess',
+                    'comment_reminder_added': comment_reminder_added,
                     'response_id': None, 'provider': None, 'usage': {}, 'stream_complete': False}
         if self._expected_instructions is not None:
             evidence['instructions_verified'] = True
@@ -430,6 +437,18 @@ class OpenRouterGateway:
                 payload = _prepare_request(json.loads(body), self.profile)
                 if self._expected_instructions is not None and payload.get('instructions') != self._expected_instructions:
                     raise GatewayError('instructions_mismatch')
+                reminded = bool(payload['tools'] and self._comment_reminder
+                                and self._comment_reminder() is True)
+                if reminded:
+                    items = payload.get('input')
+                    if isinstance(items, str):
+                        items = [{'role': 'user', 'content': items}]
+                    if not isinstance(items, list):
+                        raise GatewayError('invalid_input')
+                    # Append only on the outgoing request: do not accumulate
+                    # copies in native history or interfere with compaction.
+                    payload['input'] = [*items, {'role': 'developer', 'content': [
+                        {'type': 'input_text', 'text': COMMENT_REMINDER}]}]
                 if len(json.dumps(payload, allow_nan=False).encode('utf-8')) > MAX_REQUEST_BYTES:
                     raise GatewayError('request_too_large')
             except GatewayError as error:
@@ -447,7 +466,7 @@ class OpenRouterGateway:
                 while (await receive())['type'] != 'http.disconnect':
                     pass
 
-            operation = asyncio.create_task(self._forward(payload, send))
+            operation = asyncio.create_task(self._forward(payload, send, comment_reminder_added=reminded))
             disconnected = asyncio.create_task(watch_disconnect())
             done, _ = await asyncio.wait({operation, disconnected}, return_when=asyncio.FIRST_COMPLETED)
             if operation in done:

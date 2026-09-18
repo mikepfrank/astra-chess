@@ -4,6 +4,25 @@ For the separate `codex/openrouter-chess` experimental branch, start with the
 [September 13 alternate-model orientation](OPENROUTER-EXPERIMENT.md). The hosted
 baseline and its deployment history are preserved below.
 
+## September 18: remind after notes without a public comment
+
+Prepared a conditional reminder at the end of the actual provider request input,
+in a trusted developer message. A host response action that stores notes but has
+not yet delivered an explicit sidebar comment sets a durable pending marker.
+Successful public delivery clears it; failed/blank comments do not. Private
+notes after a successful comment in that action do not rearm it. This covers
+intra-action tool continuations and later actions after restart, cancellation or
+failure, with no new paid turn or automatic reply. Older games with saved notes
+and no marker get a bootstrap reminder until they publish a comment.
+
+Only the saved OpenRouter/Arcturus binding receives this behavior. Reminder
+copies are added to outgoing chess requests, not accumulated in native history,
+saved prompts or tool schemas; compaction neither receives nor clears them.
+Request telemetry records only whether the reminder was added. See the
+[validation record](validation/2026-09-18-comment-reminder.md) for tests and
+deployment status. The native notes receipt now requires three resumed actions,
+eight provider requests, six notes, two comments and conditional suffix checks.
+
 ## September 17: explicit public chat and optional internal notes
 
 **Live at `bf5b746`, September 17, 16:32 UTC / 11:32 CDT.**

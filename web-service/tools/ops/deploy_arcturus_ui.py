@@ -39,6 +39,7 @@ ALLOWED_PATHS = frozenset({
     'web-service/astra_web/chess_game.py',
     'web-service/astra_web/chat_export.py',
     'web-service/astra_web/codex_bridge.py',
+    'web-service/astra_web/openrouter_gateway.py',
     'web-service/astra_web/player_profiles.py',
     'web-service/astra_web/replay_archive.py',
     'web-service/astra_web/supervisor.py',
@@ -90,6 +91,7 @@ ALLOWED_PATHS = frozenset({
     'web-service/validation/2026-09-15-matchup-record.md',
     'web-service/validation/2026-09-15-chat-export.md',
     'web-service/validation/2026-09-17-private-notes.md',
+    'web-service/validation/2026-09-18-comment-reminder.md',
 })
 
 
@@ -157,8 +159,9 @@ def validate_receipts(stage, commit):
     expected_notes = {
         'checkout_clean': True, 'exact_commit': True, 'cli_version': '0.154.0',
         'external_provider_contacted': False, 'real_credentials_used': False,
-        'completed_actions': 2, 'request_count': 6, 'public_comment_count': 2,
-        'private_note_count': 4, 'private_history_survived_restart': True,
+        'completed_actions': 3, 'request_count': 8, 'public_comment_count': 2,
+        'private_note_count': 6, 'private_history_survived_restart': True,
+        'conditional_comment_reminder_verified': True,
         'old_saved_prompt_preserved': True, 'dynamic_tool_schema_unchanged': True,
         'reasoning_never_published_or_persisted_as_note': True,
         'long_private_note_exceeds_public_limit': True,
@@ -166,8 +169,9 @@ def validate_receipts(stage, commit):
     require(all(type(notes.get(key)) is type(value) and notes[key] == value
                 for key, value in expected_notes.items()),
             'Native notes audit must verify private history and explicit public comments across resume.')
-    require(len(notes.get('requests', [])) == 6
-            and all(row.get('developer_policy_on_wire') is True for row in notes['requests']),
+    require(len(notes.get('requests', [])) == 8
+            and all(row.get('developer_policy_on_wire') is True
+                    and row.get('conditional_reminder_verified') is True for row in notes['requests']),
             'The publication policy must reach every native provider request.')
     return tests, native
 

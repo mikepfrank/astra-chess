@@ -883,5 +883,41 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         self.assert_reaped()
 
 
+class CommentReminderTests(unittest.IsolatedAsyncioTestCase):
+    async def test_only_confirmed_notes_and_comments_change_pending_state(self):
+        from unittest.mock import AsyncMock
+        host = AsyncMock(return_value={'recorded': False})
+        reminder = bridge._CommentReminder({}, host)
+        await reminder.handle('_assistant_note', {})
+        self.assertFalse(reminder.pending)
+        host.return_value = {'recorded': True}
+        await reminder.handle('_assistant_note', {})
+        self.assertTrue(reminder.pending)
+        host.side_effect = ValueError('Publication failed')
+        with self.assertRaises(ValueError):
+            await reminder.handle('chess_comment', {'text': 'Undelivered'})
+        self.assertTrue(reminder.pending)
+        host.side_effect = None
+        for result, text in (({'sent': False}, 'Undelivered'), ({'sent': True}, '   ')):
+            host.return_value = result
+            await reminder.handle('chess_comment', {'text': text})
+            self.assertTrue(reminder.pending)
+        host.return_value = {'sent': True}
+        await reminder.handle('chess_comment', {'text': 'Public answer'})
+        self.assertFalse(reminder.pending)
+        host.return_value = {'recorded': True}
+        await reminder.handle('_assistant_note', {})
+        self.assertFalse(reminder.pending, 'A final note after a public comment must not rearm it')
+
+    async def test_resume_and_nonpublication_callbacks_preserve_pending_reminder(self):
+        from unittest.mock import AsyncMock
+        host = AsyncMock(return_value={})
+        reminder = bridge._CommentReminder({'comment_reminder_pending': True}, host)
+        for name in ('_usage', '_compaction', 'chess_status', 'chess_choose'):
+            await reminder.handle(name, {})
+            self.assertTrue(reminder.pending)
+        self.assertFalse(bridge._CommentReminder({'comment_reminder_pending': 'true'}, host).pending)
+
+
 if __name__ == '__main__':
     unittest.main()

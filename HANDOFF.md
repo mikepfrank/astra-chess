@@ -1,5 +1,16 @@
 # Handoff: Arcturus development worktree
 
+## September 18: conditional public-comment reminder
+
+Prepared a durable reminder for Arcturus actions that save ordinary assistant
+notes without publishing a `chess_comment`. The gateway appends the reminder as
+the final developer input on subsequent model requests, including resumed games.
+Only a successfully stored public comment clears it; a trailing private final
+note in that same action does not rearm it. Older games with notes receive a
+bootstrap reminder. No extra model turn is scheduled. See the
+[validation record](web-service/validation/2026-09-18-comment-reminder.md) for
+current verification and activation status. Saved prompts/tool hashes stay fixed.
+
 ## September 17: explicit comments and optional note export
 
 Live backend `bf5b746`: Arcturus sends sidebar text only through `chess_comment`.

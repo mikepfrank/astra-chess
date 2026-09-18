@@ -8,7 +8,8 @@ import httpx
 
 from astra_web.codex_bridge import dynamic_tools, TOOL_NAMES
 from astra_web.openrouter_gateway import (OpenRouterGateway, MODEL, UPSTREAM_URL,
-    MAX_REQUEST_BYTES, MAX_SSE_EVENT_BYTES, MAX_OUTPUT_TOKENS, GatewayError, _codex_wire_schema)
+    MAX_REQUEST_BYTES, MAX_SSE_EVENT_BYTES, MAX_OUTPUT_TOKENS, COMMENT_REMINDER,
+    GatewayError, _codex_wire_schema)
 from astra_web.openrouter_setup import OpenRouterSetupError
 from astra_web.player_profiles import get_profile
 
@@ -66,13 +67,44 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
         self.calls.append(request)
         return httpx.Response(200, content=sse(), headers={'content-type': 'text/event-stream'})
 
-    def gateway(self, handler=None, budget=None, profile=None):
+    def gateway(self, handler=None, budget=None, profile=None, **kwargs):
         return OpenRouterGateway(KEY, transport=httpx.MockTransport(handler or self.upstream),
-                                 budget_check=budget or self.budget, profile=profile)
+                                 budget_check=budget or self.budget, profile=profile, **kwargs)
 
     def client(self, gateway):
         return httpx.AsyncClient(transport=httpx.ASGITransport(app=gateway), base_url='http://127.0.0.1',
                                 headers={'Authorization': 'Bearer ' + gateway.token})
+
+    async def test_reminder_is_last_developer_item_only_while_pending_and_not_during_compaction(self):
+        pending = False
+        request = payload()
+        original = json.dumps(request, sort_keys=True)
+        async with self.gateway(comment_reminder=lambda: pending) as gateway, self.client(gateway) as client:
+            for enabled, compact in ((False, False), (True, False), (True, True), (True, False), (False, False)):
+                pending = enabled
+                current = dict(request, tools=[]) if compact else request
+                self.assertEqual((await client.post('/v1/responses', json=current)).status_code, 200)
+                sent = json.loads(self.calls[-1].content)
+                expected = request['input'] + ([{'role': 'developer', 'content': [
+                    {'type': 'input_text', 'text': COMMENT_REMINDER}]}] if enabled and not compact else [])
+                self.assertEqual(sent['input'], expected)
+                self.assertEqual(gateway.evidence[-1]['comment_reminder_added'], enabled and not compact)
+            self.assertEqual(gateway.request_count, 5)
+        self.assertEqual(json.dumps(request, sort_keys=True), original)
+
+    async def test_reminder_does_not_bypass_request_byte_limit(self):
+        from unittest.mock import patch
+        request = payload()
+        from astra_web.openrouter_gateway import _prepare_request
+        ceiling = max(len(json.dumps(request).encode()),
+                      len(json.dumps(_prepare_request(request, get_profile('openrouter-glm'))).encode())) + 10
+        async with self.gateway(comment_reminder=lambda: True) as gateway, self.client(gateway) as client:
+            with patch('astra_web.openrouter_gateway.MAX_REQUEST_BYTES', ceiling):
+                response = await client.post('/v1/responses', json=request)
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response.json()['error']['code'], 'request_too_large')
+            self.assertEqual(gateway.request_count, 0)
+            self.assertEqual(self.calls, [])
 
     async def test_actual_loopback_filters_tools_caps_output_and_records_only_metadata(self):
         async with self.gateway() as gateway:
