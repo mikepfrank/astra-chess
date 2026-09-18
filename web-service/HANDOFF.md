@@ -6,7 +6,7 @@ baseline and its deployment history are preserved below.
 
 ## September 18: remind after notes without a public comment
 
-Prepared a conditional reminder at the end of the actual provider request input,
+**Live at `31f3270`, September 18, 15:21 UTC / 10:21 CDT.** A conditional reminder appears at the end of the actual provider request input,
 in a trusted developer message. A host response action that stores notes but has
 not yet delivered an explicit sidebar comment sets a durable pending marker.
 Successful public delivery clears it; failed/blank comments do not. Private
@@ -22,6 +22,12 @@ Request telemetry records only whether the reminder was added. See the
 [validation record](validation/2026-09-18-comment-reminder.md) for tests and
 deployment status. The native notes receipt now requires three resumed actions,
 eight provider requests, six notes, two comments and conditional suffix checks.
+Linux passed 305 of 306 regression checks (one Windows-only skip). Native Linux
+Codex 0.154.0 passed reasoning, long-output and conditional-note audits against
+mocked providers. Activation preserved all 29 game documents, all database and
+private-file digests, configuration, units and timers. Original Astra/Caddy PIDs
+were unchanged; Arcturus is healthy with its request gate restored. Existing
+games receive the reminder automatically on their next eligible request.
 
 ## September 17: explicit public chat and optional internal notes
 

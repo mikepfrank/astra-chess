@@ -2,7 +2,7 @@
 
 ## September 18: conditional public-comment reminder
 
-Prepared a durable reminder for Arcturus actions that save ordinary assistant
+**Live at `31f3270`, September 18, 15:21 UTC / 10:21 CDT.** A durable reminder covers Arcturus actions that save ordinary assistant
 notes without publishing a `chess_comment`. The gateway appends the reminder as
 the final developer input on subsequent model requests, including resumed games.
 Only a successfully stored public comment clears it; a trailing private final
@@ -10,6 +10,10 @@ note in that same action does not rearm it. Older games with notes receive a
 bootstrap reminder. No extra model turn is scheduled. See the
 [validation record](web-service/validation/2026-09-18-comment-reminder.md) for
 current verification and activation status. Saved prompts/tool hashes stay fixed.
+Linux passed 305 of 306 checks (one Windows-only skip), plus the native reasoning,
+long-output and conditional-reminder audits. The gated restart preserved all 29
+games, database/private-file digests, configuration, units and notification timers.
+Original Astra/Caddy stayed running; no maintenance or gameplay pause is pending.
 
 ## September 17: explicit comments and optional note export
 

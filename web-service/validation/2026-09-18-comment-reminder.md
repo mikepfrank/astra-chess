@@ -38,8 +38,31 @@ boolean, never input contents.
   the two focused bridge reminder tests: 17 passed. These cover failed/blank
   comments, durable retry/resume, duplicate notes, legacy bootstrap, original
   Astra, compaction exclusion and the outgoing request byte ceiling.
-- Exact-commit Linux/native checks: pending.
-- Live activation: pending; earlier backend `bf5b746` remains installed until
-  the idle/gated deployment receipt below confirms otherwise.
+- Linux regression at exact clean commit
+  `31f3270c50daeb1d647571eb6e187b860f94ce99`: 306 tests, zero failures/errors,
+  one Windows-only skip (305 passed).
+- Native Linux Codex 0.154.0 at that commit: reasoning audit passed four actions
+  and eight requests; long-tool-output audit passed three cases and nine wire
+  checks; private-note audit passed three actions/eight requests with conditional
+  reminder suffixes verified throughout. All used mocked providers.
+
+## Live activation
+
+Activated `31f3270` September 18, 2026 at 15:21 UTC / 10:21 CDT through
+`deploy_arcturus_ui.py`, from the clean installed `c9755e4` checkout. Runtime
+previously used backend `bf5b746`; later old commits were tools/documentation.
+The service was idle before admission gating and before shutdown. Health and
+gate restoration passed, with no active turn interrupted.
+
+- Private backup/receipt:
+  `/home/or-chess/backups/ui-reasoning-20260918T152133Z`.
+- All 29 game documents, all database table digests, all private file digests,
+  configuration, units and notification timers were unchanged across restart.
+- Arcturus PID changed from `4015431` to `4056774`.
+  Original Astra `3778964` and Caddy `3778975` stayed running.
+- Two workers, Max move default/High chat, 32K output, 250K compaction and 200M
+  daily tokens were preserved. No further restart or gameplay pause is pending.
+- Exact-commit receipts are under the isolated stage
+  `/home/or-chess/ui-staging/31f3270/web-service/var/`.
 
 No live game move, chat, retry or real provider request is used for QA.
