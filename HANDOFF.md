@@ -2,7 +2,7 @@
 
 ## September 20: request metadata for future incidents
 
-Prepared lightweight private OpenRouter request measurements: fixed category
+**Live at `67bd854`, September 20, 22:53 UTC.** Lightweight private OpenRouter request measurements record fixed category
 counts, canonical JSON sizes/fingerprints, reasoning text/summary/encrypted
 byte totals, request timing and available cached/reasoning token breakdowns.
 These augment existing provider receipts after final gateway transformations;
@@ -10,6 +10,11 @@ they retain no additional conversation text and change no model parameters.
 See the [validation record](web-service/validation/2026-09-20-request-metadata.md)
 for schema, limitations, test and deployment status. Jordan's earlier incident
 cannot retroactively acquire these measurements.
+
+Linux passed 309 of 310 checks (one Windows-only skip), plus native reasoning,
+tool-visibility and persisted-request metadata audits. All 32 game documents,
+database/private files and configuration survived the gated restart unchanged;
+original Astra/Caddy processes stayed running. No gameplay pause is pending.
 
 ## September 20: bounded deliberation guidance
 

@@ -6,7 +6,7 @@ baseline and its deployment history are preserved below.
 
 ## September 20: private outgoing-request measurements
 
-Prepared metadata-only diagnostics for future OpenRouter requests, including
+**Live at `67bd854`, September 20, 22:53 UTC.** Metadata-only diagnostics cover future OpenRouter requests, including
 compaction, failures and cancellation. Existing per-action provider receipts gain
 fixed item-category counts, canonical JSON byte lengths and SHA-256 fingerprints,
 reasoning text/summary/encrypted UTF-8 sizes, start/end timestamps and elapsed
@@ -16,7 +16,13 @@ input labels are added to receipts; request content and routing stay unchanged.
 Measurements follow the trusted reminder/tool/output transformations. They
 describe gateway output, not downstream provider transformations or exact token
 counts. See [validation and schema](validation/2026-09-20-request-metadata.md).
-Exact-commit Linux/native verification and idle/gated deployment are pending.
+Linux passed 309 of 310 regression checks (one Windows-only skip). Native Codex
+0.154.0 passed existing reasoning/tool-visibility checks and verified metadata
+against all eight actual mocked upstream requests and saved receipts across
+resumed actions. A separate cancellation regression verifies final timing/status
+are durable. The gated restart preserved all 32 games, all database/private-file
+digests, configuration, units and notification timers. Original Astra/Caddy
+processes are unchanged; Arcturus is healthy and its request gate is restored.
 
 ## September 20: brief assessment before consulting the engine
 

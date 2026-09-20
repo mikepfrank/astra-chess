@@ -63,7 +63,7 @@ Provider-side translations, retention and tokenization remain outside our view.
 
 ## Validation and deployment
 
-Prepared. Focused gateway tests cover forwarding preservation, mixed input
+Focused gateway tests cover forwarding preservation, mixed input
 shapes, bounded/private metadata, timing and usage on incomplete/cancelled/error
 paths. The native private-note audit additionally compares actual mocked
 upstream requests with in-memory and persisted receipts across resumed actions.
@@ -77,5 +77,24 @@ not provider latency or a guaranteed server performance bound.
 Another near-ceiling fixture (7.9M characters) took 54.2 ms and produced 763
 metadata bytes with one category.
 
-Exact-commit checks and idle/gated activation are pending. No live move, retry,
-chat or paid provider request is needed for validation.
+The 31 focused gateway tests passed locally. The bridge cancellation regression
+also passed, verifying that a real gateway with a blocked mocked stream settles
+before the on-disk receipt is saved. The malformed nested-text regression passed
+after the final nonrecursive byte-counter review fix.
+
+Exact code `67bd854cabd846c3741bc9cfcfeab07fb44ab0a9` passed the Linux suite:
+310 tests, 309 passed, one Windows-only skip, no errors/failures. Native Linux
+Codex 0.154.0 passed four reasoning actions, nine tool-visibility checks, and the
+three-action private-note audit. All eight requests' metadata matched the actual
+mocked upstream body and persisted receipt, with existing note/comment counts,
+policy delivery and saved thread identity preserved.
+
+Activated September 20 at 22:53 UTC through the idle/gated deployment helper.
+Health passed and the request gate was restored. All 32 game documents,
+database-table/private-file digests, configuration, units and notification timers
+were unchanged. Arcturus PID changed from `4139815` to `4155008`; original
+Astra (`3778964`) and Caddy (`3778975`) did not restart. The coherent private
+backup and activation receipt are under
+`/home/or-chess/backups/ui-reasoning-20260920T225354Z`.
+
+No live move, retry, chat or paid provider request was sent for validation.
