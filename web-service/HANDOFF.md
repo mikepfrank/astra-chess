@@ -4,6 +4,18 @@ For the separate `codex/openrouter-chess` experimental branch, start with the
 [September 13 alternate-model orientation](OPENROUTER-EXPERIMENT.md). The hosted
 baseline and its deployment history are preserved below.
 
+## September 20: brief assessment before consulting the engine
+
+Prepared a small generic [play-guidance addition](prompts/move-deliberation-policy.md):
+keep independent assessment brief in quiet positions, register a candidate and
+concrete concern, then query promptly instead of trying to prove a dominant
+choice unaided. Completed depth, tactical evidence and positional judgment still
+govern the decision. It reaches existing and new Arcturus/OpenRouter games via
+trusted developer instructions, preserving saved base prompts and tool hashes.
+No reasoning, output, clock or compaction settings change. See the
+[validation record](validation/2026-09-20-deliberation-guidance.md) for current
+test and activation status; guidance alone does not guarantee fewer cutoffs.
+
 ## September 20: reported repeated errors recovered after compaction
 
 A read-only investigation found five 32,768-output-token cutoffs (one on move

@@ -30,6 +30,9 @@ async def audit(codex, output):
     config.validate()
     binding = new_player_binding(config)
     original = copy.deepcopy(binding)
+    move_policy = (bridge.PROMPT_ROOT / 'move-deliberation-policy.md').read_text(encoding='utf-8')
+    assert move_policy.startswith('## Bounded initial deliberation')
+    assert 'On your own move turns, strategize independently first, but not indefinitely.' in move_policy
     report = {'success': False, 'external_provider_contacted': False,
               'real_credentials_used': False, 'actions': [], 'requests': []}
     gateways = []
@@ -55,8 +58,23 @@ async def audit(codex, output):
             assert payload['model'] == original['profile']['model']
             assert payload['instructions'] == original['prompt']
             assert {tool['name'] for tool in payload['tools']} == bridge.TOOL_NAMES
+            items = payload.get('input', [])
+            assert isinstance(items, list)
+            developer_texts = []
+            for item in items:
+                if not isinstance(item, dict) or item.get('role') != 'developer':
+                    continue
+                content = item.get('content', [])
+                if isinstance(content, str):
+                    developer_texts.append(content)
+                elif isinstance(content, list):
+                    developer_texts.extend(part['text'] for part in content
+                        if isinstance(part, dict) and isinstance(part.get('text'), str))
+            assert any(move_policy in text for text in developer_texts), \
+                'Move deliberation policy missing from provider developer input'
             report['requests'].append({'kind': active_kind, 'effort': active_effort,
-                'max_output_tokens': payload['max_output_tokens'], 'tool_count': len(payload['tools'])})
+                'max_output_tokens': payload['max_output_tokens'], 'tool_count': len(payload['tools']),
+                'move_deliberation_policy_on_wire': True})
             return httpx.Response(200, headers={'content-type': 'text/event-stream'},
                 content=stream_response(len(report['requests']), 'summary', self.fixture_count == 1))
 
@@ -107,7 +125,8 @@ async def audit(codex, output):
                    and not gateway.rejections and all(row.get('stream_complete') for row in gateway.evidence)
                    for gateway in gateways)
         report.update(success=True, cli_version=state['cli_version'],
-                      immutable_binding_preserved=True, completed_actions=4)
+                      immutable_binding_preserved=True, completed_actions=4,
+                      move_deliberation_policy_verified=True)
     finally:
         await player.close()
         (root / 'audit.json').write_text(json.dumps(report, indent=2))

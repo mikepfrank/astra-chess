@@ -45,6 +45,8 @@ ALLOWED_PATHS = frozenset({
     'web-service/astra_web/supervisor.py',
     'web-service/astra_web/store.py',
     'web-service/prompts/public-comment-policy.md',
+    'web-service/prompts/move-deliberation-policy.md',
+    'web-service/prompts/README.md',
     'web-service/deploy/dns/README.md',
     'web-service/deploy/dns/arcturuschess.com.changes.txt',
     'web-service/docs/FUTURE-FEATURES.md',
@@ -92,6 +94,8 @@ ALLOWED_PATHS = frozenset({
     'web-service/validation/2026-09-15-chat-export.md',
     'web-service/validation/2026-09-17-private-notes.md',
     'web-service/validation/2026-09-18-comment-reminder.md',
+    'web-service/validation/2026-09-20-output-limit-incident.md',
+    'web-service/validation/2026-09-20-deliberation-guidance.md',
 })
 
 
@@ -131,6 +135,7 @@ def validate_receipts(stage, commit):
             and native.get('external_provider_contacted') is False
             and native.get('real_credentials_used') is False
             and native.get('immutable_binding_preserved') is True
+            and native.get('move_deliberation_policy_verified') is True
             and native.get('cli_version') == '0.154.0',
             'The native mocked-provider reasoning receipt is incomplete.')
     expected = [('move', 'max'), ('move', 'high'), ('chat', 'high'), ('move', 'max')]
@@ -142,7 +147,8 @@ def validate_receipts(stage, commit):
     requests = native.get('requests', [])
     require([(r.get('kind'), r.get('effort')) for r in requests]
             == [value for value in expected for _ in range(2)]
-            and all(r.get('max_output_tokens') == 32768 for r in requests),
+            and all(r.get('max_output_tokens') == 32768
+                    and r.get('move_deliberation_policy_on_wire') is True for r in requests),
             'The native receipt must verify eight transmitted provider requests.')
     visibility = receipt(stage / 'web-service/var/native-tool-visibility.json', commit)
     expected_visibility = {
@@ -162,6 +168,7 @@ def validate_receipts(stage, commit):
         'completed_actions': 3, 'request_count': 8, 'public_comment_count': 2,
         'private_note_count': 6, 'private_history_survived_restart': True,
         'conditional_comment_reminder_verified': True,
+        'move_deliberation_policy_verified': True,
         'old_saved_prompt_preserved': True, 'dynamic_tool_schema_unchanged': True,
         'reasoning_never_published_or_persisted_as_note': True,
         'long_private_note_exceeds_public_limit': True,
@@ -171,6 +178,7 @@ def validate_receipts(stage, commit):
             'Native notes audit must verify private history and explicit public comments across resume.')
     require(len(notes.get('requests', [])) == 8
             and all(row.get('developer_policy_on_wire') is True
+                    and row.get('move_deliberation_policy_on_wire') is True
                     and row.get('conditional_reminder_verified') is True for row in notes['requests']),
             'The publication policy must reach every native provider request.')
     return tests, native

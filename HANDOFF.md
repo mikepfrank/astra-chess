@@ -1,5 +1,17 @@
 # Handoff: Arcturus development worktree
 
+## September 20: bounded deliberation guidance
+
+Prepared a short generic instruction to keep independent assessment in quiet
+positions brief, then register a candidate and consult the tactical engine.
+The existing trusted developer policy delivers it to new and resumed Arcturus
+games without changing saved persona/base prompt/tool identity or runtime
+resource settings. The earlier reported stalled game had recovered through
+move 15 after automatic compaction; its five length failures occurred before a
+fresh tactical query. See the service handoff and
+[validation record](web-service/validation/2026-09-20-deliberation-guidance.md)
+for current deployment status and evidence.
+
 ## September 18: conditional public-comment reminder
 
 **Live at `31f3270`, September 18, 15:21 UTC / 10:21 CDT.** A durable reminder covers Arcturus actions that save ordinary assistant

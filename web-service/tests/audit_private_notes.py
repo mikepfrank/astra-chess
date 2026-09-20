@@ -126,6 +126,9 @@ async def audit(codex, version, output, *, commit=None):
         binding['prompt'] += '\nSaved historical delivery rule: ' + LEGACY_PUBLIC_RULE + '\n'
         binding['profile']['prompt_sha256'] = digest(binding['prompt'])
     original = copy.deepcopy(binding)
+    move_policy = (bridge.PROMPT_ROOT / 'move-deliberation-policy.md').read_text(encoding='utf-8')
+    assert move_policy.startswith('## Bounded initial deliberation')
+    assert 'On your own move turns, strategize independently first, but not indefinitely.' in move_policy
     schema_digest = digest(json.dumps(bridge.dynamic_tools(), sort_keys=True, separators=(',', ':')))
     report = {'success': False, 'commit': revision, 'checkout_clean': clean,
               'exact_commit': False, 'cli_version': version,
@@ -166,6 +169,8 @@ async def audit(codex, version, output, *, commit=None):
             policy = bridge._developer_instructions(original)
             assert 'Only text sent through chess_comment' in policy
             assert policy in developer, 'Runtime communication policy missing from provider input'
+            assert any(move_policy in text for text in role_texts(items, 'developer')), \
+                'Move deliberation policy missing from provider developer input'
             reminder_expected = expected_reminders[(active_action, self.fixture_count)]
             reminders = [item for item in items
                          if COMMENT_REMINDER in role_texts([item], 'developer')]
@@ -182,6 +187,7 @@ async def audit(codex, version, output, *, commit=None):
             serial = len(report['requests']) + 1
             report['requests'].append({'action': active_action, 'request': self.fixture_count,
                 'developer_policy_on_wire': True, 'developer_sha256': digest(developer),
+                'move_deliberation_policy_on_wire': True,
                 'conditional_reminder_expected': reminder_expected,
                 'conditional_reminder_final_developer_item': reminder_expected,
                 'conditional_reminder_verified': True,
@@ -272,6 +278,7 @@ async def audit(codex, version, output, *, commit=None):
             private_note_sha256=[digest(note['text']) for note in notes],
             long_private_note_exceeds_public_limit=True, completed_actions=3,
             conditional_comment_reminder_verified=True,
+            move_deliberation_policy_verified=True,
             request_count=len(report['requests']), private_history_survived_restart=True)
     finally:
         await player.close()

@@ -12,6 +12,14 @@ the trusted runtime identity always states the actual model.
 
 - [player.md](player.md) contains the common chess method and host boundaries.
   It has no model-specific persona name.
+- [move-deliberation-policy.md](move-deliberation-policy.md) adds the current
+  guidance to keep independent assessment brief in quiet positions, then
+  register a candidate and consult the tactical engine promptly. It is shared
+  play guidance, separate from persona text. The Arcturus/OpenRouter bridge
+  supplies it in trusted developer instructions on every start/resume, alongside
+  [public-comment-policy.md](public-comment-policy.md), so existing games receive
+  it without rewriting their saved base prompt or tool identity. These runtime
+  additions currently apply only to that saved binding, not original Astra.
 - [personas/astra-v1.md](personas/astra-v1.md) contains Astra's concise persona.
 - [personas/arcturus-v1.md](personas/arcturus-v1.md) preserves Mike's supplied
   Arcturus v1.0 handoff block verbatim as the version 1 **draft** source. Its

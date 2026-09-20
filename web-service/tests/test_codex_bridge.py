@@ -335,6 +335,8 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(wire['params']['baseInstructions'], binding['prompt'])
                 self.assertIn('To answer the human, you MUST call chess_comment',
                               wire['params']['developerInstructions'])
+                self.assertIn((bridge.PROMPT_ROOT / 'move-deliberation-policy.md').read_text(encoding='utf-8'),
+                              wire['params']['developerInstructions'])
         self.assert_reaped()
 
     async def test_other_persona_keeps_public_messages_and_private_callback_cannot_be_called_as_tool(self):
@@ -344,6 +346,9 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
             await self.run_fake('v154_success')
             self.assertEqual(self.public, ['Your move.'])
             self.assertFalse(any(name == '_assistant_note' for name, _ in self.calls))
+            for wire in self.wires:
+                if wire.get('method') in ('thread/start', 'thread/resume'):
+                    self.assertNotIn('Bounded initial deliberation', wire['params']['developerInstructions'])
             with self.assertRaisesRegex(bridge.CodexError, 'outside the permitted game interface'):
                 await self.run_fake('v154_forged_note', thread_id='test-thread')
         self.assert_reaped()
