@@ -96,6 +96,7 @@ ALLOWED_PATHS = frozenset({
     'web-service/validation/2026-09-18-comment-reminder.md',
     'web-service/validation/2026-09-20-output-limit-incident.md',
     'web-service/validation/2026-09-20-deliberation-guidance.md',
+    'web-service/validation/2026-09-20-request-metadata.md',
 })
 
 
@@ -169,6 +170,8 @@ def validate_receipts(stage, commit):
         'private_note_count': 6, 'private_history_survived_restart': True,
         'conditional_comment_reminder_verified': True,
         'move_deliberation_policy_verified': True,
+        'request_metadata_verified': True,
+        'request_metadata_check_count': 8,
         'old_saved_prompt_preserved': True, 'dynamic_tool_schema_unchanged': True,
         'reasoning_never_published_or_persisted_as_note': True,
         'long_private_note_exceeds_public_limit': True,

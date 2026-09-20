@@ -304,6 +304,71 @@ class CodexBridgeTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual({t['name'] for t in starts[0]['dynamicTools']}, bridge.TOOL_NAMES)
         self.assert_reaped()
 
+    async def test_cancelled_openrouter_action_persists_finalized_request_diagnostics(self):
+        import httpx
+        from astra_web.openrouter_gateway import OpenRouterGateway
+
+        self.use_openrouter()
+        started, closed = asyncio.Event(), asyncio.Event()
+        requests, gateways = [], []
+
+        class BlockedStream(httpx.AsyncByteStream):
+            async def __aiter__(self):
+                started.set()
+                yield b'data: {"type":"response.created","response":{"model":"z-ai/glm-5.3-flash"}}\n\n'
+                await asyncio.Event().wait()
+
+            async def aclose(self):
+                closed.set()
+
+        async def upstream(request):
+            return httpx.Response(200, stream=BlockedStream(), headers={'content-type': 'text/event-stream'})
+
+        def gateway_factory(*args, **kwargs):
+            gateway = OpenRouterGateway(*args, **kwargs, transport=httpx.MockTransport(upstream),
+                                        budget_check=lambda key: {})
+            gateways.append(gateway)
+            return gateway
+
+        async def interrupted_run(*args, player_binding, **kwargs):
+            gateway = gateways[-1]
+            request = {'model': gateway.profile.model, 'stream': True,
+                       'reasoning': {'effort': gateway.profile.reasoning}, 'tools': [],
+                       'instructions': player_binding['prompt'],
+                       'input': [{'role': 'user', 'content': 'Private canceled request text.'}]}
+
+            async def send_request():
+                async with httpx.AsyncClient(transport=httpx.ASGITransport(app=gateway),
+                        base_url='http://127.0.0.1',
+                        headers={'Authorization': 'Bearer ' + gateway.token}) as client:
+                    await client.post('/v1/responses', json=request)
+
+            requests.append(asyncio.create_task(send_request()))
+            await asyncio.wait_for(started.wait(), 2)
+            raise asyncio.CancelledError
+
+        with patch('astra_web.openrouter_gateway.OpenRouterGateway', gateway_factory), \
+                patch.object(self.player, '_run', interrupted_run):
+            with self.assertRaises(asyncio.CancelledError):
+                await self.player.run('game-1', {}, self.handler, self.emit)
+        self.assertTrue(closed.is_set())
+        self.assertTrue(requests[0].cancelled())
+        self.assertFalse(gateways[0]._requests)
+        self.assertFalse(self.player._active_games)
+        files = list((self.root / 'players/game-1').glob('provider-requests-*.json'))
+        self.assertEqual(len(files), 1)
+        receipt = json.loads(files[0].read_text(encoding='utf-8'))
+        self.assertEqual((receipt['request_count'], receipt['budget_check_count']), (1, 1))
+        evidence, = receipt['requests']
+        self.assertTrue(evidence['cancelled'])
+        self.assertTrue(evidence['interrupted'])
+        self.assertFalse(evidence['stream_complete'])
+        self.assertTrue(evidence['finished_at'])
+        self.assertGreaterEqual(evidence['duration_ms'], 0)
+        self.assertEqual(evidence['request_metadata']['version'], 1)
+        self.assertEqual(evidence['request_metadata']['categories']['user']['count'], 1)
+        self.assertNotIn('Private canceled request text', json.dumps(receipt))
+
     async def test_recorded_persona_is_reapplied_when_default_changes(self):
         from astra_web.player_profiles import new_player_binding
         self.use_openrouter()

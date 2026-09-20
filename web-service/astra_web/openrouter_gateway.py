@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import contextmanager
+from datetime import datetime, timezone
 import hmac
 import hashlib
 import json
@@ -16,6 +17,7 @@ import math
 import re
 import secrets
 import socket
+import time
 
 import httpx
 import uvicorn
@@ -119,6 +121,80 @@ def _prepare_request(payload, profile):
     # must not silently retain the former 8K limit for a new Max game. Historical
     # High games select their exact old profile through the host, never the wire.
     return {**payload, 'tools': forwarded, 'max_output_tokens': profile.max_output_tokens}
+
+
+def _canonical_json(value):
+    # Stable comparison representation, not HTTPX's literal wire encoding.
+    # ASCII escaping also handles lone surrogates without a diagnostic failure.
+    return json.dumps(value, sort_keys=True, ensure_ascii=True,
+                      separators=(',', ':'), allow_nan=False).encode('utf-8')
+
+
+def _fingerprint(value):
+    data = _canonical_json(value)
+    return {'json_bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+
+def _text_bytes(value):
+    if isinstance(value, str):
+        return len(value.encode('utf-8', errors='replace'))
+    if isinstance(value, list):
+        return sum(len(item['text'].encode('utf-8', errors='replace'))
+                   for item in value if isinstance(item, dict) and isinstance(item.get('text'), str))
+    return 0
+
+
+def _request_metadata(payload):
+    """Bounded private measurements; no input text, arbitrary labels or IDs.
+
+    Item fingerprints are ordered and length-prefixed. Categories are fixed,
+    regardless of input values. Sizes are canonical JSON bytes, never token
+    estimates or evidence of transformations made downstream of this gateway.
+    """
+    source = payload.get('input')
+    if isinstance(source, list):
+        form, items = 'list', source
+    elif isinstance(source, str):
+        form, items = 'text', [{'role': 'user', 'content': source}]
+    else:
+        form, items = 'other', [] if source is None else [source]
+    categories, hashes = {}, {}
+    reasoning_bytes = {'text': 0, 'summary': 0, 'encrypted': 0}
+    for item in items:
+        category = 'other'
+        if isinstance(item, dict):
+            kind, role = item.get('type'), item.get('role')
+            if kind == 'reasoning':
+                category = 'reasoning'
+                reasoning_bytes['text'] += _text_bytes(item.get('text')) + _text_bytes(item.get('content'))
+                reasoning_bytes['summary'] += _text_bytes(item.get('summary'))
+                reasoning_bytes['encrypted'] += _text_bytes(item.get('encrypted_content'))
+            elif kind in ('function_call', 'custom_tool_call'):
+                category = 'tool_call'
+            elif kind in ('function_call_output', 'custom_tool_call_output'):
+                category = 'tool_output'
+            elif kind in (None, 'message'):
+                if role in ('user', 'assistant', 'developer', 'system'):
+                    category = role
+                elif role == 'tool':
+                    category = 'tool_output'
+        if category not in categories:
+            categories[category] = {'count': 0, 'json_bytes': 0}
+            hashes[category] = hashlib.sha256()
+        data = _canonical_json(item)
+        categories[category]['count'] += 1
+        categories[category]['json_bytes'] += len(data)
+        hashes[category].update(len(data).to_bytes(8, 'big'))
+        hashes[category].update(data)
+    for category, digest in hashes.items():
+        categories[category]['sha256'] = digest.hexdigest()
+    tools = payload.get('tools')
+    return {'version': 1, 'canonical_payload': _fingerprint(payload),
+            'instructions': _fingerprint(payload.get('instructions')),
+            'tools': {**_fingerprint(tools), 'count': len(tools) if isinstance(tools, list) else 0},
+            'input': {**_fingerprint(source), 'format': form, 'count': len(items)},
+            'previous_response_id_present': bool(payload.get('previous_response_id')),
+            'categories': categories, 'reasoning_bytes': reasoning_bytes}
 
 
 class _LoopbackServer(uvicorn.Server):
@@ -235,13 +311,17 @@ class OpenRouterGateway:
             await self._error(send, 503, 'budget_unavailable')
             return
         started = False
+        started_at = datetime.now(timezone.utc).isoformat()
+        started_monotonic = time.monotonic()
         evidence = {'requested_model': MODEL, 'observed_model': None,
                     'requested_reasoning': self.profile.reasoning,
                     'max_output_tokens': self.profile.max_output_tokens,
                     'profile_version': self.profile.version,
                     'request_kind': 'compaction' if payload['tools'] == [] else 'chess',
                     'comment_reminder_added': comment_reminder_added,
-                    'response_id': None, 'provider': None, 'usage': {}, 'stream_complete': False}
+                    'response_id': None, 'provider': None, 'usage': {}, 'stream_complete': False,
+                    'request_index': self.request_count + 1, 'started_at': started_at,
+                    'request_metadata': _request_metadata(payload)}
         if self._expected_instructions is not None:
             evidence['instructions_verified'] = True
             evidence['instructions_sha256'] = hashlib.sha256(self._expected_instructions.encode('utf-8')).hexdigest()
@@ -280,6 +360,10 @@ class OpenRouterGateway:
                     await send({'type': 'http.response.body',
                                 'body': ('\n'.join(frame) + '\n\n').encode('utf-8'), 'more_body': True})
                 await send({'type': 'http.response.body', 'body': b''})
+        except asyncio.CancelledError:
+            evidence['cancelled'] = True
+            evidence['interrupted'] = True
+            raise
         except Exception as error:
             evidence['interrupted'] = True
             evidence['stream_complete'] = False
@@ -300,6 +384,9 @@ class OpenRouterGateway:
                 await send({'type': 'http.response.body', 'body': body.encode('utf-8')})
             else:
                 await self._error(send, 502, 'upstream_unavailable')
+        finally:
+            evidence['finished_at'] = datetime.now(timezone.utc).isoformat()
+            evidence['duration_ms'] = round((time.monotonic() - started_monotonic) * 1000, 3)
 
     def _observe_frame(self, frame, evidence):
         """Inspect only response metadata; never save text, reasoning or tool arguments."""
@@ -355,6 +442,13 @@ class OpenRouterGateway:
             for name in ('input_tokens', 'output_tokens', 'total_tokens', 'cost'):
                 value = usage.get(name)
                 if type(value) in (int, float) and math.isfinite(value) and value >= 0:
+                    evidence['usage'][name] = value
+            for detail, field, name in (
+                    ('input_tokens_details', 'cached_tokens', 'cached_input_tokens'),
+                    ('output_tokens_details', 'reasoning_tokens', 'reasoning_output_tokens')):
+                details = usage.get(detail)
+                value = details.get(field) if isinstance(details, dict) else None
+                if type(value) is int and value >= 0:
                     evidence['usage'][name] = value
         # Documented opt-in Responses metadata can be on the terminal event or
         # response object. Cache hits may omit it. Never retain pipeline/summary.

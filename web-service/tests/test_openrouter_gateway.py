@@ -1,6 +1,8 @@
 """Loopback gateway tests with mocked inference and budget verification."""
 import asyncio
 from dataclasses import replace
+from datetime import datetime, timezone
+import hashlib
 import json
 import unittest
 
@@ -15,6 +17,27 @@ from astra_web.player_profiles import get_profile
 
 
 KEY = 'unit-test-private-openrouter-key'
+
+
+def canonical(value):
+    return json.dumps(value, sort_keys=True, ensure_ascii=True, separators=(',', ':'),
+                      allow_nan=False).encode('utf-8')
+
+
+def digest(value):
+    data = canonical(value)
+    return {'json_bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+
+def category_digest(items):
+    digest = hashlib.sha256()
+    size = 0
+    for item in items:
+        data = canonical(item)
+        size += len(data)
+        digest.update(len(data).to_bytes(8, 'big'))
+        digest.update(data)
+    return {'count': len(items), 'json_bytes': size, 'sha256': digest.hexdigest()}
 
 
 def payload(effort='max'):
@@ -75,6 +98,29 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
         return httpx.AsyncClient(transport=httpx.ASGITransport(app=gateway), base_url='http://127.0.0.1',
                                 headers={'Authorization': 'Bearer ' + gateway.token})
 
+    def assert_request_receipt(self, receipt, sent, index):
+        self.assertEqual(receipt['request_index'], index)
+        started = datetime.fromisoformat(receipt['started_at'])
+        finished = datetime.fromisoformat(receipt['finished_at'])
+        self.assertEqual(started.utcoffset(), timezone.utc.utcoffset(started))
+        self.assertEqual(finished.utcoffset(), timezone.utc.utcoffset(finished))
+        self.assertGreaterEqual(finished, started)
+        self.assertIsInstance(receipt['duration_ms'], (int, float))
+        self.assertGreaterEqual(receipt['duration_ms'], 0)
+        metadata = receipt['request_metadata']
+        self.assertEqual(metadata['version'], 1)
+        self.assertEqual(metadata['canonical_payload'], digest(sent))
+        self.assertEqual(metadata['instructions'], digest(sent.get('instructions')))
+        self.assertEqual(metadata['tools'], {**digest(sent['tools']), 'count': len(sent['tools'])})
+        source = sent.get('input')
+        form = 'list' if isinstance(source, list) else 'text' if isinstance(source, str) else 'other'
+        self.assertEqual(metadata['input'], {**digest(source), 'format': form,
+            'count': len(source) if isinstance(source, list) else 0 if source is None else 1})
+        self.assertEqual(metadata['previous_response_id_present'], bool(sent.get('previous_response_id')))
+        self.assertLessEqual(set(metadata['categories']), {'reasoning', 'user', 'assistant',
+            'developer', 'system', 'tool_call', 'tool_output', 'other'})
+        return metadata
+
     async def test_reminder_is_last_developer_item_only_while_pending_and_not_during_compaction(self):
         pending = False
         request = payload()
@@ -89,8 +135,110 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
                     {'type': 'input_text', 'text': COMMENT_REMINDER}]}] if enabled and not compact else [])
                 self.assertEqual(sent['input'], expected)
                 self.assertEqual(gateway.evidence[-1]['comment_reminder_added'], enabled and not compact)
+                metadata = self.assert_request_receipt(gateway.evidence[-1], sent, len(self.calls))
+                if enabled and not compact:
+                    self.assertEqual(metadata['categories']['developer'], category_digest(expected[-1:]))
+                else:
+                    self.assertNotIn('developer', metadata['categories'])
             self.assertEqual(gateway.request_count, 5)
         self.assertEqual(json.dumps(request, sort_keys=True), original)
+
+    async def test_request_metadata_measures_unicode_history_without_exposing_or_changing_it(self):
+        groups = {
+            'reasoning': [
+                {'type': 'reasoning', 'id': 'private-reasoning-id', 'text': 'private-thought-🐂',
+                 'content': [{'type': 'reasoning_text', 'text': 'private-content-é'}],
+                 'summary': [{'type': 'summary_text', 'text': 'private-summary-♟'}],
+                 'encrypted_content': 'private-cipher-秘密'},
+                {'type': 'reasoning', 'content': [{'type': 'reasoning_text', 'text': 'second-thought'}]},
+            ],
+            'user': [{'role': 'user', 'content': [{'type': 'input_text', 'text': 'private-user-🐂'}]}],
+            'assistant': [{'type': 'message', 'role': 'assistant', 'content': 'private-assistant-note'}],
+            'developer': [{'role': 'developer', 'content': 'private-developer-note'}],
+            'system': [{'role': 'system', 'content': 'private-system-note'}],
+            'tool_call': [{'type': 'function_call', 'name': 'chess_status', 'call_id': 'private-call-id',
+                           'arguments': '{"private-argument":true}'}],
+            'tool_output': [{'type': 'function_call_output', 'call_id': 'private-call-id',
+                             'output': '{"private-board":"♟"}'},
+                            {'role': 'tool', 'content': 'private-legacy-output'}],
+            'other': [{'type': 'private-unknown-type', 'role': 'private-unknown-role',
+                       'content': 'private-unknown-data'}, 'private-plain-item'],
+        }
+        history = [item for group in groups.values() for item in group]
+        request = {**payload(), 'instructions': 'private-instructions-🐂', 'input': history,
+                   'previous_response_id': 'private-server-side-history-id'}
+        original = canonical(request)
+        async with self.gateway() as gateway, self.client(gateway) as client:
+            for candidate in (request, dict(reversed(list(request.items())))):
+                self.assertEqual((await client.post('/v1/responses', json=candidate)).status_code, 200)
+            changed = json.loads(original)
+            changed['input'][0]['content'][0]['text'] += ' extra'
+            self.assertEqual((await client.post('/v1/responses', json=changed)).status_code, 200)
+            first = self.assert_request_receipt(gateway.evidence[0], json.loads(self.calls[0].content), 1)
+            self.assertEqual(first, gateway.evidence[1]['request_metadata'])
+            self.assertEqual(first['categories'], {name: category_digest(items) for name, items in groups.items()})
+            expected_text = sum(len(text.encode('utf-8')) for text in
+                ('private-thought-🐂', 'private-content-é', 'second-thought'))
+            self.assertEqual(first['reasoning_bytes'], {'text': expected_text,
+                'summary': len('private-summary-♟'.encode('utf-8')),
+                'encrypted': len('private-cipher-秘密'.encode('utf-8'))})
+            final = self.assert_request_receipt(gateway.evidence[2], json.loads(self.calls[2].content), 3)
+            self.assertNotEqual(first['canonical_payload']['sha256'], final['canonical_payload']['sha256'])
+            self.assertNotEqual(first['categories']['reasoning']['sha256'], final['categories']['reasoning']['sha256'])
+            self.assertEqual(final['reasoning_bytes']['text'], first['reasoning_bytes']['text'] + 6)
+            self.assertEqual(first['categories']['user'], final['categories']['user'])
+            self.assertNotIn('private-', json.dumps(gateway.evidence))
+            self.assertNotIn(KEY, json.dumps(gateway.evidence))
+        self.assertEqual(canonical(request), original)
+        self.assertEqual(json.loads(self.calls[0].content)['input'], history)
+        self.assertEqual(json.loads(self.calls[0].content)['instructions'], request['instructions'])
+
+    async def test_text_compaction_metadata_and_escaped_surrogate_preserve_the_forwarded_input(self):
+        text = 'private-text-only-🐂'
+        request = {**payload(), 'input': text, 'tools': []}
+        async with self.gateway(comment_reminder=lambda: True) as gateway, self.client(gateway) as client:
+            self.assertEqual((await client.post('/v1/responses', json=request)).status_code, 200)
+            sent = json.loads(self.calls[-1].content)
+            metadata = self.assert_request_receipt(gateway.evidence[-1], sent, 1)
+            self.assertEqual(sent['input'], text)
+            self.assertEqual(metadata['input']['format'], 'text')
+            self.assertEqual(metadata['categories'], {'user': category_digest([{'role': 'user', 'content': text}])})
+            self.assertEqual(metadata['reasoning_bytes'], {'text': 0, 'summary': 0, 'encrypted': 0})
+            self.assertFalse(gateway.evidence[-1]['comment_reminder_added'])
+            # Valid JSON can contain escaped lone surrogates. Diagnostics must
+            # still be computable even when an upstream encoder rejects one.
+            from astra_web.openrouter_gateway import _request_metadata
+            unusual = {**request, 'input': [{'type': 'reasoning', 'text': '\ud800',
+                'summary': '\udfff', 'encrypted_content': '\ud800'}]}
+            measured = _request_metadata(unusual)
+            self.assertEqual(measured['canonical_payload'], digest(unusual))
+            self.assertEqual(measured['reasoning_bytes'], {'text': 1, 'summary': 1, 'encrypted': 1})
+            # Unsupported nested text values must not make diagnostics recurse.
+            nested = 'ignored malformed text'
+            for _ in range(400):
+                nested = [{'text': nested}]
+            unusual['input'] = [{'type': 'reasoning', 'content': nested}]
+            measured = _request_metadata(unusual)
+            self.assertEqual(measured['reasoning_bytes'], {'text': 0, 'summary': 0, 'encrypted': 0})
+            self.assertNotIn('private-', json.dumps(gateway.evidence))
+
+    async def test_nested_usage_retains_only_valid_numeric_cache_and_reasoning_counts(self):
+        for cached, reasoning, expected in ((7, 2, {'cached_input_tokens': 7, 'reasoning_output_tokens': 2}),
+                (0, 0, {'cached_input_tokens': 0, 'reasoning_output_tokens': 0}),
+                (True, 'private-usage-value', {}), (-1, float('inf'), {}),
+                (float('nan'), None, {})):
+            with self.subTest(cached=cached, reasoning=reasoning):
+                async def detailed_usage(request):
+                    event = {'type': 'response.completed', 'response': {
+                        'model': 'z-ai/glm-5.3-flash', 'usage': {
+                            'input_tokens_details': {'cached_tokens': cached, 'private-detail': 'private-cache'},
+                            'output_tokens_details': {'reasoning_tokens': reasoning, 'private-detail': 'private-reasoning'}}}}
+                    return httpx.Response(200, content=('data: ' + json.dumps(event) + '\n\n').encode(),
+                                          headers={'content-type': 'text/event-stream'})
+                async with self.gateway(handler=detailed_usage) as gateway, self.client(gateway) as client:
+                    self.assertEqual((await client.post('/v1/responses', json=payload())).status_code, 200)
+                    self.assertEqual(gateway.evidence[0]['usage'], expected)
+                    self.assertNotIn('private-', json.dumps(gateway.evidence))
 
     async def test_reminder_does_not_bypass_request_byte_limit(self):
         from unittest.mock import patch
@@ -214,6 +362,8 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual((gateway.request_count, gateway.budget_check_count), (2, 2))
             self.assertTrue(all(item['request_kind'] == 'compaction' and item['stream_complete']
                                 and item['instructions_verified'] for item in gateway.evidence))
+            for index, (evidence, sent) in enumerate(zip(gateway.evidence, self.calls), 1):
+                self.assert_request_receipt(evidence, json.loads(sent.content), index)
         for request in self.calls:
             body = json.loads(request.content)
             self.assertEqual(body['tools'], [])
@@ -371,6 +521,9 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(response.status_code, 429)
                 self.assertNotIn(KEY, response.text)
             self.assertEqual((gateway.request_count, gateway.budget_check_count), (2, 2))
+            for index, (evidence, sent) in enumerate(zip(gateway.evidence, self.calls), 1):
+                self.assert_request_receipt(evidence, json.loads(sent.content), index)
+                self.assertEqual(evidence['upstream_status'], 429)
         self.assertEqual(len(self.calls), 2)
 
     async def test_output_limit_is_an_explicit_terminal_error_with_usage_and_no_retry(self):
@@ -397,6 +550,7 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
                         self.assertFalse(gateway.evidence[0]['stream_complete'])
                         self.assertEqual(gateway.evidence[0]['incomplete_reason'], 'max_output_tokens')
                         self.assertEqual(gateway.evidence[0]['usage']['output_tokens'], 32768)
+                        self.assert_request_receipt(gateway.evidence[0], json.loads(self.calls[-1].content), 1)
         self.assertEqual(len(self.calls), 4)
 
     async def test_other_incomplete_reasons_are_sanitized_and_not_misreported_as_length(self):
@@ -515,6 +669,9 @@ class GatewayTests(unittest.IsolatedAsyncioTestCase):
             await asyncio.wait_for(stream.closed.wait(), 2)
             self.assertFalse(gateway._busy)
             self.assertEqual((gateway.request_count, gateway.budget_check_count), (1, 1))
+            self.assert_request_receipt(gateway.evidence[0], json.loads(self.calls[0].content), 1)
+            self.assertFalse(gateway.evidence[0]['stream_complete'])
+            self.assertTrue(gateway.evidence[0]['cancelled'])
         self.assertFalse(gateway._requests)
 
     async def test_context_exit_cancels_active_request(self):

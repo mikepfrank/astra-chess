@@ -8,6 +8,7 @@ disposable Codex homes contain only this file's synthetic fixtures.
 import argparse
 import asyncio
 import copy
+from datetime import datetime
 import hashlib
 import json
 import os
@@ -108,6 +109,63 @@ def role_texts(items, role):
     return texts
 
 
+def expected_wire_metadata(body):
+    """Independent fixture oracle, using only the request received upstream.
+
+    In particular, do not call the gateway's metadata helper: matching its own
+    return value would not show that the receipt describes the forwarded body.
+    The native fixture sends list input and these five known item shapes.
+    """
+    def encoded(value):
+        return json.dumps(value, sort_keys=True, ensure_ascii=True,
+                          separators=(',', ':'), allow_nan=False).encode('utf-8')
+
+    def fingerprint(value):
+        data = encoded(value)
+        return {'json_bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+    items = body['input']
+    assert isinstance(items, list)
+    groups = {}
+    reasoning = []
+    for item in items:
+        assert isinstance(item, dict)
+        kind = item.get('type')
+        assert kind in (None, 'message', 'reasoning', 'function_call', 'function_call_output')
+        if kind in (None, 'message'):
+            label = item['role']
+            assert label in ('user', 'assistant', 'developer', 'system')
+        else:
+            label = {'reasoning': 'reasoning', 'function_call': 'tool_call',
+                     'function_call_output': 'tool_output'}[kind]
+        groups.setdefault(label, []).append(encoded(item))
+        if kind == 'reasoning':
+            reasoning.append(item)
+    categories = {label: {
+        'count': len(entries), 'json_bytes': sum(map(len, entries)),
+        'sha256': hashlib.sha256(b''.join(len(entry).to_bytes(8, 'big') + entry
+                                        for entry in entries)).hexdigest()}
+        for label, entries in groups.items()}
+    reasoning_bytes = {}
+    for label, fields in {'text': ('text', 'content'), 'summary': ('summary',),
+                          'encrypted': ('encrypted_content',)}.items():
+        values = [item[field] for item in reasoning for field in fields if field in item]
+        strings = []
+        for value in values:
+            if isinstance(value, str):
+                strings.append(value)
+            elif isinstance(value, list):
+                strings.extend(part['text'] for part in value if isinstance(part, dict)
+                               and isinstance(part.get('text'), str))
+        reasoning_bytes[label] = sum(len(value.encode('utf-8', errors='replace')) for value in strings)
+    return {'version': 1, 'canonical_payload': fingerprint(body),
+            'instructions': fingerprint(body.get('instructions')),
+            'tools': {**fingerprint(body['tools']), 'count': len(body['tools'])},
+            'input': {**fingerprint(items), 'format': 'list', 'count': len(items)},
+            'previous_response_id_present': bool(body.get('previous_response_id')),
+            'categories': categories, 'reasoning_bytes': reasoning_bytes}
+
+
 async def audit(codex, version, output, *, commit=None):
     if version not in bridge.reviewed_versions('openrouter-glm'):
         raise bridge.CodexError('Private-note audit requires an audited CLI version')
@@ -148,6 +206,7 @@ async def audit(codex, version, output, *, commit=None):
             assert key == 'synthetic-private-notes-key'
             assert kwargs['expected_instructions'] == original['prompt']
             self.fixture_count = 0
+            self.expected_request_metadata = []
             super().__init__(key, **kwargs, transport=httpx.MockTransport(self.upstream),
                              budget_check=lambda _: {'remaining_usd': 49})
             gateways.append(self)
@@ -156,6 +215,7 @@ async def audit(codex, version, output, *, commit=None):
             self.fixture_count += 1
             assert self.fixture_count <= request_counts[active_action], 'Unexpected extra provider request'
             body = json.loads(request.content)
+            self.expected_request_metadata.append(expected_wire_metadata(body))
             assert body['model'] == original['profile']['model']
             assert body['reasoning'] == {'effort': 'high'}
             assert body['max_output_tokens'] == 32768
@@ -267,6 +327,33 @@ async def audit(codex, version, output, *, commit=None):
                    and gateway.budget_check_count == request_counts[action]
                    and not gateway.rejections and all(row.get('stream_complete') for row in gateway.evidence)
                    for action, gateway in enumerate(gateways, start=1))
+        # Each action persists its gateway receipt before returning. Compare all
+        # eight rows against separately measured actual upstream request bodies.
+        receipt_paths = sorted((root / 'players' / GAME_ID).glob('provider-requests-*.json'))
+        assert len(receipt_paths) == len(gateways) == 3
+        metadata_checks = 0
+        forbidden = [REASONING_SENTINEL, 'synthetic-private-notes-key', GAME_ID,
+                     'Synthetic opponent message.', 'Synthetic private ordinary note',
+                     'Synthetic private final note', 'Synthetic explicit public comment',
+                     original['prompt'], 'chess_status', 'chess_comment']
+        for gateway, receipt_path in zip(gateways, receipt_paths):
+            receipt = json.loads(receipt_path.read_text(encoding='utf-8'))
+            assert receipt['requests'] == gateway.evidence, 'Persisted request evidence changed'
+            assert len(gateway.evidence) == len(gateway.expected_request_metadata)
+            for index, (row, expected) in enumerate(zip(gateway.evidence,
+                                                       gateway.expected_request_metadata), start=1):
+                assert row['request_metadata'] == expected, 'Receipt does not describe actual upstream input'
+                assert row['request_index'] == index
+                started = datetime.fromisoformat(row['started_at'])
+                finished = datetime.fromisoformat(row['finished_at'])
+                assert started.utcoffset() is not None and finished.utcoffset() is not None
+                assert finished >= started
+                assert type(row['duration_ms']) in (int, float) and row['duration_ms'] >= 0
+                serialized = json.dumps(row['request_metadata'], sort_keys=True)
+                assert all(text not in serialized for text in forbidden), 'Receipt leaked fixture content'
+                report['requests'][metadata_checks]['request_metadata_verified'] = True
+                metadata_checks += 1
+        assert metadata_checks == 8
         final_revision, final_clean = checkout()
         exact = commit is not None and revision == final_revision == commit and clean and final_clean
         assert revision == final_revision and (commit is None or exact)
@@ -279,6 +366,7 @@ async def audit(codex, version, output, *, commit=None):
             long_private_note_exceeds_public_limit=True, completed_actions=3,
             conditional_comment_reminder_verified=True,
             move_deliberation_policy_verified=True,
+            request_metadata_verified=True, request_metadata_check_count=metadata_checks,
             request_count=len(report['requests']), private_history_survived_restart=True)
     finally:
         await player.close()

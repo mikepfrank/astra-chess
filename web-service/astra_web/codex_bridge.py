@@ -581,6 +581,10 @@ class CodexPlayer:
                                                player_binding=binding, compact_only=compact_only,
                                                response_kind=response_kind, move_reasoning=move_reasoning)
                     finally:
+                        # Settle interrupted upstream requests before taking the
+                        # durable receipt snapshot; their timing is finalized
+                        # during cancellation cleanup. close() is idempotent.
+                        await gateway.close()
                         data_root = Path(self.config.data_dir).resolve()
                         folder = _private_directory(data_root / 'players' / game_id, data_root)
                         _write_json(folder / f'provider-requests-{time.time_ns()}.json', {

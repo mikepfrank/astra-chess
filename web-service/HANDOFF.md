@@ -4,6 +4,20 @@ For the separate `codex/openrouter-chess` experimental branch, start with the
 [September 13 alternate-model orientation](OPENROUTER-EXPERIMENT.md). The hosted
 baseline and its deployment history are preserved below.
 
+## September 20: private outgoing-request measurements
+
+Prepared metadata-only diagnostics for future OpenRouter requests, including
+compaction, failures and cancellation. Existing per-action provider receipts gain
+fixed item-category counts, canonical JSON byte lengths and SHA-256 fingerprints,
+reasoning text/summary/encrypted UTF-8 sizes, start/end timestamps and elapsed
+time. Provider-reported cached input and reasoning output counts are recorded
+when available. No raw request, chat, reasoning, tool arguments or arbitrary
+input labels are added to receipts; request content and routing stay unchanged.
+Measurements follow the trusted reminder/tool/output transformations. They
+describe gateway output, not downstream provider transformations or exact token
+counts. See [validation and schema](validation/2026-09-20-request-metadata.md).
+Exact-commit Linux/native verification and idle/gated deployment are pending.
+
 ## September 20: brief assessment before consulting the engine
 
 **Live at `3108148`, September 20, 15:06 UTC.** A small generic [play-guidance addition](prompts/move-deliberation-policy.md):

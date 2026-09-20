@@ -1,5 +1,16 @@
 # Handoff: Arcturus development worktree
 
+## September 20: request metadata for future incidents
+
+Prepared lightweight private OpenRouter request measurements: fixed category
+counts, canonical JSON sizes/fingerprints, reasoning text/summary/encrypted
+byte totals, request timing and available cached/reasoning token breakdowns.
+These augment existing provider receipts after final gateway transformations;
+they retain no additional conversation text and change no model parameters.
+See the [validation record](web-service/validation/2026-09-20-request-metadata.md)
+for schema, limitations, test and deployment status. Jordan's earlier incident
+cannot retroactively acquire these measurements.
+
 ## September 20: bounded deliberation guidance
 
 **Live at `3108148`, September 20, 15:06 UTC.** A short generic instruction asks
