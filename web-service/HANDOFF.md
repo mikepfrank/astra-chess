@@ -4,6 +4,17 @@ For the separate `codex/openrouter-chess` experimental branch, start with the
 [September 13 alternate-model orientation](OPENROUTER-EXPERIMENT.md). The hosted
 baseline and its deployment history are preserved below.
 
+## September 20: reported repeated errors recovered after compaction
+
+A read-only investigation found five 32,768-output-token cutoffs (one on move
+seven, four on move eight), all routed to AtlasCloud, then one completed response
+with reasoning but no move. Automatic compaction completed in 41 seconds and
+play recovered through move 15; the game is now waiting for its human player.
+See the [incident record](validation/2026-09-20-output-limit-incident.md) for
+timeline, evidence and token-accounting uncertainty. The proximate failure is
+the response output ceiling, not a demonstrated input-context rejection or CPU
+problem. No runtime/game changes were made; backend `31f3270` remains active.
+
 ## September 18: remind after notes without a public comment
 
 **Live at `31f3270`, September 18, 15:21 UTC / 10:21 CDT.** A conditional reminder appears at the end of the actual provider request input,
