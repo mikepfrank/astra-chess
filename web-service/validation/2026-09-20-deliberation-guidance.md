@@ -32,9 +32,30 @@ sent and no historical game record is edited.
 
 ## Verification and activation
 
-Prepared; the two focused Windows bridge tests passed, covering policy inclusion
-on start/resume and exclusion from other personas. Native audits compile and
-the diff check is clean. Exact-commit Linux/native checks and idle/gated activation
-are pending. Native
-reasoning and private-note receipts now additionally require the full new policy
-on the actual provider wire, covering Max/High moves and resumed conversations.
+Activated code `3108148be92f6a67446721a770b669281bb46b33` on September 20 at
+15:06 UTC through the idle/gated deployment helper.
+
+- Two focused Windows bridge tests passed, covering policy inclusion on
+  start/resume and exclusion from other personas; Python compilation and diff
+  checks passed.
+- Exact-commit Linux regression: 306 tests, 305 passed, one Windows-only skip,
+  no failures or errors.
+- Native Linux Codex 0.154.0 reasoning audit: four completed actions, preserving
+  move Max/High selection and chat High. The full new policy was present on
+  actual mocked-provider requests, including resumed games.
+- Native tool visibility audit: nine wire checks passed, preserving the
+  65,536-token tool-output allowance.
+- Native private-notes audit: three resumed actions, eight requests, six notes,
+  two public comments; conditional reminder and full deliberation-policy wire
+  checks passed while saved prompts/tool hashes stayed fixed.
+
+The gate was restored and health verified after activation. All 32 game
+documents, all database table and private-file digests, configuration, service
+units and notification timers were unchanged. Arcturus PID changed from
+`4056774` to `4139815`; original Astra (`3778964`) and Caddy (`3778975`) did not
+restart. The root-private coherent backup and activation receipt are under
+`/home/or-chess/backups/ui-reasoning-20260920T150601Z`.
+
+No paid model request, live move, retry or chat was sent for validation. This
+verifies instruction delivery and state preservation, not a measured improvement
+in move latency or a guarantee against further output-limit failures.

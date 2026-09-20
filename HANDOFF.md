@@ -2,8 +2,9 @@
 
 ## September 20: bounded deliberation guidance
 
-Prepared a short generic instruction to keep independent assessment in quiet
-positions brief, then register a candidate and consult the tactical engine.
+**Live at `3108148`, September 20, 15:06 UTC.** A short generic instruction asks
+Arcturus to keep independent assessment in quiet positions brief, then register
+a candidate and consult the tactical engine.
 The existing trusted developer policy delivers it to new and resumed Arcturus
 games without changing saved persona/base prompt/tool identity or runtime
 resource settings. The earlier reported stalled game had recovered through
@@ -11,6 +12,11 @@ move 15 after automatic compaction; its five length failures occurred before a
 fresh tactical query. See the service handoff and
 [validation record](web-service/validation/2026-09-20-deliberation-guidance.md)
 for current deployment status and evidence.
+
+Linux passed 305 of 306 checks (one Windows-only skip); native Codex audits
+verified the full policy on actual mocked-provider requests, including resumed
+games. The gated activation preserved all 32 games and private state, with
+original Astra/Caddy processes unchanged. No gameplay pause is pending.
 
 ## September 18: conditional public-comment reminder
 

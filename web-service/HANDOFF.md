@@ -6,7 +6,7 @@ baseline and its deployment history are preserved below.
 
 ## September 20: brief assessment before consulting the engine
 
-Prepared a small generic [play-guidance addition](prompts/move-deliberation-policy.md):
+**Live at `3108148`, September 20, 15:06 UTC.** A small generic [play-guidance addition](prompts/move-deliberation-policy.md):
 keep independent assessment brief in quiet positions, register a candidate and
 concrete concern, then query promptly instead of trying to prove a dominant
 choice unaided. Completed depth, tactical evidence and positional judgment still
@@ -15,6 +15,15 @@ trusted developer instructions, preserving saved base prompts and tool hashes.
 No reasoning, output, clock or compaction settings change. See the
 [validation record](validation/2026-09-20-deliberation-guidance.md) for current
 test and activation status; guidance alone does not guarantee fewer cutoffs.
+
+Linux passed 305 of 306 regression checks (one Windows-only skip). Native Linux
+Codex 0.154.0 passed reasoning, long-output and private-note audits against
+mocked providers; both reasoning and notes audits verified the complete new
+instruction on every relevant provider request, including resumed conversations.
+The idle/gated activation preserved all 32 game documents, all database/private
+file digests, configuration, service units and notification timers. Arcturus
+is healthy, its request gate is restored, and original Astra/Caddy PIDs are
+unchanged. Existing games receive the wording on their next model action.
 
 ## September 20: reported repeated errors recovered after compaction
 
@@ -25,7 +34,8 @@ play recovered through move 15; the game is now waiting for its human player.
 See the [incident record](validation/2026-09-20-output-limit-incident.md) for
 timeline, evidence and token-accounting uncertainty. The proximate failure is
 the response output ceiling, not a demonstrated input-context rejection or CPU
-problem. No runtime/game changes were made; backend `31f3270` remains active.
+problem. The investigation itself made no runtime/game changes; backend
+`31f3270` was active at the time. The later guidance activation is recorded above.
 
 ## September 18: remind after notes without a public comment
 
