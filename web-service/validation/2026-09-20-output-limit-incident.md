@@ -59,7 +59,51 @@ The exact cause of this inconsistent pre-compaction input accounting was not
 established by these receipts. Native token events also label the effective
 window as 258,400 while the saved/runtime profile records 1,310,720; that telemetry
 discrepancy merits a separate audit rather than silently changing configuration.
-No provider context-length rejection was recorded.
+No provider context-length rejection was recorded. The later source/log audit
+below resolves the effective-window discrepancy and compaction timing, but not
+the provider's input-count jump.
+
+### Follow-up: exact compaction trigger and effective limits
+
+A second read-only audit compared native token events and numeric native log
+fields with official Codex source at tag `rust-v0.154.0`.
+
+- The failed move-eight attempts left native `last_token_usage` at 107,666 input
+  plus 7 output = **107,673 total**, unchanged across the incomplete responses.
+  Our gateway saves their usage in provider receipts, then rejects the
+  incomplete terminal event as `upstream_output_limit`; it does not forward that
+  terminal usage update to Codex. Native usage updates on completed responses.
+- At **00:39:11.817 UTC**, the completed response with no move updated native
+  last usage to 290,831 input + 1,251 output = **292,082 total**.
+- The next action started at **00:40:55 UTC** and compacted before normal play.
+  Codex's total-scope trigger uses the last completed request's total plus
+  estimates for subsequently appended local items, not cumulative lifetime
+  billing. Thus this last completed usage explains the timing.
+- Native turn logs show **244,800** effective auto-compaction limit and
+  **258,400** usable context, despite requested settings 250,000 / 1,310,720.
+  The exact warning that the GLM slug uses fallback model metadata is present.
+  This version's fallback descriptor sets both context and maximum context to
+  272,000; the configured context override is clamped to that maximum. The
+  compaction limit is then `min(250000, 272000 * 90%) = 244800`, and usable
+  context is `272000 * 95% = 258400`. These are effective Codex metadata limits,
+  not evidence about GLM's actual provider-supported capacity.
+
+Source locations: `codex-rs/core/src/context_manager/history.rs` lines 635-694;
+`core/src/session/turn.rs` lines 1090-1115 and 2644-2678;
+`models-manager/src/model_info.rs` lines 25-36 and 142-179;
+`protocol/src/openai_models.rs` lines 515-524 and 1994-2009. Downloaded source
+is in ignored `var/codex-compaction-source/`; no hidden reasoning text was
+printed or interpreted.
+
+The provider input-count jump remains unresolved. Native history retained large
+plaintext reasoning records from failed generations, but that alone does not
+establish which tokens the provider processed or counted on each request.
+Five failed records each contain 131,072 text characters; all pre-jump reasoning
+records total 702,157 characters. These are structural sizes, not exact tokens
+or proof that reasoning was newly reintroduced on the 291K-input request.
+Do not explain compaction as adding all repeated input billing together, or
+claim it triggered at 112K. Repairing model metadata or changing the threshold
+requires a separate runtime change and validation; neither was done here.
 
 The five failed attempts at move eight were refunded by the existing explicit
 Retry path (2,899.817 seconds total), with per-attempt evidence retained. This

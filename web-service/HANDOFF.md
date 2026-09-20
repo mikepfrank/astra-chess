@@ -37,6 +37,16 @@ the response output ceiling, not a demonstrated input-context rejection or CPU
 problem. The investigation itself made no runtime/game changes; backend
 `31f3270` was active at the time. The later guidance activation is recorded above.
 
+Follow-up source/log audit resolved the compaction timing: failed responses left
+Codex's completed-request usage at 107,673; a completed no-move response updated
+it to 292,082, then the next retry compacted. The provider's 112K-to-291K input
+jump remains unexplained. Also, the configured 250K threshold / 1,310,720 context
+are currently clamped by Codex 0.154.0's unknown-model fallback metadata:
+effective compaction **244,800**, usable context **258,400** (272K descriptor).
+Exact fallback warnings and numeric limits were verified in the native logs.
+See the incident record for source pointers. This read-only finding does not
+change settings or establish the model's actual supported context capacity.
+
 ## September 18: remind after notes without a public comment
 
 **Live at `31f3270`, September 18, 15:21 UTC / 10:21 CDT.** A conditional reminder appears at the end of the actual provider request input,
