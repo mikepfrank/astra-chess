@@ -6,7 +6,7 @@ baseline and its deployment history are preserved below.
 
 ## September 23: $100 UTC calendar-month allowance and BETA
 
-Prepared: the shared OpenRouter budget migrates from version 2 ($50 lifetime)
+**Live at `d21680d`, September 23, 20:27 UTC.** The shared OpenRouter budget migrates from version 2 ($50 lifetime)
 to version 3 ($100 per UTC calendar month). All spend since the original
 experiment baseline is charged to September on deployment, including other use
 of the same key. Each later month starts a fresh allowance, based on provider
@@ -23,6 +23,20 @@ the private ledger with the first spending check. Old code cannot read version
 3: subsequent rollback must retain its reader or reconcile only that budget
 record; never restore game databases for this change. Historical $50/$5 notes
 below describe earlier deployments and are superseded by this policy.
+
+The 20:29 UTC live guard check migrated the private ledger and confirmed
+September spending $21.610289586 / remaining $78.389710414. Its original
+credential fingerprint and cumulative baselines are unchanged, with mode 0600.
+Linux passed 352 of 353 checks (one Windows-only skip); Windows passed all 43
+budget and 85 gateway/bridge/service checks. Native mocked-provider reasoning,
+tool visibility and private-note/metadata audits passed. The gated activation
+preserved all 35 games, every database/private-file digest, private configuration,
+service units and timers; the budget file was then intentionally migrated.
+Original Astra/Caddy PIDs remain 3778964/3778975; Arcturus restarted as 83871.
+Public health and the served beta-label code return HTTP 200. The gate is open
+and no user pause is needed. Backup: `ui-reasoning-20260923T202745Z` under the
+existing private backups directory; numeric migration receipt is in private
+`operator-checks/monthly-budget-d21680d.json`. No paid inference was run.
 
 ## September 20: private outgoing-request measurements
 

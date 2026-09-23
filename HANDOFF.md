@@ -2,7 +2,7 @@
 
 ## September 23: monthly budget and beta label
 
-Prepared: the OpenRouter guard changes from a $50 lifetime experiment allowance
+**Live at `d21680d`, September 23, 20:27 UTC.** The OpenRouter guard changes from a $50 lifetime experiment allowance
 to $100 per UTC calendar month. All spend since the original experiment baseline
 is carried into the migration month; future months use provider UTC monthly
 counters. The full $100 is available (old $5 reserve removed). Shared-key scope,
@@ -10,6 +10,13 @@ credential pinning and serialized checks remain. Arcturus's board badge/title
 now say BETA/Beta. See the [validation record](web-service/validation/2026-09-23-monthly-budget.md)
 for current test/deployment status and rollback considerations. Do not restore
 an old version 2 budget over a version 3 ledger after model work has resumed.
+
+Migration verified at 20:29 UTC: September spend $21.610289586, remaining
+$78.389710414; original credential/baselines retained. Linux: 353 checks, 352
+passed and one Windows-only skip; local budget 43/43 and bridge/gateway/service
+85/85 passed, plus native mocked-provider audits. All 35 games and private data
+survived the gated restart; only the subsequent budget record was intentionally
+migrated. Public health and beta assets verified. No gameplay pause is pending.
 
 ## September 20: request metadata for future incidents
 
