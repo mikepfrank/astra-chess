@@ -13,7 +13,8 @@ from tests import check_chat_policy as regression
 MODULES = tuple(dict.fromkeys((*regression.MODULES, 'test_move_reasoning',
     'test_operator_monitor', 'test_player_personas', 'test_service',
     'test_evaluations', 'test_replay_archive', 'test_replay_identity',
-    'test_replay_branding', 'test_replay_library', 'test_matchup_record', 'test_chat_export')))
+    'test_replay_branding', 'test_replay_library', 'test_matchup_record', 'test_chat_export',
+    'test_openrouter_setup')))
 
 
 def main():

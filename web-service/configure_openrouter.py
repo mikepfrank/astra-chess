@@ -17,8 +17,9 @@ def main(argv=None):
         print(MESSAGES["windows_only"])
         return 1
     try:
-        print("The local $50 experiment budget counts increases in both OpenRouter and BYOK usage from the first verified baseline.")
-        print("Other use of this key counts too. New actions stop with $5 remaining; in-flight work and reporting delay can overshoot.")
+        print("The local $100 calendar-month budget resets on the first of each month at 00:00 UTC.")
+        print("OpenRouter and BYOK usage on this shared key count too. New requests stop at $100; in-flight work and reporting delay can overshoot.")
+        print("Existing experiment spend is carried into the migration month, without changing its original baseline.")
         print("The first model-action preflight establishes the baseline; setup makes no paid requests.")
         with warnings.catch_warnings():
             warnings.simplefilter("error", getpass.GetPassWarning)
@@ -26,7 +27,7 @@ def main(argv=None):
         budget = configure_openrouter(Path(__file__).resolve().parent, key, args.codex_bin)
         key = None
         print(MESSAGES["saved"])
-        print(f"Local lifetime budget: ${budget['limit_usd']:.2f}; remaining: ${budget['remaining_usd']:.2f} (not a provider hard cap).")
+        print(f"Local monthly budget: ${budget['limit_usd']:.2f}; remaining: ${budget['remaining_usd']:.2f} (not a provider hard cap).")
         return 0
     except OpenRouterSetupError as error:
         status = error.code

@@ -1,4 +1,8 @@
-# Arcturus experimental deployment
+# Arcturus beta deployment
+
+September 23 spending policy: $100 per calendar month, resetting at 00:00 UTC on
+the first. This supersedes the historical $50 lifetime/$5-reserve descriptions
+in dated deployment notes below; see the current budget procedure below.
 
 The preferred address is `arcturuschess.com`, served from the separate
 `or-chess` Linux account. It retains the Codex driver, selects the
@@ -163,8 +167,8 @@ This is an Arcturus deployment override: the shared application's
 
 The allowance applies to the existing UTC-day token ledger; retain its used
 and reserved counters. The 2,000,000-token action ceiling, 500-turn daily limit,
-two-worker deployment ceiling, $50 lifetime usage-delta budget and $5 admission reserve still
-apply independently. Raising the daily token allowance does not reset or expand
+two-worker deployment ceiling and separate dollar allowance apply independently
+(now $100 per UTC month). Raising the daily token allowance does not reset or expand
 the dollar budget. No application source change is required.
 
 ## Files and boundaries
@@ -174,7 +178,7 @@ the dollar budget. No application source change is required.
 | `/home/or-chess/astra-chess` | Experimental repository and `web-service/.venv`, read-only |
 | `/home/or-chess/.local/share/or-chess-runtime` | Private Python 3.12.14 and full Codex 0.154.0 bundle, read-only |
 | `/home/or-chess/.local/share/or-chess` | Private application and audit data, read/write |
-| `/home/or-chess/.local/share/or-chess/openrouter-budget.json` | Shared lifetime experiment budget ledger |
+| `/home/or-chess/.local/share/or-chess/openrouter-budget.json` | Shared UTC monthly budget ledger, with original experiment baseline |
 | `/home/or-chess/.config/or-chess/service.env` | Mode `0600` credential file, read by PID1 and hidden from the service filesystem |
 | `/etc/systemd/system/or-chess.service` | Small system unit, executing as `or-chess:or-chess` |
 
@@ -244,11 +248,22 @@ authority to the host; independently writable ledger copies cannot provide a
 single coherent admission record. The live service and every paid operator
 check use the same `ASTRA_OPENROUTER_BUDGET_PATH` supplied by the unit.
 
-The lifetime allowance remains $50, including other use of the same key since
-its saved baseline. New requests stop with $5 or less remaining. This is a
+The allowance is $100 per UTC calendar month, including other use of the same
+key. Version 2 ledgers carry all usage since the original baseline into the
+migration month; later months use the provider's monthly counters. The guard
+atomically migrates the ledger on its first successful check. Preserve that
+version 3 ledger thereafter; do not restore a version 2 copy after paid work.
+New requests stop when the $100 allowance is exhausted, with no $5 reserve. This is a
 local usage guard; delayed provider accounting and work already in flight mean
 it is not a provider-enforced hard cap. Missing, invalid or mismatched ledger
 data fails the operator preflight without initializing a replacement.
+
+For the September 23 update, finish the existing idle-gated code deployment and
+its preservation/health checks before invoking the spending guard to migrate
+the ledger. That keeps code-only rollback compatible with the version 2 ledger
+until activation succeeds. Retain the coherent private-data backup; a later code
+rollback must retain a reader for version 3 or explicitly reconcile only the
+budget record. Never roll back game databases to undo a budget change.
 
 After transferring the reviewed code and installing its pinned requirements:
 

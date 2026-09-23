@@ -1,16 +1,17 @@
-"""Isolated OpenRouter credentials and the initial experiment's spending guard.
+"""Isolated OpenRouter credentials and a $100 UTC calendar-month spending guard.
 
-No inference request is made here. GET /api/v1/key supplies cumulative OpenRouter
-and BYOK usage. Their increases from the first verified baseline count against
-this experiment's lifetime $50 allowance, including other use of a shared key.
+No inference request is made here. GET /api/v1/key supplies cumulative and UTC
+monthly OpenRouter and BYOK usage, including other use of a shared key. Migration
+charges all usage since the experiment's original baseline to the current month.
+Later months use provider monthly counters, even after a period without checks.
 This is a local admission check, not a provider-enforced hard spending cap:
 in-flight work and reporting delay can exceed the remaining allowance. Refuse
-new actions with $5 or less remaining, and pin one credential across this
-worktree's game directories so replacing it cannot restart the experiment.
+new requests once the allowance is exhausted, and pin one credential across this
+worktree's game directories so replacing it cannot restart the allowance.
 Credential setup only validates telemetry; the first action preflight records
 the baseline immediately before model work. Subsequent preflights keep it.
 
-Provider references checked September 13, 2026:
+Provider references checked September 23, 2026:
 https://openrouter.ai/docs/api_reference/limits
 https://openrouter.ai/docs/api/api-reference/api-keys/get-current-key
 https://openrouter.zendesk.com/hc/en-us/articles/51680687417499-Can-I-create-one-API-key-per-user-with-its-own-spending-limit-Management-API-keys
@@ -21,6 +22,7 @@ the private budget fingerprint must not enter model context or public records.
 from __future__ import annotations
 
 from contextlib import contextmanager
+from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 import hashlib
 import json
@@ -41,17 +43,17 @@ from .process_lock import ProcessLock
 APP_ROOT = Path(__file__).resolve().parents[1]
 KEY_URL = "https://openrouter.ai/api/v1/key"
 PROFILE = "openrouter-glm"
-MAX_BUDGET = Decimal("50")
-STOP_REMAINING = Decimal("5")
+MAX_BUDGET = Decimal("100")
+STOP_REMAINING = Decimal("0")
 MAX_JSON_BYTES = 65536
 BUDGET_LOCK_WAIT_SECONDS = 30
 BUDGET_LOCK_POLL_SECONDS = .05
 MESSAGES = {
-    "saved": "OpenRouter credential and local experiment budget saved for this Windows user.",
+    "saved": "OpenRouter credential and local monthly budget saved for this Windows user.",
     "invalid_key": "OpenRouter rejected the credential. Nothing was saved.",
     "access_denied": "The OpenRouter credential does not have the required access.",
-    "budget_invalid": "OpenRouter did not provide valid cumulative usage and optional credit-limit metadata. No new model action is permitted.",
-    "budget_low": "The OpenRouter experiment has $5 or less remaining; no new model action is permitted.",
+    "budget_invalid": "OpenRouter did not provide valid cumulative and UTC monthly usage or credit-limit metadata. No new model action is permitted.",
+    "budget_low": "The OpenRouter monthly allowance or provider credit limit is exhausted; no new model action is permitted.",
     "budget_changed": "The experiment credential or recorded usage changed. Budget reconciliation is required before continuing.",
     "budget_unreadable": "The private OpenRouter budget record could not be safely read or updated.",
     "budget_busy": "Another OpenRouter budget check did not finish within the allowed wait. Retry shortly.",
@@ -124,17 +126,27 @@ def _fetch_budget(key, transport):
     if not isinstance(payload, dict) or not isinstance(payload.get("data"), dict):
         raise OpenRouterSetupError("unexpected_response")
     data = payload["data"]
-    if not {"usage", "byok_usage"} <= data.keys():
+    if not {"usage", "byok_usage", "usage_monthly", "byok_usage_monthly"} <= data.keys():
         raise OpenRouterSetupError("budget_invalid")
     usage, byok = (_money(data[name]) for name in ("usage", "byok_usage"))
+    monthly, byok_monthly = (_money(data[name]) for name in ("usage_monthly", "byok_usage_monthly"))
+    if monthly > usage or byok_monthly > byok:
+        raise OpenRouterSetupError("budget_invalid")
     limit = None if data.get("limit") is None else _money(data["limit"])
     remaining = None if data.get("limit_remaining") is None else _money(data["limit_remaining"])
     if limit is not None and remaining is not None and remaining > limit:
         raise OpenRouterSetupError("budget_invalid")
-    # Neither provider reset schedules nor Include BYOK settings affect our
-    # lifetime session allowance: both all-time usage counters are tracked here.
     return {"provider_limit_usd": limit, "provider_remaining_usd": remaining,
-            "usage_usd": usage, "byok_usage_usd": byok}
+            "usage_usd": usage, "byok_usage_usd": byok,
+            "usage_monthly_usd": monthly, "byok_usage_monthly_usd": byok_monthly}
+
+
+def _utc_month():
+    return datetime.now(timezone.utc).strftime("%Y-%m")
+
+
+def _valid_month(value):
+    return isinstance(value, str) and re.fullmatch(r"[1-9][0-9]{3}-(0[1-9]|1[0-2])", value)
 
 
 def _ledger(path):
@@ -146,19 +158,35 @@ def _ledger(path):
         data = json.loads(path.read_text(encoding="utf-8"))
         expected = {"version", "key_sha256", "budget_usd", "initial_usage_usd",
                     "initial_byok_usage_usd", "usage_usd", "byok_usage_usd", "remaining_usd"}
+        if isinstance(data, dict) and data.get("version") == 3:
+            expected |= {"migration_month", "month", "usage_monthly_usd", "byok_usage_monthly_usd", "spent_usd"}
         if (not isinstance(data, dict) or set(data) != expected
-                or type(data["version"]) is not int or data["version"] != 2
+                or type(data["version"]) is not int or data["version"] not in (2, 3)
                 or not isinstance(data["key_sha256"], str)
                 or not re.fullmatch(r"[0-9a-f]{64}", data["key_sha256"])):
             raise ValueError()
-        for name in expected - {"version", "key_sha256"}:
+        for name in expected - {"version", "key_sha256", "migration_month", "month"}:
             if not isinstance(data[name], str):
                 raise ValueError()
             value = Decimal(data[name])
             if not value.is_finite() or value < 0:
                 raise ValueError()
-        if Decimal(data["budget_usd"]) != MAX_BUDGET:
+        expected_budget = Decimal("50") if data["version"] == 2 else MAX_BUDGET
+        if Decimal(data["budget_usd"]) != expected_budget:
             raise ValueError()
+        if data["version"] == 3:
+            if (not _valid_month(data["month"]) or not _valid_month(data["migration_month"])
+                    or data["month"] < data["migration_month"]
+                    or Decimal(data["usage_monthly_usd"]) > Decimal(data["usage_usd"])
+                    or Decimal(data["byok_usage_monthly_usd"]) > Decimal(data["byok_usage_usd"])
+                    or Decimal(data["remaining_usd"]) > max(Decimal("0"), MAX_BUDGET - Decimal(data["spent_usd"]))):
+                raise ValueError()
+            accounted = (Decimal(data["usage_usd"]) - Decimal(data["initial_usage_usd"])
+                         + Decimal(data["byok_usage_usd"]) - Decimal(data["initial_byok_usage_usd"]))
+            if data["month"] != data["migration_month"]:
+                accounted = Decimal(data["usage_monthly_usd"]) + Decimal(data["byok_usage_monthly_usd"])
+            if Decimal(data["spent_usd"]) < accounted:
+                raise ValueError()
         if (Decimal(data["usage_usd"]) < Decimal(data["initial_usage_usd"])
                 or Decimal(data["byok_usage_usd"]) < Decimal(data["initial_byok_usage_usd"])):
             raise ValueError()
@@ -200,17 +228,42 @@ def _check_budget(key, ledger_path, transport, *, persist):
             previous = _ledger(path)
             if previous is not None and previous["key_sha256"] != key_hash:
                 raise OpenRouterSetupError("budget_changed")
+            month = _utc_month()
+            if previous and previous["version"] == 3 and month < previous["month"]:
+                raise OpenRouterSetupError("budget_changed")
             verified = _fetch_budget(key, transport)
+            # Never attribute a response spanning midnight on the first to an
+            # ambiguous month. A fresh check can retry without altering evidence.
+            if _utc_month() != month:
+                raise OpenRouterSetupError("service_unavailable")
             if previous is not None and (verified["usage_usd"] < Decimal(previous["usage_usd"])
                     or verified["byok_usage_usd"] < Decimal(previous["byok_usage_usd"])):
                 raise OpenRouterSetupError("budget_changed")
+            if previous and previous["version"] == 3 and month > previous["month"]:
+                # The new month's usage cannot exceed all usage since a check
+                # in an earlier month. Do not pin an obviously stale pre-reset
+                # counter as the new month's high-water mark; retry fresh data.
+                for total, monthly in (("usage_usd", "usage_monthly_usd"),
+                                       ("byok_usage_usd", "byok_usage_monthly_usd")):
+                    if verified[monthly] > verified[total] - Decimal(previous[total]):
+                        raise OpenRouterSetupError("budget_invalid")
             initial_usage = Decimal(previous["initial_usage_usd"]) if previous else verified["usage_usd"]
             initial_byok = Decimal(previous["initial_byok_usage_usd"]) if previous else verified["byok_usage_usd"]
-            spent = verified["usage_usd"] - initial_usage + verified["byok_usage_usd"] - initial_byok
+            migration_month = previous["migration_month"] if previous and previous["version"] == 3 else month
+            if month == migration_month:
+                spent = verified["usage_usd"] - initial_usage + verified["byok_usage_usd"] - initial_byok
+            else:
+                spent = verified["usage_monthly_usd"] + verified["byok_usage_monthly_usd"]
+            if previous and previous["version"] == 3 and previous["month"] == month:
+                # Reporting corrections cannot quietly refund an admitted month.
+                spent = max(spent, Decimal(previous["spent_usd"]))
             remaining = max(Decimal("0"), MAX_BUDGET - spent)
             if verified["provider_remaining_usd"] is not None:
                 remaining = min(remaining, verified["provider_remaining_usd"])
-            saved = {"version": 2, "key_sha256": key_hash, "budget_usd": str(MAX_BUDGET),
+            saved = {"version": 3, "key_sha256": key_hash, "budget_usd": str(MAX_BUDGET),
+                     "migration_month": migration_month, "month": month, "spent_usd": str(spent),
+                     "usage_monthly_usd": str(verified["usage_monthly_usd"]),
+                     "byok_usage_monthly_usd": str(verified["byok_usage_monthly_usd"]),
                      "initial_usage_usd": str(initial_usage), "initial_byok_usage_usd": str(initial_byok),
                      "usage_usd": str(verified["usage_usd"]),
                      "byok_usage_usd": str(verified["byok_usage_usd"]), "remaining_usd": str(remaining)}
@@ -226,7 +279,8 @@ def _check_budget(key, ledger_path, transport, *, persist):
         raise OpenRouterSetupError("budget_unreadable") from None
     except RuntimeError:
         raise OpenRouterSetupError("budget_busy") from None
-    return {"budget_enforcement": "local-usage-delta", "limit_usd": float(MAX_BUDGET),
+    return {"budget_enforcement": "local-utc-calendar-month", "month": month, "timezone": "UTC",
+            "limit_usd": float(MAX_BUDGET),
             "spent_usd": float(spent), "remaining_usd": float(remaining),
             "provider_limit_usd": (None if verified["provider_limit_usd"] is None
                                    else float(verified["provider_limit_usd"])),
@@ -236,7 +290,7 @@ def _check_budget(key, ledger_path, transport, *, persist):
 
 
 def require_budget(key, ledger_path: Path | None = None, *, transport=None):
-    """Verify/pin cumulative usage before model work; suitable for to_thread.
+    """Verify monthly usage/migrate the legacy ledger; suitable for to_thread.
 
     The default ledger belongs to the worktree, not a disposable game's data
     directory. Callers wait at most thirty seconds to acquire the shared OS lock;

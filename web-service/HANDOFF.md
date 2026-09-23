@@ -4,6 +4,26 @@ For the separate `codex/openrouter-chess` experimental branch, start with the
 [September 13 alternate-model orientation](OPENROUTER-EXPERIMENT.md). The hosted
 baseline and its deployment history are preserved below.
 
+## September 23: $100 UTC calendar-month allowance and BETA
+
+Prepared: the shared OpenRouter budget migrates from version 2 ($50 lifetime)
+to version 3 ($100 per UTC calendar month). All spend since the original
+experiment baseline is charged to September on deployment, including other use
+of the same key. Each later month starts a fresh allowance, based on provider
+monthly usage counters so idle periods cannot waive already-incurred usage.
+The original credential fingerprint/baselines stay intact, with monotonic
+same-month spending and fail-closed validation. The old $5 stop reserve is
+removed; delayed reporting/in-flight requests can still exceed this local cap.
+Arcturus's board badge reads BETA, its title/footer use Beta, and its description
+no longer says experimental. Astra's labels are unchanged.
+
+See [validation and activation](validation/2026-09-23-monthly-budget.md). Finish
+the idle-gated code deployment and health/preservation checks before migrating
+the private ledger with the first spending check. Old code cannot read version
+3: subsequent rollback must retain its reader or reconcile only that budget
+record; never restore game databases for this change. Historical $50/$5 notes
+below describe earlier deployments and are superseded by this policy.
+
 ## September 20: private outgoing-request measurements
 
 **Live at `67bd854`, September 20, 22:53 UTC.** Metadata-only diagnostics cover future OpenRouter requests, including

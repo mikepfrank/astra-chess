@@ -25,8 +25,9 @@ def main():
     if len(raw) > 16384:
         raise SystemExit('Budget record is too large.')
     ledger = json.loads(raw)
-    if ledger.get('version') != 2 or ledger.get('budget_usd') != '50':
-        raise SystemExit('An existing version 2 experiment budget is required.')
+    if (type(ledger.get('version')) is not int
+            or (ledger.get('version'), ledger.get('budget_usd')) not in ((2, '50'), (3, '100'))):
+        raise SystemExit('An existing version 2 experiment or version 3 monthly budget is required.')
     if ledger.get('key_sha256') != hashlib.sha256(key.encode()).hexdigest():
         raise SystemExit('The server credential differs from the recorded experiment.')
     os.umask(0o077)

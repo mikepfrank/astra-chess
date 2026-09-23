@@ -1,5 +1,16 @@
 # Handoff: Arcturus development worktree
 
+## September 23: monthly budget and beta label
+
+Prepared: the OpenRouter guard changes from a $50 lifetime experiment allowance
+to $100 per UTC calendar month. All spend since the original experiment baseline
+is carried into the migration month; future months use provider UTC monthly
+counters. The full $100 is available (old $5 reserve removed). Shared-key scope,
+credential pinning and serialized checks remain. Arcturus's board badge/title
+now say BETA/Beta. See the [validation record](web-service/validation/2026-09-23-monthly-budget.md)
+for current test/deployment status and rollback considerations. Do not restore
+an old version 2 budget over a version 3 ledger after model work has resumed.
+
 ## September 20: request metadata for future incidents
 
 **Live at `67bd854`, September 20, 22:53 UTC.** Lightweight private OpenRouter request measurements record fixed category

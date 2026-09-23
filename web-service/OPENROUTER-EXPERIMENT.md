@@ -1,10 +1,11 @@
 # OpenRouter chess experiment
 
-Current overview: September 15, 2026; see [HANDOFF.md](HANDOFF.md) for the latest
+Current overview: September 23, 2026; see [HANDOFF.md](HANDOFF.md) for the latest
 verified deployment checkpoint and deferred work. Mike selected Codex CLI as the first driver,
 `z-ai/glm-5.3-flash` as the first model, throughput-oriented routing and a $50
-initial local experiment budget. This branch implements that configuration with
-the existing from-scratch chess engine and hosted supervisor.
+initial local experiment budget. The September 23 policy replaces that allowance
+with $100 per UTC calendar month and labels the Arcturus board **BETA**. This
+branch uses the existing from-scratch chess engine and hosted supervisor.
 
 The [shared playing contract and versioned personas](prompts/README.md) are
 stored separately. New GLM games select Mike's supplied Arcturus draft;
@@ -157,8 +158,9 @@ The 2,000,000 ceiling leaves room for those rounds and compaction. A focused
 no-model regression completes compaction and a full move at 1,549,152 tokens;
 an explicit smaller limit still interrupts correctly. Daily admission reserves
 the configured action ceiling and settles actual complete usage; missing or
-incomplete usage remains conservatively charged. The $50 session budget and
-$5 stop threshold are unchanged.
+incomplete usage remains conservatively charged. At that deployment the $50
+session budget and $5 stop threshold were unchanged; September 23 replaces them
+with the monthly policy below.
 
 Mike subsequently selected a 200,000,000-token daily allowance for the live
 Arcturus deployment, through its private `ASTRA_MAX_DAILY_TOKENS=200000000`
@@ -168,7 +170,7 @@ process and installed service namespace at 22:02 UTC on September 13. See the
 The shared 20,000,000-token code default and the original Astra
 deployment are unchanged. This raises the Arcturus UTC-day admission allowance
 without resetting recorded usage, increasing the 2,000,000-token action ceiling,
-or changing the separate $50 lifetime spending guard and $5 stop threshold.
+or changing the then-current $50 lifetime spending guard and $5 stop threshold.
 
 ## Observed CLI boundary and local gateway
 
@@ -213,22 +215,35 @@ The [startup audit](tests/audit_model_profile.py) and
 [wire audit](tests/audit_model_wire.py) use isolated homes and local evidence.
 Neither audit establishes real model tool use or playing strength.
 
-## Credentials and the $50 session budget
+## Credentials and the $100 monthly budget
 
 The existing OpenRouter key can be used without changing its provider settings.
 The private budget ledger pins that credential and records the first model-action
-preflight's cumulative OpenRouter and BYOK usage. All subsequent increases in
-both counters count against the experiment's $50 lifetime allowance, including
-other activity using the same key. New games, application restarts and provider
-daily resets do not reset this baseline. Credential swaps, decreasing counters,
-missing telemetry and nonfinite values stop new work.
+preflight's cumulative OpenRouter and BYOK usage. Version 2 ledgers migrate
+atomically to version 3 under the existing shared lock: all spend since the
+original experiment baseline counts toward the migration month (September 2026
+on this deployment). The original baseline and credential fingerprint remain.
+Subsequent months use OpenRouter's current UTC-month usage plus BYOK usage,
+including other activity using the same key. Thus a quiet site cannot forgive
+spend before its first request of the month. Each calendar month gets $100;
+unused funds do not roll over. New games, restarts and provider daily resets do
+not reset the month's allowance. Credential swaps, decreasing cumulative
+counters, a backwards month, missing telemetry and nonfinite values stop work.
+Same-month reported spend has a high-water mark; downward corrections do not
+refund allowance. A usage fetch spanning the UTC month boundary is retried on
+the next check without changing the ledger.
+On rollover, monthly usage also cannot exceed cumulative growth since the last
+check in an earlier month; impossible stale counters are rejected before they
+can become the new month's high-water mark. Provider reporting delay still
+limits how precisely local checks can track actual settled spending.
 
-Remaining allowance is the smaller of `$50 - combined usage increases` and the
+Remaining allowance is the smaller of `$100 - current-month spend` and the
 provider's remaining key allowance, when one is reported. New actions and
-provider requests stop at $5 or less remaining. This is **local usage-delta
+provider requests stop at zero remaining. The old $5 admission reserve is
+removed so the full $100 is available. This is **local monthly
 admission control, not a provider-enforced hard spending cap**: usage reporting
 delay and work already in flight can exceed an allowance. At most two active
-workers, the output ceiling and the retained $5 reserve bound this small trial.
+workers and the output ceiling bound individual concurrent requests.
 The dollar guard retains its existing provider-usage accounting rather than
 introducing per-request dollar reservations. Shared budget checks wait up to
 30 seconds for the existing cross-process lock, with 50 ms retries. Only the

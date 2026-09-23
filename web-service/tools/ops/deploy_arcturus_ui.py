@@ -40,6 +40,9 @@ ALLOWED_PATHS = frozenset({
     'web-service/astra_web/chat_export.py',
     'web-service/astra_web/codex_bridge.py',
     'web-service/astra_web/openrouter_gateway.py',
+    'web-service/astra_web/openrouter_setup.py',
+    'web-service/configure_openrouter.py',
+    'web-service/tools/provision_openrouter_environment.py',
     'web-service/astra_web/player_profiles.py',
     'web-service/astra_web/replay_archive.py',
     'web-service/astra_web/supervisor.py',
@@ -78,6 +81,7 @@ ALLOWED_PATHS = frozenset({
     'web-service/tests/test_chat_export.py',
     'web-service/tests/test_player_profiles.py',
     'web-service/tests/test_openrouter_gateway.py',
+    'web-service/tests/test_openrouter_setup.py',
     'web-service/tests/test_replay_archive.py',
     'web-service/tests/test_replay_reasoning.py',
     'web-service/tools/ops/README.md',
@@ -97,6 +101,7 @@ ALLOWED_PATHS = frozenset({
     'web-service/validation/2026-09-20-output-limit-incident.md',
     'web-service/validation/2026-09-20-deliberation-guidance.md',
     'web-service/validation/2026-09-20-request-metadata.md',
+    'web-service/validation/2026-09-23-monthly-budget.md',
 })
 
 

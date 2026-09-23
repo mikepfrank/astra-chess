@@ -113,14 +113,14 @@ function playerReady(){return state.config?.player_available===true&&!state.avai
 function updatePlayerIdentity(){
   const name=playerName();
   const siteName=state.config?.player_name||'AI';
-  const experimental=siteName!=='Astra';
-  document.title=`${siteName} Chess · ${experimental?'Experimental':'Public beta'}`;
-  document.querySelector('meta[name="description"]').content=experimental?`Play chess with ${siteName}, an experimental language-model opponent using Astra's chess harness and tactical engine.`:'Play a thoughtful game of chess with Astra: language-model deliberation and a small tactical engine built from scratch.';
+  const releaseLabel=siteName==='Astra'?'Public beta':siteName==='Arcturus'?'Beta':'Experimental';
+  document.title=`${siteName} Chess · ${releaseLabel}`;
+  document.querySelector('meta[name="description"]').content=siteName==='Astra'?'Play a thoughtful game of chess with Astra: language-model deliberation and a small tactical engine built from scratch.':`Play chess with ${siteName}, a language-model opponent using Astra's chess harness and tactical engine.`;
   $('site-brand').setAttribute('aria-label',`${siteName} Chess home`);
   $('brand-name').textContent=siteName.toUpperCase();
   $('brand-mark').textContent=siteName.slice(0,1).toUpperCase();
-  $('site-badge').textContent=experimental?'EXPERIMENTAL':'PUBLIC BETA';
-  $('site-footer-label').textContent=`${siteName} Chess · ${experimental?'Experimental':'Public beta'}`;
+  $('site-badge').textContent=releaseLabel.toUpperCase();
+  $('site-footer-label').textContent=`${siteName} Chess · ${releaseLabel}`;
   $('play-title').textContent=`Play ${name}`;
   $('chat-title').textContent=name==='Astra'?'The conversation':`Chat with ${name}`;
   $('message-label').textContent=`Message to ${name}`;
