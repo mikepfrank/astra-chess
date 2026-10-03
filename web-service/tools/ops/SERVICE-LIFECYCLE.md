@@ -31,6 +31,16 @@ source helper. `--check` also works with `astra-up.sh`. A successful read-only
 check is only a snapshot: it does not block new requests, reserve an idle period,
 or stop the service.
 
+To install the entrypoints on a prepared replacement host after checking out this
+branch (the wrappers have fixed paths to the helper in that checkout):
+
+```sh
+sudo install -o ec2-user -g ec2-user -m 700 \
+  /home/astra/astra-chess/web-service/tools/ops/astra-down.sh /home/ec2-user/astra-down.sh
+sudo install -o ec2-user -g ec2-user -m 700 \
+  /home/astra/astra-chess/web-service/tools/ops/astra-up.sh /home/ec2-user/astra-up.sh
+```
+
 ## What shutdown does
 
 1. Checks the expected systemd units, saved game activity, cgroup v2 process
@@ -122,8 +132,9 @@ Do not replace another service's Caddy configuration or TLS state blindly.
 
 ## Validation scope
 
-The 24 fixture-based lifecycle tests passed on Windows, along with the six
-existing operator inventory/migration tests. They check control flow and
+The 24 fixture-based lifecycle tests passed on both Windows and the Lightsail
+host's system Python; the six existing operator inventory/migration tests also
+passed on Windows. They check control flow and
 refusal/recovery paths without running systemd or changing the deployed service:
 
 ```sh
@@ -136,3 +147,7 @@ maintenance candidate; direct and HTTPS health checks passed. The live Caddyfile
 and all three service PIDs (Astra, Caddy, Arcturus) remained unchanged. None of
 these checks is evidence of a completed live stop/start cycle. Perform the
 first actual cycle only when maintenance is intended.
+
+Both wrappers were installed in `/home/ec2-user/` and their `--check` commands
+passed. No service was stopped, restarted, enabled or disabled for installation
+or validation. No new sudo permissions or packages were installed.
