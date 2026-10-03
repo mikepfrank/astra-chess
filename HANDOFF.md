@@ -1,5 +1,22 @@
 # Handoff: Arcturus development worktree
 
+## October 3: migration lifecycle scripts
+
+Preparing `arcturus-down.sh` / `arcturus-up.sh`, adapted from the hosted Astra
+reference at `90e778d`, for Mike's larger Lightsail instance migration.
+**Do not run actual down/up during preparation.** Mike will invoke them around
+his instance snapshot/cutover. Astra is already stopped/disabled behind its own
+maintenance checkpoint; preserve that state. Arcturus remains running.
+
+See [operator instructions](web-service/tools/ops/ARCTURUS-SERVICE-LIFECYCLE.md)
+and the [validation record](web-service/validation/2026-10-03-service-lifecycle.md)
+for current installation/check status. Both Arcturus hostnames are gated, only
+their blocks restored into the current shared Caddyfile, and Caddy still runs
+as Astra. Independent checkpoint `/var/lib/arcturus-chess-ops` and operation
+lock, shared `/run/lock/astra-caddy-config.lock`. Preserve the full game,
+continuation, credential, notifier and v3 budget state in the snapshot; no
+budget or game migration/reset is needed. Keep the old host stopped after cutover.
+
 ## September 23: monthly budget and beta label
 
 **Live at `d21680d`, September 23, 20:27 UTC.** The OpenRouter guard changes from a $50 lifetime experiment allowance

@@ -4,6 +4,33 @@ For the separate `codex/openrouter-chess` experimental branch, start with the
 [September 13 alternate-model orientation](OPENROUTER-EXPERIMENT.md). The hosted
 baseline and its deployment history are preserved below.
 
+## October 3: safe shutdown/startup helpers for host migration
+
+Preparing the requested `ec2-user` entrypoints `~/arcturus-down.sh` and
+`~/arcturus-up.sh`; source helper is `tools/ops/arcturus_service.py`, adapted
+from Astra's `90e778d` lifecycle/readiness fix without merging that branch.
+**Actual shutdown/startup is reserved for Mike.** At preparation, Astra is
+already inactive/disabled and its timer is disabled, behind its maintenance
+checkpoint; Arcturus is active as PID 83871, with its notifier timer enabled.
+
+Both `arcturuschess.com` and `arcturus.astraplayschess.com` must gate and verify
+HTTPS before any stop. Thirty continuous quiet seconds include both workers,
+queued actions, post-game chat, compaction, replay jobs, reservations and
+notifier descendants. Only Arcturus app/timer settings are changed; the shared
+Caddy restart retains the 30-second readiness retry. Caddy commands run as
+`astra`, inventory/budget validation as `or-chess`. The startup helper restores
+only its two saved blocks into the current Caddyfile, preserving Astra's
+maintenance and www redirect. Missing/invalid v3 budget state is refused without
+network access or a replacement baseline. Checkpoint and operation lock live
+under `/var/lib/arcturus-chess-ops`, with shared proxy lock
+`/run/lock/astra-caddy-config.lock`.
+
+Read the [operator guide](tools/ops/ARCTURUS-SERVICE-LIFECYCLE.md) and
+[validation record](validation/2026-10-03-service-lifecycle.md) for installation
+and checks. Do not reuse older deployment gates (they assume Astra is active),
+do not revive Astra, and do not run either startup helper on both old and new
+hosts. No new dependencies or sudoers changes are needed.
+
 ## September 23: $100 UTC calendar-month allowance and BETA
 
 **Live at `d21680d`, September 23, 20:27 UTC.** The shared OpenRouter budget migrates from version 2 ($50 lifetime)

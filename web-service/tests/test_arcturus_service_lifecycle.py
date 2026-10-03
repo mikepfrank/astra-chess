@@ -1,0 +1,685 @@
+"""Exercise maintenance safety using a fake host; never invoke systemctl or SSH."""
+from contextlib import ExitStack, nullcontext, redirect_stdout
+import io
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+from tools.ops import arcturus_service as lifecycle
+
+
+NORMAL = 'arcturuschess.com {\n    encode gzip\n    reverse_proxy 127.0.0.1:8792\n}\n'
+LEGACY = 'arcturus.astraplayschess.com {\n    reverse_proxy 127.0.0.1:8792\n}\n'
+NORMALS = {lifecycle.DOMAIN: NORMAL, lifecycle.DOMAINS[1]: LEGACY}
+OWN = NORMAL + LEGACY
+OTHER = ('astraplayschess.com {\n    encode gzip\n    reverse_proxy 127.0.0.1:8788\n}\n'
+         'www.astraplayschess.com {\n    redir https://astraplayschess.com{uri} permanent\n}\n'
+         'www.arcturuschess.com {\n    redir https://arcturuschess.com{uri} permanent\n}\n')
+ASTRA_MAINTENANCE = ('astraplayschess.com {\n'
+                     '    header X-Astra-Maintenance "other-checkpoint"\n'
+                     '    respond "Astra maintenance" 503\n}\n')
+
+
+def maintenance(state):
+    return ''.join(lifecycle.maintenance_blocks(state['marker']).values())
+
+
+IDLE = dict(active_responses=0, building_replays=0, reserved_tokens=0, idle_snapshot=True)
+
+
+class ProxySafetyTests(unittest.TestCase):
+    def setUp(self):
+        self.now = 0.0
+        def advance(seconds):
+            self.now += seconds
+        for target, name, options in (
+            (lifecycle.time, 'monotonic', {'side_effect': lambda: self.now}),
+            (lifecycle.time, 'sleep', {'side_effect': advance}),
+            (lifecycle, 'command', {'side_effect': AssertionError('Unexpected external command in unit test')}),
+            (lifecycle, 'log', {}),
+        ):
+            patcher = patch.object(target, name, **options)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def test_arcturus_replacement_preserves_other_sites_and_later_edits(self):
+        original = '{\n    admin off\n}\n' + OWN + OTHER
+        gated = lifecycle.maintenance_blocks('a' * 32)
+        closed = lifecycle.replace_sites(original, NORMALS, gated)
+        concurrent = closed.replace('127.0.0.1:8788', '127.0.0.1:8789')
+        reopened = lifecycle.replace_sites(concurrent, gated, NORMALS)
+        self.assertEqual(reopened, original.replace('127.0.0.1:8788', '127.0.0.1:8789'))
+
+    def test_complex_duplicate_missing_or_independently_changed_arcturus_is_rejected(self):
+        for text in (OTHER, NORMAL + OWN + OTHER,
+                     NORMAL.replace('    encode gzip\n', '    handle {\n        respond ok\n    }\n'),
+                     NORMAL.replace('arcturuschess.com {', 'arcturuschess.com, elsewhere.example {')):
+            with self.subTest(text=text), self.assertRaises(lifecycle.SafetyError):
+                lifecycle.site_block(text)
+        with self.assertRaises(lifecycle.SafetyError):
+            lifecycle.replace_site(NORMAL, NORMAL.replace('gzip', 'zstd'), 'replacement')
+        with self.assertRaises(lifecycle.SafetyError):
+            lifecycle.normal_block(NORMAL.replace('8792', '8788'))
+
+    def test_adapted_alternate_arcturus_routes_prevent_gate(self):
+        def adapt(*args, **kwargs):
+            return json.dumps({'apps': {'http': {'routes': [
+                {'upstreams': [{'dial': '127.0.0.1:8788'}]},
+                {'upstreams': [{'dial': 'localhost:8792'}]},
+            ]}}})
+        with patch.object(lifecycle, 'command', side_effect=adapt) as command:
+            with self.assertRaisesRegex(lifecycle.SafetyError, 'alternate Arcturus upstream'):
+                lifecycle.validate_config(Path('candidate'), gated=True)
+            self.assertEqual(command.call_count, 1)
+
+    def test_both_standalone_hosts_are_required_and_prevalidated_before_replacement(self):
+        for text in (NORMAL + OTHER, LEGACY + OTHER, OWN + LEGACY + OTHER,
+                     NORMAL + LEGACY.replace('8792', '8788') + OTHER):
+            with self.subTest(text=text), self.assertRaises(lifecycle.SafetyError):
+                lifecycle.normal_blocks(lifecycle.site_blocks(text))
+        with self.assertRaises(lifecycle.SafetyError):
+            lifecycle.replace_sites(OWN + OTHER,
+                                    dict(NORMALS, **{lifecycle.DOMAINS[1]: 'changed'}),
+                                    lifecycle.maintenance_blocks('a' * 32))
+
+    def test_open_config_requires_exactly_two_expected_arcturus_upstreams(self):
+        for dials in ([], ['127.0.0.1:8792'], ['127.0.0.1:8792'] * 3,
+                      ['127.0.0.1:8792', 'localhost:8792']):
+            adapted = {'upstreams': [{'dial': dial} for dial in dials]}
+            with self.subTest(dials=dials), patch.object(lifecycle, 'command', return_value=json.dumps(adapted)):
+                with self.assertRaises(lifecycle.SafetyError):
+                    lifecycle.validate_config(Path('candidate'), gated=False)
+        adapted = {'upstreams': [{'dial': dial} for dial in (
+            '127.0.0.1:8788', '127.0.0.1:8792', '127.0.0.1:8792')]}
+        with patch.object(lifecycle, 'command', return_value=json.dumps(adapted)) as command:
+            lifecycle.validate_config(Path('candidate'), gated=False)
+        self.assertEqual(command.call_count, 2)
+        self.assertTrue(all(call.kwargs.get('user') == 'astra' for call in command.call_args_list))
+
+    def test_gate_verifies_both_paths_on_both_hostnames(self):
+        state = {'marker': 'a' * 32}
+        with patch.object(lifecycle, 'curl', return_value=(503, 'x-arcturus-maintenance: ' + state['marker'], '')) as request:
+            lifecycle.verify_gate(state)
+        self.assertEqual([(call.args[0], call.kwargs['domain']) for call in request.call_args_list],
+                         [(path, domain) for domain in lifecycle.DOMAINS for path in ('/health', '/api/config')])
+        with patch.object(lifecycle, 'curl', side_effect=[
+            (503, 'x-arcturus-maintenance: ' + state['marker'], '')] * 3 + [(200, '', '{}')]):
+            with self.assertRaises(lifecycle.SafetyError):
+                lifecycle.verify_gate(state)
+
+    def test_health_checks_both_hosts_on_public_and_direct_routes(self):
+        for proxy in (True, False):
+            with self.subTest(proxy=proxy), patch.object(lifecycle, 'curl', return_value=(200, '', '{"ok":true}')) as request:
+                lifecycle.health(proxy=proxy)
+            self.assertEqual([call.kwargs['domain'] for call in request.call_args_list], list(lifecycle.DOMAINS))
+            self.assertTrue(all(call.kwargs['proxy'] is proxy for call in request.call_args_list))
+
+    def test_inventory_runs_as_or_chess(self):
+        with patch.object(lifecycle, 'command', return_value=json.dumps({'activity': IDLE})) as command:
+            self.assertEqual(lifecycle.activity(), IDLE)
+        self.assertEqual(command.call_args.kwargs.get('user'), 'or-chess')
+
+    def test_existing_budget_validation_uses_owner_and_never_changes_ledger(self):
+        # Exercise the exact isolated Python snippet locally, without starting
+        # any subprocess. POSIX ownership bits are simulated for Windows runs.
+        from astra_web import openrouter_setup as setup
+        data = dict(version=3, key_sha256='a' * 64, budget_usd='100',
+                    initial_usage_usd='1', initial_byok_usage_usd='0',
+                    usage_usd='26', byok_usage_usd='0', remaining_usd='75',
+                    migration_month='2026-09', month='2026-09',
+                    usage_monthly_usd='26', byok_usage_monthly_usd='0', spent_usd='25')
+        with tempfile.TemporaryDirectory() as folder:
+            ledger = Path(folder) / 'openrouter-budget.json'
+            ledger.write_text(json.dumps(data), encoding='utf-8')
+            before = ledger.read_bytes()
+            actual_stat = Path.stat
+            def owner_stat(path, *args, **kwargs):
+                values = list(actual_stat(path, *args, **kwargs))
+                values[0] = (values[0] & ~0o777) | 0o600
+                values[4] = 0
+                return os.stat_result(values)
+            def run_snippet(args, *, user, **kwargs):
+                self.assertEqual(user, 'or-chess')
+                self.assertEqual(args[1:4], ['-I', '-B', '-c'])
+                captured = io.StringIO()
+                with redirect_stdout(captured):
+                    exec(args[-1], {})
+                return captured.getvalue()
+            with patch.object(lifecycle, 'DATA', Path(folder)), \
+                    patch.object(lifecycle, 'command', side_effect=run_snippet), \
+                    patch.object(os, 'getuid', return_value=0, create=True), \
+                    patch.object(Path, 'stat', side_effect=owner_stat, autospec=True), \
+                    patch.object(sys, 'path', list(sys.path)), \
+                    patch.object(setup, '_fetch_budget', side_effect=AssertionError('Migration preflight must not query usage')), \
+                    patch.object(setup, '_atomic_write', side_effect=AssertionError('Migration preflight must not rewrite budget')):
+                lifecycle.protected_budget()
+                self.assertEqual(ledger.read_bytes(), before)
+                ledger.unlink()
+                with self.assertRaises(AssertionError):
+                    lifecycle.protected_budget()
+                self.assertFalse(ledger.exists(), 'Missing budget must not create a new baseline')
+
+    def test_bad_activity_schema_cannot_be_mistaken_for_idle(self):
+        for bad in ({}, dict(IDLE, active_responses=False), dict(IDLE, reserved_tokens=-1),
+                    dict(IDLE, building_replays='0'), dict(IDLE, idle_snapshot=False)):
+            with self.subTest(activity=bad), patch.object(lifecycle, 'command', return_value=json.dumps({'activity': bad})):
+                with self.assertRaises(lifecycle.SafetyError):
+                    lifecycle.activity()
+
+    def test_cgroup_descendants_are_included_and_outside_paths_rejected(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            service = root / 'system.slice' / lifecycle.APP
+            child = service / 'worker'
+            child.mkdir(parents=True)
+            (service / 'cgroup.procs').write_text('100\n')
+            (child / 'cgroup.procs').write_text('101\n102\n')
+            info = dict(ActiveState='active', MainPID='100', ControlGroup='/system.slice/' + lifecycle.APP)
+            with patch.object(lifecycle, 'CGROUP', root):
+                self.assertEqual(lifecycle.cgroup_pids(info), {100, 101, 102})
+                with self.assertRaises(lifecycle.SafetyError):
+                    lifecycle.cgroup_pids(dict(info, ControlGroup='/../../elsewhere'))
+
+    def test_failed_open_restores_gate_but_keeps_concurrent_astra_change(self):
+        state = dict(marker='b' * 32, original_blocks=NORMALS.copy())
+        gated_blocks = maintenance(state)
+        with tempfile.TemporaryDirectory() as folder, ExitStack() as stack:
+            config = Path(folder) / 'Caddyfile'
+            config.write_bytes((gated_blocks + OTHER).encode())
+            stack.enter_context(patch.object(lifecycle, 'CADDYFILE', config))
+            stack.enter_context(patch.object(lifecycle, 'atomic_write', side_effect=lambda path, value, **kw: Path(path).write_bytes(value)))
+            stack.enter_context(patch.object(lifecycle, 'validate_config'))
+            stack.enter_context(patch.object(lifecycle, 'unit', return_value={'ActiveState': 'active'}))
+            restart = stack.enter_context(patch.object(lifecycle, 'control'))
+            def failed_health(**kwargs):
+                config.write_bytes(config.read_bytes().replace(b'8788', b'8789'))
+                raise lifecycle.SafetyError('Public health failed')
+            stack.enter_context(patch.object(lifecycle, 'health', side_effect=failed_health))
+            gate = stack.enter_context(patch.object(lifecycle, 'verify_gate', side_effect=[
+                lifecycle.SafetyError('Rollback socket not listening yet'), None]))
+            with self.assertRaises(lifecycle.SafetyError):
+                lifecycle.change_proxy(state, gated=False)
+            self.assertEqual(config.read_text(), gated_blocks + OTHER.replace('8788', '8789'))
+            self.assertEqual(restart.call_count, 2)
+            self.assertEqual(gate.call_count, 2, 'Rollback must wait for its own proxy readiness')
+
+    def test_config_changed_during_validation_is_not_overwritten_or_restarted(self):
+        state = dict(marker='c' * 32, original_blocks=NORMALS.copy())
+        with tempfile.TemporaryDirectory() as folder, ExitStack() as stack:
+            config = Path(folder) / 'Caddyfile'
+            config.write_bytes((OWN + OTHER).encode())
+            stack.enter_context(patch.object(lifecycle, 'CADDYFILE', config))
+            stack.enter_context(patch.object(lifecycle, 'atomic_write', side_effect=lambda path, value, **kw: Path(path).write_bytes(value)))
+            def concurrent_edit(*args, **kwargs):
+                config.write_bytes(config.read_bytes().replace(b'8788', b'8789'))
+            stack.enter_context(patch.object(lifecycle, 'validate_config', side_effect=concurrent_edit))
+            restart = stack.enter_context(patch.object(lifecycle, 'control'))
+            with self.assertRaisesRegex(lifecycle.SafetyError, 'changed during validation'):
+                lifecycle.change_proxy(state, gated=True)
+            self.assertEqual(config.read_text(), OWN + OTHER.replace('8788', '8789'))
+            restart.assert_not_called()
+
+    def test_validation_error_does_not_restart_even_if_already_in_desired_state(self):
+        state = dict(marker='d' * 32, original_blocks=NORMALS.copy())
+        gated_blocks = maintenance(state)
+        with tempfile.TemporaryDirectory() as folder, ExitStack() as stack:
+            config = Path(folder) / 'Caddyfile'
+            config.write_bytes((gated_blocks + OTHER).encode())
+            stack.enter_context(patch.object(lifecycle, 'CADDYFILE', config))
+            stack.enter_context(patch.object(lifecycle, 'atomic_write', side_effect=lambda path, value, **kw: Path(path).write_bytes(value)))
+            stack.enter_context(patch.object(lifecycle, 'validate_config', side_effect=lifecycle.SafetyError('Invalid configuration')))
+            restart = stack.enter_context(patch.object(lifecycle, 'control'))
+            with self.assertRaisesRegex(lifecycle.SafetyError, 'Invalid configuration'):
+                lifecycle.change_proxy(state, gated=True)
+            self.assertEqual(config.read_text(), gated_blocks + OTHER)
+            restart.assert_not_called()
+
+    def test_proxy_connection_refused_then_ready_does_not_trigger_rollback(self):
+        state = dict(marker='e' * 32, original_blocks=NORMALS.copy())
+        gated_blocks = maintenance(state)
+        for gated in (True, False):
+            with self.subTest(gated=gated), tempfile.TemporaryDirectory() as folder, ExitStack() as stack:
+                config = Path(folder) / 'Caddyfile'
+                initial, desired = (OWN, gated_blocks) if gated else (gated_blocks, OWN)
+                config.write_bytes((initial + OTHER).encode())
+                stack.enter_context(patch.object(lifecycle, 'CADDYFILE', config))
+                stack.enter_context(patch.object(lifecycle, 'atomic_write', side_effect=lambda path, value, **kw: Path(path).write_bytes(value)))
+                stack.enter_context(patch.object(lifecycle, 'validate_config'))
+                stack.enter_context(patch.object(lifecycle, 'unit', return_value={'ActiveState': 'active'}))
+                restart = stack.enter_context(patch.object(lifecycle, 'control'))
+                probe = stack.enter_context(patch.object(lifecycle, 'verify_gate' if gated else 'health', side_effect=[
+                    lifecycle.SafetyError('curl exit 7: connection refused'), None]))
+                lifecycle.change_proxy(state, gated=gated)
+                restart.assert_called_once_with('restart', lifecycle.PROXY)
+                self.assertEqual(probe.call_count, 2)
+                self.assertEqual(config.read_text(), desired + OTHER)
+
+    def test_proxy_readiness_retry_tolerates_transient_parse_and_timeout_errors(self):
+        with patch.object(lifecycle, 'unit', return_value={'ActiveState': 'active'}), \
+                patch.object(lifecycle, 'verify_gate', side_effect=[
+                    ValueError('Incomplete HTTP response'), subprocess.TimeoutExpired('curl', 10), None]) as probe:
+            lifecycle.wait_proxy({'marker': 'f' * 32}, gated=True, timeout=2)
+        self.assertEqual(probe.call_count, 3)
+        self.assertGreater(self.now, 0)
+        self.assertLessEqual(self.now, 2)
+
+    def test_proxy_readiness_persistent_refusal_times_out_without_false_success(self):
+        with patch.object(lifecycle, 'unit', return_value={'ActiveState': 'active'}), \
+                patch.object(lifecycle, 'verify_gate', side_effect=lifecycle.SafetyError('Connection refused')) as probe:
+            with self.assertRaises(lifecycle.SafetyError):
+                lifecycle.wait_proxy({'marker': 'f' * 32}, gated=True, timeout=2)
+        self.assertGreaterEqual(probe.call_count, 2)
+        self.assertLessEqual(probe.call_count, 6)
+        self.assertGreaterEqual(self.now, 2)
+        self.assertLessEqual(self.now, 2.5)
+
+    def test_failed_or_inactive_proxy_does_not_wait_full_readiness_timeout(self):
+        for status in ('failed', 'inactive'):
+            with self.subTest(status=status), patch.object(lifecycle, 'unit', return_value={'ActiveState': status}), \
+                    patch.object(lifecycle, 'verify_gate') as probe:
+                before = self.now
+                with self.assertRaises(lifecycle.SafetyError):
+                    lifecycle.wait_proxy({'marker': 'f' * 32}, gated=True, timeout=2)
+                probe.assert_not_called()
+                self.assertEqual(self.now, before)
+
+    def test_readiness_deadline_bounds_multiple_gate_probe_requests(self):
+        state = {'marker': 'f' * 32}
+        def slow_response(path, *, timeout, **kwargs):
+            self.now += timeout
+            return 503, 'x-arcturus-maintenance: ' + state['marker'], ''
+        with patch.object(lifecycle, 'unit', return_value={'ActiveState': 'active'}), \
+                patch.object(lifecycle, 'curl', side_effect=slow_response) as request:
+            with self.assertRaises(lifecycle.SafetyError):
+                lifecycle.wait_proxy(state, gated=True, timeout=2)
+        self.assertEqual(self.now, 2)
+        request.assert_called_once_with('/health', domain=lifecycle.DOMAIN, timeout=2)
+
+
+class FakeHostTests(unittest.TestCase):
+    """Run the real down/up orchestration, replacing only host boundary functions."""
+
+    def setUp(self):
+        folder = tempfile.TemporaryDirectory()
+        self.addCleanup(folder.cleanup)
+        self.root = Path(folder.name)
+        self.config = self.root / 'Caddyfile'
+        self.config.write_text(OWN + OTHER, encoding='utf-8')
+        self.state_file = self.root / 'maintenance.json'
+        data = self.root / 'data'
+        data.mkdir()
+        (data / 'astra.sqlite3').touch()
+        self.events = []
+        self.now = 0
+        self.children = set()
+        self.counts = IDLE.copy()
+        self.units = {}
+        for name in (lifecycle.APP, lifecycle.PROXY, lifecycle.TIMER, lifecycle.NOTIFIER):
+            active = name != lifecycle.NOTIFIER
+            self.units[name] = dict(LoadState='loaded', ActiveState='active' if active else 'inactive',
+                                   SubState='running' if active else 'dead', MainPID='100' if name == lifecycle.APP else '0',
+                                   ControlGroup='/system.slice/' + name, ExecMainStartTimestampMonotonic='1000',
+                                   UnitFileState='enabled', Result='success')
+
+        def install(name, **kwargs):
+            patcher = patch.object(lifecycle, name, **kwargs)
+            mock = patcher.start()
+            self.addCleanup(patcher.stop)
+            return mock
+
+        install('CADDYFILE', new=self.config)
+        install('DATA', new=data)
+        install('STATE_DIR', new=self.root)
+        install('STATE_FILE', new=self.state_file)
+        install('STABLE_SECONDS', new=2)
+        install('POLL_SECONDS', new=1)
+        install('lock', side_effect=lambda *args: nullcontext())
+        install('log')
+        install('atomic_write', side_effect=lambda path, value, **kwargs: Path(path).write_bytes(value))
+        self.unit = install('unit', side_effect=lambda name: self.units[name].copy())
+        self.control = install('control', side_effect=self.fake_control)
+        self.report = install('activity', side_effect=lambda: self.counts.copy())
+        self.pids = install('cgroup_pids', side_effect=lambda info: (self.children if info.get('ControlGroup') == '/system.slice/' + lifecycle.APP else set()) | ({int(info['MainPID'])} if info['MainPID'] != '0' else set()))
+        self.health = install('health', side_effect=self.fake_health)
+        self.gate = install('verify_gate', side_effect=self.fake_verify_gate)
+        self.change_proxy = install('change_proxy', side_effect=self.fake_change_proxy)
+        install('validate_config')
+        self.budget = install('protected_budget', return_value=None)
+        install('command', side_effect=AssertionError('Unexpected external command in unit test'))
+        for name, effect in (('monotonic', lambda: self.now), ('sleep', self.fake_sleep)):
+            patcher = patch.object(lifecycle.time, name, side_effect=effect)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def fake_sleep(self, seconds):
+        self.now += seconds
+
+    def fake_control(self, action, name):
+        self.events.append((action, name))
+        if action in ('enable', 'disable'):
+            self.units[name]['UnitFileState'] = 'enabled' if action == 'enable' else 'disabled'
+        elif action == 'stop':
+            self.units[name].update(ActiveState='inactive', MainPID='0')
+        elif action == 'start':
+            self.units[name].update(ActiveState='active')
+            if name == lifecycle.APP:
+                self.units[name].update(MainPID='200', ExecMainStartTimestampMonotonic='2000')
+
+    def fake_health(self, *, proxy, deadline=None):
+        self.events.append(('health', 'proxy' if proxy else 'direct'))
+        if self.units[lifecycle.APP]['ActiveState'] != 'active':
+            raise lifecycle.SafetyError('Fixture app is not healthy')
+        if proxy and lifecycle.site_blocks(self.config.read_text()) != NORMALS:
+            raise lifecycle.SafetyError('Fixture proxy is gated')
+
+    def fake_verify_gate(self, state, *, deadline=None):
+        self.events.append(('verify', 'gate'))
+        self.assertEqual(lifecycle.site_blocks(self.config.read_text()), lifecycle.maintenance_blocks(state['marker']))
+
+    def fake_change_proxy(self, state, *, gated):
+        self.events.append(('proxy', 'closed' if gated else 'open'))
+        current = self.config.read_text()
+        replacement = lifecycle.maintenance_blocks(state['marker']) if gated else state['original_blocks']
+        self.config.write_text(lifecycle.replace_sites(current, lifecycle.site_blocks(current), replacement))
+        if gated:
+            lifecycle.verify_gate(state)
+        else:
+            lifecycle.health(proxy=True)
+
+    def assert_app_not_stopped(self):
+        self.assertNotIn(('stop', lifecycle.APP), self.events)
+        self.assertEqual(self.units[lifecycle.APP]['ActiveState'], 'active')
+
+    def test_unverifiable_budget_prevents_any_shutdown_or_proxy_change(self):
+        before = self.config.read_bytes()
+        self.budget.side_effect = lifecycle.SafetyError('Invalid/missing budget')
+        with self.assertRaisesRegex(lifecycle.SafetyError, 'budget'):
+            lifecycle.down(3)
+        self.control.assert_not_called()
+        self.change_proxy.assert_not_called()
+        self.assertFalse(self.state_file.exists())
+        self.assertEqual(self.config.read_bytes(), before)
+
+    def test_unverifiable_budget_prevents_restart_and_preserves_checkpoint(self):
+        lifecycle.down(3)
+        self.events.clear()
+        before = self.state_file.read_bytes()
+        self.budget.side_effect = lifecycle.SafetyError('Invalid/missing budget')
+        with self.assertRaisesRegex(lifecycle.SafetyError, 'budget'):
+            lifecycle.up(3)
+        self.assertEqual(self.events, [])
+        self.assertEqual(self.state_file.read_bytes(), before)
+        self.fake_verify_gate(lifecycle.load())
+
+    def test_cli_check_of_running_site_is_read_only_and_checks_private_and_public_health(self):
+        before = {path.relative_to(self.root): path.read_bytes() for path in self.root.rglob('*') if path.is_file()}
+        with patch.object(lifecycle.sys, 'platform', 'linux'), \
+                patch.object(lifecycle.os, 'geteuid', return_value=0, create=True), \
+                patch.object(lifecycle.os, 'umask'), \
+                patch.object(lifecycle, 'atomic_write', side_effect=AssertionError('Read-only preflight wrote a file')):
+            result = lifecycle.main(['down', '--check'])
+        self.assertEqual(result, 0)
+        self.control.assert_not_called()
+        self.change_proxy.assert_not_called()
+        self.assertEqual(self.events, [('health', 'direct'), ('health', 'proxy')])
+        after = {path.relative_to(self.root): path.read_bytes() for path in self.root.rglob('*') if path.is_file()}
+        self.assertEqual(after, before)
+
+    def test_cli_check_of_stopped_site_keeps_gate_and_checkpoint_unchanged(self):
+        lifecycle.down(3)
+        self.control.reset_mock()
+        self.change_proxy.reset_mock()
+        self.events.clear()
+        before = {path.relative_to(self.root): path.read_bytes() for path in self.root.rglob('*') if path.is_file()}
+        with patch.object(lifecycle.sys, 'platform', 'linux'), \
+                patch.object(lifecycle.os, 'geteuid', return_value=0, create=True), \
+                patch.object(lifecycle.os, 'umask'), \
+                patch.object(lifecycle, 'atomic_write', side_effect=AssertionError('Read-only preflight wrote a file')):
+            result = lifecycle.main(['up', '--check'])
+        self.assertEqual(result, 0)
+        self.control.assert_not_called()
+        self.change_proxy.assert_not_called()
+        self.assertEqual(self.events, [('verify', 'gate')])
+        after = {path.relative_to(self.root): path.read_bytes() for path in self.root.rglob('*') if path.is_file()}
+        self.assertEqual(after, before)
+
+    def test_cli_check_reports_failed_health_without_attempting_recovery(self):
+        self.health.side_effect = lifecycle.SafetyError('Fixture health failure')
+        with patch.object(lifecycle.sys, 'platform', 'linux'), \
+                patch.object(lifecycle.os, 'geteuid', return_value=0, create=True), \
+                patch.object(lifecycle.os, 'umask'), \
+                patch.object(lifecycle, 'atomic_write', side_effect=AssertionError('Read-only preflight wrote a file')):
+            result = lifecycle.main(['down', '--check'])
+        self.assertEqual(result, 1)
+        self.control.assert_not_called()
+        self.change_proxy.assert_not_called()
+        self.assertFalse(self.state_file.exists())
+
+    def test_busy_each_kind_times_out_without_stopping_and_leaves_recoverable_gate(self):
+        for key in ('active_responses', 'building_replays', 'reserved_tokens'):
+            with self.subTest(key=key):
+                self.counts = dict(IDLE, **{key: 1, 'idle_snapshot': False})
+                with self.assertRaisesRegex(lifecycle.SafetyError, 'Drain timed out'):
+                    lifecycle.down(3)
+                self.assert_app_not_stopped()
+                state = lifecycle.load()
+                self.assertEqual(state['phase'], 'draining')
+                self.fake_verify_gate(state)
+                self.assertEqual(self.units[lifecycle.APP]['UnitFileState'], 'disabled')
+
+    def test_activity_error_after_gate_never_stops_app(self):
+        self.report.side_effect = [IDLE.copy(), lifecycle.SafetyError('Unreadable inventory')]
+        with self.assertRaisesRegex(lifecycle.SafetyError, 'Unreadable inventory'):
+            lifecycle.down(3)
+        self.assert_app_not_stopped()
+        self.fake_verify_gate(lifecycle.load())
+
+    def test_proxy_readiness_timeout_during_down_never_stops_application(self):
+        # A successful systemctl restart is insufficient: the admission gate
+        # must answer HTTPS before the shutdown orchestration may proceed.
+        self.gate.side_effect = lifecycle.SafetyError('curl exit 7: connection refused')
+        self.change_proxy.side_effect = lambda state, gated: lifecycle.wait_proxy(state, gated=gated, timeout=2)
+        with self.assertRaises(lifecycle.SafetyError):
+            lifecycle.down(3)
+        self.assert_app_not_stopped()
+        self.assertNotIn(('stop', lifecycle.TIMER), self.events)
+        self.assertEqual(lifecycle.load()['phase'], 'preparing')
+
+    def test_worker_children_block_stop_even_if_database_reports_idle(self):
+        self.children = {101, 102}
+        with self.assertRaisesRegex(lifecycle.SafetyError, 'Drain timed out'):
+            lifecycle.down(3)
+        self.assert_app_not_stopped()
+
+    def test_thirty_continuous_quiet_seconds_restart_after_two_workers_appear(self):
+        state = {'app_identity': lifecycle.identity(self.units[lifecycle.APP])}
+        samples = []
+        def workload():
+            samples.append(self.now)
+            self.children = {101, 102} if 10 <= self.now < 20 else set()
+            return dict(IDLE)
+        self.report.side_effect = workload
+        with patch.object(lifecycle, 'STABLE_SECONDS', 30), patch.object(lifecycle, 'POLL_SECONDS', 5):
+            lifecycle.wait_idle(state, 90)
+        self.assertEqual(self.now, 50)
+        self.assertEqual(samples, list(range(0, 51, 5)))
+        self.control.assert_not_called()
+
+    def test_missing_main_pid_in_cgroup_cannot_be_mistaken_for_idle(self):
+        self.pids.side_effect = lambda info: set()
+        with self.assertRaisesRegex(lifecycle.SafetyError, 'PID is absent'):
+            lifecycle.down(3)
+        self.assert_app_not_stopped()
+
+    def test_interrupt_during_drain_does_not_stop_app_or_remove_checkpoint(self):
+        self.counts = dict(IDLE, active_responses=1, idle_snapshot=False)
+        with patch.object(lifecycle.time, 'sleep', side_effect=KeyboardInterrupt), self.assertRaises(KeyboardInterrupt):
+            lifecycle.down(3)
+        self.assert_app_not_stopped()
+        self.fake_verify_gate(lifecycle.load())
+
+    def test_changed_process_identity_during_drain_prevents_stop(self):
+        def restarted_proxy(state, *, gated):
+            self.fake_change_proxy(state, gated=gated)
+            self.units[lifecycle.APP]['ExecMainStartTimestampMonotonic'] = '3000'
+        self.change_proxy.side_effect = restarted_proxy
+        with self.assertRaisesRegex(lifecycle.SafetyError, 'exited/restarted'):
+            lifecycle.down(3)
+        self.assert_app_not_stopped()
+
+    def test_work_appearing_at_final_check_prevents_stop(self):
+        self.report.side_effect = [IDLE.copy(), dict(IDLE, active_responses=1, idle_snapshot=False)]
+        with patch.object(lifecycle, 'wait_idle'), self.assertRaisesRegex(lifecycle.SafetyError, 'Work appeared'):
+            lifecycle.down(3)
+        self.assert_app_not_stopped()
+
+    def test_notifier_must_finish_before_stop_and_backup(self):
+        self.units[lifecycle.NOTIFIER].update(ActiveState='active', MainPID='999')
+        with self.assertRaisesRegex(lifecycle.SafetyError, 'Drain timed out'):
+            lifecycle.down(3)
+        self.assert_app_not_stopped()
+        self.units[lifecycle.NOTIFIER].update(ActiveState='inactive', MainPID='0')
+        lifecycle.down(3)
+        self.assertEqual(lifecycle.load()['phase'], 'stopped')
+
+    def test_notifier_work_reappearing_after_quiet_period_prevents_app_stop(self):
+        def notifier_started(state, timeout):
+            self.units[lifecycle.NOTIFIER].update(ActiveState='active', MainPID='999')
+        with patch.object(lifecycle, 'wait_idle', side_effect=notifier_started), self.assertRaises(lifecycle.SafetyError):
+            lifecycle.down(3)
+        self.assert_app_not_stopped()
+        self.fake_verify_gate(lifecycle.load())
+
+    def test_notifier_cgroup_children_block_stop_even_with_inactive_main_process(self):
+        def include_notifier_child(info):
+            if info['ControlGroup'] == '/system.slice/' + lifecycle.NOTIFIER:
+                return {999}
+            return {int(info['MainPID'])} if info['MainPID'] != '0' else set()
+        self.pids.side_effect = include_notifier_child
+        with self.assertRaisesRegex(lifecycle.SafetyError, 'Drain timed out'):
+            lifecycle.down(3)
+        self.assert_app_not_stopped()
+
+    def test_failed_notifier_prevents_successful_drain(self):
+        self.units[lifecycle.NOTIFIER].update(ActiveState='failed', MainPID='0')
+        with self.assertRaises(lifecycle.SafetyError):
+            lifecycle.down(3)
+        self.assert_app_not_stopped()
+
+    def test_down_waits_stable_then_stops_is_idempotent_and_preserves_other_sites(self):
+        lifecycle.down(3)
+        self.assertGreaterEqual(self.now, 2)
+        self.assertEqual(lifecycle.load()['phase'], 'stopped')
+        self.assertIn(OTHER, self.config.read_text())
+        self.assertLess(self.events.index(('proxy', 'closed')), self.events.index(('stop', lifecycle.APP)))
+        before = self.events.copy()
+        lifecycle.down(3)
+        self.assertEqual(self.events.count(('stop', lifecycle.APP)), before.count(('stop', lifecycle.APP)))
+        self.assertEqual(self.events.count(('proxy', 'closed')), before.count(('proxy', 'closed')))
+
+    def test_preexisting_stopped_app_without_checkpoint_is_not_assumed_safe(self):
+        self.units[lifecycle.APP].update(ActiveState='inactive', MainPID='0')
+        with self.assertRaisesRegex(lifecycle.SafetyError, 'without a maintenance checkpoint'):
+            lifecycle.down(3)
+        self.control.assert_not_called()
+        self.assertFalse(self.state_file.exists())
+
+    def test_up_checks_private_health_before_opening_and_restores_boot_and_timer(self):
+        lifecycle.down(3)
+        # Another operator's independent Astra change must survive up.
+        self.config.write_text(self.config.read_text().replace('8788', '8789'))
+        self.events.clear()
+        lifecycle.up(3)
+        self.assertLess(self.events.index(('start', lifecycle.APP)), self.events.index(('health', 'direct')))
+        self.assertLess(self.events.index(('health', 'direct')), self.events.index(('proxy', 'open')))
+        self.assertLess(self.events.index(('proxy', 'open')), self.events.index(('start', lifecycle.TIMER)))
+        self.assertIn(OTHER.replace('8788', '8789'), self.config.read_text())
+        self.assertEqual(self.units[lifecycle.APP]['UnitFileState'], 'enabled')
+        self.assertEqual(self.units[lifecycle.TIMER]['UnitFileState'], 'enabled')
+        self.assertFalse(self.state_file.exists())
+        self.assertEqual(len(list(self.root.glob('completed-*.json'))), 1)
+        self.events.clear()
+        lifecycle.up(3)
+        self.assertEqual(self.events, [('health', 'proxy')])
+
+    def test_up_preserves_initial_disabled_boot_and_inactive_timer(self):
+        self.units[lifecycle.APP]['UnitFileState'] = 'disabled'
+        self.units[lifecycle.TIMER].update(UnitFileState='disabled', ActiveState='inactive')
+        lifecycle.down(3)
+        self.events.clear()
+        lifecycle.up(3)
+        self.assertEqual(self.units[lifecycle.APP]['UnitFileState'], 'disabled')
+        self.assertEqual(self.units[lifecycle.TIMER]['UnitFileState'], 'disabled')
+        self.assertNotIn(('start', lifecycle.TIMER), self.events)
+
+    def test_other_astra_maintenance_and_checkpoint_survive_full_roundtrip(self):
+        other = ASTRA_MAINTENANCE + OTHER[OTHER.index('www.astraplayschess.com'):]
+        astra_checkpoint = self.root / 'astra-maintenance.json'
+        saved = b'{"marker":"other-checkpoint","phase":"stopped"}\n'
+        astra_checkpoint.write_bytes(saved)
+        self.config.write_text(OWN + other)
+        lifecycle.down(3)
+        self.assertEqual(self.config.read_text(), maintenance(lifecycle.load()) + other)
+        self.assertEqual(astra_checkpoint.read_bytes(), saved)
+        lifecycle.up(3)
+        self.assertEqual(self.config.read_text(), OWN + other)
+        self.assertEqual(astra_checkpoint.read_bytes(), saved)
+        self.assertTrue(all(name in (lifecycle.APP, lifecycle.TIMER) for action, name in self.events
+                            if action in ('start', 'stop', 'enable', 'disable')))
+
+    def test_failed_private_health_retains_gate_and_checkpoint(self):
+        lifecycle.down(3)
+        self.events.clear()
+        self.health.side_effect = lifecycle.SafetyError('Fixture health failure')
+        with self.assertRaisesRegex(lifecycle.SafetyError, 'Startup health timed out'):
+            lifecycle.up(3)
+        self.assertNotIn(('proxy', 'open'), self.events)
+        self.assertNotIn(('start', lifecycle.TIMER), self.events)
+        self.assertEqual(lifecycle.load()['phase'], 'starting')
+        self.fake_verify_gate(lifecycle.load())
+
+    def test_retry_after_timer_failure_does_not_restart_app_or_regate_public_site(self):
+        lifecycle.down(3)
+        def fail_timer(action, name):
+            if action == 'start' and name == lifecycle.TIMER:
+                raise lifecycle.SafetyError('Fixture timer failure')
+            self.fake_control(action, name)
+        self.control.side_effect = fail_timer
+        with self.assertRaisesRegex(lifecycle.SafetyError, 'Fixture timer failure'):
+            lifecycle.up(3)
+        self.assertEqual(lifecycle.load()['phase'], 'opening')
+        self.control.side_effect = self.fake_control
+        self.events.clear()
+        lifecycle.up(3)
+        self.assertNotIn(('proxy', 'closed'), self.events)
+        self.assertNotIn(('start', lifecycle.APP), self.events)
+        self.assertIn(('start', lifecycle.TIMER), self.events)
+        self.assertFalse(self.state_file.exists())
+
+    def test_opening_checkpoint_with_failed_app_reestablishes_gate_before_restart(self):
+        lifecycle.down(3)
+        state = lifecycle.load()
+        state['phase'] = 'opening'
+        lifecycle.save(state)
+        self.config.write_text(OWN + OTHER)
+        self.units[lifecycle.APP].update(ActiveState='failed', MainPID='0', Result='exit-code')
+        self.events.clear()
+        lifecycle.up(3)
+        self.assertLess(self.events.index(('proxy', 'closed')), self.events.index(('start', lifecycle.APP)))
+        self.assertLess(self.events.index(('health', 'direct')), self.events.index(('proxy', 'open')))
+        self.assertFalse(self.state_file.exists())
+
+    def test_failed_app_without_checkpoint_has_no_automatic_start(self):
+        self.units[lifecycle.APP].update(ActiveState='failed', MainPID='0')
+        with self.assertRaisesRegex(lifecycle.SafetyError, 'failed or transitioning'):
+            lifecycle.up(3)
+        self.control.assert_not_called()
+
+
+if __name__ == '__main__':
+    unittest.main()

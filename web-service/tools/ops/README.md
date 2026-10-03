@@ -1,5 +1,14 @@
 # Operator tools and preserved deployment procedures
 
+For the October 3 Lightsail snapshot/host upgrade, use
+[Arcturus shutdown/startup](ARCTURUS-SERVICE-LIFECYCLE.md): installed
+`~/arcturus-down.sh` and `~/arcturus-up.sh` under `ec2-user`. These explicitly
+operated helpers gate both Arcturus domains, drain accepted work and retain
+maintenance across reboot. They share Astra's proxy lock, preserve its existing
+maintenance, and keep a separate checkpoint. Do not use the older temporary
+maintenance context manager for a host migration; it assumes Astra is running
+and restores maintenance automatically on exit.
+
 The inventory, notification and rehearsal tools below preserve reusable parts
 of the first hosted deployments. Run
 them from a checkout containing the complete repository, using the application's
