@@ -57,7 +57,10 @@ substitute another model. **An operator's interactive ChatGPT/Codex login is
 not the service credential.** The bridge uses its own API provider and
 `OPENAI_API_KEY`, even if the operator is already signed into Codex.
 
-The tested server had 2 vCPUs and 8 GB RAM. Start with one active worker and
+The initial tested server had 2 vCPUs and 8 GB RAM. The
+[October 3 migration](HANDOFF.md#october-3-2026-lightsail-migration-completed)
+restored the service onto a 4-vCPU / 16-GB plan without changing application
+resource caps or worker concurrency. Start with one active worker and
 measure your host rather than treating this as a minimum specification. The
 unit permits one logical CPU of aggregate work, 2 GiB RAM and 64 tasks for the
 application and all its descendants. Those are caps, not reserved capacity.
@@ -558,13 +561,25 @@ versions requires the protocol and paid runtime checks again. Changes to unit
 files also need `systemctl daemon-reload` before restart. Reopen proxy access
 after the restarted application passes its local health check.
 
-For a new Linux host, rebuild the runtimes and virtual environment, restore a
-coherent stopped-service data backup with `astra` ownership and private modes,
+For a fresh Linux installation, rebuild the runtimes and virtual environment,
+restore a coherent stopped-service data backup with `astra` ownership and private modes,
 and use the same code revision and paths initially. Stop the old service before
 starting the restored state on the new one. Verify privately, then change DNS
 and verify HTTPS again. Do not run two schedulers over the same data directory.
 Windows-to-Linux transfer of existing Codex continuation state was not tested
 in the first deployment; a fresh hosted database avoids claiming that migration.
+
+A whole-instance Lightsail snapshot instead preserves the installed filesystem,
+including runtimes and maintenance checkpoints; the October 3 migration used
+this path without reinstalling. Drain each service, stop the old instance, wait
+for its manual snapshot to complete, and create the larger replacement in the
+same region. Recreate custom cloud firewall rules, attach a static IP and update
+DNS/SSH references as needed before reopening access. Keep the original stopped;
+verify the replacement and run the services' up scripts sequentially, preserving
+the other site's proxy blocks. Confirm boot enablement, timers, HTTPS and saved
+game recovery. Retain the snapshot when retiring the old instance. See the
+[AWS snapshot procedure](https://docs.aws.amazon.com/lightsail/latest/userguide/lightsail-how-to-create-instance-from-snapshot.html)
+and [static-IP guidance](https://docs.aws.amazon.com/lightsail/latest/userguide/amazon-lightsail-faq-networking.html).
 
 Password-reset email is optional. Configure an outbound SMTP provider using
 the `ASTRA_SMTP_*` settings in the [configuration table](README.md#configuration),

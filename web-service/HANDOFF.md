@@ -17,6 +17,86 @@ that no service has been implemented is historical. This document is the
 entry point for the hosted branch. Keep the **whole repository**: the service
 imports the root engine, replay builder and historical replay assets.
 
+## October 3, 2026: Lightsail migration completed
+
+**The chess services are back online on the larger replacement host.** Mike
+confirmed that browser refreshes and resumption of his suspended games worked
+on both Astra and Arcturus. The following record supersedes earlier host/IP
+details; other dated feature and validation checkpoints below retain their scope.
+
+| Item | Migration checkpoint |
+| --- | --- |
+| Replacement instance | `MPF_Lightsail_16GB`, Amazon Linux 2023, Oregon / `us-west-2a` |
+| Plan and observed hardware | General purpose, dual-stack, 16 GB RAM / 4 vCPUs / 320 GB SSD plan; Mike's `free -h` reported 15 GiB total, about 14 GiB available before application startup, and `nproc` reported 4. Filesystem expansion was not separately checked. |
+| Permanent public IPv4 | `16.145.194.176`, attached static-IP resource `Lightsail_16GB_static` |
+| Private IPv4 / observed hostname | `172.26.15.53` / `ip-172-26-15-53.us-west-2.compute.internal` |
+| Original stopped instance | `MPF_Lightsail`; its former dynamic IPv4 `54.190.167.232` is historical and must not be used to identify or reconnect to it without checking AWS. |
+| Retained manual snapshot | `MPF_Lightsail_2026-10-03_pre-upgrade`, created October 3 at 13:10 CDT (18:10 UTC), after shutdown |
+| Local Astra worktree | `C:\Users\MikeFrank\Documents\ChatGPT\Chess\hosted-worktree`, branch `codex/hosted-chess` |
+| Deployed Astra checkout | `/home/astra/astra-chess`, branch `codex/hosted-chess`, clean at `90e778dcccdbf70f07a21962b8f1afdd20d9afb0` when checked after migration |
+
+Mike ran `/home/ec2-user/astra-down.sh`, then the independently adapted
+`/home/ec2-user/arcturus-down.sh`. Both reported 30 continuous quiet seconds
+with zero responses, replay jobs, token reservations and child processes, and
+an inactive notifier, before stopping their application and leaving it and its
+notification timer disabled across reboot. The first Astra attempt had exposed
+the Caddy HTTPS-listener readiness race; `90e778d` fixed that before the successful
+retry. See [the lifecycle guide](tools/ops/SERVICE-LIFECYCLE.md) for the bounded
+readiness checks, recoverable checkpoints and no-force-stop behavior.
+
+Mike stopped the old instance, waited for the manual snapshot, and created the
+replacement from it. Code, user-local runtimes, service configuration, private
+game state and TLS files were carried by the snapshot; no application reinstall
+or runtime upgrade was performed in this session. The old address was dynamic,
+so a new static IP was allocated on the replacement. Mike updated the GoDaddy
+A records for `astraplayschess.com`, `arcturus.astraplayschess.com` and
+`arcturuschess.com`, plus the `lightsail` alias in
+`C:\Users\MikeFrank\.ssh\config`. The alias connects as `ec2-user`; its retained
+`old-lightsail` entry is only a historical address reference. Do not print or
+commit SSH key contents. The new Lightsail firewall was restored to TCP 80 and
+22 from IPv4/IPv6, with browser SSH allowed, and TCP 443 from IPv4. No website
+AAAA records were reported in use. Custom cloud firewall rules are not restored
+by the filesystem snapshot.
+
+Mike successfully ran `/home/ec2-user/astra-up.sh` and then
+`/home/ec2-user/arcturus-up.sh` on the replacement. A subsequent read-only SSH
+and external HTTPS audit verified:
+
+- `astra-chess.service`, `or-chess.service` and `astra-caddy.service` were active
+  and enabled, with persistent links under `multi-user.target.wants`.
+- `astra-game-notify.timer` and `or-chess-game-notify.timer` were active, enabled
+  under `timers.target.wants`, persistent, and scheduled. Their oneshot notifier
+  services may correctly be inactive between scheduled runs.
+- The default `graphical.target` requires `multi-user.target`, and network-online
+  dependencies were present. All three long-running services use restart on
+  failure with a five-second delay. No failed systemd units were reported.
+- Active `maintenance.json` checkpoints were absent from both
+  `/var/lib/astra-chess-ops` and `/var/lib/arcturus-chess-ops`; retained audits and
+  backups should remain private.
+- `/health` on all three domain names above returned HTTP 200 and `{"ok":true}`
+  over certificate-verified HTTPS, with the connected address `16.145.194.176`.
+
+These are live configuration/health checks plus Mike's successful game-resumption
+report, not a post-restoration reboot test or a complete database digest audit.
+No new paid model test, notification email, service restart or configuration
+change was initiated by this verification. The larger host does not raise the
+existing per-service limits: live Astra settings remained 100% aggregate CPU /
+2 GiB / 64 tasks; Arcturus 200% / 2 GiB / 128 tasks; Caddy 25% / 256 MiB / 64 tasks.
+No worker-concurrency or application budget changes were made.
+
+**Remaining boundaries:** keep the old instance stopped until Mike has checked
+unrelated workloads/files, then he may delete it while retaining the manual
+snapshot. Deletion has not been confirmed here. Telegram bot restoration and
+the intended GPT-2 deployment are outside this chess session; GPT-2 is managed
+in a separate Codex project. Arcturus source and its own migration documentation
+belong to `C:\Users\MikeFrank\Documents\ChatGPT\Chess\openrouter-worktree`, branch
+`codex/openrouter-chess`, and `/home/or-chess/astra-chess` on the server. Do not
+update that worktree or restore an old budget ledger/database from this branch.
+Caddy remains shared at `/home/astra/.config/astra-chess/Caddyfile`; coordinate
+changes with `/run/lock/astra-caddy-config.lock`. This checkpoint is documentation
+only; recording it does not authorize restarting active games or pulling code
+into a running service checkout.
+
 ## Start here in a new session
 
 1. Read this file and [the repository instructions](../AGENTS.md), then check
@@ -184,8 +264,9 @@ old complete database over newer games. Rehearse migrations on a private copy.
 
 ## Deployment and private data
 
-The current shared-purpose host runs Amazon Linux 2023, with two vCPUs and 8 GB
-RAM. The service's dedicated account is **astra**, not the early typo "alpha".
+After the October 3 migration, the shared-purpose host runs Amazon Linux 2023
+on a four-vCPU / 16 GB RAM plan; see the migration checkpoint above. The service's
+dedicated account is **astra**, not the early typo "alpha".
 Windows SSH alias `lightsail` reaches `ec2-user`; use `sudo -n -iu astra` for
 account operations. Keep installations primarily under this account, as Mike
 requested. Do not disturb the other services on the machine.

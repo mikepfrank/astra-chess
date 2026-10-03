@@ -148,12 +148,12 @@ refusal/recovery paths without running systemd or changing the deployed service:
 python -m unittest discover -s tests -p test_service_lifecycle.py -v
 ```
 
-On October 3, 2026, the live read-only `--check` passed with system Python
-3.9.25. Caddy validated both the current configuration and a temporary
+Before migration on October 3, 2026, the live read-only `--check` passed with
+system Python 3.9.25. Caddy validated both the current configuration and a temporary
 maintenance candidate; direct and HTTPS health checks passed. The live Caddyfile
 and all three service PIDs (Astra, Caddy, Arcturus) remained unchanged. None of
-these checks is evidence of a completed live stop/start cycle. Perform the
-first actual cycle only when maintenance is intended.
+these pre-migration checks alone was evidence of a completed live stop/start
+cycle; the later completed cycle is recorded below.
 
 Both wrappers were installed in `/home/ec2-user/` and their `--check` commands
 passed. No service was stopped, restarted, enabled or disabled for installation
@@ -165,3 +165,24 @@ Astra and Arcturus retained their original app PIDs. The readiness correction
 adds regression coverage for initial connection refusal, delayed readiness,
 permanent failure, deadline accounting, and verified rollback. A `preparing`
 checkpoint from this early failure can be reused; do not delete it to retry.
+
+## October 3 completed migration cycle
+
+After the readiness fix, Mike successfully ran Astra down, with 30 continuous
+quiet seconds and no remaining response, replay, reservation, child-worker or
+notifier activity. The separate Arcturus operator prepared its own helpers;
+Mike then successfully drained/stopped Arcturus as well. The whole host was
+stopped and snapshotted, and a larger replacement was created from that snapshot.
+
+On the replacement Mike successfully ran `~/astra-up.sh`, then
+`~/arcturus-up.sh`. Read-only verification found both apps, shared Caddy and both
+notification timers active and enabled under their boot targets, no remaining
+active maintenance checkpoints, and healthy public HTTPS on all three chess
+hostnames. Mike refreshed both sites and resumed his suspended games. No
+subsequent reboot test was performed. This establishes an actual operator-run
+shutdown/snapshot/restore/startup cycle; it does not replace the separate
+fixture-based tests or establish a complete database digest comparison.
+
+The [hosted handoff](../../HANDOFF.md#october-3-2026-lightsail-migration-completed)
+records the replacement identity, static IP, retained snapshot, resource limits,
+verification scope and unrelated workloads left to their own operators.

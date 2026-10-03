@@ -1,5 +1,11 @@
 # Lightsail deployment checkpoint
 
+**Latest host update, October 3, 2026:** the service was restored from a stopped
+instance snapshot onto `MPF_Lightsail_16GB` (4 vCPUs / 16 GB RAM plan), with static
+IPv4 `16.145.194.176`. See the [migration handoff](../HANDOFF.md#october-3-2026-lightsail-migration-completed)
+for the cutover, boot-enable checks, game-resumption evidence and remaining
+boundaries. The installation history below retains its original dates/settings.
+
 For instructions to reproduce this deployment on your own host, start with the
 [deployment walkthrough](../DEPLOYMENT.md). This checkpoint preserves the
 first installation's settings and observed results.
@@ -91,8 +97,10 @@ game was resigned without moves or messages, and the QA guest signed out.
 
 ## Public routing and service operation
 
-The user purchased `astraplayschess.com` through GoDaddy. Its apex A record
-resolves to `54.190.167.232`; `www` has a CNAME and redirects to the apex.
+The user purchased `astraplayschess.com` through GoDaddy. At the original
+September deployment its apex A record resolved to `54.190.167.232`; the
+October 3 migration changed it to static IPv4 `16.145.194.176`. `www` has a CNAME
+and redirects to the apex.
 Caddy listens on ports 80 and 443 and forwards application traffic to
 `127.0.0.1:8788`. The application uses `ASTRA_ORIGIN=https://astraplayschess.com`
 and `--proxy-headers`, trusting forwarded client addresses and scheme only from
