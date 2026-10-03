@@ -6,7 +6,7 @@ baseline and its deployment history are preserved below.
 
 ## October 3: safe shutdown/startup helpers for host migration
 
-Preparing the requested `ec2-user` entrypoints `~/arcturus-down.sh` and
+**Installed at `1cc6b2a`.** The requested `ec2-user` entrypoints `~/arcturus-down.sh` and
 `~/arcturus-up.sh`; source helper is `tools/ops/arcturus_service.py`, adapted
 from Astra's `90e778d` lifecycle/readiness fix without merging that branch.
 **Actual shutdown/startup is reserved for Mike.** At preparation, Astra is
@@ -30,6 +30,19 @@ Read the [operator guide](tools/ops/ARCTURUS-SERVICE-LIFECYCLE.md) and
 and checks. Do not reuse older deployment gates (they assume Astra is active),
 do not revive Astra, and do not run either startup helper on both old and new
 hosts. No new dependencies or sudoers changes are needed.
+
+The wrappers are installed in `/home/ec2-user` with ec2-user ownership/mode 0700;
+both installed `--check` invocations passed using system Python. All 95 focused
+tests passed on Windows and Linux; both shell wrappers passed `sh -n`.
+Current Caddy and a temporary candidate gating both Arcturus hostnames validated
+as `astra`, without applying that candidate. Direct and HTTPS health passed for
+both names. All sampled unit states/identities stayed unchanged, including
+Arcturus 83871, Caddy 466253, stopped/disabled Astra and its disabled timer.
+Private Caddy/Astra-checkpoint/budget/config/notifier-state SHA-256 comparisons
+were identical before and after checks/install. No Arcturus checkpoint was
+created. Private receipts are in the staged checkout's
+`web-service/var/lifecycle-preflight.json` and `lifecycle-install.json`.
+Actual shutdown/startup is still reserved for Mike; a live cycle is not claimed.
 
 ## September 23: $100 UTC calendar-month allowance and BETA
 

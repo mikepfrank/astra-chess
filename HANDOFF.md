@@ -2,7 +2,7 @@
 
 ## October 3: migration lifecycle scripts
 
-Preparing `arcturus-down.sh` / `arcturus-up.sh`, adapted from the hosted Astra
+**Installed at `1cc6b2a`.** `arcturus-down.sh` / `arcturus-up.sh`, adapted from the hosted Astra
 reference at `90e778d`, for Mike's larger Lightsail instance migration.
 **Do not run actual down/up during preparation.** Mike will invoke them around
 his instance snapshot/cutover. Astra is already stopped/disabled behind its own
@@ -16,6 +16,15 @@ as Astra. Independent checkpoint `/var/lib/arcturus-chess-ops` and operation
 lock, shared `/run/lock/astra-caddy-config.lock`. Preserve the full game,
 continuation, credential, notifier and v3 budget state in the snapshot; no
 budget or game migration/reset is needed. Keep the old host stopped after cutover.
+
+Both wrappers are installed mode 0700 in `/home/ec2-user/`. All 95 focused tests
+passed on Windows and Linux. System-Python `--check` passed for each installed
+wrapper; actual two-domain maintenance configuration validated without applying
+it. No services were restarted or boot/timer settings changed. Arcturus PID
+83871 and Caddy PID 466253 stayed unchanged; Astra is still stopped. Caddyfile,
+Astra checkpoint, monthly ledger and Arcturus private app/notifier configuration
+and notifier state were unchanged by installation/checks. Actual down/up remain
+uninvoked, awaiting Mike. No Arcturus maintenance checkpoint exists yet.
 
 ## September 23: monthly budget and beta label
 
