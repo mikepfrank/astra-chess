@@ -2,6 +2,7 @@
 from contextlib import ExitStack, nullcontext
 import json
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -16,6 +17,20 @@ IDLE = dict(active_responses=0, building_replays=0, reserved_tokens=0, idle_snap
 
 
 class ProxySafetyTests(unittest.TestCase):
+    def setUp(self):
+        self.now = 0.0
+        def advance(seconds):
+            self.now += seconds
+        for target, name, options in (
+            (lifecycle.time, 'monotonic', {'side_effect': lambda: self.now}),
+            (lifecycle.time, 'sleep', {'side_effect': advance}),
+            (lifecycle, 'command', {'side_effect': AssertionError('Unexpected external command in unit test')}),
+            (lifecycle, 'log', {}),
+        ):
+            patcher = patch.object(target, name, **options)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
     def test_astra_replacement_preserves_other_sites_and_later_edits(self):
         original = '{\n    admin off\n}\n' + NORMAL + OTHER
         gated = lifecycle.maintenance_block('a' * 32)
@@ -82,10 +97,13 @@ class ProxySafetyTests(unittest.TestCase):
                 config.write_bytes(config.read_bytes().replace(b'8792', b'8793'))
                 raise lifecycle.SafetyError('Public health failed')
             stack.enter_context(patch.object(lifecycle, 'health', side_effect=failed_health))
-            with self.assertRaisesRegex(lifecycle.SafetyError, 'Public health failed'):
+            gate = stack.enter_context(patch.object(lifecycle, 'verify_gate', side_effect=[
+                lifecycle.SafetyError('Rollback socket not listening yet'), None]))
+            with self.assertRaises(lifecycle.SafetyError):
                 lifecycle.change_proxy(state, gated=False)
             self.assertEqual(config.read_text(), maintenance + OTHER.replace('8792', '8793'))
             self.assertEqual(restart.call_count, 2)
+            self.assertEqual(gate.call_count, 2, 'Rollback must wait for its own proxy readiness')
 
     def test_config_changed_during_validation_is_not_overwritten_or_restarted(self):
         state = dict(marker='c' * 32, original_block=NORMAL)
@@ -117,6 +135,67 @@ class ProxySafetyTests(unittest.TestCase):
                 lifecycle.change_proxy(state, gated=True)
             self.assertEqual(config.read_text(), maintenance + OTHER)
             restart.assert_not_called()
+
+    def test_proxy_connection_refused_then_ready_does_not_trigger_rollback(self):
+        state = dict(marker='e' * 32, original_block=NORMAL)
+        maintenance = lifecycle.maintenance_block(state['marker'])
+        for gated in (True, False):
+            with self.subTest(gated=gated), tempfile.TemporaryDirectory() as folder, ExitStack() as stack:
+                config = Path(folder) / 'Caddyfile'
+                initial, desired = (NORMAL, maintenance) if gated else (maintenance, NORMAL)
+                config.write_bytes((initial + OTHER).encode())
+                stack.enter_context(patch.object(lifecycle, 'CADDYFILE', config))
+                stack.enter_context(patch.object(lifecycle, 'atomic_write', side_effect=lambda path, value, **kw: Path(path).write_bytes(value)))
+                stack.enter_context(patch.object(lifecycle, 'validate_config'))
+                stack.enter_context(patch.object(lifecycle, 'unit', return_value={'ActiveState': 'active'}))
+                restart = stack.enter_context(patch.object(lifecycle, 'control'))
+                probe = stack.enter_context(patch.object(lifecycle, 'verify_gate' if gated else 'health', side_effect=[
+                    lifecycle.SafetyError('curl exit 7: connection refused'), None]))
+                lifecycle.change_proxy(state, gated=gated)
+                restart.assert_called_once_with('restart', lifecycle.PROXY)
+                self.assertEqual(probe.call_count, 2)
+                self.assertEqual(config.read_text(), desired + OTHER)
+
+    def test_proxy_readiness_retry_tolerates_transient_parse_and_timeout_errors(self):
+        with patch.object(lifecycle, 'unit', return_value={'ActiveState': 'active'}), \
+                patch.object(lifecycle, 'verify_gate', side_effect=[
+                    ValueError('Incomplete HTTP response'), subprocess.TimeoutExpired('curl', 10), None]) as probe:
+            lifecycle.wait_proxy({'marker': 'f' * 32}, gated=True, timeout=2)
+        self.assertEqual(probe.call_count, 3)
+        self.assertGreater(self.now, 0)
+        self.assertLessEqual(self.now, 2)
+
+    def test_proxy_readiness_persistent_refusal_times_out_without_false_success(self):
+        with patch.object(lifecycle, 'unit', return_value={'ActiveState': 'active'}), \
+                patch.object(lifecycle, 'verify_gate', side_effect=lifecycle.SafetyError('Connection refused')) as probe:
+            with self.assertRaises(lifecycle.SafetyError):
+                lifecycle.wait_proxy({'marker': 'f' * 32}, gated=True, timeout=2)
+        self.assertGreaterEqual(probe.call_count, 2)
+        self.assertLessEqual(probe.call_count, 6)
+        self.assertGreaterEqual(self.now, 2)
+        self.assertLessEqual(self.now, 2.5)
+
+    def test_failed_or_inactive_proxy_does_not_wait_full_readiness_timeout(self):
+        for status in ('failed', 'inactive'):
+            with self.subTest(status=status), patch.object(lifecycle, 'unit', return_value={'ActiveState': status}), \
+                    patch.object(lifecycle, 'verify_gate') as probe:
+                before = self.now
+                with self.assertRaises(lifecycle.SafetyError):
+                    lifecycle.wait_proxy({'marker': 'f' * 32}, gated=True, timeout=2)
+                probe.assert_not_called()
+                self.assertEqual(self.now, before)
+
+    def test_readiness_deadline_bounds_multiple_gate_probe_requests(self):
+        state = {'marker': 'f' * 32}
+        def slow_response(path, *, timeout, **kwargs):
+            self.now += timeout
+            return 503, 'x-astra-maintenance: ' + state['marker'], ''
+        with patch.object(lifecycle, 'unit', return_value={'ActiveState': 'active'}), \
+                patch.object(lifecycle, 'curl', side_effect=slow_response) as request:
+            with self.assertRaises(lifecycle.SafetyError):
+                lifecycle.wait_proxy(state, gated=True, timeout=2)
+        self.assertEqual(self.now, 2)
+        request.assert_called_once_with('/health', timeout=2)
 
 
 class FakeHostTests(unittest.TestCase):
@@ -187,14 +266,14 @@ class FakeHostTests(unittest.TestCase):
             if name == lifecycle.APP:
                 self.units[name].update(MainPID='200', ExecMainStartTimestampMonotonic='2000')
 
-    def fake_health(self, *, proxy):
+    def fake_health(self, *, proxy, deadline=None):
         self.events.append(('health', 'proxy' if proxy else 'direct'))
         if self.units[lifecycle.APP]['ActiveState'] != 'active':
             raise lifecycle.SafetyError('Fixture app is not healthy')
         if proxy and lifecycle.site_block(self.config.read_text()) != NORMAL:
             raise lifecycle.SafetyError('Fixture proxy is gated')
 
-    def fake_verify_gate(self, state):
+    def fake_verify_gate(self, state, *, deadline=None):
         self.events.append(('verify', 'gate'))
         self.assertEqual(lifecycle.site_block(self.config.read_text()), lifecycle.maintenance_block(state['marker']))
 
@@ -230,6 +309,17 @@ class FakeHostTests(unittest.TestCase):
             lifecycle.down(3)
         self.assert_app_not_stopped()
         self.fake_verify_gate(lifecycle.load())
+
+    def test_proxy_readiness_timeout_during_down_never_stops_application(self):
+        # A successful systemctl restart is insufficient: the admission gate
+        # must answer HTTPS before the shutdown orchestration may proceed.
+        self.gate.side_effect = lifecycle.SafetyError('curl exit 7: connection refused')
+        self.change_proxy.side_effect = lambda state, gated: lifecycle.wait_proxy(state, gated=gated, timeout=2)
+        with self.assertRaises(lifecycle.SafetyError):
+            lifecycle.down(3)
+        self.assert_app_not_stopped()
+        self.assertNotIn(('stop', lifecycle.TIMER), self.events)
+        self.assertEqual(lifecycle.load()['phase'], 'preparing')
 
     def test_worker_children_block_stop_even_if_database_reports_idle(self):
         self.children = {101}

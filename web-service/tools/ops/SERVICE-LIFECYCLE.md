@@ -71,6 +71,13 @@ removing maintenance requires a brief restart of the shared proxy. Web requests
 to both sites can be interrupted during that restart; independently running AI
 turns continue.
 
+After each proxy restart, including rollback, the helper gives HTTPS a
+30-second readiness window. Caddy's `Type=exec` systemd unit can report
+`active` before the HTTPS listener is ready. An initial connection refusal
+therefore triggers another probe, not immediate rollback. Only the expected
+maintenance marker or a successful health response completes this check.
+Individual systemctl calls have their own bounded command timeout.
+
 ## Resume and recovery
 
 `astra-up.sh` starts Astra behind maintenance, waits for local health, restores
@@ -132,7 +139,7 @@ Do not replace another service's Caddy configuration or TLS state blindly.
 
 ## Validation scope
 
-The 24 fixture-based lifecycle tests passed on both Windows and the Lightsail
+The 30 fixture-based lifecycle tests passed on both Windows and the Lightsail
 host's system Python; the six existing operator inventory/migration tests also
 passed on Windows. They check control flow and
 refusal/recovery paths without running systemd or changing the deployed service:
@@ -151,3 +158,10 @@ first actual cycle only when maintenance is intended.
 Both wrappers were installed in `/home/ec2-user/` and their `--check` commands
 passed. No service was stopped, restarted, enabled or disabled for installation
 or validation. No new sudo permissions or packages were installed.
+
+The first user shutdown attempt exposed a proxy-readiness race: an immediate
+curl exit 7 caused rollback before the new Caddy process started listening.
+Astra and Arcturus retained their original app PIDs. The readiness correction
+adds regression coverage for initial connection refusal, delayed readiness,
+permanent failure, deadline accounting, and verified rollback. A `preparing`
+checkpoint from this early failure can be reused; do not delete it to retry.

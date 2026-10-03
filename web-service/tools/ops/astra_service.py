@@ -35,6 +35,8 @@ RUNUSER = '/usr/sbin/runuser'
 CURL = '/usr/bin/curl'
 STABLE_SECONDS = 30
 POLL_SECONDS = 5
+PROXY_READY_SECONDS = 30
+PROXY_POLL_SECONDS = 0.5
 
 
 class SafetyError(RuntimeError):
@@ -52,7 +54,8 @@ def command(args, *, astra=False, timeout=60):
                             timeout=timeout, check=False)
     if result.returncode:
         # Do not echo arbitrary tool output (Caddy config may contain secrets).
-        raise SafetyError('Command failed (exit %s): %s' % (result.returncode, args[0]))
+        detail = ' (could not connect to the HTTP/HTTPS listener)' if str(args[0]) == CURL and result.returncode == 7 else ''
+        raise SafetyError('Command failed (exit %s): %s%s' % (result.returncode, args[0], detail))
     return result.stdout
 
 
@@ -222,30 +225,64 @@ def load():
     return state
 
 
-def curl(path, *, proxy=True):
-    args = [CURL, '--silent', '--show-error', '--noproxy', '*', '--max-time', '10',
+def curl(path, *, proxy=True, timeout=10):
+    args = [CURL, '--silent', '--show-error', '--noproxy', '*', '--max-time', str(timeout),
             '--dump-header', '-', '--write-out', '\n%{http_code}']
     if proxy:
         args += ['--resolve', DOMAIN + ':443:127.0.0.1', 'https://' + DOMAIN + path]
     else:
         args += ['--header', 'Host: ' + DOMAIN, 'http://127.0.0.1:8788' + path]
-    output = command(args, timeout=15).replace('\r\n', '\n')
+    output = command(args, timeout=timeout + 1).replace('\r\n', '\n')
     payload, status = output.rsplit('\n', 1)
     headers, body = payload.split('\n\n', 1)
     return int(status), headers.lower(), body
 
 
-def verify_gate(state):
+def probe_timeout(deadline):
+    if deadline is None:
+        return 10
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise SafetyError('Proxy readiness deadline expired.')
+    return min(10, remaining)
+
+
+def verify_gate(state, *, deadline=None):
     for path in ('/health', '/api/config'):
-        status, headers, _ = curl(path)
+        status, headers, _ = curl(path, timeout=probe_timeout(deadline))
         if status != 503 or ('x-astra-maintenance: ' + state['marker']) not in headers:
             raise SafetyError('Astra maintenance response is not confirmed. No app stop was attempted.')
 
 
-def health(*, proxy):
-    status, _, body = curl('/health', proxy=proxy)
+def health(*, proxy, deadline=None):
+    status, _, body = curl('/health', proxy=proxy, timeout=probe_timeout(deadline))
     if status != 200 or json.loads(body).get('ok') is not True:
         raise SafetyError('Astra health check failed.')
+
+
+def wait_proxy(state, *, gated, timeout=PROXY_READY_SECONDS):
+    """Type=exec means launched, not listening; require the real HTTPS response."""
+    deadline = time.monotonic() + timeout
+    waiting_logged = False
+    while True:
+        info = unit(PROXY)
+        if info['ActiveState'] in ('failed', 'inactive', 'deactivating'):
+            raise SafetyError('Shared Caddy proxy is ' + info['ActiveState'] + '; inspect its journal.')
+        try:
+            if gated:
+                verify_gate(state, deadline=deadline)
+            else:
+                health(proxy=True, deadline=deadline)
+            return
+        except (SafetyError, ValueError, subprocess.TimeoutExpired) as error:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise SafetyError('Caddy HTTPS readiness timed out after %ss. Last check: %s' %
+                                  (timeout, error)) from None
+            if not waiting_logged:
+                log('Waiting for Caddy HTTPS readiness (up to %ss)...' % timeout)
+                waiting_logged = True
+            time.sleep(min(PROXY_POLL_SECONDS, remaining))
 
 
 def validate_config(path, *, gated):
@@ -292,12 +329,7 @@ def change_proxy(state, *, gated):
         installed = True
         # admin off + bind-mounted Caddyfile means a controlled restart is needed.
         control('restart', PROXY)
-        if unit(PROXY)['ActiveState'] != 'active':
-            raise SafetyError('Shared Caddy proxy did not restart successfully.')
-        if gated:
-            verify_gate(state)
-        else:
-            health(proxy=True)
+        wait_proxy(state, gated=gated)
     except BaseException:
         # Restore only the block we changed; never erase concurrent other-site edits.
         # On opening failure, return to maintenance. On closing failure, return
@@ -313,6 +345,7 @@ def change_proxy(state, *, gated):
                     raise SafetyError('Proxy configuration changed during recovery.')
                 atomic_write(CADDYFILE, reverted, owner=(info.st_uid, info.st_gid), mode=info.st_mode & 0o777)
                 control('restart', PROXY)
+                wait_proxy(state, gated=(fallback == maintenance))
         except BaseException:
             log('Proxy recovery failed. Inspect astra-caddy.service and the Caddyfile before proceeding.')
         raise
@@ -398,7 +431,7 @@ def down(timeout):
             change_proxy(state, gated=True)
         else:
             try:
-                verify_gate(state)
+                wait_proxy(state, gated=True)
             except SafetyError:
                 change_proxy(state, gated=True)
     control('stop', TIMER)
@@ -450,7 +483,10 @@ def up(timeout):
             already_open = False
     if not already_open:
         with lock(CONFIG_LOCK):
-            change_proxy(state, gated=True) if site_block(CADDYFILE.read_text()) != maintenance_block(state['marker']) else verify_gate(state)
+            if site_block(CADDYFILE.read_text()) != maintenance_block(state['marker']):
+                change_proxy(state, gated=True)
+            else:
+                wait_proxy(state, gated=True)
         state['phase'] = 'starting'
         save(state)
         control('start', APP)
