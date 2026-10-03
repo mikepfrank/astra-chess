@@ -47,6 +47,7 @@ imports the root engine, replay builder and historical replay assets.
 | Actual hosted opponent instructions | [Player prompt](prompts/player.md) |
 | Original first-human-game export and sanitized reconstruction | [Preserved replay](replays/README.md) |
 | Repeatable browser QA and operator helpers | [Browser checks](tests/browser/README.md), [operator tools](tools/ops/README.md) |
+| Drain, stop and resume Astra without cancelling AI turns | [Maintenance helpers](tools/ops/SERVICE-LIFECYCLE.md); `ec2-user` entrypoints, private recovery checkpoint, and shared-Caddy coordination |
 
 ## What Mike wants preserved
 

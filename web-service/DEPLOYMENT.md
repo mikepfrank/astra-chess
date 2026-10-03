@@ -544,7 +544,12 @@ incoming requests at the proxy while allowing the application to finish all
 active responses and replay builds. Verify its saved activity and token
 reservations are idle, then stop the application and recheck. An idle snapshot
 without gating can race with a player's next move, and current shutdown cancels
-active workers. Take a backup, update the checkout as `astra`, reinstall changed
+active workers. The [Astra maintenance helpers](tools/ops/SERVICE-LIFECYCLE.md)
+automate this sequence and resumption for the current Lightsail installation,
+using `ec2-user`'s existing sudo access. Caddy is now shared with Arcturus: the
+helpers change only Astra's site block, but applying it briefly restarts the
+shared proxy. Coordinate proxy changes with the other service's operator.
+Take a backup, update the checkout as `astra`, reinstall changed
 requirements if needed, rerun appropriate checks, and restart. Do not pull code
 into a running player's source tree. An engine fingerprint mismatch blocks
 resumption of unfinished games; retain the old engine revision until those
