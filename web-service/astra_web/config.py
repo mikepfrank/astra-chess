@@ -6,6 +6,12 @@ import re
 
 APP_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = APP_ROOT.parent
+DEPLOYMENT_URL = 'https://github.com/mikepfrank/astra-chess/blob/codex/hosted-chess/web-service/DEPLOYMENT.md'
+NEW_GAMES_PAUSED_MESSAGE = (
+    'New games cannot be started for the time being due to API costs. '
+    'You can continue games that have already been started, including suspended games. '
+    'If you have your own OpenAI API key and web hosting, you can deploy your own instance '
+    'by asking Codex/Astra or a similar coding agent to follow our deployment guide.')
 
 
 def is_bare_email(value: str) -> bool:
@@ -52,6 +58,18 @@ class Config:
     @property
     def db_path(self):
         return self.data_dir / "astra.sqlite3"
+
+    @property
+    def new_games_available(self):
+        """Re-read the operator's pause marker so admission can change without a restart."""
+        try:
+            (self.data_dir / 'new-games-paused').lstat()
+        except FileNotFoundError:
+            return True
+        except OSError:
+            # If the admission control cannot be read, do not incur new-game costs.
+            return False
+        return False
 
     def validate(self):
         if self.player_mode not in {"disabled", "codex", "test"}:

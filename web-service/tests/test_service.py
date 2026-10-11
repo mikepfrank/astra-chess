@@ -15,7 +15,7 @@ from fastapi.testclient import TestClient
 
 from astra_web.app import create_app
 from astra_web import chess_game as game
-from astra_web.config import Config
+from astra_web.config import Config, DEPLOYMENT_URL, NEW_GAMES_PAUSED_MESSAGE
 from astra_web.process_lock import ProcessLock
 
 
@@ -89,6 +89,93 @@ class ServiceTests(unittest.TestCase):
                 return self.app.state.store.get(game_id)
             time.sleep(0.01)
         self.fail("Fake worker did not finish in time")
+
+    def test_new_game_pause_is_dynamic_and_rejects_both_colors_without_side_effects(self):
+        players = FakePlayers()
+        self.start(players)
+        public = self.client.get('/api/config')
+        self.assertTrue(public.json()['new_games_available'])
+        self.assertEqual(public.json()['new_games_message'], '')
+        self.assertEqual(public.json()['deployment_url'], DEPLOYMENT_URL)
+        self.assertEqual(self.client.get('/api/new-game-policy').json(),
+                         {key: public.json()[key] for key in ('new_games_available', 'new_games_message', 'deployment_url')})
+        self.register()
+        marker = self.config.data_dir / 'new-games-paused'
+        marker.touch()
+        paths = set(self.config.data_dir.rglob('*'))
+        for side in ('white', 'black'):
+            response = self.client.post('/api/games', json={'side': side})
+            self.assertEqual(response.status_code, 503, response.text)
+            self.assertEqual(response.json(), {'detail': NEW_GAMES_PAUSED_MESSAGE,
+                                              'code': 'new_games_paused', 'deployment_url': DEPLOYMENT_URL})
+            self.assertEqual(response.headers['cache-control'], 'no-store')
+        self.assertFalse(self.client.get('/api/config').json()['new_games_available'])
+        policy = self.client.get('/api/new-game-policy')
+        self.assertEqual(policy.json(), {'new_games_available': False, 'new_games_message': NEW_GAMES_PAUSED_MESSAGE,
+                                        'deployment_url': DEPLOYMENT_URL})
+        self.assertEqual(policy.headers['cache-control'], 'no-store')
+        self.assertEqual(self.client.get('/api/games').json(), {'games': []})
+        self.assertEqual(players.calls, [])
+        self.assertEqual(self.app.state.supervisor.tasks, {})
+        self.assertEqual(set(self.config.data_dir.rglob('*')), paths)
+        with self.app.state.store.connection() as db:
+            for table in ('games', 'events', 'budget'):
+                self.assertEqual(db.execute(f'SELECT COUNT(*) FROM {table}').fetchone()[0], 0)
+        # The normal origin and CSRF boundary still applies during a pause.
+        self.assertEqual(self.client.post('/api/games', json={'side': 'white'},
+                                         headers={'Origin': 'https://evil.invalid'}).status_code, 403)
+        self.assertEqual(self.client.post('/api/games', json={'side': 'white'},
+                                         headers={'X-CSRF-Token': 'wrong'}).status_code, 403)
+        marker.unlink()
+        self.assertTrue(self.client.get('/api/config').json()['new_games_available'])
+        self.new_game()
+
+    def test_pause_present_at_startup_preserves_saved_game_resume_and_moves(self):
+        app = create_app(self.config)
+        token = app.state.identity.register('Returning player')
+        user = app.state.identity.user_for_token(token)
+        state = game.new_game(user, 'white', self.config)
+        state['status'] = 'suspended'
+        app.state.store.create(state)
+        (self.config.data_dir / 'new-games-paused').touch()
+        self.start()
+        self.client.cookies.set('astra_session', token)
+        csrf = self.client.get('/api/auth/me').json()['csrf_token']
+        self.client.headers.update({'Origin': self.config.origin, 'X-CSRF-Token': csrf})
+        self.assertFalse(self.client.get('/api/config').json()['new_games_available'])
+        self.assertEqual(self.client.post('/api/games', json={'side': 'white'}).status_code, 503)
+        self.assertEqual(self.client.get('/api/games').json()['games'][0]['id'], state['id'])
+        self.assertEqual(self.client.get(f"/api/games/{state['id']}").status_code, 200)
+        self.assertEqual(self.action(state['id'], 'resume').status_code, 200)
+        moved = self.action(state['id'], 'move', move='e2e4')
+        self.assertEqual(moved.status_code, 200, moved.text)
+        self.assertEqual(moved.json()['moves'][0]['san'], 'e4')
+        self.assertEqual(self.action(state['id'], 'message', text='Still here.').status_code, 200)
+
+    def test_new_game_pause_does_not_cancel_an_existing_response(self):
+        release = threading.Event()
+
+        async def respond(game_id, snapshot, tool, emit):
+            while not release.is_set():
+                await asyncio.sleep(0.005)
+            await emit('Existing response completed.')
+            return {'usage_tokens': 9}
+
+        players = FakePlayers(respond)
+        self.start(players)
+        self.register()
+        state = self.new_game()
+        self.assertEqual(self.action(state['id'], 'message', text='Hello.').status_code, 200)
+        self.assertTrue(players.started.wait(2))
+        (self.config.data_dir / 'new-games-paused').touch()
+        self.assertEqual(self.client.post('/api/games', json={'side': 'black'}).status_code, 503)
+        self.assertEqual(players.closed, [])
+        self.assertIn(state['id'], self.app.state.supervisor.tasks)
+        release.set()
+        done = self.wait_idle(state['id'])
+        self.assertEqual(done['messages'][-1]['text'], 'Existing response completed.')
+        self.assertEqual(len(players.calls), 1)
+        self.assertEqual(len(players.closed), 1)
 
     def test_server_authority_version_conflict_and_idempotent_retries(self):
         self.start()

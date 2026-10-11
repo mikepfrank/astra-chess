@@ -9,7 +9,7 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
-from .config import Config, APP_ROOT
+from .config import Config, APP_ROOT, DEPLOYMENT_URL, NEW_GAMES_PAUSED_MESSAGE
 from .identity import Identity, router as identity_router, require_user
 from .store import Store, Conflict
 from .supervisor import Supervisor
@@ -141,10 +141,21 @@ def create_app(config=None, player_factory=None):
         public['last_astra_evaluation'] = latest_astra_evaluation(state, config.data_dir)
         return public
 
+    def new_game_policy():
+        new_games_available = config.new_games_available
+        return dict(new_games_available=new_games_available,
+                    new_games_message='' if new_games_available else NEW_GAMES_PAUSED_MESSAGE,
+                    deployment_url=DEPLOYMENT_URL)
+
+    @app.get('/api/new-game-policy')
+    async def public_new_game_policy():
+        return new_game_policy()
+
     @app.get('/api/config')
     async def public_config():
         return dict(player_available=supervisor.available, player_mode=config.player_mode,
-                    model=config.model, reasoning=config.reasoning, suspend_hours=config.suspend_hours)
+                    model=config.model, reasoning=config.reasoning, suspend_hours=config.suspend_hours,
+                    **new_game_policy())
 
     @app.get('/api/games')
     async def games(request: Request):
@@ -155,6 +166,9 @@ def create_app(config=None, player_factory=None):
     @app.post('/api/games', status_code=201)
     async def create_game(request: Request):
         user = require_user(request)
+        if not config.new_games_available:
+            return JSONResponse({'detail': NEW_GAMES_PAUSED_MESSAGE, 'code': 'new_games_paused',
+                                 'deployment_url': DEPLOYMENT_URL}, status_code=503)
         data = await body(request)
         if set(data) != {'side'} or data['side'] not in ('white', 'black'):
             raise ValueError('Choose white or black.')

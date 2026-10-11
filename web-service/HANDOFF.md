@@ -36,7 +36,8 @@ The fragment, read-only systemd bind, and data-directory pause marker persist
 across reboot. Do not remove only one half of the admission configuration.
 Arcturus's game admission was not changed.
 
-Deployment intentionally avoids changing/restarting the running application:
+The live checkout was fast-forwarded to **`1717f38`**, clean, for the proxy/UI
+rollout. Deployment intentionally avoids changing/restarting the running application:
 only frontend assets and operator tooling are updated in the live checkout.
 The backend marker guard is prepared separately for a future coordinated
 application update; until then the live public enforcement is at Caddy, and
@@ -56,6 +57,19 @@ Synthetic browser checks cover the pause notice/link, stale-client refusal,
 legacy policy fallback, existing-game resume/move/chat and desktop/mobile
 layout. Lifecycle tests verify the exact import survives future maintenance
 down/up cycles. Test records do not imply live player actions were performed.
+The 43 proxy/lifecycle tests passed both locally and on Lightsail's system
+Python. All 63 focused local tests passed, including the 20 application tests
+for the separately prepared backend guard. Recovery and monitor browser
+regressions also passed. The shared proxy remains enabled at boot, with the
+explicit fragment bind visible in systemd; GPT-2's public root also returned 200.
+
+The subsequent application commit adds the marker check before creating either
+color's game and exposes the same policy endpoint/config fields. Its tests
+verify that a paused request creates no games/files/budget entries or worker
+tasks, that existing suspended games still resume/move/chat, and that an
+already-running response can complete. This backend commit is **not deployed**
+in the October 11 no-restart rollout. Apply it only at a future coordinated
+application update; the current public proxy gate already enforces the pause.
 
 ## October 3, 2026: Lightsail migration completed
 
