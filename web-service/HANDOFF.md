@@ -86,6 +86,14 @@ wording remains unchanged. Existing pause browser QA passed, including mobile
 wrapping. Astra and Caddy retained PIDs 4149 and 422239 during this copy update;
 no service was restarted. Keep the application commit deferred as above.
 
+The next HTML-only notice revision, **`60bc178`**, adds Mike's requested sentence
+to both the pause banner and popup: "You can also try playing against the
+GLM-5.3 Flash model at ArcturusChess.com." The domain links to
+`https://arcturuschess.com/` in a new tab. Both copies remain inside the existing
+pause-controlled containers. Existing browser pause QA passed, including mobile
+layout; deployment uses this descendant of `187c664` to keep the pending backend
+out of the live checkout and requires no service restart.
+
 ## October 3, 2026: Lightsail migration completed
 
 **The chess services are back online on the larger replacement host.** Mike
