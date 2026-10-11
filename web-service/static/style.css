@@ -1520,9 +1520,10 @@ input, textarea, .composer textarea, .message-body, .conversation-empty>span:las
 .new-games-notice p+p {
   margin-top:8px;
 }
-.new-games-notice a,#new-self-host a {
+.new-games-notice a,#new-self-host a,#new-description a,#new-error a {
   color:var(--accent);
   text-decoration:underline;
+  overflow-wrap:anywhere;
 }
 .availability-notice .outline {
   flex-shrink:0;

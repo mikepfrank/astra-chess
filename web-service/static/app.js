@@ -91,10 +91,19 @@ function setIdentity(result){
 function playerReady(){return state.config?.player_available===true&&!state.availabilityError;}
 function newGamesPaused(){return state.config?.new_games_available===false;}
 function newGameReady(){return playerReady()&&!newGamesPaused();}
-function newGamesMessage(){return state.config?.new_games_message||'New games are temporarily paused because of API costs. You can continue or resume games you have already started. If you have your own OpenAI API key and web hosting, you can deploy your own instance by asking Codex/Astra or a similar coding agent to follow our deployment guide.';}
+function normalizeNewGamesMessage(text){return String(text).replaceAll('Codex, Astra, or','OpenAI Codex or').replaceAll('Codex/Astra or','OpenAI Codex or');}
+function newGamesMessage(){return normalizeNewGamesMessage(state.config?.new_games_message||'New games are temporarily paused because of API costs. You can continue or resume games you have already started. If you have your own OpenAI API key and web hosting, you can deploy your own instance by asking OpenAI Codex or a similar coding agent to follow our deployment guide.');}
 function deploymentUrl(){
   const fallback='https://github.com/mikepfrank/astra-chess/blob/codex/hosted-chess/web-service/DEPLOYMENT.md';
   try{const url=new URL(state.config?.deployment_url||fallback);return url.protocol==='https:'?url.href:fallback;}catch{return fallback;}
+}
+function renderNewGamesMessage(element,text=newGamesMessage()){
+  const url=deploymentUrl(),parts=normalizeNewGamesMessage(text).split(url);
+  element.replaceChildren();
+  parts.forEach((part,index)=>{
+    if(index){const link=document.createElement('a');link.href=url;link.textContent=url;link.target='_blank';link.rel='noopener';element.append(link);}
+    element.append(document.createTextNode(part));
+  });
 }
 async function fetchPlayerConfig(options={}){
   const [config,policy]=await Promise.all([
@@ -109,7 +118,7 @@ function updateAvailability(){
   const checking=state.availabilityChecking;
   const testing=state.config?.player_mode==='test';
   $('new-games-notice').hidden=!paused;
-  $('new-games-notice-text').textContent=newGamesMessage();
+  renderNewGamesMessage($('new-games-notice-text'));
   $('new-self-host').hidden=!paused;
   if(!state.user)$('account-button').textContent=paused?'Sign in':'Take a seat';
   for(const id of ['new-games-guide','new-deployment-guide'])$(id).href=deploymentUrl();
@@ -122,7 +131,8 @@ function updateAvailability(){
   $('play-white').disabled=!canStart||checking||state.pending;$('play-black').disabled=!canStart||checking||state.pending;
   $('side-options').hidden=!canStart||checking;
   $('new-title').textContent=paused?'New games are paused':checking?'Checking Astra…':available?'Which side is yours?':'Astra is unavailable';
-  $('new-description').textContent=paused?newGamesMessage():checking?'Checking whether the player is ready for a new game.':available?'White makes the first move. Black has the first reply.':'A new game cannot start until Astra is connected.';
+  if(paused)renderNewGamesMessage($('new-description'));
+  else $('new-description').textContent=checking?'Checking whether the player is ready for a new game.':available?'White makes the first move. Black has the first reply.':'A new game cannot start until Astra is connected.';
   $('new-availability').hidden=paused||available||checking;
   $('new-availability').textContent=unavailableText;
   $('new-check-availability').hidden=available&&!paused;
@@ -619,7 +629,7 @@ async function newGame(side){
     const game=await api('/api/games',{method:'POST',body:{side}});
     board.flipped=side==='black';state.game=null;state.messageKey=null;
     renderGame(game);rememberGame(game.id);closeDialog('new-dialog');$('message-input').value='';$('message-count').textContent='0 / 2000';
-  }catch(error){showError('new-error',error);await refreshAvailability();}
+  }catch(error){renderNewGamesMessage($('new-error'),error.message||String(error));$('new-error').hidden=false;await refreshAvailability();}
   finally{state.pending=false;updateAvailability();if(state.game)renderGame(state.game);}
 }
 $('play-white').addEventListener('click',()=>newGame('white'));$('play-black').addEventListener('click',()=>newGame('black'));

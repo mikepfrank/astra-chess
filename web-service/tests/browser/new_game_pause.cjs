@@ -3,7 +3,8 @@ const {launchBrowser,outputDir}=require('./support.cjs');
 const fs=require('node:fs/promises'),path=require('node:path'),assert=require('node:assert/strict');
 const origin='http://127.0.0.1:9876';
 const guide='https://github.com/mikepfrank/astra-chess/blob/codex/hosted-chess/web-service/DEPLOYMENT.md';
-const message='New games are temporarily paused because of API costs. You can continue or resume games you have already started. If you have your own OpenAI API key and web hosting, you can deploy your own instance by asking Codex/Astra or a similar coding agent to follow our deployment guide.';
+const message='New games are temporarily paused because of API costs. You can continue or resume games you have already started. If you have your own OpenAI API key and web hosting, you can deploy your own instance by asking Codex, Astra, or a similar coding agent to follow the deployment guide: '+guide;
+const displayedMessage=message.replace('Codex, Astra, or','OpenAI Codex or');
 const errors=[],contexts=[];
 async function fixture(browser,options={}){
   const data={paused:true,user:{id:'fixture-owner',name:'Fixture owner'},policyStatus:200,calls:[],...options};
@@ -49,12 +50,16 @@ const creations=data=>data.calls.filter(call=>call.method==='POST'&&call.path===
     assert.equal(await page.locator('#identity-dialog').isVisible(),false,'Pause explanation precedes guest registration');
     assert.equal(await page.locator('#new-games-notice').isVisible(),true);
     assert.match(await page.locator('#new-games-notice').textContent(),/API costs/);
+    assert.equal(await page.locator('#new-games-notice-text').textContent(),displayedMessage);
+    assert.equal(await page.locator('#new-games-notice-text a').getAttribute('href'),guide);
     assert.equal(await page.locator('#new-games-guide').getAttribute('href'),guide);
     await page.locator('#welcome-new').click();
     await page.waitForFunction(()=>!document.getElementById('new-check-availability').disabled);
     assert.equal(await page.locator('#side-options').isVisible(),false);
     assert.equal(await page.locator('#play-white').isDisabled(),true);
     assert.equal(await page.locator('#new-deployment-guide').getAttribute('href'),guide);
+    assert.equal(await page.locator('#new-description').textContent(),displayedMessage);
+    assert.equal(await page.locator('#new-description a').getAttribute('href'),guide);
     await page.locator('#new-dialog').screenshot({path:path.join(outputDir,'new-game-pause-desktop.png')});
     await page.setViewportSize({width:390,height:844});
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
@@ -86,7 +91,8 @@ const creations=data=>data.calls.filter(call=>call.method==='POST'&&call.path===
     await stale.page.locator('#new-error').waitFor({state:'visible'});
     await stale.page.waitForFunction(()=>document.getElementById('new-title').textContent==='New games are paused');
     assert.equal(creations(stale).length,1,'Stale client receives and displays server rejection');
-    assert.equal(await stale.page.locator('#new-error').textContent(),message);
+    assert.equal(await stale.page.locator('#new-error').textContent(),displayedMessage);
+    assert.equal(await stale.page.locator('#new-error a').getAttribute('href'),guide);
     assert.equal(await stale.page.locator('#side-options').isVisible(),false);
 
     const legacy=await fixture(browser,{policyStatus:404});
