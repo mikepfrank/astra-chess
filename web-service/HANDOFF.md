@@ -76,6 +76,16 @@ wording, own-key/hosting guidance, correct deployment link, retained login,
 paused dialog and unavailable color choices. The 390px mobile view had no
 horizontal overflow or clipping, and there were no browser JavaScript errors.
 
+Mike then requested clearer naming and an inline clickable GitHub URL. The
+static-only revision **`187c664`** supersedes `1717f38` as the live checkout;
+it was merged into the hosted branch separately so deploying it did not bring
+in the pending backend update. The browser renders the legacy proxy wording
+as **OpenAI Codex** and turns the deployment URL into a safe DOM-created link
+in the banner, new-game dialog and creation-refusal error. The proxy's JSON
+wording remains unchanged. Existing pause browser QA passed, including mobile
+wrapping. Astra and Caddy retained PIDs 4149 and 422239 during this copy update;
+no service was restarted. Keep the application commit deferred as above.
+
 ## October 3, 2026: Lightsail migration completed
 
 **The chess services are back online on the larger replacement host.** Mike
