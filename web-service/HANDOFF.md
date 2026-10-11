@@ -70,6 +70,11 @@ tasks, that existing suspended games still resume/move/chat, and that an
 already-running response can complete. This backend commit is **not deployed**
 in the October 11 no-restart rollout. Apply it only at a future coordinated
 application update; the current public proxy gate already enforces the pause.
+The prepared backend commit is `57f6908`. A final public browser check made
+nine GET-only requests and confirmed the cost notice, continuation/resume
+wording, own-key/hosting guidance, correct deployment link, retained login,
+paused dialog and unavailable color choices. The 390px mobile view had no
+horizontal overflow or clipping, and there were no browser JavaScript errors.
 
 ## October 3, 2026: Lightsail migration completed
 
