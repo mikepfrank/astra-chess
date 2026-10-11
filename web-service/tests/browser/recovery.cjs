@@ -19,6 +19,7 @@ async function fixture(browser,options={}){
       const body=method==='GET'?null:request.postDataJSON();
       data.calls.push({path:url.pathname,method,body,headers:request.headers()});
       const reply=(json,status=200)=>route.fulfill({json,status});
+      if(url.pathname==='/api/new-game-policy')return reply({},404);
       if(url.pathname==='/api/config'){
         const config={player_available:true,player_mode:'test',model:'display-fixture'};
         if(data.holdConfig){const hold=data.holdConfig;data.holdConfig=null;return hold(route,config);}

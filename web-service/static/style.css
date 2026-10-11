@@ -1511,6 +1511,19 @@ input, textarea, .composer textarea, .message-body, .conversation-empty>span:las
   justify-content:space-between;
   gap:16px;
 }
+.new-games-notice {
+  line-height:1.6;
+}
+.new-games-notice p {
+  margin:0;
+}
+.new-games-notice p+p {
+  margin-top:8px;
+}
+.new-games-notice a,#new-self-host a {
+  color:var(--accent);
+  text-decoration:underline;
+}
 .availability-notice .outline {
   flex-shrink:0;
 }

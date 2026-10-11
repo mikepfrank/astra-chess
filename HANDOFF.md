@@ -1,8 +1,8 @@
 # Handoff to a new Astra session
 
 For the current hosted service on `codex/hosted-chess`, start with
-[web-service/HANDOFF.md](web-service/HANDOFF.md), including the October 3, 2026
-Lightsail migration checkpoint. The original-experiment orientation below is
+[web-service/HANDOFF.md](web-service/HANDOFF.md), including the October 11, 2026
+new-game cost pause and October 3 Lightsail migration checkpoint. The original-experiment orientation below is
 preserved as a dated September 9 record, not the current hosted deployment.
 
 Prepared September 9, 2026, from the surviving conversation context and the

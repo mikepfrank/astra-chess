@@ -89,31 +89,51 @@ function setIdentity(result){
   $('human-avatar').textContent=(state.user?.name||'Y').slice(0,1).toUpperCase();
 }
 function playerReady(){return state.config?.player_available===true&&!state.availabilityError;}
+function newGamesPaused(){return state.config?.new_games_available===false;}
+function newGameReady(){return playerReady()&&!newGamesPaused();}
+function newGamesMessage(){return state.config?.new_games_message||'New games are temporarily paused because of API costs. You can continue or resume games you have already started. If you have your own OpenAI API key and web hosting, you can deploy your own instance by asking Codex/Astra or a similar coding agent to follow our deployment guide.';}
+function deploymentUrl(){
+  const fallback='https://github.com/mikepfrank/astra-chess/blob/codex/hosted-chess/web-service/DEPLOYMENT.md';
+  try{const url=new URL(state.config?.deployment_url||fallback);return url.protocol==='https:'?url.href:fallback;}catch{return fallback;}
+}
+async function fetchPlayerConfig(options={}){
+  const [config,policy]=await Promise.all([
+    api('/api/config',options),
+    api('/api/new-game-policy',options).catch(error=>{if(error.status===404)return {};throw error;})
+  ]);
+  return {...config,...policy};
+}
 function updateAvailability(){
   const available=playerReady();
+  const paused=newGamesPaused(),canStart=available&&!paused;
   const checking=state.availabilityChecking;
   const testing=state.config?.player_mode==='test';
+  $('new-games-notice').hidden=!paused;
+  $('new-games-notice-text').textContent=newGamesMessage();
+  $('new-self-host').hidden=!paused;
+  if(!state.user)$('account-button').textContent=paused?'Sign in':'Take a seat';
+  for(const id of ['new-games-guide','new-deployment-guide'])$(id).href=deploymentUrl();
   $('availability-banner').hidden=available&&!testing;
   const unavailableText=state.availabilityError?'The server could not be reached. Check your connection, then try again.':state.config?.player_mode==='disabled'?'Live play is not enabled on this server yet. The operator needs to enable Astra before a game can start.':'Astra is currently unavailable. Check again shortly; the operator may need to restore the player connection.';
   $('availability-text').textContent=testing&&available?'Test environment: games here use a scripted test opponent to check the interface. This is not live Astra play.':unavailableText;
   $('availability-check').hidden=available;
   $('availability-check').disabled=checking;
   $('availability-check').textContent=checking?'Checking…':'Check availability';
-  $('play-white').disabled=!available||checking||state.pending;$('play-black').disabled=!available||checking||state.pending;
-  $('side-options').hidden=!available||checking;
-  $('new-title').textContent=checking?'Checking Astra…':available?'Which side is yours?':'Astra is unavailable';
-  $('new-description').textContent=checking?'Checking whether the player is ready for a new game.':available?'White makes the first move. Black has the first reply.':'A new game cannot start until Astra is connected.';
-  $('new-availability').hidden=available||checking;
+  $('play-white').disabled=!canStart||checking||state.pending;$('play-black').disabled=!canStart||checking||state.pending;
+  $('side-options').hidden=!canStart||checking;
+  $('new-title').textContent=paused?'New games are paused':checking?'Checking Astra…':available?'Which side is yours?':'Astra is unavailable';
+  $('new-description').textContent=paused?newGamesMessage():checking?'Checking whether the player is ready for a new game.':available?'White makes the first move. Black has the first reply.':'A new game cannot start until Astra is connected.';
+  $('new-availability').hidden=paused||available||checking;
   $('new-availability').textContent=unavailableText;
-  $('new-check-availability').hidden=available;
+  $('new-check-availability').hidden=available&&!paused;
   $('new-check-availability').disabled=checking;
   $('new-check-availability').textContent=checking?'Checking…':'Check again';
   $('new-saved-games').hidden=!state.user;
   $('new-saved-note').textContent=state.user?'You are still signed in. Your account and saved games remain available; you can return to the board without starting a game.':'You can return to the board and check again later. No game has been started.';
-  $('welcome-title').textContent=available?'Take a seat.':'Astra is unavailable';
-  $('welcome-description').textContent=available?'Choose a side and meet Astra across the board.':'Live play is not ready yet. Check availability or return to one of your saved games.';
-  $('welcome-new').textContent=available?'Start a game ↗':'Check availability';
-  $('new-game').textContent=available?'New game':'Player availability';
+  $('welcome-title').textContent=paused?'New games are paused':available?'Take a seat.':'Astra is unavailable';
+  $('welcome-description').textContent=paused?(state.user?'Open Your games to continue an existing game.':'Existing games can still be played. Sign in and open Your games to continue.'):available?'Choose a side and meet Astra across the board.':'Live play is not ready yet. Check availability or return to one of your saved games.';
+  $('welcome-new').textContent=paused?'Why are new games paused?':available?'Start a game ↗':'Check availability';
+  $('new-game').textContent=paused?'New games paused':available?'New game':'Player availability';
   if(state.config){
     $('model-detail').textContent=`Player: ${state.config.model||'configured by operator'}${state.config.reasoning?' · '+state.config.reasoning+' reasoning':''}. ${state.config.suspend_hours?`Inactive games suspend after ${state.config.suspend_hours} hours and can be resumed.`:''}`;
   }
@@ -123,7 +143,7 @@ async function refreshAvailability(){
   state.availabilityChecking=true;updateAvailability();
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),8000);
-  try{state.config=await api('/api/config',{signal:controller.signal});state.availabilityError=null;}
+  try{state.config=await fetchPlayerConfig({signal:controller.signal});state.availabilityError=null;}
   catch(error){state.availabilityError=error.message;}
   finally{clearTimeout(timeout);state.availabilityChecking=false;state.lastAvailabilityCheck=Date.now();updateAvailability();}
   return playerReady();
@@ -278,7 +298,8 @@ async function poll(){
   if(document.hidden){pollTimer=setTimeout(poll,10000);return;}
   state.polling=true;const identityVersion=state.identityVersion;
   try{
-    if($('new-dialog').open&&!playerReady()&&Date.now()-state.lastAvailabilityCheck>10000)await refreshAvailability();
+    const availabilityAge=Date.now()-state.lastAvailabilityCheck;
+    if(availabilityAge>30000||($('new-dialog').open&&!newGameReady()&&availabilityAge>10000))void refreshAvailability();
     if(state.gameId&&state.user&&!state.pending){
       const id=state.gameId;
       const game=await api(`/api/games/${encodeURIComponent(id)}`);
@@ -370,7 +391,7 @@ function setIdentityMode(mode){
   if(mode==='protect')$('identity-name').value=state.user?.name||'';
 }
 function showIdentity(mode='register',next=null){if(identityUI.busy)return;state.next=next;setIdentityMode(mode);openDialog('identity-dialog');}
-async function requireUser(next){if(state.user){await next();return;}showIdentity('register',next);}
+async function requireUser(next){if(state.user){await next();return;}showIdentity(newGamesPaused()?'login':'register',next);}
 $('register-tab').addEventListener('click',()=>setIdentityMode('register'));
 $('login-tab').addEventListener('click',()=>setIdentityMode('login'));
 $('forgot-password').addEventListener('click',()=>setIdentityMode('forgot'));
@@ -500,7 +521,7 @@ async function recoveryRequest(action='status'){
   }
 }
 async function showAccount(){
-  if(!state.user){showIdentity();return;}
+  if(!state.user){showIdentity(newGamesPaused()?'login':'register');return;}
   clearAccountUI();const session=accountUI.session,userId=state.user.id;
   $('account-title').textContent=state.user.name;
   $('account-description').textContent=state.user.protected?'Your account is protected with a password.':'A guest account, remembered by this browser. Add a password to keep access across devices.';
@@ -591,8 +612,8 @@ $('availability-check').addEventListener('click',refreshAvailability);
 $('new-saved-games').addEventListener('click',()=>{closeDialog('new-dialog');requireUser(showGames);});
 async function newGame(side){
   if(state.pending||state.availabilityChecking)return;
-  if(!playerReady()){await refreshAvailability();return;}
-  if(!state.user){closeDialog('new-dialog');showIdentity('register',async()=>{await showNewGame();if(playerReady())await newGame(side);});return;}
+  if(!newGameReady()){await refreshAvailability();return;}
+  if(!state.user){closeDialog('new-dialog');showIdentity('register',async()=>{await showNewGame();if(newGameReady())await newGame(side);});return;}
   state.pending=true;updateAvailability();$('new-error').hidden=true;
   try{
     const game=await api('/api/games',{method:'POST',body:{side}});
@@ -606,7 +627,7 @@ async function showGames(){
   openDialog('games-dialog');$('game-list').textContent='Loading your games…';
   try{
     const {games}=await api('/api/games');$('game-list').replaceChildren();
-    if(!games.length){const note=document.createElement('p');note.className='muted';note.textContent='Your first scoresheet is waiting. Start a new game to take a seat.';$('game-list').append(note);return;}
+    if(!games.length){const note=document.createElement('p');note.className='muted';note.textContent=newGamesPaused()?'You have no saved games. New games are temporarily paused.':'Your first scoresheet is waiting. Start a new game to take a seat.';$('game-list').append(note);return;}
     for(const game of games){
       const button=document.createElement('button');button.className='saved-game';button.type='button';
       const title=document.createElement('strong');title.textContent=`You as ${titleCase(game.human_side)} · ${game.status==='finished'?(game.result||'Finished'):titleCase(game.status)}`;
@@ -898,16 +919,16 @@ async function initialize(){
   const hasEmailLink=!!(state.verifyToken||state.resetToken);
   if(state.verifyToken)showVerification();else if(state.resetToken)showIdentity('reset');
   try{
-    const [identity,config]=await Promise.all([api('/api/auth/me'),api('/api/config')]);
+    const [identity,config]=await Promise.all([api('/api/auth/me'),fetchPlayerConfig()]);
     if(identityVersion===state.identityVersion)setIdentity(identity);
-    state.config=config;updateAvailability();connection(true,'Connected');
+    state.config=config;state.lastAvailabilityCheck=Date.now();updateAvailability();connection(true,'Connected');
     $('verify-email-account').textContent=state.user?'Your account':'Sign in';
     const monitorRequested=new URL(location.href).searchParams.get('monitor')==='1';
     const returnToMonitor=()=>{if(state.operator)location.assign('/monitor/');else toast('This account does not have monitor access. You can sign out from Your account and use the authorized account.');};
     if(identityVersion===state.identityVersion&&!hasEmailLink&&monitorRequested){
       if(state.user)returnToMonitor();else showIdentity('login',returnToMonitor);
     }
-    else if(identityVersion===state.identityVersion&&!hasEmailLink&&!state.user)showIdentity();
+    else if(identityVersion===state.identityVersion&&!hasEmailLink&&!state.user&&!newGamesPaused())showIdentity();
     else if(identityVersion===state.identityVersion&&state.user&&!hasEmailLink){
       let id=new URL(location.href).searchParams.get('game');
       if(!id)try{id=localStorage.getItem('astra-game-'+state.user.id);}catch{}

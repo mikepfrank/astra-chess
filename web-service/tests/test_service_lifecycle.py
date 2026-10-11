@@ -11,6 +11,8 @@ from tools.ops import astra_service as lifecycle
 
 
 NORMAL = 'astraplayschess.com {\n    encode gzip\n    reverse_proxy 127.0.0.1:8788\n}\n'
+PAUSED_NEW_GAMES = NORMAL.replace('    encode gzip\n',
+                                  '    ' + lifecycle.NEW_GAME_IMPORT + '\n    encode gzip\n')
 OTHER = ('www.astraplayschess.com {\n    redir https://astraplayschess.com{uri} permanent\n}\n'
          'arcturuschess.com {\n    reverse_proxy 127.0.0.1:8792\n}\n')
 IDLE = dict(active_responses=0, building_replays=0, reserved_tokens=0, idle_snapshot=True)
@@ -49,6 +51,19 @@ class ProxySafetyTests(unittest.TestCase):
             lifecycle.replace_site(NORMAL, NORMAL.replace('gzip', 'zstd'), 'replacement')
         with self.assertRaises(lifecycle.SafetyError):
             lifecycle.normal_block(NORMAL.replace('8788', '8792'))
+
+    def test_only_exact_single_new_game_admission_import_is_supported(self):
+        lifecycle.normal_block(PAUSED_NEW_GAMES)
+        lifecycle.normal_block(PAUSED_NEW_GAMES.replace('    encode gzip\n', ''))
+        for block in (
+            PAUSED_NEW_GAMES.replace('new-games.caddy', 'other.caddy'),
+            PAUSED_NEW_GAMES.replace(lifecycle.NEW_GAME_IMPORT, 'import *.caddy'),
+            PAUSED_NEW_GAMES.replace(lifecycle.NEW_GAME_IMPORT,
+                                     lifecycle.NEW_GAME_IMPORT + '\n    ' + lifecycle.NEW_GAME_IMPORT),
+            PAUSED_NEW_GAMES.replace('8788', '8792'),
+        ):
+            with self.subTest(block=block), self.assertRaises(lifecycle.SafetyError):
+                lifecycle.normal_block(block)
 
     def test_adapted_alternate_astra_routes_prevent_gate(self):
         def adapt(*args, **kwargs):
@@ -206,6 +221,7 @@ class FakeHostTests(unittest.TestCase):
         self.addCleanup(folder.cleanup)
         self.root = Path(folder.name)
         self.config = self.root / 'Caddyfile'
+        self.normal = NORMAL
         self.config.write_text(NORMAL + OTHER, encoding='utf-8')
         self.state_file = self.root / 'maintenance.json'
         data = self.root / 'data'
@@ -270,7 +286,7 @@ class FakeHostTests(unittest.TestCase):
         self.events.append(('health', 'proxy' if proxy else 'direct'))
         if self.units[lifecycle.APP]['ActiveState'] != 'active':
             raise lifecycle.SafetyError('Fixture app is not healthy')
-        if proxy and lifecycle.site_block(self.config.read_text()) != NORMAL:
+        if proxy and lifecycle.site_block(self.config.read_text()) != self.normal:
             raise lifecycle.SafetyError('Fixture proxy is gated')
 
     def fake_verify_gate(self, state, *, deadline=None):
@@ -399,6 +415,18 @@ class FakeHostTests(unittest.TestCase):
         self.events.clear()
         lifecycle.up(3)
         self.assertEqual(self.events, [('health', 'proxy')])
+
+    def test_down_up_preserves_new_game_pause_and_other_sites(self):
+        self.normal = PAUSED_NEW_GAMES
+        self.config.write_text(self.normal + OTHER)
+        lifecycle.down(3)
+        self.assertEqual(lifecycle.load()['original_block'], self.normal)
+        self.fake_verify_gate(lifecycle.load())
+        # Other deployments may change while Astra is offline.
+        self.config.write_text(self.config.read_text().replace('8792', '8793'))
+        lifecycle.up(3)
+        self.assertEqual(self.config.read_text(), self.normal + OTHER.replace('8792', '8793'))
+        self.assertFalse(self.state_file.exists())
 
     def test_up_preserves_initial_disabled_boot_and_inactive_timer(self):
         self.units[lifecycle.APP]['UnitFileState'] = 'disabled'

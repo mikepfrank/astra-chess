@@ -30,6 +30,7 @@ STATE_DIR = Path('/var/lib/astra-chess-ops')
 STATE_FILE = STATE_DIR / 'maintenance.json'
 CGROUP = Path('/sys/fs/cgroup')
 CONFIG_LOCK = Path('/run/lock/astra-caddy-config.lock')
+NEW_GAME_IMPORT = 'import /home/astra/.config/astra-chess/new-games.caddy'
 SYSTEMCTL = '/usr/bin/systemctl'
 RUNUSER = '/usr/sbin/runuser'
 CURL = '/usr/bin/curl'
@@ -155,6 +156,10 @@ def replace_site(text, expected, replacement):
 def normal_block(block):
     lines = [line.strip() for line in block.splitlines()[1:-1]
              if line.strip() and not line.lstrip().startswith('#')]
+    # A new-game-only pause remains part of the normal public site. Preserve
+    # its exact import through down/up without accepting arbitrary imports.
+    if lines.count(NEW_GAME_IMPORT) == 1:
+        lines.remove(NEW_GAME_IMPORT)
     if lines not in (['encode gzip', 'reverse_proxy 127.0.0.1:8788'],
                      ['reverse_proxy 127.0.0.1:8788']):
         raise SafetyError('Astra proxy block differs from the supported host profile; review before shutdown.')

@@ -533,6 +533,11 @@ tunnel with Ctrl+C; its HTTP origin no longer matches the public configuration.
 
 ## Operations, updates and moving to another host
 
+To stop admitting new games while allowing existing games to continue, see
+[new-game admission controls](tools/ops/NEW-GAME-ADMISSION.md). This is separate
+from whole-site maintenance. Self-hosted instances allow new games by default;
+the public Astra site's temporary cost pause is operator configuration.
+
 Keep the launch paths and private directories recorded with the Git commit and
 dependency versions. [The deployment checkpoint](docs/LIGHTSAIL-DEPLOYMENT.md#permissions-backup-and-rollback)
 has concrete backup/restore and unit-removal instructions. Back up the whole

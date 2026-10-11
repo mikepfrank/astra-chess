@@ -23,6 +23,7 @@ async function fixture(browser,options={}){
       }
       if(url.pathname==='/api/auth/me')return route.fulfill({json:{user:data.user,operator:data.operator,email_reset_available:false,csrf_token:data.user?'fixture-csrf':null}});
       if(url.pathname==='/api/config')return route.fulfill({json:{player_available:true,player_mode:'test',model:'display-fixture'}});
+      if(url.pathname==='/api/new-game-policy')return route.fulfill({json:{},status:404});
       if(url.pathname==='/api/auth/login'){data.user={...protectedUser};data.operator=data.loginOperator!==false;return route.fulfill({json:{user:data.user,csrf_token:'fixture-csrf'}});}
       if(url.pathname==='/api/auth/memory')return route.fulfill({json:{enabled:false,text:''}});
       if(url.pathname==='/api/games')return route.fulfill({json:{games:[]}});

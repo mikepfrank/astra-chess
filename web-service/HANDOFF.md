@@ -17,6 +17,46 @@ that no service has been implemented is historical. This document is the
 entry point for the hosted branch. Keep the **whole repository**: the service
 imports the root engine, replay builder and historical replay assets.
 
+## October 11, 2026: new games paused for API costs
+
+Mike requested an immediate pause on **new Astra games only**, while allowing
+players to finish or resume existing games. The public site explains the API
+cost reason and links to this branch's deployment guide for people with their
+own OpenAI API key and hosting. This policy also applies to the operator.
+
+The initial live deployment uses a narrow Caddy rule blocking only
+`POST /api/games` (including its trailing-slash form), returning JSON HTTP 503.
+`GET /api/new-game-policy` publishes the notice. The frontend refreshes that
+policy every 30 seconds while visible and when opening the new-game dialog;
+old browser tabs are still blocked by the proxy. Login, saved-game listing,
+resumption, moves, chat and replay routes retain their existing behavior.
+
+Use [NEW-GAME-ADMISSION.md](tools/ops/NEW-GAME-ADMISSION.md) to manage the pause.
+The fragment, read-only systemd bind, and data-directory pause marker persist
+across reboot. Do not remove only one half of the admission configuration.
+Arcturus's game admission was not changed.
+
+Deployment intentionally avoids changing/restarting the running application:
+only frontend assets and operator tooling are updated in the live checkout.
+The backend marker guard is prepared separately for a future coordinated
+application update; until then the live public enforcement is at Caddy, and
+the application listener must stay restricted to loopback. Do not assume that
+the Python process includes later GitHub application changes.
+
+The first proxy apply rolled back because its sandbox could not read the
+imported fragment. The corrected helper adds an explicit read-only bind for
+that one file before restarting Caddy. Both chess apps kept their original
+PIDs throughout (Astra 4149 and Arcturus 4313, running since October 3). Public
+Astra policy/health and Arcturus health passed after the successful apply;
+the helper verified HTTP 503 with `new_games_paused` for an unauthenticated
+creation attempt that could not create a game even if the gate failed.
+No paid model calls, real accounts or games were created for verification.
+
+Synthetic browser checks cover the pause notice/link, stale-client refusal,
+legacy policy fallback, existing-game resume/move/chat and desktop/mobile
+layout. Lifecycle tests verify the exact import survives future maintenance
+down/up cycles. Test records do not imply live player actions were performed.
+
 ## October 3, 2026: Lightsail migration completed
 
 **The chess services are back online on the larger replacement host.** Mike
