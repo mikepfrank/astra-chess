@@ -86,11 +86,13 @@ Evidence files:
 ## Next major step — coordinate, drain, back up and snapshot
 
 Follow the [maintenance/recovery runbook](maintenance-runbook.md). First agree
-Mike's availability and the AWS snapshot workflow. The host also has active
-`gpt2-public.service` and `gpt2-codex.service`; its shared proxy serves four GPT-2
-hostnames in addition to chess. Coordinate those workloads before host shutdown
-and preserve all their proxy routes. Docker/containerd are active but listed no
-running containers at the readiness check.
+Mike's availability and the AWS snapshot workflow. He has included
+`gpt2-public.service` and `gpt2-codex.service` in scope; the
+[GPT-2 deployment addendum](gpt2-maintenance-addendum.md) records the subsequent
+read-only review. Finish its newly identified shared-venv certifi preparation,
+container assessment and drain procedure before the outage. Public jobs/results
+need a 600-second retention lead-in; the private lab uses Docker even when no
+containers are running. Preserve all shared proxy routes and private lab state.
 
 Then recheck activity, use both lifecycle down helpers, verify their stopped
 checkpoints, back up private state consistently and take/confirm the fresh AWS

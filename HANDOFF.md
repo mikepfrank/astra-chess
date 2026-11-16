@@ -1,5 +1,25 @@
 # Handoff: Arcturus development worktree
 
+## November 15: GPT-2 added to host maintenance scope
+
+Mike supplied `C:/Users/MikeFrank/Documents/=== FILES ===/-- AI --/GPT-2` and
+authorized including its public and private services. Read-only project/live
+review is recorded in the
+[GPT-2 maintenance addendum](web-service/validation/2026-11-15-security-stage/gpt2-maintenance-addendum.md).
+Both services are healthy; public queue was empty, private sessions idle but
+some retain pending human inputs. Mike is checking activity; don't treat this
+snapshot as a reserved outage. Nothing was stopped or upgraded in this review.
+
+Public GPT-2 requires a POST admission gate, queue drain and 600 seconds of
+result retention before stop. Schedule that before chess helpers restart the
+shared proxy. The private lab launches ephemeral Docker sandboxes, so empty
+`docker ps` does not imply Docker is unused. Preserve its chat/thread/workspace/
+budget state and verify isolation after Docker/reboot. Both share an OS-backed
+Python 3.12 venv with old certifi; add its fix and assess the lab container's
+separate dependencies before declaring preparation complete for the expanded
+scope. Those extra candidates/tests are not yet staged. The updated runbook
+retains Mike's required prompt checkpoint after every major maintenance step.
+
 ## November 15: security preparation complete — pause requested
 
 Mike approved the maintenance plan, including critical/high-priority updates,

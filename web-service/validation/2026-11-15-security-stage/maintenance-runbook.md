@@ -23,11 +23,14 @@ reserved tokens at this check. This is a snapshot, not an idle reservation.
 | `gpt2-public.service` | active / enabled | Separate workload; coordinate its maintenance |
 | Docker / containerd | active | `docker ps` listed no running containers |
 
-The GPT-2 units have stop timeouts of 25 seconds and 3 minutes respectively.
-Do not assume their shutdown semantics equal the chess drain helpers, and do
-not stop or reconfigure them during chess preparation. Ask Mike to coordinate
-their quiet period before the host reboot. Other interactive/user-managed work
-may exist beyond this system-unit/container inventory.
+Mike has now included both GPT-2 services in scope. The
+[GPT-2 addendum](gpt2-maintenance-addendum.md) records their verified releases,
+shared OS-backed Python, Docker isolation and additional preparation required.
+Empty `docker ps` is normal while the private lab is idle: it launches ephemeral
+sandboxes for actions. Public accepted jobs/results are in RAM; its procedure
+gates new POSTs, drains, and retains result access for 600 seconds before stop.
+Lab stop timeout is 25 seconds and public is 3 minutes; neither is a drain.
+Other interactive/user-managed work may exist beyond this inventory.
 
 The installed Astra lifecycle helper is the reviewed version that accepts the
 exact `new-games.caddy` import. SHA-256:
@@ -128,6 +131,10 @@ Retain these together; do not print or export credential contents into logs:
 - `/var/lib/astra-chess-ops` and `/var/lib/arcturus-chess-ops`, including their
   active maintenance checkpoints. The shared proxy lock is
   `/run/lock/astra-caddy-config.lock`; its transient file need not survive reboot.
+- All GPT-2 source/runtime/cache, private session/workspace/budget databases,
+  environment files, Docker image/isolation and deployment state enumerated in
+  the [GPT-2 preservation list](gpt2-maintenance-addendum.md). Browser-owned
+  public chat archives are not part of a server snapshot.
 
 Store filesystem backups in a root-owned mode-0700 directory outside those
 source trees, for example under `/var/backups/chess-security/`. Preserve modes,
@@ -146,9 +153,15 @@ Recheck pinned packages and private artifact hashes before proceeding.
 
 1. **Preparation checkpoint:** Finish candidate tests and share the results
    with Mike. Agree the next window and the AWS snapshot workflow, including
-   the GPT-2 workloads. Pause at the session prompt as requested.
-2. **Drain/backup checkpoint:** Run the current read-only checks again, then
-   run `~/astra-down.sh` and `~/arcturus-down.sh` sequentially. Each waits for
+   the GPT-2 workloads. Complete the newly added shared GPT-2 certifi candidate,
+   container dependency assessment and safe admission/drain procedure before
+   the outage; these were not covered by the chess staging tests. Pause at the
+   session prompt as requested.
+2. **Drain/backup checkpoint:** Run the current read-only checks again. Follow
+   the GPT-2 addendum: public POST gate, drain and 600-second result retention
+   while chess stays available; coordinate the private lab's idle/pause state
+   without cancelling active work. Stop GPT-2 and retain boot/admission state.
+   Then run `~/astra-down.sh` and `~/arcturus-down.sh` sequentially. Each waits for
    30 continuous quiet seconds; neither forcibly cancels an AI turn. Require
    success and saved `stopped` checkpoints. Verify both apps and jobs inactive,
    app/timers disabled, and all public chess hostnames serving their expected
@@ -159,15 +172,18 @@ Recheck pinned packages and private artifact hashes before proceeding.
    (`dnf upgrade --releasever=2023.12.20261112`) and reboot. Do not reboot if
    draining or backup verification failed. After reconnecting, verify the
    booted kernel, SSH, failed units, package/advisory status, and proxy maintenance
-   gates. Both chess apps must remain disabled until deliberate restoration.
-   Check the separately coordinated GPT-2 services too. Report and pause.
+   gates. All four apps must remain disabled until deliberate restoration.
+   Check Docker/network isolation before the lab can start; OS Python changes
+   affect both GPT-2 apps through their shared venv. Report and pause.
 4. **Runtime/validation checkpoint:** Promote the tested final Python/venv and
    Caddy artifacts in controlled stages while the apps/timers remain gated and
    stopped. Validate Caddy using the `astra` identity and actual sandbox paths.
    Restart only the shared proxy when needed and confirm maintenance remains
    intact. Run model-free and mocked-provider tests; then the approved small
    paid model checks in disposable private state. Report and pause before
-   public reopening if that remains a separate agreed checkpoint.
+   public reopening if that remains a separate agreed checkpoint. Include the
+   GPT-2 addendum's sequential startup, memory, model-generation and sandbox/
+   gateway tests; preserve its separate daily ledger and pending inputs.
 5. **Reopen checkpoint:** Run the `up` helpers sequentially. They start the app,
    check private health and **immediately reopen public traffic** after that
    basic check. They do not wait for additional regression tests. Therefore
@@ -176,7 +192,8 @@ Recheck pinned packages and private artifact hashes before proceeding.
    app does not itself re-enable it at boot; retain the saved helper checkpoint.
    Verify all primary/alias HTTPS routes, Arcturus normal admission, Astra's
    continuing new-game denial, existing-game access, monitor/replay/export
-   behavior, app/timer enablement and logs. Report final versions and pause.
+   behavior, app/timer enablement and logs. Restore GPT-2 admission/enablement
+   only after its own checks pass. Report final versions and pause.
 6. **Codex checkpoint, separately:** Audit/promote a newer CLI only after its
    schema, tools, continuation, sandbox, reasoning and accounting tests pass.
    Use another coordinated drain if necessary. Preserve models/personas and
