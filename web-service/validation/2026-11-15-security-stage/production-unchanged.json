@@ -1,0 +1,13 @@
+{
+  "systemctl show astra-chess.service or-chess.service astra-caddy.service -p Id -p MainPID -p ActiveState": "MainPID=4149\nId=astra-chess.service\nActiveState=active\n\nMainPID=4313\nId=or-chess.service\nActiveState=active\n\nMainPID=422239\nId=astra-caddy.service\nActiveState=active\n",
+  "uname -r": "6.1.158-180.294.amzn2023.x86_64\n",
+  "rpm -q system-release": "system-release-2023.9.20251208-2.amzn2023.noarch\n",
+  "astraplayschess.com": {
+    "status": 200,
+    "body": "{\"ok\":true}"
+  },
+  "arcturuschess.com": {
+    "status": 200,
+    "body": "{\"ok\":true}"
+  }
+}

@@ -1,13 +1,39 @@
 # Handoff: Arcturus development worktree
 
-## November 15: host security-update survey (approval pending)
+## November 15: security preparation complete — pause requested
+
+Mike approved the maintenance plan, including critical/high-priority updates,
+snapshot, reboot and small paid AI tests, but requested a status report and
+return to the session prompt after **each major step**. Step 1 preparation is
+complete. [Checkpoint and artifact inventory](web-service/validation/2026-11-15-security-stage/README.md).
+**Stop before draining or activating anything until Mike resumes the next step.**
+
+274 signed OS RPMs are downloaded; installed OS packages are unchanged. New
+Python 3.12.16/OpenSSL 3.5.9/Expat 2.10.0 environments, certifi 2026.10.23 and
+pip 26.3 are staged, including final unused paths inside both private runtime
+trees. Active venvs and aliases remain unchanged. Astra 282-test and Arcturus
+594-test suites passed with three Windows-only skips each. Patched Caddy 2.11.9
+with Go 1.27.4, x/net 0.62.0 and compress 1.20.4 passed proxy tests/configuration
+comparison. Codex 0.169.0 passed limited startup/schema probes but still needs
+full integration audit; production stays on 0.154.0. Both sites remain healthy
+on their original processes. No downtime, real model calls or emails occurred.
+
+Next coordinate the AWS snapshot window and other workloads: GPT-2 public/Codex
+services and additional shared-proxy hostnames are also active. Follow the
+[runbook](web-service/validation/2026-11-15-security-stage/maintenance-runbook.md)
+for drain/backup/snapshot and another prompt checkpoint before OS installation.
+Preserve Astra's new-game pause. The separate local `astra-security-worktree`
+branch `codex/astra-security-20261115` is based on live `60bc178`, with only the
+certifi pin update; do not deploy unrelated newer hosted branch changes.
+
+## November 15: host security-update survey
 
 The migrated host and both chess services were inspected read-only. The
 [survey, update table and staged maintenance plan](web-service/validation/2026-11-15-security-audit/README.md)
 record 325 applicable OS security notices (one Critical), a Critical private
 Python trust-bundle update, and private runtime/proxy/Codex maintenance needs.
-Both sites are healthy. **No software updates, restarts or paid model tests have
-been performed; Mike requested approval before those actions.**
+Both sites were healthy at survey completion. The plan was subsequently approved;
+the staging checkpoint above records execution progress and the required pauses.
 
 Use the saved manifests as a baseline, then recheck before maintenance. The live
 Astra revision is `60bc178`; preserve its intentional pause on new games and

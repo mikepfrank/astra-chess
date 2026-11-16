@@ -1,0 +1,342 @@
+{
+  "manifest": {
+    "source": "https://github.com/openai/codex/releases/download/rust-v0.169.0/codex-package-x86_64-unknown-linux-musl.tar.gz",
+    "sha256": "3b8ed091149cc63a59046b9f094bcfa21cdb4dda15ede441ce369bcee4a71ba0",
+    "official_sha256_verified": true,
+    "signature_downloaded_not_verified": true,
+    "binary": "/home/ec2-user/chess-security-stage-20261115/codex/bundle/bin/codex",
+    "live_state_changed": false,
+    "real_credentials_inherited": false,
+    "app_server_help": {
+      "rc": 0,
+      "stdout": "[experimental] Run the app server or related tooling\n\nUsage: codex app-server [OPTIONS] [COMMAND]\n\nCommands:\n  daemon                Manage the local app-server daemon\n  proxy                 Proxy stdio bytes to the running app-server control socket\n  generate-ts           [experimental] Generate TypeScript bindings for the app server protocol\n  generate-json-schema  [experimental] Generate JSON Schema for the app server protocol\n  help                  Print this message or the help of the given subcommand(s)\n\nOptions:\n  -c, --config <key=value>\n          Override a configuration value that would otherwise be loaded from `~/.codex/config.toml`.\n          Use a dotted path (`foo.bar.baz`) to override nested values. The `value` portion is parsed\n          as TOML. If it fails to parse as TOML, the raw string is used as a literal.\n          \n          Examples: - `-c model=\"o3\"` - `-c 'sandbox_permissions=[\"disk-full-read-access\"]'` - `-c\n          shell_environment_policy.inherit=all`\n\n      --startup-sign-out\n          Sign out using the managed auth path before loading fresh startup requirements\n\n      --enable <FEATURE>\n          Enable a feature (repeatable). Equivalent to `-c features.<name>=true`\n\n      --print-startup-config\n          Validate configuration and print requirements as JSON without starting the app server\n\n      --disable <FEATURE>\n          Disable a feature (repeatable). Equivalent to `-c features.<name>=false`\n\n      --startup-client-info <STARTUP_CLIENT_INFO>\n          ClientInfo JSON used for configuration/auth request identity\n\n      --cloud-skills-snapshot <PATH>\n          Load frozen cloud skills from a JSON snapshot instead of a live skill service\n\n      --code-mode-host <URL>\n          Connect to a remote code-mode host instead of starting a local host\n\n      --strict-config\n          Error out when config.toml contains fields that are not recognized by this version of\n          Codex\n\n      --listen <URL>\n          Transport endpoint URL. Supported values: `stdio://` (default), `unix://`, `unix://PATH`,\n          `ws://IP:PORT`, `off`\n          \n          [default: stdio://]\n\n      --stdio\n          Use stdio as the transport (equivalent to `--listen stdio://`)\n\n      --analytics-default-enabled\n          Controls whether analytics are enabled by default.\n          \n          Analytics are disabled by default for app-server. Users have to explicitly opt in via the\n          `analytics` section in the config.toml file.\n          \n          However, for first-party use cases like the VSCode IDE extension, we default analytics to\n          be enabled by default by setting this flag. Users can still opt out by setting this in\n          their config.toml:\n          \n          ```toml [analytics] enabled = false ```\n          \n          See https://developers.openai.com/codex/config-advanced/#metrics for more details.\n\n      --ws-auth <MODE>\n          Authentication mode for incoming WebSocket connections\n          \n          [possible values: capability-token, signed-bearer-token]\n\n      --ws-token-file <PATH>\n          Absolute path to the capability-token file\n\n      --ws-token-sha256 <HEX>\n          Hex-encoded SHA-256 digest of the capability token\n\n      --ws-shared-secret-file <PATH>\n          Absolute path to the shared secret file for signed JWT bearer tokens\n\n      --ws-issuer <ISSUER>\n          Expected issuer for signed JWT bearer tokens\n\n      --ws-audience <AUDIENCE>\n          Expected audience for signed JWT bearer tokens\n\n      --ws-max-clock-skew-seconds <SECONDS>\n          Maximum clock skew when validating signed JWT bearer tokens\n\n  -h, --help\n          Print help (see a summary with '-h')\n",
+      "stderr": "WARNING: proceeding, even though we could not create PATH aliases: CODEX_HOME points to \"/home/ec2-user/chess-security-stage-20261115/codex/isolated-home/codex\", but that path does not exist\n"
+    },
+    "candidate_version": "0.169.0",
+    "version_check": {
+      "rc": 0,
+      "stdout": "codex-cli 0.169.0\n",
+      "stderr_initial_warning": "Initial CODEX_HOME directory did not exist; created before no-turn probes."
+    }
+  },
+  "no_turn_probes": [
+    {
+      "label": "astra",
+      "candidate_version": "0.169.0",
+      "source_revision": "60bc178f3b442a2c333ed35dc304a99e17106b00",
+      "network_namespace_isolated": true,
+      "credentials_inherited": false,
+      "model_turn_started": false,
+      "production_allowlist_changed": false,
+      "stage": "done",
+      "passed": true,
+      "initialize_keys": [
+        "codexHome",
+        "platformFamily",
+        "platformOs",
+        "userAgent"
+      ],
+      "strict_config_verified": true,
+      "thread_start_summary": {
+        "model": "gpt-6-astra",
+        "modelProvider": "astra_openai",
+        "reasoningEffort": "ultra",
+        "approvalPolicy": "never",
+        "approvalsReviewer": "user",
+        "runtimeWorkspaceRoots": [],
+        "activePermissionProfile": null,
+        "instructionSources": [],
+        "sandbox": {
+          "type": "readOnly",
+          "networkAccess": false
+        }
+      },
+      "stderr": "2026-11-16T01:29:26.931420Z ERROR codex_app_server: `[features].multi_agent` is deprecated. It still controls the V1 fallback. `[agents].enabled = false` disables subagent tools even when the model selects a subagent version, unless `[features].multi_agent_v2` is enabled.\n2026-11-16T01:29:26.931545Z ERROR codex_app_server: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.\n"
+    },
+    {
+      "label": "arcturus",
+      "candidate_version": "0.169.0",
+      "source_revision": "a98784cdafacbe5e6616cc55b0e94a34e8056bf2",
+      "network_namespace_isolated": true,
+      "credentials_inherited": false,
+      "model_turn_started": false,
+      "production_allowlist_changed": false,
+      "stage": "done",
+      "passed": true,
+      "initialize_keys": [
+        "codexHome",
+        "platformFamily",
+        "platformOs",
+        "userAgent"
+      ],
+      "strict_config_verified": true,
+      "thread_start_summary": {
+        "model": "z-ai/glm-5.3-flash:nitro",
+        "modelProvider": "chess_openrouter",
+        "reasoningEffort": "max",
+        "approvalPolicy": "never",
+        "approvalsReviewer": "user",
+        "runtimeWorkspaceRoots": [],
+        "activePermissionProfile": null,
+        "instructionSources": [],
+        "sandbox": {
+          "type": "readOnly",
+          "networkAccess": false
+        }
+      },
+      "stderr": "2026-11-16T01:29:28.432537Z ERROR codex_app_server: `[features].multi_agent` is deprecated. It still controls the V1 fallback. `[agents].enabled = false` disables subagent tools even when the model selects a subagent version, unless `[features].multi_agent_v2` is enabled.\n2026-11-16T01:29:28.432643Z ERROR codex_app_server: Codex could not find bubblewrap on PATH. Install bubblewrap with your OS package manager. See the sandbox prerequisites: https://developers.openai.com/codex/concepts/sandboxing#prerequisites. Codex will use the bundled bubblewrap in the meantime.\n"
+    }
+  ],
+  "schema_files": 479,
+  "selected_schemas": [
+    {
+      "name": "ThreadStartParams",
+      "path": "v2/ThreadStartParams.json",
+      "required": [],
+      "properties": [
+        "allowProviderModelFallback",
+        "approvalPolicy",
+        "approvalsReviewer",
+        "baseInstructions",
+        "config",
+        "cwd",
+        "daybreakEnabled",
+        "developerInstructions",
+        "dynamicTools",
+        "environments",
+        "ephemeral",
+        "experimentalRawEvents",
+        "historyMode",
+        "mockExperimentalField",
+        "model",
+        "modelProvider",
+        "multiAgentMode",
+        "permissions",
+        "personality",
+        "projectId",
+        "runtimeWorkspaceRoots",
+        "sandbox",
+        "selectedCapabilityRoots",
+        "serviceName",
+        "serviceTier",
+        "sessionStartSource",
+        "threadSource"
+      ]
+    },
+    {
+      "name": "ThreadStartResponse",
+      "path": "v2/ThreadStartResponse.json",
+      "required": [
+        "approvalPolicy",
+        "approvalsReviewer",
+        "cwd",
+        "model",
+        "modelProvider",
+        "sandbox",
+        "thread"
+      ],
+      "properties": [
+        "activePermissionProfile",
+        "approvalPolicy",
+        "approvalsReviewer",
+        "cwd",
+        "disabledPluginIds",
+        "instructionSources",
+        "model",
+        "modelProvider",
+        "multiAgentMode",
+        "reasoningEffort",
+        "runtimeWorkspaceRoots",
+        "sandbox",
+        "serviceTier",
+        "thread"
+      ]
+    },
+    {
+      "name": "ThreadResumeParams",
+      "path": "v2/ThreadResumeParams.json",
+      "required": [
+        "threadId"
+      ],
+      "properties": [
+        "approvalPolicy",
+        "approvalsReviewer",
+        "baseInstructions",
+        "config",
+        "cwd",
+        "developerInstructions",
+        "excludeTurns",
+        "history",
+        "initialTurnsPage",
+        "model",
+        "modelProvider",
+        "path",
+        "permissions",
+        "personality",
+        "runtimeWorkspaceRoots",
+        "sandbox",
+        "serviceTier",
+        "threadId"
+      ]
+    },
+    {
+      "name": "ThreadResumeResponse",
+      "path": "v2/ThreadResumeResponse.json",
+      "required": [
+        "approvalPolicy",
+        "approvalsReviewer",
+        "cwd",
+        "model",
+        "modelProvider",
+        "sandbox",
+        "thread"
+      ],
+      "properties": [
+        "activePermissionProfile",
+        "approvalPolicy",
+        "approvalsReviewer",
+        "collaborationMode",
+        "cwd",
+        "disabledPluginIds",
+        "initialTurnsPage",
+        "instructionSources",
+        "itemsBackwardsCursor",
+        "model",
+        "modelProvider",
+        "multiAgentMode",
+        "reasoningEffort",
+        "runtimeWorkspaceRoots",
+        "sandbox",
+        "serviceTier",
+        "thread",
+        "turnsBackwardsCursor"
+      ]
+    },
+    {
+      "name": "TurnStartParams",
+      "path": "v2/TurnStartParams.json",
+      "required": [
+        "input",
+        "threadId"
+      ],
+      "properties": [
+        "additionalContext",
+        "approvalPolicy",
+        "approvalsReviewer",
+        "clientUserMessageId",
+        "collaborationMode",
+        "cwd",
+        "cyberAccessProgram",
+        "disabledPluginIds",
+        "effort",
+        "environments",
+        "input",
+        "model",
+        "multiAgentMode",
+        "outputSchema",
+        "parentTurnId",
+        "permissions",
+        "personality",
+        "responsesapiClientMetadata",
+        "responsesapiClientMetadataPatch",
+        "rootTurnId",
+        "runtimeWorkspaceRoots",
+        "sandboxPolicy",
+        "serviceTier",
+        "serviceTierForTurn",
+        "summary",
+        "threadId",
+        "toolOutput",
+        "turnTrigger"
+      ]
+    },
+    {
+      "name": "TurnStartResponse",
+      "path": "v2/TurnStartResponse.json",
+      "required": [
+        "turn"
+      ],
+      "properties": [
+        "turn"
+      ]
+    },
+    {
+      "name": "DynamicToolCallParams",
+      "path": "DynamicToolCallParams.json",
+      "required": [
+        "arguments",
+        "callId",
+        "threadId",
+        "tool",
+        "turnId"
+      ],
+      "properties": [
+        "arguments",
+        "callId",
+        "namespace",
+        "threadId",
+        "tool",
+        "turnId"
+      ]
+    },
+    {
+      "name": "DynamicToolCallResponse",
+      "path": "DynamicToolCallResponse.json",
+      "required": [
+        "contentItems",
+        "success"
+      ],
+      "properties": [
+        "contentItems",
+        "success"
+      ]
+    },
+    {
+      "name": "ThreadTokenUsageUpdatedNotification",
+      "path": "v2/ThreadTokenUsageUpdatedNotification.json",
+      "required": [
+        "threadId",
+        "tokenUsage",
+        "turnId"
+      ],
+      "properties": [
+        "threadId",
+        "tokenUsage",
+        "turnId"
+      ]
+    },
+    {
+      "name": "TurnCompletedNotification",
+      "path": "v2/TurnCompletedNotification.json",
+      "required": [
+        "threadId",
+        "turn"
+      ],
+      "properties": [
+        "threadId",
+        "turn"
+      ]
+    },
+    {
+      "name": "ItemCompletedNotification",
+      "path": "v2/ItemCompletedNotification.json",
+      "required": [
+        "completedAtMs",
+        "item",
+        "threadId",
+        "turnId"
+      ],
+      "properties": [
+        "completedAtMs",
+        "contentTokenCount",
+        "item",
+        "threadId",
+        "turnId"
+      ]
+    }
+  ],
+  "probe_script_sha256": "68fe759ce6d24f84290f5dab19f70a9ef709bd6492d55389d67ce892cc174374",
+  "production_allowlist_modified": false,
+  "candidate_promoted": false,
+  "model_or_email_calls": 0
+}

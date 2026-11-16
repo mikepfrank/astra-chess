@@ -1,0 +1,8 @@
+{
+  "source": "https://github.com/astral-sh/python-build-standalone/releases/download/20261110/cpython-3.12.16%2B20261110-x86_64-unknown-linux-gnu-install_only.tar.gz",
+  "sha256": "c2f87d4b4e8db3abddb0f116c6ccfc503d0cbdbb9ee8faacddad1b679ec12e99",
+  "python": "3.12.16",
+  "openssl": "OpenSSL 3.5.9 29 Sep 2026",
+  "sqlite": "3.53.1",
+  "expat": "expat_2.10.0"
+}

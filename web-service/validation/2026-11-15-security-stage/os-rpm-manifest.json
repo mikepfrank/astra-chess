@@ -1,0 +1,1379 @@
+{
+  "rpm_count": 274,
+  "signature_check_rc": 0,
+  "signature_lines": 274,
+  "all_signed_ok": true,
+  "unverified_lines": [],
+  "files": [
+    {
+      "name": "acl-2.4.0-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "b542c937a4bed3c3165e4e2966a084e8dd4425c7d60ca245570d8949964d71ef",
+      "bytes": 78335
+    },
+    {
+      "name": "alsa-lib-1.2.7.2-1.amzn2023.0.5.x86_64.rpm",
+      "sha256": "2745ab1f37c548f7a31209a36758dc2c5969c9b967e6934aad7fdc286033a2ab",
+      "bytes": 515200
+    },
+    {
+      "name": "amazon-chrony-config-4.3-1.amzn2023.0.6.noarch.rpm",
+      "sha256": "5d8d0a2cbb52d17a7de9ca3a9e333492743d8bae17268c3202848be554d97249",
+      "bytes": 13439
+    },
+    {
+      "name": "amazon-ec2-net-utils-2.7.7-1.amzn2023.0.1.noarch.rpm",
+      "sha256": "bb263ee7b19c676a22d56edff65ca0fafb865f6aa9c3b569b7b4650d1a9e51d7",
+      "bytes": 22736
+    },
+    {
+      "name": "amazon-linux-repo-s3-2023.12.20261112-0.amzn2023.noarch.rpm",
+      "sha256": "069497aaa719e56168a9f818a75251c144c64103af6a69dd2f6b8de4198e44f0",
+      "bytes": 12861
+    },
+    {
+      "name": "amazon-linux-sb-keys-2023.1-1.amzn2023.0.6.noarch.rpm",
+      "sha256": "d78c099e54b06229b0a21a41b4fe7081ab3810d281986cf1b85cb4dd0e49528a",
+      "bytes": 24914
+    },
+    {
+      "name": "amazon-rpm-config-228-11.amzn2023.0.1.noarch.rpm",
+      "sha256": "8aca94832831f034776e2f5ad72f21e98908fef08001269c0f7f83108c062e5a",
+      "bytes": 70657
+    },
+    {
+      "name": "amazon-ssm-agent-3.3.5828.0-1.amzn2023.x86_64.rpm",
+      "sha256": "2bc20a9ee27e1fc7b4cbc3568777f26d34199879c545cbf285e521cab05d878f",
+      "bytes": 27462079
+    },
+    {
+      "name": "aws-cfn-bootstrap-2.0-42.amzn2023.noarch.rpm",
+      "sha256": "eb46597c5707e87005d32f1e76036e73dc5b83d35a37eb05c4f3b81d4ae5d3fd",
+      "bytes": 233447
+    },
+    {
+      "name": "awscli-2-2.38.0-1.amzn2023.0.1.noarch.rpm",
+      "sha256": "19e403d21a269b9d306bab386d591f4c4c234f4c38e0965a0b030a2a359dd626",
+      "bytes": 15046127
+    },
+    {
+      "name": "bind-libs-9.18.50-1.amzn2023.0.5.x86_64.rpm",
+      "sha256": "f0f5fcd3e33862b68b2f7c24afef735e71b31ccbda27874b70a5a332e719014b",
+      "bytes": 1325374
+    },
+    {
+      "name": "bind-license-9.18.50-1.amzn2023.0.5.noarch.rpm",
+      "sha256": "f859bdc0331484b1216ac9add6ed1534b7f9b23eba6161b2ec1e75458c515e64",
+      "bytes": 17109
+    },
+    {
+      "name": "bind-utils-9.18.50-1.amzn2023.0.5.x86_64.rpm",
+      "sha256": "5161effce9ca3b2afe52af767d50d259a4fc4653b8fd3373552de25452399eee",
+      "bytes": 225959
+    },
+    {
+      "name": "c-ares-1.19.1-1.amzn2023.0.2.x86_64.rpm",
+      "sha256": "6ea03d87c9d9fc7060d020b644ca3e775ea64dd670896764d0d361b99393c7e6",
+      "bytes": 113660
+    },
+    {
+      "name": "ca-certificates-2025.2.76-1.0.amzn2023.0.5.noarch.rpm",
+      "sha256": "ae14f85e83bd0b4d099a7bfca6e8ae47fad1a265bfeb53899d77238a16a4e9fb",
+      "bytes": 729618
+    },
+    {
+      "name": "chrony-4.3-1.amzn2023.0.6.x86_64.rpm",
+      "sha256": "30f46efe3e162dcaaef08b67fec59fd0aad1e780ab783044dda56d42e98c48fb",
+      "bytes": 328303
+    },
+    {
+      "name": "cloud-utils-growpart-0.31-8.amzn2023.0.4.x86_64.rpm",
+      "sha256": "250c0497f534db03c20d1caa958e903294980d4b8e1c387842672fba50af8caa",
+      "bytes": 31845
+    },
+    {
+      "name": "container-selinux-2.245.0-1.amzn2023.noarch.rpm",
+      "sha256": "5b91535d0fdac28e315af39076b34039d4027247e6f68c7b56149fe8b19592ea",
+      "bytes": 59163
+    },
+    {
+      "name": "containerd-2.3.7-1.amzn2023.0.3.x86_64.rpm",
+      "sha256": "144bd8904453aec2d6c06593c5af696bb14e26f52a0be1c25e963e075f21deac",
+      "bytes": 25113936
+    },
+    {
+      "name": "coreutils-8.32-30.amzn2023.0.5.x86_64.rpm",
+      "sha256": "d5161c5195ec01265d1905e68435a574da3cb790110b85aa7bc4b725635c076c",
+      "bytes": 1180766
+    },
+    {
+      "name": "coreutils-common-8.32-30.amzn2023.0.5.x86_64.rpm",
+      "sha256": "a4ea241510facf3094d38f3f71de52f88bb144b804db48e549d7809cf4799c44",
+      "bytes": 2059909
+    },
+    {
+      "name": "crypto-policies-20260224-1.gitea0f072.amzn2023.0.6.noarch.rpm",
+      "sha256": "457ed630b2d56ca03777aea6cc6379cf7509782686a798b6f4e6723496b20bb2",
+      "bytes": 59441
+    },
+    {
+      "name": "crypto-policies-scripts-20260224-1.gitea0f072.amzn2023.0.6.noarch.rpm",
+      "sha256": "68588e0626ea9c8a91c0dd6e7114cdcefdfa37230fa0ab4269e3035c93b019fe",
+      "bytes": 91550
+    },
+    {
+      "name": "cups-filesystem-2.4.20-1.amzn2023.0.1.noarch.rpm",
+      "sha256": "cfe60118d0bf667a6887602a7cccb046949374ae6a9808c9a93d85d00ecf1eb1",
+      "bytes": 13557
+    },
+    {
+      "name": "cups-libs-2.4.20-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "da3afc8fe65a2723ead99c7f6abb7a71364b3a5ba10275e570a9ca2e91f4989a",
+      "bytes": 280833
+    },
+    {
+      "name": "curl-minimal-8.21.0-5.amzn2023.0.5.x86_64.rpm",
+      "sha256": "c7bb680b240a25e8a5be9c5eda4a6bf5a1cac2d27350267da3ad1cf47196a9a0",
+      "bytes": 198619
+    },
+    {
+      "name": "cyrus-sasl-lib-2.1.27-18.amzn2023.0.4.x86_64.rpm",
+      "sha256": "78c74496c4054a8d31b5e94288e85636dc105f3d6eb9045e948f7d6cf7dc068c",
+      "bytes": 802914
+    },
+    {
+      "name": "cyrus-sasl-plain-2.1.27-18.amzn2023.0.4.x86_64.rpm",
+      "sha256": "fb1f6730598f26432b54c7e91c67d33f349a0e9c0d772f11583ca055b698965f",
+      "bytes": 23639
+    },
+    {
+      "name": "device-mapper-1.02.185-1.amzn2023.0.6.x86_64.rpm",
+      "sha256": "a60533ec3d459625bf6765f6d341f64cde8d9894961d025dbe482e2b6b5d9587",
+      "bytes": 139946
+    },
+    {
+      "name": "device-mapper-libs-1.02.185-1.amzn2023.0.6.x86_64.rpm",
+      "sha256": "e04db0269c48bde9d35bbbe359c52fd8b8e930de905e40f3377370ef427c4067",
+      "bytes": 180663
+    },
+    {
+      "name": "dnf-4.14.0-1.amzn2023.0.9.noarch.rpm",
+      "sha256": "95b41c542e42422dd2acda0674c4df5f8cbd8928b28d97b2654ce381188adbee",
+      "bytes": 470604
+    },
+    {
+      "name": "dnf-data-4.14.0-1.amzn2023.0.9.noarch.rpm",
+      "sha256": "6b3537a5f5909df6b68da9279ddf963c74a663b41707a7bd5b24a78454cb3461",
+      "bytes": 33927
+    },
+    {
+      "name": "dnf-plugin-release-notification-1.4-1.amzn2023.noarch.rpm",
+      "sha256": "173b6aa0a6e193b535bb99402b0aec2b3ec6e481906d93dff5bfe0f1118ab188",
+      "bytes": 26390
+    },
+    {
+      "name": "dnf-plugin-support-info-2.0.0-231.amzn2023.noarch.rpm",
+      "sha256": "606eadd96f36e9ace2442913f938fcea08b52928dc5aaabc6a3f17d3891c474f",
+      "bytes": 152586
+    },
+    {
+      "name": "dnf-plugins-core-4.3.0-13.amzn2023.0.7.noarch.rpm",
+      "sha256": "4e1b103818029caf881857ed100b56ca4e3f966ec9751d4608fa91c6f8bf1a69",
+      "bytes": 32909
+    },
+    {
+      "name": "dnf-utils-4.3.0-13.amzn2023.0.7.noarch.rpm",
+      "sha256": "5e7d2525edb670e415dac4c2572a454305ae42c41150f1d8f5e88681d9199fa0",
+      "bytes": 35153
+    },
+    {
+      "name": "docker-25.0.18-1.amzn2023.0.3.x86_64.rpm",
+      "sha256": "75f22837c7ef790f0e16f433da0ef3bf807cb3d3d5cfbc169ae1c3d391230778",
+      "bytes": 50943583
+    },
+    {
+      "name": "dracut-102-3.amzn2023.0.4.x86_64.rpm",
+      "sha256": "d315d6651843ab5bae40a11adc9b3f2820e06dce880ff983d9e727f35e254aad",
+      "bytes": 424926
+    },
+    {
+      "name": "dracut-config-generic-102-3.amzn2023.0.4.x86_64.rpm",
+      "sha256": "1a0809b3bf912156753e4d1716d3606db4f65ef617a8b41cff5078af1829ee01",
+      "bytes": 9926
+    },
+    {
+      "name": "ec2-hibinit-agent-1.0.12-0.amzn2023.noarch.rpm",
+      "sha256": "76a2890c17f9b7ebe6ded2de356ed8ce3e689e04cf711b3131a67546074e1b59",
+      "bytes": 23218
+    },
+    {
+      "name": "ec2-utils-2.3.0-1.amzn2023.0.1.noarch.rpm",
+      "sha256": "7c9c589d259f271656d8946087977d291ab3f6869dc181369b4e9401775795a4",
+      "bytes": 18048
+    },
+    {
+      "name": "emacs-28.2-3.amzn2023.0.13.x86_64.rpm",
+      "sha256": "c97d1ecc8ae97513d5eddb1823bbd561b8e2da08344b6d0e18185681dd6d0ff1",
+      "bytes": 29414591
+    },
+    {
+      "name": "emacs-common-28.2-3.amzn2023.0.13.x86_64.rpm",
+      "sha256": "812d61f2fdb1e067f5c4fd778c98b64faf2cd9f52d72aa83c6699a6e41391303",
+      "bytes": 40370594
+    },
+    {
+      "name": "emacs-filesystem-28.2-3.amzn2023.0.13.noarch.rpm",
+      "sha256": "161074c19d30f9884cda810b92f27a9467385d20e67d78360365bb9a34d48d24",
+      "bytes": 8812
+    },
+    {
+      "name": "enchant2-2.8.1-2.amzn2023.0.2.x86_64.rpm",
+      "sha256": "110fb3abe92f99ac7d065175ffcdc41e6f46e9c893bf086c473340d57d77ac58",
+      "bytes": 75731
+    },
+    {
+      "name": "expat-2.8.3-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "16f4c8e1fe525d9d3e8c8ef5387448d2587d5a34ad062efb6513a6250eda3778",
+      "bytes": 137218
+    },
+    {
+      "name": "freetype-2.13.2-5.amzn2023.0.2.x86_64.rpm",
+      "sha256": "c21d2503aff6097ce35f57a940299618c683585905e12d9899a1b43cecaa1a24",
+      "bytes": 431676
+    },
+    {
+      "name": "gawk-5.1.0-3.amzn2023.0.4.x86_64.rpm",
+      "sha256": "3af5eac3eefcc158a22ef621f8244d242b75f06fcab9cf2f08c1474900170dae",
+      "bytes": 1025669
+    },
+    {
+      "name": "gawk-all-langpacks-5.1.0-3.amzn2023.0.4.x86_64.rpm",
+      "sha256": "810742899ce24208d22eaeb92c91c0dbfc048e3f6df783bef16dd988f14059c9",
+      "bytes": 211678
+    },
+    {
+      "name": "gdk-pixbuf2-2.42.12-186.amzn2023.x86_64.rpm",
+      "sha256": "e99bdd9b4d2871ccb8d40c4bc59d7e35d997199ba4db313b9c163ca8dee2e76c",
+      "bytes": 483277
+    },
+    {
+      "name": "gdk-pixbuf2-modules-2.42.12-186.amzn2023.x86_64.rpm",
+      "sha256": "ce3d395daf62d069c5be5fe9670c150cfc9eb9f64588318bb8e67e47ce8cba08",
+      "bytes": 30063
+    },
+    {
+      "name": "giflib-5.2.1-9.amzn2023.0.4.x86_64.rpm",
+      "sha256": "5a234a2b6e09ea244a1e6fd49ef0a9b8a3ab9e83a291d3da050940d441fecf05",
+      "bytes": 49709
+    },
+    {
+      "name": "git-2.50.1-1.amzn2023.0.2.x86_64.rpm",
+      "sha256": "1edc926a60f69ef836ad8a8235014732bf1ca941ab80bcf4cdd7c31bd4e16baa",
+      "bytes": 51685
+    },
+    {
+      "name": "git-core-2.50.1-1.amzn2023.0.2.x86_64.rpm",
+      "sha256": "4b9fdae5367eb3c98ca8df4dfe6b073de61d9d827d385f7fa3a4416210b7f92f",
+      "bytes": 5172572
+    },
+    {
+      "name": "git-core-doc-2.50.1-1.amzn2023.0.2.noarch.rpm",
+      "sha256": "1d6bf643dd5175981cefe7f23399a323da234e9d327b70f860f0c80a6beea9bd",
+      "bytes": 2966766
+    },
+    {
+      "name": "glib-networking-2.80.0-187.amzn2023.0.2.x86_64.rpm",
+      "sha256": "eed465ffb4adf2a1f24bb148c72e37d38e1116b6b508cf298285db3f5b60b8db",
+      "bytes": 189581
+    },
+    {
+      "name": "glib2-2.82.2-771.amzn2023.x86_64.rpm",
+      "sha256": "2bcf1c2ffd0d0adb28db34a5734c7254b28b4511ad30f6b5cc372ba563da1de4",
+      "bytes": 3191130
+    },
+    {
+      "name": "glibc-2.34-231.amzn2023.0.6.x86_64.rpm",
+      "sha256": "90a932547b16c33aec1f2ed3b534171fb21deb3638f7a7fe61fa4e60ffbc040e",
+      "bytes": 2066689
+    },
+    {
+      "name": "glibc-all-langpacks-2.34-231.amzn2023.0.6.x86_64.rpm",
+      "sha256": "9aa771ca498f291c464d899314f97d9d8ebdb042e819a4f955b8d295d2b64f2b",
+      "bytes": 18716099
+    },
+    {
+      "name": "glibc-common-2.34-231.amzn2023.0.6.x86_64.rpm",
+      "sha256": "a473d876bbc72407ff10c46a35cf1a9c9963c6d772cf6400848f8b26d64801b0",
+      "bytes": 301800
+    },
+    {
+      "name": "glibc-devel-2.34-231.amzn2023.0.6.x86_64.rpm",
+      "sha256": "08a5e36e28cf4a2e360a22587891bd31a44654de1b72f9a4b2827eb1b7f142b1",
+      "bytes": 31419
+    },
+    {
+      "name": "glibc-gconv-extra-2.34-231.amzn2023.0.6.x86_64.rpm",
+      "sha256": "13e8fd20faf03637d80dcf3568f1c99603ed0e670cc94ad21d5edbd7c5c70ebb",
+      "bytes": 1633193
+    },
+    {
+      "name": "glibc-headers-x86-2.34-231.amzn2023.0.6.noarch.rpm",
+      "sha256": "140d44f8685571c064ae1b6ff00fae4f69e6c2e4bc785165bca9d21cafb38651",
+      "bytes": 447012
+    },
+    {
+      "name": "glibc-locale-source-2.34-231.amzn2023.0.6.x86_64.rpm",
+      "sha256": "67ef18d5accfc346e06a988d2656af1b89edb0f2fbdbfc7b195faa30c28a7601",
+      "bytes": 4226206
+    },
+    {
+      "name": "gnupg2-minimal-2.3.7-1.amzn2023.0.9.x86_64.rpm",
+      "sha256": "564556b83f9b48ae3a43b81d770b188e3d767543a3ecdf347cdad2773e2bdaec",
+      "bytes": 429796
+    },
+    {
+      "name": "gnutls-3.8.10-4.amzn2023.0.2.x86_64.rpm",
+      "sha256": "3c07a1074efdd142965ea80ec6a8227eee459efb92f28988e3002fafb07993ae",
+      "bytes": 1459944
+    },
+    {
+      "name": "graphite2-1.3.14-7.amzn2023.0.3.x86_64.rpm",
+      "sha256": "f97fd8fbc2b58d66316e658db57619a39acef89b28c117412ef9af626db20580",
+      "bytes": 99048
+    },
+    {
+      "name": "grub2-common-2.06-61.amzn2023.0.24.noarch.rpm",
+      "sha256": "a7517d03d05f153259755061fe5a26fabeab9db3fa6e1d947fb0f7465f9fabae",
+      "bytes": 1922844
+    },
+    {
+      "name": "grub2-efi-x64-ec2-2.06-61.amzn2023.0.24.x86_64.rpm",
+      "sha256": "70c1639e18863b763f691aab6de267d6cd79bd5ddbde35fbd76c33f7e8cff364",
+      "bytes": 272655
+    },
+    {
+      "name": "grub2-pc-modules-2.06-61.amzn2023.0.24.noarch.rpm",
+      "sha256": "bb5d069768bc5a15c613595f5c25fd299dcfb0fab8c0bf086043d9549d8ca1d4",
+      "bytes": 928374
+    },
+    {
+      "name": "grub2-tools-2.06-61.amzn2023.0.24.x86_64.rpm",
+      "sha256": "1cb0c8eb55194cd4a54ef89789beb4a1f3be1ce6e0499f9aec637eaf84d1d1e0",
+      "bytes": 1919651
+    },
+    {
+      "name": "grub2-tools-minimal-2.06-61.amzn2023.0.24.x86_64.rpm",
+      "sha256": "d68855ee9725c2a2fadec3fe8ab8d885a292b6de09d9572a77a9b839a73f383c",
+      "bytes": 616473
+    },
+    {
+      "name": "highway-1.2.0-31.amzn2023.0.2.x86_64.rpm",
+      "sha256": "86bc32353d024ca3677d47f2d5ea150f591ab07fab5c841b1a40ebce2c680d9a",
+      "bytes": 34680
+    },
+    {
+      "name": "jq-1.8.1-60.amzn2023.x86_64.rpm",
+      "sha256": "be649633b3d94a464761d36ec0e39f96fe90a71cac7a9783fb95467c0d171f1a",
+      "bytes": 219914
+    },
+    {
+      "name": "jxl-pixbuf-loader-0.10.3-56.amzn2023.x86_64.rpm",
+      "sha256": "68bd5d4e8b0928f2bf5ea2f0720db320d585b57759740e14cf011a67ce7c5d01",
+      "bytes": 20002
+    },
+    {
+      "name": "kbd-2.4.0-2.amzn2023.0.4.x86_64.rpm",
+      "sha256": "9b8d0fe615b6a93ae09664c1be470e91259325816b14b4a6496151fcce427db1",
+      "bytes": 397792
+    },
+    {
+      "name": "kbd-misc-2.4.0-2.amzn2023.0.4.noarch.rpm",
+      "sha256": "d88ecd633c27ffd605e94e3c9b07872c1a117b35380413a6d93e11415ab520da",
+      "bytes": 1601767
+    },
+    {
+      "name": "kernel-6.1.190-237.442.amzn2023.x86_64.rpm",
+      "sha256": "495c89479d15cd771b4fb00bd0f7bcebf5600f85a382eee95384557d5a722278",
+      "bytes": 32951354
+    },
+    {
+      "name": "kernel-headers-6.1.190-237.442.amzn2023.x86_64.rpm",
+      "sha256": "16259eb0e55d5462442d4db3eb5edec099bfdcad017d970e1fed14574286c8c7",
+      "bytes": 1446243
+    },
+    {
+      "name": "kernel-livepatch-repo-s3-2023.12.20261112-0.amzn2023.noarch.rpm",
+      "sha256": "4ce2b1c390d383d3b7d075d507912ca090fd69aceff7eafc312bf3ff228bb95a",
+      "bytes": 12512
+    },
+    {
+      "name": "kernel-tools-6.1.190-237.442.amzn2023.x86_64.rpm",
+      "sha256": "92cac461356d6c80c65cc80b9dd31d27f20be8d6dd2b58161a4ad48b6c9a9640",
+      "bytes": 188017
+    },
+    {
+      "name": "kmod-29-2.amzn2023.0.6.x86_64.rpm",
+      "sha256": "a263934da66ed995fc681dbd92e9fff19a5a0f0dbf2108cfb537fe2bf8ce3289",
+      "bytes": 115417
+    },
+    {
+      "name": "kmod-libs-29-2.amzn2023.0.6.x86_64.rpm",
+      "sha256": "21c5182ee81436f4f1162dddaab5e997dd6dcea754604bdfb53c4a042a7f3f02",
+      "bytes": 63708
+    },
+    {
+      "name": "kpatch-runtime-0.9.10-1.amzn2023.0.5.noarch.rpm",
+      "sha256": "ec19b6551dd7dbf17688572eaf7bced1427612110fd23845fffb98d2b8883b60",
+      "bytes": 27057
+    },
+    {
+      "name": "krb5-libs-1.21.3-8.amzn2023.0.2.x86_64.rpm",
+      "sha256": "7ee15a6ea4d467ffb792abe68526ffb4c0c45844b623b14cf8f8ccbb87310485",
+      "bytes": 776697
+    },
+    {
+      "name": "lcms2-2.19-75.amzn2023.0.1.x86_64.rpm",
+      "sha256": "7de856c16a281a27a29e14e01cec7bc8b3f1bdfc1acb9cb1e3764f17a21e109d",
+      "bytes": 197069
+    },
+    {
+      "name": "libX11-1.8.10-2.amzn2023.0.3.x86_64.rpm",
+      "sha256": "7b687096b5029454bd13f418e868a481dfb9dd00585dafe6346310bf2df41d3a",
+      "bytes": 670385
+    },
+    {
+      "name": "libX11-common-1.8.10-2.amzn2023.0.3.noarch.rpm",
+      "sha256": "99486d63ab74428e5709397a8f8864ec441dee1463f72fcf8a8ce8c7cc78977f",
+      "bytes": 147796
+    },
+    {
+      "name": "libX11-xcb-1.8.10-2.amzn2023.0.3.x86_64.rpm",
+      "sha256": "b33197431834b9e5578ef550156e4a60c4c6896550603a11fa7226be182f884b",
+      "bytes": 11579
+    },
+    {
+      "name": "libXi-1.8.4-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "b51d2d83750df5bff104a7717c7a0583f7069bf00f432a97422bd5992a8c91c8",
+      "bytes": 43788
+    },
+    {
+      "name": "libXpm-3.5.17-3.amzn2023.0.2.x86_64.rpm",
+      "sha256": "12a523ce1e516ea99cf8a6095d327a223ae17efa432a87d87a760ca02c445f94",
+      "bytes": 68176
+    },
+    {
+      "name": "libXrender-0.9.11-6.amzn2023.0.2.x86_64.rpm",
+      "sha256": "f9c54d32fccd053a479c2bfddac627325916312e829911dbb0950e478df3f0a2",
+      "bytes": 28958
+    },
+    {
+      "name": "libXtst-1.2.5-1.amzn2023.0.2.x86_64.rpm",
+      "sha256": "ecfe1e295a4607a493b5b67480303200d5a0cfc49ea32628a18db005857447b0",
+      "bytes": 21744
+    },
+    {
+      "name": "libacl-2.4.0-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "ac397cd99d409adc3aaffe8b272f80476b0818c658aa068da76e64d075635a37",
+      "bytes": 27637
+    },
+    {
+      "name": "libarchive-3.7.4-2.amzn2023.0.5.x86_64.rpm",
+      "sha256": "f1f4f5b8d6da6b70a1eb1c257833c47d750c0824bc971881ce70792c1beb3dce",
+      "bytes": 420402
+    },
+    {
+      "name": "libblkid-2.37.4-1.amzn2023.0.7.x86_64.rpm",
+      "sha256": "f2cdffd5bf7cd9516fd186bc7769c3b62e834c6f5dc92a45a4e18613c43e8684",
+      "bytes": 107957
+    },
+    {
+      "name": "libbpf-1.6.1-3.amzn2023.x86_64.rpm",
+      "sha256": "dc94552b1caf6d786b121eb567a9a97bcfa69ab74674b15b9450a4b89360252a",
+      "bytes": 197774
+    },
+    {
+      "name": "libbrotli-1.1.0-1.amzn2023.0.2.x86_64.rpm",
+      "sha256": "61dc3262ec4b6e66ef1cdf420fa512260286217d8cb9c05609bf08458bed7323",
+      "bytes": 341131
+    },
+    {
+      "name": "libcap-2.73-1.amzn2023.0.8.x86_64.rpm",
+      "sha256": "187321e2195c8ad5a716bd61d42b1d40893d021bc7eca660de47ace335145c8b",
+      "bytes": 87991
+    },
+    {
+      "name": "libcurl-minimal-8.21.0-5.amzn2023.0.5.x86_64.rpm",
+      "sha256": "a8dd3d3b5708b7535033b425a854b03fb601a4cf0c1f74428c77c25c1cdd08be",
+      "bytes": 357354
+    },
+    {
+      "name": "libdnf-0.69.0-8.amzn2023.0.9.x86_64.rpm",
+      "sha256": "f7c5523f0856f16be78c01303bcb5b4ec25ebe1fa6d4807887daf016ce4284a8",
+      "bytes": 669282
+    },
+    {
+      "name": "libeconf-0.7.9-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "a4cb17b3a374cb11dbb06565cace720d0223be76185676b9e41f5b21a4f7fdd3",
+      "bytes": 37324
+    },
+    {
+      "name": "libevent-2.1.12-3.amzn2023.0.4.x86_64.rpm",
+      "sha256": "a5d3efb08aac878d7ddde08a30faebb8c7a4540e86e810e1ebcfe9127ddabf36",
+      "bytes": 268132
+    },
+    {
+      "name": "libfdisk-2.37.4-1.amzn2023.0.7.x86_64.rpm",
+      "sha256": "c2e2431e9786b2890f8145d9d7477b916b109cb87d4d870382cbd0837e1892ff",
+      "bytes": 155971
+    },
+    {
+      "name": "libgcrypt-1.10.2-1.amzn2023.0.3.x86_64.rpm",
+      "sha256": "d1ff7cc408a13e069844e87236432a40757e84804989bba352d5a19080e60fab",
+      "bytes": 539968
+    },
+    {
+      "name": "libjxl-0.10.3-56.amzn2023.x86_64.rpm",
+      "sha256": "1b32b5b2adc39fd019b654c7491e387b99ea2cdafe1440915b5aba89648687c6",
+      "bytes": 1264391
+    },
+    {
+      "name": "libmount-2.37.4-1.amzn2023.0.7.x86_64.rpm",
+      "sha256": "5ec3d6cb802fcb1965df568a3513ee9ee782490cfa6c04c5603c3de498b750f9",
+      "bytes": 134530
+    },
+    {
+      "name": "libnghttp2-1.59.0-3.amzn2023.0.2.x86_64.rpm",
+      "sha256": "c40046882e8eb7770dcd0b99df55f13eed8c4501e488f3032bb117ef5c5e985d",
+      "bytes": 77237
+    },
+    {
+      "name": "libpcap-1.10.7-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "68cbe995a044f4cc3f6874368a2e6d518d8e7a9abccfa9c9f6110eae44b7aa92",
+      "bytes": 191608
+    },
+    {
+      "name": "libpng-1.6.37-10.amzn2023.0.13.x86_64.rpm",
+      "sha256": "a34dbecffbcd7f3774491ef38b2f31294774a703f679e8bb4fdea3d88f1a1922",
+      "bytes": 131165
+    },
+    {
+      "name": "librsvg2-2.59.2-320.amzn2023.x86_64.rpm",
+      "sha256": "b468561742eb99affc0dada59c24c14bdcc6d1765f0f6a485397cd004a336a9a",
+      "bytes": 1865764
+    },
+    {
+      "name": "libsmartcols-2.37.4-1.amzn2023.0.7.x86_64.rpm",
+      "sha256": "48f7131f220d4b241c6356e26e749dbb566816f6181e9c1461e5a3431eea435d",
+      "bytes": 62928
+    },
+    {
+      "name": "libsolv-0.7.22-1.amzn2023.0.5.x86_64.rpm",
+      "sha256": "73cc96cc5cd950d972f74beee56675221845adb739c44ba963c08a4f43147862",
+      "bytes": 400107
+    },
+    {
+      "name": "libsoup-2.72.0-6.amzn2023.0.16.x86_64.rpm",
+      "sha256": "153eba0d0a2ca96baf806fd204c649973d8cc9cbe6d96123aa39756371a183d4",
+      "bytes": 402727
+    },
+    {
+      "name": "libsoup3-3.7.3-1.amzn2023.x86_64.rpm",
+      "sha256": "32788aeac94da665c2cb323252acddbe1008c603d4f6c62b3b22a36260215f0e",
+      "bytes": 413841
+    },
+    {
+      "name": "libsss_certmap-2.9.4-1.amzn2023.0.5.x86_64.rpm",
+      "sha256": "d79e4b05d6be10a9786e4b7502facb92a46a703adb95d938a582e5607ebeebbe",
+      "bytes": 85981
+    },
+    {
+      "name": "libsss_idmap-2.9.4-1.amzn2023.0.5.x86_64.rpm",
+      "sha256": "d0284abea489c17fc1391f5960ee75c9c67ebdfa6dc2ea0bbc667fd9d65d1c6f",
+      "bytes": 36046
+    },
+    {
+      "name": "libsss_nss_idmap-2.9.4-1.amzn2023.0.5.x86_64.rpm",
+      "sha256": "99524682d27cd2170bd93e5d7c36f7ac6f0f7a978492ee012b77a8cd0e7f01cf",
+      "bytes": 40658
+    },
+    {
+      "name": "libsss_sudo-2.9.4-1.amzn2023.0.5.x86_64.rpm",
+      "sha256": "d287eed147ede8df073abe81baff0a048bb012ec3bd8369fefa2bd828d2eaa93",
+      "bytes": 29403
+    },
+    {
+      "name": "libstoragemgmt-1.9.4-5.amzn2023.0.3.x86_64.rpm",
+      "sha256": "bc9f4da3f4e37d3fea718a6595c5d78bcc927f6a43bffae420e3752bd4799b8c",
+      "bytes": 252060
+    },
+    {
+      "name": "libtasn1-4.19.0-1.amzn2023.0.6.x86_64.rpm",
+      "sha256": "36a0dc8af06ec746fae7074d8ef4c055666b90140b577ba3ceb1aad180b01865",
+      "bytes": 76637
+    },
+    {
+      "name": "libtiff-4.4.0-4.amzn2023.0.28.x86_64.rpm",
+      "sha256": "212c6ec1f53f9d82693aa6d7cd99118b82f6f5e7938c46fbda4fe014fc921a82",
+      "bytes": 216078
+    },
+    {
+      "name": "libusbx-1.0.24-2.amzn2023.0.3.x86_64.rpm",
+      "sha256": "5ec0de3e4207713a90119ec1890d8a6f9d9444b72ebc4c6fc56410d784f84062",
+      "bytes": 73959
+    },
+    {
+      "name": "libuuid-2.37.4-1.amzn2023.0.7.x86_64.rpm",
+      "sha256": "08ea8a90dac1baa6415267b7a548f44bfc8ada1a4cf8afd13197d34e03763103",
+      "bytes": 26404
+    },
+    {
+      "name": "libxml2-2.10.4-1.amzn2023.0.22.x86_64.rpm",
+      "sha256": "4dc30bae6df5bfb477757950136804a2867d92cc54b207a53312f7aa967ef872",
+      "bytes": 721635
+    },
+    {
+      "name": "libxslt-1.1.43-1.amzn2023.0.3.x86_64.rpm",
+      "sha256": "5fd233225826a543d7affdc50d6c8309eb680df1c36917814e559053c88b2b80",
+      "bytes": 187496
+    },
+    {
+      "name": "microcode_ctl-2.1-53.amzn2023.0.16.x86_64.rpm",
+      "sha256": "e5d800c1b72ffb05a962f357dbef2994192f8a8db5b9a4c6c44e54ae14ebc49b",
+      "bytes": 4794051
+    },
+    {
+      "name": "ncurses-6.6-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "7b576935e894f7ea79b5946b295702eda985a166443a39b3f622c51ec2ee29ba",
+      "bytes": 435891
+    },
+    {
+      "name": "ncurses-base-6.6-1.amzn2023.0.1.noarch.rpm",
+      "sha256": "dacdeebd57d16af88bc271f973378bb370c73392b9c5a69f650a25aa1520fedb",
+      "bytes": 66813
+    },
+    {
+      "name": "ncurses-libs-6.6-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "557fa8de34c208950e978eb76ce57ae8c1844eaeab3ebb8af18e664002403ad7",
+      "bytes": 348323
+    },
+    {
+      "name": "nspr-4.39.0-1.amzn2023.0.3.x86_64.rpm",
+      "sha256": "e81c24780bdf907128caaf3f3b71835c1795589586814cf752f6bc0fad24b60e",
+      "bytes": 139524
+    },
+    {
+      "name": "nss-3.124.0-1.amzn2023.0.3.x86_64.rpm",
+      "sha256": "5f2bba00688f3cf387201a5769ced9d8f2d235e1b29a0738878e30ddf5c4fe8f",
+      "bytes": 750000
+    },
+    {
+      "name": "nss-softokn-3.124.0-1.amzn2023.0.3.x86_64.rpm",
+      "sha256": "b5eb8ab48f54373915cd4c5b2839c39cb5ee144295715147702d2d32d7927a09",
+      "bytes": 427263
+    },
+    {
+      "name": "nss-softokn-freebl-3.124.0-1.amzn2023.0.3.x86_64.rpm",
+      "sha256": "15b95e0f655258ac6afebc5e235142fa6540fb233c0105307c6e7f5c391749ec",
+      "bytes": 405305
+    },
+    {
+      "name": "nss-sysinit-3.124.0-1.amzn2023.0.3.x86_64.rpm",
+      "sha256": "30859d53620b28e171eb35c2d8d936693d89d1a7627d8c29b4c23e5ccd6c0a13",
+      "bytes": 20278
+    },
+    {
+      "name": "nss-util-3.124.0-1.amzn2023.0.3.x86_64.rpm",
+      "sha256": "227059ae6efda6e040e66778cb9059c9c429e88117f99b45dfc93e7088fcc2a0",
+      "bytes": 94596
+    },
+    {
+      "name": "openexr-libs-3.1.5-1.amzn2023.0.12.x86_64.rpm",
+      "sha256": "21ab016042eccb0e3913aac2774ae37bd8f3c6ccab0406f1df4b222ef59b23aa",
+      "bytes": 1138686
+    },
+    {
+      "name": "openssh-9.9p1-16.amzn2023.0.1.x86_64.rpm",
+      "sha256": "f4fff884445b3197dbf147471bbf094a3b1e05ebe255fc5f638b4a88580ea626",
+      "bytes": 437270
+    },
+    {
+      "name": "openssh-clients-9.9p1-16.amzn2023.0.1.x86_64.rpm",
+      "sha256": "91de7d47036923aed85b205caf43f22c36376e4e947b8f2d53a38448e82a4593",
+      "bytes": 801392
+    },
+    {
+      "name": "openssh-server-9.9p1-16.amzn2023.0.1.x86_64.rpm",
+      "sha256": "aa2fedaa353c431874619630814650fe647f77ba0befb0ac97a1cfe2844b53d2",
+      "bytes": 566772
+    },
+    {
+      "name": "openssl-3.5.8-1.amzn2023.0.4.x86_64.rpm",
+      "sha256": "a8d609ba310434341d1a6303494e5c7fd5c97dc357e32baae623cef7084fd721",
+      "bytes": 1485176
+    },
+    {
+      "name": "openssl-fips-provider-latest-3.5.8-1.amzn2023.0.4.x86_64.rpm",
+      "sha256": "e221a81da877afa15f4e2e9bd916d39ec9ee7255f37ba25ac6dbcd2cd9eb1b28",
+      "bytes": 855090
+    },
+    {
+      "name": "openssl-libs-3.5.8-1.amzn2023.0.4.x86_64.rpm",
+      "sha256": "92129db1ccc389670e79dfc68730cda21b39716107a5e56a90de7c8615425a83",
+      "bytes": 2453014
+    },
+    {
+      "name": "pam-1.5.1-8.amzn2023.0.8.x86_64.rpm",
+      "sha256": "3664efb5954a1c8c01c3600da2418cd5c8fa1f2323bc1200aa3a13edcee64540",
+      "bytes": 563125
+    },
+    {
+      "name": "parted-3.4-2.amzn2023.0.3.x86_64.rpm",
+      "sha256": "06d4546fffe8baa9e6c04306580f8253c906af5993ee5913753447cf47da5293",
+      "bytes": 595532
+    },
+    {
+      "name": "pcre2-10.40-1.amzn2023.0.5.x86_64.rpm",
+      "sha256": "6f7bd597a3442a16653945a730bed08f78c5eed4eccefc3f0462ec14dffee247",
+      "bytes": 240942
+    },
+    {
+      "name": "pcre2-syntax-10.40-1.amzn2023.0.5.noarch.rpm",
+      "sha256": "45d6f3b551e3e45d2b45c210cf32033fabf01937d94da4820ef9d7cc360dc63c",
+      "bytes": 144300
+    },
+    {
+      "name": "perl-AutoLoader-5.74-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "902efecb926cdc6d6fa632e08436556de35fa4eb84694a6a2d75005d554101b7",
+      "bytes": 22321
+    },
+    {
+      "name": "perl-B-1.80-477.amzn2023.0.11.x86_64.rpm",
+      "sha256": "0519466094f66de80e2967c0a31bcde6bb8c5a77fdca8a43904bb1377de37903",
+      "bytes": 183763
+    },
+    {
+      "name": "perl-Class-Struct-0.66-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "7bc25a660f2e202e6137e1d0c0f51747a52b2109d77f76377012b4b4b8c974d1",
+      "bytes": 23175
+    },
+    {
+      "name": "perl-Data-Dumper-2.191-522.amzn2023.0.3.x86_64.rpm",
+      "sha256": "2092d31eadbf312841e75c3bc01e162f58c80c85acb822bc4a15d5b51cf81400",
+      "bytes": 58815
+    },
+    {
+      "name": "perl-Digest-1.20-1.amzn2023.0.2.noarch.rpm",
+      "sha256": "748b77b68271309f203b7c9a47c0504cfd869bd6e9a3e8c2978d646d9318ce6f",
+      "bytes": 26653
+    },
+    {
+      "name": "perl-Digest-MD5-2.59-521.amzn2023.0.2.x86_64.rpm",
+      "sha256": "797bc7f38afa2a14695420d3b263a101f1d9f8e2a31f96945d15397ece1733ae",
+      "bytes": 37873
+    },
+    {
+      "name": "perl-DynaLoader-1.47-477.amzn2023.0.11.x86_64.rpm",
+      "sha256": "fab16c28ab2317f3426e25256f0b5c80f2285899ce886017b2165f541bc96463",
+      "bytes": 26857
+    },
+    {
+      "name": "perl-Encode-3.21-520.amzn2023.0.2.x86_64.rpm",
+      "sha256": "32593e5b5910d3535137468beb50bd201bf299d3392e11a643dc4c323ddb66dc",
+      "bytes": 1771622
+    },
+    {
+      "name": "perl-Errno-1.30-477.amzn2023.0.11.x86_64.rpm",
+      "sha256": "a944d538eb4d5a15e540c130051b91538ad85c640679817ef61117da098cf859",
+      "bytes": 15799
+    },
+    {
+      "name": "perl-Error-0.17030-2.amzn2023.0.1.noarch.rpm",
+      "sha256": "f36b82cf338b8f4fe64dab130e9a1f64c1fa2056505c50bedd0bbdf89b0c5fb7",
+      "bytes": 42703
+    },
+    {
+      "name": "perl-Exporter-5.79-520.amzn2023.0.1.noarch.rpm",
+      "sha256": "d9a5d807e3c9482cdbda77d93514cab12a3c653e823b66762b442afffcb1275c",
+      "bytes": 32855
+    },
+    {
+      "name": "perl-Fcntl-1.13-477.amzn2023.0.11.x86_64.rpm",
+      "sha256": "3cf7821070107aeb5d52a2e0c45843bcef2e2b2f9530335b2edcb57e1bc0e802",
+      "bytes": 21347
+    },
+    {
+      "name": "perl-File-Basename-2.85-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "4bbb82d8a52a37fefc4bb50236b6528ceb467ad883c07a6339055d4699240b59",
+      "bytes": 18168
+    },
+    {
+      "name": "perl-File-Find-1.37-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "0fa9016ec53c90c0d1722117576e7bff0befb2e9b3cbf49a22f8f34bbaff9d03",
+      "bytes": 26509
+    },
+    {
+      "name": "perl-File-Temp-0.231.200-2.amzn2023.0.1.noarch.rpm",
+      "sha256": "71bbff5e70cd3c4ee885125e645b6541527b68acef1621d8d2b7642cf9b8815d",
+      "bytes": 62344
+    },
+    {
+      "name": "perl-File-stat-1.09-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "d14ece5f4cb3a65287f0e56cf275887a7ca6f0d776645944351637c5cefb413d",
+      "bytes": 18075
+    },
+    {
+      "name": "perl-FileHandle-2.03-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "dc63b5930fb769271d9c2babee3d319f35e62c39dab3ad5f5d8325d3712fccf9",
+      "bytes": 16417
+    },
+    {
+      "name": "perl-Getopt-Long-2.58-521.amzn2023.0.1.noarch.rpm",
+      "sha256": "1fe9214496235881c15fbeb7ff35b4fc69a72aa6a684031da7895cf136f94526",
+      "bytes": 66613
+    },
+    {
+      "name": "perl-Getopt-Std-1.12-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "75a29b2405cd8a6f3a983e13f0e147dc1964dc0997def7c907ce080849012993",
+      "bytes": 16488
+    },
+    {
+      "name": "perl-Git-2.50.1-1.amzn2023.0.2.noarch.rpm",
+      "sha256": "ca33a22ffd91c877233fc594b66e9349cf719fbbd42b47b5faa8753598bee018",
+      "bytes": 39410
+    },
+    {
+      "name": "perl-HTTP-Tiny-0.092-2.amzn2023.0.3.noarch.rpm",
+      "sha256": "54b27647b699c6400b82b09aa306323a5f6040f7f0f620350036375df509618b",
+      "bytes": 60356
+    },
+    {
+      "name": "perl-IO-1.43-477.amzn2023.0.11.x86_64.rpm",
+      "sha256": "ecc37be42beea56f78afce1c2229ad709444bdc5605fb5eb8fc499e8cf516cf1",
+      "bytes": 88992
+    },
+    {
+      "name": "perl-IO-Socket-IP-0.43-522.amzn2023.0.1.noarch.rpm",
+      "sha256": "20cdc381e34496f10affd266bd855603e0b34966273a1929edc60cccc2d05479",
+      "bytes": 44590
+    },
+    {
+      "name": "perl-IO-Socket-SSL-2.075-1.amzn2023.0.3.noarch.rpm",
+      "sha256": "0de0213952bf748d58aa1935d515f3cf77ae5dade378783f77ccef245f934446",
+      "bytes": 220979
+    },
+    {
+      "name": "perl-IPC-Open3-1.21-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "13651d73dba7463678b7f921aab2bc297fd63f6b58c0bbdfad672e6e90374ca4",
+      "bytes": 23928
+    },
+    {
+      "name": "perl-MIME-Base64-3.16-2.amzn2023.0.3.x86_64.rpm",
+      "sha256": "54b5bc2298fecbe63dc5c49199998030408fc00db4b898b71db3ad11b46941bc",
+      "bytes": 31570
+    },
+    {
+      "name": "perl-Net-SSLeay-1.94-3.amzn2023.0.5.x86_64.rpm",
+      "sha256": "875fa4b4da326b5c8ff2aee7a825883ff4b4841f81d0fb119aed3df3265198c6",
+      "bytes": 401107
+    },
+    {
+      "name": "perl-POSIX-1.94-477.amzn2023.0.11.x86_64.rpm",
+      "sha256": "e64062a0f70d5bd366661e1e200ddad1cdffc2bb0f0dc773467a1f9b3c9bf4c7",
+      "bytes": 99096
+    },
+    {
+      "name": "perl-PathTools-3.78-459.amzn2023.0.3.x86_64.rpm",
+      "sha256": "44a9f1d689aa96ca2337a7720964fb9733fa632fcbe9b802de9d1876068eea55",
+      "bytes": 87091
+    },
+    {
+      "name": "perl-Scalar-List-Utils-1.56-459.amzn2023.0.3.x86_64.rpm",
+      "sha256": "4e4ba0bc3e90e46dbf99003f21d3aaf1580b1e1806f7c5d49ee5befb52f487bb",
+      "bytes": 72608
+    },
+    {
+      "name": "perl-SelectSaver-1.02-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "c5cc9fa9b42e13188fc14d99d876bad48a8617e4396538bc8d64e08f37ae6e13",
+      "bytes": 12521
+    },
+    {
+      "name": "perl-Socket-2.032-1.amzn2023.0.4.x86_64.rpm",
+      "sha256": "2e31c1d6ffa9048e3223c520bcc3dc1cd18347944ce2746f1933264bf80295dd",
+      "bytes": 56267
+    },
+    {
+      "name": "perl-Storable-3.37-522.amzn2023.0.3.x86_64.rpm",
+      "sha256": "fd41e41abdde59bb4d75836669ca029cc4991a29cf45e3a6f8769fafbed1c253",
+      "bytes": 99947
+    },
+    {
+      "name": "perl-Symbol-1.08-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "04a70b83b63f6cd7f17142f0ecd5c88ac5b0db0c7856503980feb311a78cd6f4",
+      "bytes": 15024
+    },
+    {
+      "name": "perl-TermReadKey-2.38-9.amzn2023.0.3.x86_64.rpm",
+      "sha256": "26dc79db7531c3cfac0dbf03ba5fcd7554ed22a003952b87e0032286960dc6fe",
+      "bytes": 36702
+    },
+    {
+      "name": "perl-Time-HiRes-1.9764-460.amzn2023.0.3.x86_64.rpm",
+      "sha256": "d00332723a9e8edc7b95a788da64f65aaf23dd20781fa1559355b11c95b88196",
+      "bytes": 58912
+    },
+    {
+      "name": "perl-URI-5.18-1.amzn2023.0.2.noarch.rpm",
+      "sha256": "6343fa5febb3b57f2985582f9654475a295ffe811790cc0596b69d68ab15bd18",
+      "bytes": 113858
+    },
+    {
+      "name": "perl-Unicode-Normalize-1.27-459.amzn2023.0.3.x86_64.rpm",
+      "sha256": "d69293aac4049d9ee0a6f01e2c0e1f7554477b000122727ca52508d819bde808",
+      "bytes": 93610
+    },
+    {
+      "name": "perl-base-2.27-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "fa781f82d9908161b29ad9356afa4067c031b0c9195806cb57f0c94ddccdfe3f",
+      "bytes": 17179
+    },
+    {
+      "name": "perl-if-0.60.800-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "9c6f46e417aec80387102dc565bed192010ad73b9ef61dd383435c17f0f4778c",
+      "bytes": 14838
+    },
+    {
+      "name": "perl-interpreter-5.32.1-477.amzn2023.0.11.x86_64.rpm",
+      "sha256": "23b9a50c46ba130177e2deaed034ea4850d24fb0db7b1b6678fd91c6a4fa3c0a",
+      "bytes": 73205
+    },
+    {
+      "name": "perl-lib-0.65-477.amzn2023.0.11.x86_64.rpm",
+      "sha256": "24aa78a9caa848820dbc5d73e3793168ad6ba6709f2290fa49e277bb80713dae",
+      "bytes": 15779
+    },
+    {
+      "name": "perl-libnet-3.13-2.amzn2023.0.2.noarch.rpm",
+      "sha256": "9b9ac714d48d9fb3debff9bb4147747cdaf000617cc6f6e59a30ac6ce10e98c6",
+      "bytes": 128920
+    },
+    {
+      "name": "perl-libs-5.32.1-477.amzn2023.0.11.x86_64.rpm",
+      "sha256": "a42c7376903408a91218d1fb4dd67cf9ec22f860cdea13d2a318530eacff6df4",
+      "bytes": 2150030
+    },
+    {
+      "name": "perl-mro-1.23-477.amzn2023.0.11.x86_64.rpm",
+      "sha256": "b2f26ca2fc95b6eca1c08e686d7ede72072f3562576bc61b4e1247bf527e38e3",
+      "bytes": 29367
+    },
+    {
+      "name": "perl-overload-1.31-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "ef98ea5ae079b89d4967ed6f71b8420bbd2093545cafde426d8014d6005e7b3b",
+      "bytes": 47121
+    },
+    {
+      "name": "perl-overloading-0.02-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "04a5fab4c395c2fdb121c0c368781b1b62621938bba9f9e7300ce5d9ae1a86f7",
+      "bytes": 13711
+    },
+    {
+      "name": "perl-podlators-4.14-458.amzn2023.0.3.noarch.rpm",
+      "sha256": "ddf47ad474b00cadd594c9f8a51abda282cdcf3b26624829fd540cec2b2516fe",
+      "bytes": 115013
+    },
+    {
+      "name": "perl-subs-1.03-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "c3bc1219ac2be99882f003519dd78edb64572772055bb09c521810e276518683",
+      "bytes": 12490
+    },
+    {
+      "name": "perl-vars-1.05-477.amzn2023.0.11.noarch.rpm",
+      "sha256": "d9d2385a9e1e219858c476a0b3d90720a919573ee580659c8150dab4c6574c3e",
+      "bytes": 13844
+    },
+    {
+      "name": "pigz-2.5-1.amzn2023.0.4.x86_64.rpm",
+      "sha256": "f2f2af8f7d7108d902e1b6adc0d97b952178c7296c8f33d50f531143466ae356",
+      "bytes": 85378
+    },
+    {
+      "name": "policycoreutils-3.4-6.amzn2023.0.3.x86_64.rpm",
+      "sha256": "8572887b15e08de818364b08099ef6572a792963d8710ee565fd52057e037ac7",
+      "bytes": 214722
+    },
+    {
+      "name": "policycoreutils-python-utils-3.4-6.amzn2023.0.3.noarch.rpm",
+      "sha256": "1fa5340f49c0d3cd8db12f9a1d4c4eb9762e008066fa15eb4bf77fe6ca44b3cf",
+      "bytes": 70978
+    },
+    {
+      "name": "publicsuffix-list-dafsa-20260116-1.amzn2023.0.1.noarch.rpm",
+      "sha256": "58451d5222583bbaa0a8216faaac48c2cf866ca483df8f37d94218cc9eb68b3d",
+      "bytes": 62092
+    },
+    {
+      "name": "python3-3.9.25-1.amzn2023.0.11.x86_64.rpm",
+      "sha256": "7353b7dac39edaeac141c30b94378db3418393fe6cf6ea6ce89cc266b4cd0709",
+      "bytes": 29381
+    },
+    {
+      "name": "python3-awscrt-0.37.0-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "6ed221b417a8b0962be1ca8bd713b924097fe8a54bace35bef5dad4b88f4bb9a",
+      "bytes": 1955222
+    },
+    {
+      "name": "python3-dnf-4.14.0-1.amzn2023.0.9.noarch.rpm",
+      "sha256": "07ce7d7b130c12d056ebfeb36fd3939ea4ab346f8f62207e291f266b1beb7338",
+      "bytes": 421064
+    },
+    {
+      "name": "python3-dnf-plugins-core-4.3.0-13.amzn2023.0.7.noarch.rpm",
+      "sha256": "b8afcabdea01b7009a7c73211cc77adc73f015c96d5cbc8edfe0ba539d77379d",
+      "bytes": 235863
+    },
+    {
+      "name": "python3-elementpath-2.3.2-2.amzn2023.noarch.rpm",
+      "sha256": "79ae21e59a2a715b99bdced13855172ef1c3b0deb4510b64c0144e0f60bd8970",
+      "bytes": 280580
+    },
+    {
+      "name": "python3-hawkey-0.69.0-8.amzn2023.0.9.x86_64.rpm",
+      "sha256": "ce766e622ac88613a8461dad7ac9cafae8ea344800ecdabcda5b86fb1167cc02",
+      "bytes": 102912
+    },
+    {
+      "name": "python3-idna-2.10-3.amzn2023.0.4.noarch.rpm",
+      "sha256": "5096d02dddc8c4e9e1ac9db265c7f3182de139af4b687bda3161ec134c30ddcf",
+      "bytes": 100007
+    },
+    {
+      "name": "python3-libdnf-0.69.0-8.amzn2023.0.9.x86_64.rpm",
+      "sha256": "52673fbb530d917366e27e2f620bdfdceb2eb1f3f72b361e612faa86aad5945c",
+      "bytes": 794959
+    },
+    {
+      "name": "python3-libs-3.9.25-1.amzn2023.0.11.x86_64.rpm",
+      "sha256": "d70f8b0359a2cb539e28f3d435524c7ce8ca04f209124ca4a765a49503cc3f2d",
+      "bytes": 7922733
+    },
+    {
+      "name": "python3-libstoragemgmt-1.9.4-5.amzn2023.0.3.x86_64.rpm",
+      "sha256": "a16acc83ee63927c38c1b5b1f4028b98b2dedbdf828003bf8b1f297a15010067",
+      "bytes": 169022
+    },
+    {
+      "name": "python3-lxml-4.7.1-3.amzn2023.0.3.x86_64.rpm",
+      "sha256": "0d3e96b09a273fd732a3b5014f37cc40a4ec4e24e4722bb450046e120523de40",
+      "bytes": 1269154
+    },
+    {
+      "name": "python3-pip-21.3.1-2.amzn2023.0.22.noarch.rpm",
+      "sha256": "dc4430fabfa33fc4d0c2d0ac9a6b6680976d0e6b08839c8a7eccefa0016c1123",
+      "bytes": 1867700
+    },
+    {
+      "name": "python3-pip-wheel-21.3.1-2.amzn2023.0.22.noarch.rpm",
+      "sha256": "34f88fa066ed3efa8ab75fad213a9d0ef4db6096d569c8d2400f5eb39574ac0f",
+      "bytes": 1201891
+    },
+    {
+      "name": "python3-policycoreutils-3.4-6.amzn2023.0.3.noarch.rpm",
+      "sha256": "4fe5f488cc0e155b95eae257524ebec17f2537f2952c2a540ffbbdd0622b7b53",
+      "bytes": 2145935
+    },
+    {
+      "name": "python3-rpm-4.16.1.3-29.amzn2023.0.10.x86_64.rpm",
+      "sha256": "6381402fcdba0e88195d2b171cab3dc5b79f8eee6c89c2e6913be5c44dbe3850",
+      "bytes": 65201
+    },
+    {
+      "name": "python3-supportinfo-1.0.0-1.amzn2023.noarch.rpm",
+      "sha256": "05ea90dbe3859ad6ef180f48f0d62681bc326692d03a01336874bbdf245afc91",
+      "bytes": 31232
+    },
+    {
+      "name": "python3-urllib3-1.25.10-5.amzn2023.0.9.noarch.rpm",
+      "sha256": "8184e8b9ff6cba945f06b41b172239d12f8dd8521556a419aee8b59b03922a44",
+      "bytes": 184307
+    },
+    {
+      "name": "python3-xmlschema-1.4.2-1.amzn2023.0.2.noarch.rpm",
+      "sha256": "3b69c0d93682a942794a581204c73c8052cd8acdfc1302b7c6fe040ccbe58ca6",
+      "bytes": 338224
+    },
+    {
+      "name": "python3.11-3.11.18-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "44352d92a257cac2ababf7809cacbe6894b23dfd0fee913621d527062bac81e5",
+      "bytes": 28992
+    },
+    {
+      "name": "python3.11-libs-3.11.18-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "d3babb60061d591def3d5f1d4f51ffbc50f67741b5e8f80bf728c2566197be3a",
+      "bytes": 10148501
+    },
+    {
+      "name": "python3.11-pip-22.3.1-2.amzn2023.0.15.noarch.rpm",
+      "sha256": "98fa5c23c5b4457c35b69d422f2c167930dd1111ce13393d234fa2de5d88569a",
+      "bytes": 2904344
+    },
+    {
+      "name": "python3.11-pip-wheel-22.3.1-2.amzn2023.0.15.noarch.rpm",
+      "sha256": "c316c132f3ffee439c50093c04e95c24bb77ab33f570608f50d82e5e602dd8e2",
+      "bytes": 1498551
+    },
+    {
+      "name": "python3.12-3.12.16-2.amzn2023.0.1.x86_64.rpm",
+      "sha256": "b2ab69ac5f2c2fc815d7ec761fdc1b7205abeddb21a8067bcbf5e8b64c73c2e9",
+      "bytes": 27819
+    },
+    {
+      "name": "python3.12-libs-3.12.16-2.amzn2023.0.1.x86_64.rpm",
+      "sha256": "72fdb91e396ae2c7438a508867f63ddf29d9ce9a21fd73f4f92f38d718d12f82",
+      "bytes": 9686597
+    },
+    {
+      "name": "python3.12-pip-23.2.1-4.amzn2023.0.12.noarch.rpm",
+      "sha256": "daea96756895f2c6fa59b335cb11ef9407aaa4ed885b91c1c7baa3e8636b444a",
+      "bytes": 2911826
+    },
+    {
+      "name": "python3.12-pip-wheel-23.2.1-4.amzn2023.0.12.noarch.rpm",
+      "sha256": "576f2dfc8a55a1f539fa24702aea406ab6a6290555d293da714db303b7605c35",
+      "bytes": 1533226
+    },
+    {
+      "name": "rng-tools-6.17-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "9e692670a51f933787c151cedbdd515452f7be095ba6e2101c0e0f4168d3465e",
+      "bytes": 75826
+    },
+    {
+      "name": "rpcbind-1.2.6-0.amzn2023.0.3.x86_64.rpm",
+      "sha256": "ad943f4eb440666eea42df6b09d0c2458be0a8b808f8b2940fedda560fd7939f",
+      "bytes": 59597
+    },
+    {
+      "name": "rpm-4.16.1.3-29.amzn2023.0.10.x86_64.rpm",
+      "sha256": "1ea92b939b5c1208e6d260e8118d981a1c8bec83b72b8a4c103d567a99a90f65",
+      "bytes": 495557
+    },
+    {
+      "name": "rpm-build-libs-4.16.1.3-29.amzn2023.0.10.x86_64.rpm",
+      "sha256": "587bb1a951e9baf2f10a5bd6b79983c0f27376579b88456ccc55d31269f8e7bf",
+      "bytes": 89559
+    },
+    {
+      "name": "rpm-libs-4.16.1.3-29.amzn2023.0.10.x86_64.rpm",
+      "sha256": "687278dee85aa01d5704471636dc30f7830dfffbb632d9bde2825da0531b8a2f",
+      "bytes": 316169
+    },
+    {
+      "name": "rpm-plugin-selinux-4.16.1.3-29.amzn2023.0.10.x86_64.rpm",
+      "sha256": "acbd66da88d30debca09e73a46b46aeb4142ac211dde17593238f4897fef031e",
+      "bytes": 15175
+    },
+    {
+      "name": "rpm-plugin-systemd-inhibit-4.16.1.3-29.amzn2023.0.10.x86_64.rpm",
+      "sha256": "75dd1073c3c4f01e7466abd16b31d612f2fe02e52c911b4fd65bb7b1468041f0",
+      "bytes": 15145
+    },
+    {
+      "name": "rpm-sign-libs-4.16.1.3-29.amzn2023.0.10.x86_64.rpm",
+      "sha256": "724e3cc51694cc9dc057f446c127b847c95abda6e37b0c72ccee5dc8d0b22b9e",
+      "bytes": 18446
+    },
+    {
+      "name": "rsvg-pixbuf-loader-2.59.2-320.amzn2023.x86_64.rpm",
+      "sha256": "735462b9661338d06e7b671c404a34a3735ffe44d704a3ef57b898bc21d2a032",
+      "bytes": 164129
+    },
+    {
+      "name": "rsync-3.5.1-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "fa04c2749cae7ca241f1252235fbf38bd9b818150395a86f1ec0ad50327cae72",
+      "bytes": 481337
+    },
+    {
+      "name": "runc-1.4.3-1.amzn2023.0.3.x86_64.rpm",
+      "sha256": "de9d57546d0b2d37423b30dc4b94482a4aa3eda9aceaeba5fad70e3261a4848f",
+      "bytes": 3830368
+    },
+    {
+      "name": "rust-toolset-srpm-macros-1.99.1-1.amzn2023.noarch.rpm",
+      "sha256": "dba3bdc2eed6c71d8405713afc0ae9f6aaa20120621580cb5250417b854abeda",
+      "bytes": 14383
+    },
+    {
+      "name": "selinux-policy-38.1.76-1.amzn2023.0.3.noarch.rpm",
+      "sha256": "be0922adc1712af430b40a0f17e5fdd2c813be49f8007d0f087f8de8321d5445",
+      "bytes": 37785
+    },
+    {
+      "name": "selinux-policy-targeted-38.1.76-1.amzn2023.0.3.noarch.rpm",
+      "sha256": "802769056e4581bb076a4524a5f4253bf8289ac1c55ef263a4d2175a78d44d0d",
+      "bytes": 6811693
+    },
+    {
+      "name": "sqlite-3.40.0-1.amzn2023.0.9.x86_64.rpm",
+      "sha256": "4009358abb0edf268534c1cb907cf2af461386f919e4c589551db1e3cd2b81fa",
+      "bytes": 823852
+    },
+    {
+      "name": "sqlite-libs-3.40.0-1.amzn2023.0.9.x86_64.rpm",
+      "sha256": "adbe73a609b10f653dc00cccf05151ae0fa7722f5d541d30a22962c15c1cfe34",
+      "bytes": 675428
+    },
+    {
+      "name": "sssd-client-2.9.4-1.amzn2023.0.5.x86_64.rpm",
+      "sha256": "13485e8ce7ec230f75a1b55825e93436a9218fd8bcfa4588e1d4cd6664885bd2",
+      "bytes": 153388
+    },
+    {
+      "name": "sssd-common-2.9.4-1.amzn2023.0.5.x86_64.rpm",
+      "sha256": "9a9b194291d867fc65e2e40e06b50a48e4262df17e4711b62712928348bae13f",
+      "bytes": 1647146
+    },
+    {
+      "name": "sssd-kcm-2.9.4-1.amzn2023.0.5.x86_64.rpm",
+      "sha256": "c92c525eb91ff3d6cddf6fd2a4854c3076bc3d36067494cbcedd2b7efc66815e",
+      "bytes": 105902
+    },
+    {
+      "name": "sssd-nfs-idmap-2.9.4-1.amzn2023.0.5.x86_64.rpm",
+      "sha256": "96ebadd0e3b81889eab07e0a47d31c817c83937ffd3b61ea177fc57b3cc2ec21",
+      "bytes": 34140
+    },
+    {
+      "name": "strace-6.12-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "1ca64fefd10237b6a4c85c3e00208ca8c05e99d2bd6772b7bbe275edc3655c3d",
+      "bytes": 1577158
+    },
+    {
+      "name": "sudo-1.9.15-1.p5.amzn2023.0.4.x86_64.rpm",
+      "sha256": "79bfd576316d79214c2c39f8fd83aa704a7b6212c8a990b833d7cd383220c93b",
+      "bytes": 1331707
+    },
+    {
+      "name": "system-release-2023.12.20261112-0.amzn2023.noarch.rpm",
+      "sha256": "27b135c9888843d7aad2a6d2cadd4130906282446948109aa46e51b58b575809",
+      "bytes": 24677
+    },
+    {
+      "name": "systemd-252.23-15.amzn2023.x86_64.rpm",
+      "sha256": "8b591549aa0fc5925f7f6160e7e3d765effeb6b8254a178f6ecce0c0b760ddbd",
+      "bytes": 4449595
+    },
+    {
+      "name": "systemd-libs-252.23-15.amzn2023.x86_64.rpm",
+      "sha256": "9fc709911626144a7f0f4d11ad83277d8ffcdb6ce85068fd5a2b116f52cd22f1",
+      "bytes": 629625
+    },
+    {
+      "name": "systemd-networkd-252.23-15.amzn2023.x86_64.rpm",
+      "sha256": "6800284b2308bebb67440ab61e22bc6b76761100984816ef2178b410c5ec2394",
+      "bytes": 632198
+    },
+    {
+      "name": "systemd-pam-252.23-15.amzn2023.x86_64.rpm",
+      "sha256": "5b20a5ff44d7fe0fdf8cedc6f57352bcd5ce7e6eed5aeb3ff630c03bf7ce205c",
+      "bytes": 324836
+    },
+    {
+      "name": "systemd-resolved-252.23-15.amzn2023.x86_64.rpm",
+      "sha256": "148100ee6d51f94fc94c9f746c377f4c59174801086be005add36166f7f57cd7",
+      "bytes": 274967
+    },
+    {
+      "name": "systemd-udev-252.23-15.amzn2023.x86_64.rpm",
+      "sha256": "05eab4e1072348ae41cfab3435514077f451180e2f07acc7cc37d3ccc144a745",
+      "bytes": 2086369
+    },
+    {
+      "name": "systemtap-runtime-5.4-1.amzn2023.0.2.x86_64.rpm",
+      "sha256": "4cd7e69c991f469c0ac48a2e237cbdb802116fa8a5f25b897eb3ca990991364b",
+      "bytes": 453525
+    },
+    {
+      "name": "tmux-3.6a-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "ca14302778781dcc84ce0e42c6ef0fede3943586a489f96357f3a6d515b141e1",
+      "bytes": 584757
+    },
+    {
+      "name": "tzdata-2026f-1.amzn2023.0.1.noarch.rpm",
+      "sha256": "f216527b3aa4543179244a824889878954b188899975d0e2dd82b839e43492ea",
+      "bytes": 440509
+    },
+    {
+      "name": "unzip-6.0-68.amzn2023.0.2.x86_64.rpm",
+      "sha256": "62ed7ebfb7a6bae33ce9f36832844954fddf0bd1765a26df220190c43454db64",
+      "bytes": 185771
+    },
+    {
+      "name": "update-motd-2.3-1.amzn2023.0.1.noarch.rpm",
+      "sha256": "bed783971c5a435a89731f4e11a744d22fba85935898f5777961d1bd69ef3123",
+      "bytes": 12285
+    },
+    {
+      "name": "util-linux-2.37.4-1.amzn2023.0.7.x86_64.rpm",
+      "sha256": "062aa972066ca3898c0ecdf8ff111f2827f6aaa589d7efb1b424f5ee8a74c7f9",
+      "bytes": 2311447
+    },
+    {
+      "name": "util-linux-core-2.37.4-1.amzn2023.0.7.x86_64.rpm",
+      "sha256": "1613467e88e681dfe73d2bc823cd1b212d3f551ef088bb1f2859e7fb9cb673de",
+      "bytes": 446789
+    },
+    {
+      "name": "vim-common-9.2.920-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "9be22e4884f0a28c32cc623c16d5091a4915ad0a4f50520d25710a8a32686624",
+      "bytes": 8512253
+    },
+    {
+      "name": "vim-data-9.2.920-1.amzn2023.0.1.noarch.rpm",
+      "sha256": "f22e72e06fc74fab0d0705aff30dcc8d1a1320c4406a8c73c29fe8fc0a7afcf3",
+      "bytes": 20866
+    },
+    {
+      "name": "vim-enhanced-9.2.920-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "419711527c267df61f52a6a28120010b2f1705f44a0540e3b7492e8cec770d5f",
+      "bytes": 2107423
+    },
+    {
+      "name": "vim-filesystem-9.2.920-1.amzn2023.0.1.noarch.rpm",
+      "sha256": "ebd419cb44a2cbe07174baa179a82979fcef7729ebe8845a909dbf8afe3ad057",
+      "bytes": 18497
+    },
+    {
+      "name": "vim-minimal-9.2.920-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "79da8d5ef9871cc42095e2e6d38b5875670045695bcec383f98e3ebe5a3ab37a",
+      "bytes": 870455
+    },
+    {
+      "name": "wget-1.21.3-1.amzn2023.0.5.x86_64.rpm",
+      "sha256": "773cdb74b20240363609994efcdc035062cd1e2ccd2bf6f1c6328a4e54e69ccd",
+      "bytes": 796480
+    },
+    {
+      "name": "xfsprogs-6.12.0-3.amzn2023.0.3.x86_64.rpm",
+      "sha256": "ae457f59be8b59e612c170e62687dc4eec185b51a1f2e38405c0d7ad69c57b34",
+      "bytes": 1194145
+    },
+    {
+      "name": "xxd-9.2.920-1.amzn2023.0.1.x86_64.rpm",
+      "sha256": "b77ac19c13eb6b434fcafd8cdc30f94a751228604dc47c9f4d93f87f387bb700",
+      "bytes": 34691
+    },
+    {
+      "name": "yum-4.14.0-1.amzn2023.0.9.noarch.rpm",
+      "sha256": "6563311101c1d5a46f9dc6f9e7e71f9996df39f0fb64a307c4c53452ac531235",
+      "bytes": 31373
+    },
+    {
+      "name": "zip-3.0-28.amzn2023.0.4.x86_64.rpm",
+      "sha256": "ff81ebc3568501611146772656b374eec642e6eea5356ace803fd2093df1caa0",
+      "bytes": 269118
+    },
+    {
+      "name": "zlib-1.2.11-33.amzn2023.0.6.x86_64.rpm",
+      "sha256": "083bfd30bba9d65ad37d774a23b7c0ab7a22d15c893f1550fcd42d777214251f",
+      "bytes": 93831
+    }
+  ]
+}

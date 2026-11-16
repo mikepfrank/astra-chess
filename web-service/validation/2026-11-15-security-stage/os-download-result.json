@@ -1,0 +1,27 @@
+{
+  "command": [
+    "sudo",
+    "dnf",
+    "--releasever=2023.12.20261112",
+    "upgrade",
+    "--downloadonly",
+    "--downloaddir=/home/ec2-user/chess-security-stage-20261115/os/rpms",
+    "--assumeyes"
+  ],
+  "rc": 0,
+  "installed_rpm_set_unchanged": true,
+  "tail": [
+    "(268/274): wget-1.21.3-1.amzn2023.0.5.x86_64.rp  21 MB/s | 778 kB     00:00    ",
+    "(269/274): vim-minimal-9.2.920-1.amzn2023.0.1.x  14 MB/s | 850 kB     00:00    ",
+    "(270/274): xfsprogs-6.12.0-3.amzn2023.0.3.x86_6  25 MB/s | 1.1 MB     00:00    ",
+    "(271/274): xxd-9.2.920-1.amzn2023.0.1.x86_64.rp 921 kB/s |  34 kB     00:00    ",
+    "(272/274): yum-4.14.0-1.amzn2023.0.9.noarch.rpm 1.0 MB/s |  31 kB     00:00    ",
+    "(273/274): zlib-1.2.11-33.amzn2023.0.6.x86_64.r 2.1 MB/s |  92 kB     00:00    ",
+    "(274/274): zip-3.0-28.amzn2023.0.4.x86_64.rpm   4.2 MB/s | 263 kB     00:00    ",
+    "--------------------------------------------------------------------------------",
+    "Total                                            61 MB/s | 395 MB     00:06     ",
+    "Complete!",
+    "The downloaded packages were saved in cache until the next successful transaction.",
+    "You can remove cached packages by executing 'dnf clean packages'."
+  ]
+}

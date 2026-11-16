@@ -1,0 +1,32 @@
+[
+  {
+    "user": "astra",
+    "runtime": "/home/astra/.local/share/astra-chess-runtime/python/cpython-3.12.16-linux-x86_64-gnu",
+    "venv": "/home/astra/.local/share/astra-chess-runtime/venvs/security-20261115",
+    "pip_check": "No broken requirements found.",
+    "versions": {
+      "python": "3.12.16",
+      "openssl": "OpenSSL 3.5.9 29 Sep 2026",
+      "sqlite": "3.53.1",
+      "expat": "expat_2.10.0",
+      "certifi": "2026.10.23",
+      "pip": "26.3"
+    },
+    "active_venv_unchanged": true
+  },
+  {
+    "user": "or-chess",
+    "runtime": "/home/or-chess/.local/share/or-chess-runtime/python/cpython-3.12.16-linux-x86_64-gnu",
+    "venv": "/home/or-chess/.local/share/or-chess-runtime/venvs/security-20261115",
+    "pip_check": "No broken requirements found.",
+    "versions": {
+      "python": "3.12.16",
+      "openssl": "OpenSSL 3.5.9 29 Sep 2026",
+      "sqlite": "3.53.1",
+      "expat": "expat_2.10.0",
+      "certifi": "2026.10.23",
+      "pip": "26.3"
+    },
+    "active_venv_unchanged": true
+  }
+]

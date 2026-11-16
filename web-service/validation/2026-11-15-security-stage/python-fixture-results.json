@@ -1,0 +1,74 @@
+[
+  {
+    "user": "astra",
+    "rc": 0,
+    "seconds": 83.86,
+    "summary": [
+      "Ran 282 tests in 81.197s"
+    ],
+    "tail": [
+      "Wrote 5 positions and 44,887 characters to replay.html.",
+      "Validated 4 legal plies; recorded result 0-1 by checkmate.",
+      "Wrote 5 positions and 44,887 characters to replay.html.",
+      "Validated 4 legal plies; recorded result 0-1 by checkmate.",
+      "Wrote 5 positions and 44,887 characters to replay.html.",
+      "Validated 4 legal plies; recorded result 0-1 by checkmate.",
+      "Wrote 5 positions and 44,887 characters to replay.html.",
+      "Validated 4 legal plies; recorded result 0-1 by checkmate.",
+      "Wrote 5 positions and 44,887 characters to replay.html.",
+      "Validated 4 legal plies; recorded result 0-1 by checkmate.",
+      "Wrote 5 positions and 44,887 characters to replay.html.",
+      "Validated 4 legal plies; recorded result 0-1 by checkmate.",
+      "Wrote 5 positions and 44,887 characters to replay.html.",
+      "Validated 4 legal plies; recorded result 0-1 by checkmate.",
+      "Wrote 5 positions and 44,887 characters to replay.html."
+    ],
+    "network": "PrivateNetwork=yes",
+    "production_homes_inaccessible": true,
+    "status": [
+      "Ran 282 tests in 81.197s",
+      "OK (skipped=3)"
+    ],
+    "skipped_tests": [
+      "test_windows_job_reaps_separate_runtime_child_on_timeout (test_codex_bridge.CodexBridgeTests.test_windows_job_reaps_separate_runtime_child_on_timeout) ... skipped 'Windows job-object descendant cleanup'",
+      "test_current_user_dpapi_round_trip_and_corruption_rejection (test_local_setup.LocalSetupTests.test_current_user_dpapi_round_trip_and_corruption_rejection) ... skipped 'Windows DPAPI round trip'",
+      "test_success_stores_ciphertext_and_failure_preserves_existing_files (test_local_setup.LocalSetupTests.test_success_stores_ciphertext_and_failure_preserves_existing_files) ... skipped 'Windows encrypted persistence'"
+    ]
+  },
+  {
+    "user": "or-chess",
+    "rc": 0,
+    "seconds": 121.21,
+    "summary": [
+      "Ran 594 tests in 119.194s"
+    ],
+    "tail": [
+      "Wrote 5 positions and 44,880 characters to replay.html.",
+      "Validated 4 legal plies; recorded result 0-1 by checkmate.",
+      "Wrote 5 positions and 44,880 characters to replay.html.",
+      "Validated 4 legal plies; recorded result 0-1 by checkmate.",
+      "Wrote 5 positions and 44,880 characters to replay.html.",
+      "Validated 4 legal plies; recorded result 0-1 by checkmate.",
+      "Wrote 5 positions and 44,880 characters to replay.html.",
+      "Validated 4 legal plies; recorded result 0-1 by checkmate.",
+      "Wrote 5 positions and 44,880 characters to replay.html.",
+      "Validated 4 legal plies; recorded result 0-1 by checkmate.",
+      "Wrote 5 positions and 44,880 characters to replay.html.",
+      "Validated 4 legal plies; recorded result 0-1 by checkmate.",
+      "Wrote 5 positions and 44,880 characters to replay.html.",
+      "Validated 4 legal plies; recorded result 0-1 by checkmate.",
+      "Wrote 5 positions and 44,880 characters to replay.html."
+    ],
+    "network": "PrivateNetwork=yes",
+    "production_homes_inaccessible": true,
+    "status": [
+      "Ran 594 tests in 119.194s",
+      "OK (skipped=3)"
+    ],
+    "skipped_tests": [
+      "test_windows_job_reaps_separate_runtime_child_on_timeout (test_codex_bridge.CodexBridgeTests.test_windows_job_reaps_separate_runtime_child_on_timeout) ... skipped 'Windows job-object descendant cleanup'",
+      "test_current_user_dpapi_round_trip_and_corruption_rejection (test_local_setup.LocalSetupTests.test_current_user_dpapi_round_trip_and_corruption_rejection) ... skipped 'Windows DPAPI round trip'",
+      "test_success_stores_ciphertext_and_failure_preserves_existing_files (test_local_setup.LocalSetupTests.test_success_stores_ciphertext_and_failure_preserves_existing_files) ... skipped 'Windows encrypted persistence'"
+    ]
+  }
+]
