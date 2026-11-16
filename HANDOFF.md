@@ -1,5 +1,21 @@
 # Handoff: Arcturus development worktree
 
+## November 16: drain/backups complete — pause for AWS snapshot
+
+Mike found and closed the remaining lab page. The strict private-lab quiet
+check then passed, followed by clean lab/Astra/Arcturus shutdowns. All four
+apps are now inactive/boot-disabled; notifier timers paused/disabled. Shared
+Caddy is active with maintenance gates. Private backup at
+`/var/backups/chess-security/20261116T232418Z` completed successfully: 821 SQLite
+quick checks passed, 11.8-GB application archive plus 715-MB Docker rollback
+archive hashed/flushed, seven critical archived files independently matched,
+and root-only modes/image tag verified. No OS/software activation or reboot yet.
+**Stop here for Mike's AWS snapshot.** He will create/confirm it in his console;
+recommend stopped-instance snapshot with static-IP attachment checked first.
+`ssh lightsail` currently targets 16.145.194.176. After he starts the same host,
+verify all four apps/timers remain disabled/gated before the OS update stage.
+See [the current progress record](web-service/validation/2026-11-16-security-prep/maintenance-progress.md).
+
 ## November 16: public GPT-2 stopped; awaiting private lab tab closure
 
 **Current maintenance state:** public GPT-2 completed its 600-second retention

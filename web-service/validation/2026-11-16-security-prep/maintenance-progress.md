@@ -1,4 +1,79 @@
-# Maintenance progress — waiting for private lab tabs to close
+# Maintenance progress — backups verified; ready for AWS snapshot
+
+## Completed drain/backup checkpoint, November 16, 23:30 UTC
+
+**Pause here for Mike's AWS snapshot.** All four application services remain
+stopped/boot-disabled; both chess notifier timers remain stopped/disabled.
+Shared Caddy is running with the maintenance gates. No OS package installation,
+runtime/image activation or reboot has occurred. The next separately approved
+stage is the pinned OS update and reboot after snapshot confirmation.
+
+The backup helper exited successfully with `complete:true` after checksums and
+fsync of recovery files, final manifest and parent directories:
+
+- Root-private directory: `/var/backups/chess-security/20261116T232418Z`.
+- `applications.tar`: 11,821,199,360 bytes, 101,167 archive members;
+  SHA-256 `63bdf64b98f3e7346bec06538dfb6eb3156b516c2a520ab39443a72cc652a789`.
+- `gpt2-codex-image.tar`: 715,110,912 bytes;
+  SHA-256 `8a099cbdf1fcf210a0b65be03815048e0be428e949ad8712c17e382dd2b73234`.
+- [Sanitized backup result](backup-result.json) records artifact checksums and
+  all 821 successful owner-run SQLite quick checks: Astra 299, Arcturus 438,
+  GPT-2 84. No application constructors, model calls or emails were used.
+- Independent archive verification compared all three primary databases, all
+  three stopped maintenance checkpoints and the current Caddyfile against their
+  archived copies: seven matching files. Docker archive manifest retains
+  `gpt2-codex-runtime:0.154.0` and the expected old image ID. Backup directory
+  mode 0700 and every file mode 0600, root-owned, were verified.
+
+The actual recovery archives, inventories and private manifests remain on-host.
+Only sanitized outcome metadata is committed; no credentials, chat content,
+private capability URLs or raw network capture were saved in this repository.
+
+Mike confirmed all lab tabs closed, but a later strict check still observed
+polling. Inspection identified only Windows/Chrome request categories (discarding
+raw packets/URLs/cookies) and found no lab tab in the visible Chrome window or
+this chat's browser panel. Mike then located and closed the remaining page;
+the original strict 60-second quiet conditions passed without weakening them.
+An embedded browser in another chat can be easy to overlook; paused pages
+continue polling. No client connection or AI action was forcibly interrupted.
+
+## AWS handoff and next stage
+
+Current local `ssh lightsail` resolves to `ec2-user@16.145.194.176`; use the
+current instance, not an older host. This IP lookup does **not** establish that
+an AWS static IP is attached; confirm that in Lightsail before stop/start.
+
+AWS [recommends stopping an instance for snapshot consistency](https://aws.amazon.com/lightsail/faq/).
+With the static-IP attachment confirmed, Mike can stop the instance, create a
+manual snapshot (for example `pre-security-2026-11-16`), wait until ready, and
+start the **same** instance again. See the official
+[snapshot procedure](https://docs.aws.amazon.com/lightsail/latest/userguide/lightsail-how-to-create-a-snapshot-of-your-instance.html)
+and [stop/start IP behavior](https://docs.aws.amazon.com/lightsail/latest/userguide/lightsail-how-to-start-stop-or-restart-your-instance-virtual-private-server.html).
+Stopping the host also quiesces other workloads not covered by these app backups.
+The four apps and notification timers should stay disabled after startup; do
+not invoke reopening helpers yet. Reconnect, verify saved maintenance state and
+snapshot identity, then proceed to the OS stage and its separate prompt pause.
+
+## Earlier 23:25 UTC update (superseded by completion above)
+
+Mike located and closed the remaining lab page. The unchanged strict quiet
+requirements then passed; the lab gate/stop completed. Astra and Arcturus each
+completed their own 30-second quiet drain and stopped successfully. All four
+apps are inactive/boot-disabled; both notifier timers are inactive/disabled,
+both notifier jobs inactive, and Caddy remains active after the two expected
+chess-helper proxy restarts. All three chess hostnames and the public GPT-2
+generation route return maintenance 503 with their expected markers.
+
+Backup preflight passed. The private backup is currently being created at
+`/var/backups/chess-security/20261116T232418Z`; it is not complete until the final
+manifest says `complete:true` and the helper exits successfully. Read-only
+SQLite quick checks passed for 299 Astra, 438 Arcturus and 84 GPT-2 databases.
+The latest backup helper also includes the maintenance helper source directory;
+its SHA-256 is `dba364ed5ab800ab3843d45710a9b9ae36237b82d848609d253027fe8b36f5e7`.
+No OS/package/runtime/image promotion or reboot has occurred. Return to the
+prompt after backup verification for Mike's AWS snapshot.
+
+## Earlier partial checkpoint (superseded by the update above)
 
 Verified November 16, 2026 at 19:53 UTC (1:53 p.m. America/Chicago).
 The promised downtime heads-up was given before any gate. Mike will handle

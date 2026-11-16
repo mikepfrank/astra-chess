@@ -36,6 +36,7 @@ ROOTS = (
     'var/lib/arcturus-chess-ops', 'var/lib/gpt2-codex-ops', 'var/lib/gpt2-maintenance-ops',
     'home/ec2-user/astra-down.sh', 'home/ec2-user/astra-up.sh',
     'home/ec2-user/arcturus-down.sh', 'home/ec2-user/arcturus-up.sh',
+    'home/ec2-user/chess-security-stage-20261116/ops',
 )
 IMAGE = 'sha256:9d9274de90e73ba2e215935f0dfbd09eb5c2fe248ba7a6b3052e45969de496fb'
 IMAGE_TAG = 'gpt2-codex-runtime:0.154.0'
