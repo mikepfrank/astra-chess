@@ -1,0 +1,5172 @@
+{
+  "checked_at_utc": "2026-11-16T19:32:09.198275+00:00",
+  "source": "https://security-tracker.debian.org/tracker/data/json",
+  "source_sha256": "67974f1ddc04389203d3f1fa928d1adfcb6a7834e55b4a050d032a439083ea88",
+  "scope": "Installed Debian source-package versions; no native Codex dependency scan or reachability claim",
+  "findings": {
+    "baseline": [
+      {
+        "source": "apt",
+        "installed_source_version": "2.6.1",
+        "cve": "CVE-2011-3374",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "apt",
+        "installed_source_version": "2.6.1",
+        "cve": "CVE-2026-109518",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "2.6.2",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "bash",
+        "installed_source_version": "5.2.15-2",
+        "cve": "TEMP-0841856-B18BAF",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2022-0563",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2025-14104",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2026-13595",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2026-27456",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2026-3184",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "login not build from src:util-linux; only taken over in 2.40.2-3",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2026-53613",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2026-53615",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2026-78410",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "bubblewrap",
+        "installed_source_version": "0.8.0-2+deb12u1",
+        "cve": "CVE-2026-87766",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Intrusive backport due to a complete rewrite",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "coreutils",
+        "installed_source_version": "9.1-1",
+        "cve": "CVE-2016-2781",
+        "status": "open",
+        "urgency": "low",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "coreutils",
+        "installed_source_version": "9.1-1",
+        "cve": "CVE-2017-18018",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "coreutils",
+        "installed_source_version": "9.1-1",
+        "cve": "CVE-2025-5278",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "coreutils",
+        "installed_source_version": "9.1-1",
+        "cve": "CVE-2026-56391",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "coreutils",
+        "installed_source_version": "9.1-1",
+        "cve": "CVE-2026-56392",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2024-2379",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2025-0725",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2025-10966",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2025-14017",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2025-15079",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2025-15224",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-10536",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; needs rare CURLOPT_STREAM_DEPENDS + reset/cleanup",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-107928",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-11856",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; needs Digest auth + libcurl handle reuse across origins",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-12064",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; needs schemeless URL with --proto-default sftp/scp",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-13608",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-18924",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-1965",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-19931",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-4873",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-5545",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-6253",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-6276",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-6429",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-80230",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-82209",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-8286",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; STARTTLS connection reuse config mismatch",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-8458",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; needs HTTP Negotiate auth with differing service names",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-86409",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-86410",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-86414",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-87864",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; can be fixed with next release",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-87865",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; can be fixed with next release",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-87866",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-8924",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; trailing-dot super cookie; PSL-enabled build mitigates",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-8927",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; libcurl env-proxy Digest auth handle reuse",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-8932",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; libcurl mTLS handle-reuse config mismatch",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-92388",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; can be fixed with next release",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-92389",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; can be fixed with next release",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-92390",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; can be fixed with next release",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-92391",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-94266",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-9547",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "dash",
+        "installed_source_version": "0.5.12-2",
+        "cve": "CVE-2026-102473",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "dash",
+        "installed_source_version": "0.5.12-2",
+        "cve": "CVE-2026-102474",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "diffutils",
+        "installed_source_version": "1:3.8-4",
+        "cve": "CVE-2026-53910",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "dpkg",
+        "installed_source_version": "1.21.23",
+        "cve": "CVE-2026-91094",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gcc-12",
+        "installed_source_version": "12.2.0-14+deb12u1",
+        "cve": "CVE-2022-27943",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gcc-12",
+        "installed_source_version": "12.2.0-14+deb12u1",
+        "cve": "CVE-2026-102010",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue, not fixed in upstream 12 branch",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "gcc-12",
+        "installed_source_version": "12.2.0-14+deb12u1",
+        "cve": "CVE-2026-114690",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "gcc-12",
+        "installed_source_version": "12.2.0-14+deb12u1",
+        "cve": "CVE-2026-114691",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "gcc-12",
+        "installed_source_version": "12.2.0-14+deb12u1",
+        "cve": "CVE-2026-115456",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gcc-12",
+        "installed_source_version": "12.2.0-14+deb12u1",
+        "cve": "CVE-2026-125709",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gcc-12",
+        "installed_source_version": "12.2.0-14+deb12u1",
+        "cve": "CVE-2026-95619",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2018-1000021",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2022-24975",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2024-52005",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2026-105437",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2026-111760",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2026-113408",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2026-114466",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2026-114467",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2026-114469",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnupg2",
+        "installed_source_version": "2.2.40-1.1+deb12u2",
+        "cve": "CVE-2022-3219",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnupg2",
+        "installed_source_version": "2.2.40-1.1+deb12u2",
+        "cve": "CVE-2025-30258",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "gnupg2",
+        "installed_source_version": "2.2.40-1.1+deb12u2",
+        "cve": "CVE-2025-68972",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "gnupg2",
+        "installed_source_version": "2.2.40-1.1+deb12u2",
+        "cve": "CVE-2026-105712",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "gnupg2",
+        "installed_source_version": "2.2.40-1.1+deb12u2",
+        "cve": "CVE-2026-57062",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "gzip",
+        "installed_source_version": "1.12-1",
+        "cve": "CVE-2026-41991",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "gzip",
+        "installed_source_version": "1.12-1",
+        "cve": "CVE-2026-41992",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "acl",
+        "installed_source_version": "2.3.1-3",
+        "cve": "CVE-2026-54369",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; libacl acl_*_file() follow symlinks; fix adds new acl_*_at() ABI, not individually backportable",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "acl",
+        "installed_source_version": "2.3.1-3",
+        "cve": "CVE-2026-54370",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; local TOCTOU in recursive setfacl/chacl; fix needs 2.4.0 acl_*_at() ABI + walk_tree rewrite, not individually backportable",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "attr",
+        "installed_source_version": "1:2.5.1-4",
+        "cve": "CVE-2026-54371",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; local symlink-traversal in recursive getfattr/setfattr; fix is a complete walk_tree rewrite, high regression risk",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "brotli",
+        "installed_source_version": "1.0.9-2",
+        "cve": "CVE-2026-111497",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "1.0.9-2+deb12u1",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "bzip2",
+        "installed_source_version": "1.0.8-5",
+        "cve": "CVE-2026-42250",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2010-4756",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2018-20796",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2019-1010022",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2019-1010023",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2019-1010024",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2019-1010025",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2019-9192",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-100290",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-115819",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-18374",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-19499",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-19542",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-5435",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-5450",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-5928",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-6238",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-6368",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-6791",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-77117",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-80489",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-84243",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-8674",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue, DoS",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-86805",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-89092",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue, performance degradation",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-95818",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-97399",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u4",
+        "cve": "CVE-2023-52426",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u4",
+        "cve": "CVE-2025-59375",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "2.5.0-1+deb12u5",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u4",
+        "cve": "CVE-2025-66382",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue, revisit when fixed upstream",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u4",
+        "cve": "CVE-2026-102633",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "2.5.0-1+deb12u5",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u4",
+        "cve": "CVE-2026-113351",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; can be fixed in next update",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u4",
+        "cve": "CVE-2026-115506",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue, can be fixed in next update",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u4",
+        "cve": "CVE-2026-117610",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u4",
+        "cve": "CVE-2026-118370",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u4",
+        "cve": "CVE-2026-124317",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u4",
+        "cve": "CVE-2026-128241",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u4",
+        "cve": "CVE-2026-41080",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u4",
+        "cve": "CVE-2026-56132",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "2.5.0-1+deb12u5",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u4",
+        "cve": "CVE-2026-77214",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "2.5.0-1+deb12u5",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "libgcrypt20",
+        "installed_source_version": "1.10.1-3+deb12u1",
+        "cve": "CVE-2018-6829",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "libgcrypt20",
+        "installed_source_version": "1.10.1-3+deb12u1",
+        "cve": "CVE-2024-2236",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnutls28",
+        "installed_source_version": "3.7.9-2+deb12u7",
+        "cve": "CVE-2011-3389",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnutls28",
+        "installed_source_version": "3.7.9-2+deb12u7",
+        "cve": "CVE-2026-67693",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnutls28",
+        "installed_source_version": "3.7.9-2+deb12u7",
+        "cve": "CVE-2026-88647",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnutls28",
+        "installed_source_version": "3.7.9-2+deb12u7",
+        "cve": "CVE-2026-88648",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnutls28",
+        "installed_source_version": "3.7.9-2+deb12u7",
+        "cve": "CVE-2026-95184",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnutls28",
+        "installed_source_version": "3.7.9-2+deb12u7",
+        "cve": "CVE-2026-95210",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2018-5709",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2024-26458",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2024-26461",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-107364",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-107708",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-107778",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-107884",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-111423",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112314",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112315",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112316",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112317",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112318",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112319",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112320",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112321",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112322",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112323",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-118380",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-11850",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-119079",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-71199",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-71200",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openldap",
+        "installed_source_version": "2.5.13+dfsg-5",
+        "cve": "CVE-2015-3276",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openldap",
+        "installed_source_version": "2.5.13+dfsg-5",
+        "cve": "CVE-2017-14159",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openldap",
+        "installed_source_version": "2.5.13+dfsg-5",
+        "cve": "CVE-2017-17740",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openldap",
+        "installed_source_version": "2.5.13+dfsg-5",
+        "cve": "CVE-2020-15719",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openldap",
+        "installed_source_version": "2.5.13+dfsg-5",
+        "cve": "CVE-2023-2953",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "openldap",
+        "installed_source_version": "2.5.13+dfsg-5",
+        "cve": "CVE-2026-22185",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "ncurses",
+        "installed_source_version": "6.4-4",
+        "cve": "CVE-2023-50495",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "ncurses",
+        "installed_source_version": "6.4-4",
+        "cve": "CVE-2025-6141",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "ncurses",
+        "installed_source_version": "6.4-4",
+        "cve": "CVE-2025-69720",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "nghttp2",
+        "installed_source_version": "1.52.0-1+deb12u3",
+        "cve": "CVE-2026-58055",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "p11-kit",
+        "installed_source_version": "0.24.1-2",
+        "cve": "CVE-2026-13757",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "p11-kit",
+        "installed_source_version": "0.24.1-2",
+        "cve": "CVE-2026-18938",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "pam",
+        "installed_source_version": "1.5.2-6+deb12u2",
+        "cve": "CVE-2024-10041",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; requires src:apparmor changes, cf #1110326",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "pam",
+        "installed_source_version": "1.5.2-6+deb12u2",
+        "cve": "CVE-2025-6020",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "pam",
+        "installed_source_version": "1.5.2-6+deb12u2",
+        "cve": "CVE-2025-8941",
+        "status": "undetermined",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "pam",
+        "installed_source_version": "1.5.2-6+deb12u2",
+        "cve": "CVE-2026-54411",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "pcre2",
+        "installed_source_version": "10.42-1+deb12u1",
+        "cve": "CVE-2026-103111",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "10.42-1+deb12u2",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "perl",
+        "installed_source_version": "5.36.0-7+deb12u4",
+        "cve": "CVE-2011-4116",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "perl",
+        "installed_source_version": "5.36.0-7+deb12u4",
+        "cve": "CVE-2023-31486",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "perl",
+        "installed_source_version": "5.36.0-7+deb12u4",
+        "cve": "CVE-2026-15534",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "perl",
+        "installed_source_version": "5.36.0-7+deb12u4",
+        "cve": "CVE-2026-82560",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "perl",
+        "installed_source_version": "5.36.0-7+deb12u4",
+        "cve": "CVE-2026-9538",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; wait for regressions upstream sorted out",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2025-12781",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Not backported to older Python releases due to compat concerns",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2025-15366",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Not backported to older Python releases due to compat concerns",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2025-15367",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Not backported to older Python releases due to compat concerns",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2025-69534",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.11.2-6+deb12u9",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-0864",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-103995",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-114583",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-115557",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-115559",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-115791",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-116566",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-11940",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-11972",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-12003",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-12345",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-124249",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-1502",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.11.2-6+deb12u9",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-15308",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.11.2-6+deb12u9",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-15310",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.11.2-6+deb12u9",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-15806",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.11.2-6+deb12u9",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-16052",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-17084",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.11.2-6+deb12u9",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-18503",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.11.2-6+deb12u9",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-19445",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.11.2-6+deb12u9",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-19552",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-19553",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.11.2-6+deb12u9",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-3276",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.11.2-6+deb12u9",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-3446",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Not backported to older Python releases due to compat concerns",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-3479",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-6019",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.11.2-6+deb12u9",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-6879",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-7210",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-8328",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.11.2-6+deb12u9",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u8",
+        "cve": "CVE-2026-9669",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.11.2-6+deb12u9",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "rtmpdump",
+        "installed_source_version": "2.4+20151223.gitfa8646d.1-2",
+        "cve": "CVE-2026-112060",
+        "status": "undetermined",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "rtmpdump",
+        "installed_source_version": "2.4+20151223.gitfa8646d.1-2",
+        "cve": "CVE-2026-112061",
+        "status": "undetermined",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "cyrus-sasl2",
+        "installed_source_version": "2.1.28+dfsg-10",
+        "cve": "CVE-2026-107161",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "2.1.28+dfsg-10+deb12u1",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "cyrus-sasl2",
+        "installed_source_version": "2.1.28+dfsg-10",
+        "cve": "CVE-2026-129483",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2021-45346",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2025-29088",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2025-70873",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2025-7458",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2025-7709",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-11822",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-11824",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119371",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119372",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119373",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119374",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119375",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119376",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119377",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119378",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119379",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119586",
+        "status": "undetermined",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119591",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-50812",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue, DoS",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-50813",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue, OOB read",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u1",
+        "cve": "CVE-2025-27587",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u1",
+        "cve": "CVE-2026-107496",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u1",
+        "cve": "CVE-2026-35189",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.0.22-1~deb12u2",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u1",
+        "cve": "CVE-2026-54872",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.0.22-1~deb12u2",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u1",
+        "cve": "CVE-2026-75805",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.0.22-1~deb12u2",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u1",
+        "cve": "CVE-2026-75806",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.0.22-1~deb12u2",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u1",
+        "cve": "CVE-2026-77696",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.0.22-1~deb12u2",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u1",
+        "cve": "CVE-2026-84782",
+        "status": "resolved",
+        "urgency": "not yet assigned",
+        "fixed_version": "3.0.22-1~deb12u2",
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u1",
+        "cve": "CVE-2026-88822",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u1",
+        "cve": "CVE-2026-88823",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u1",
+        "cve": "CVE-2026-95691",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u1",
+        "cve": "CVE-2026-95692",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "systemd",
+        "installed_source_version": "252.39-1~deb12u2",
+        "cve": "CVE-2013-4392",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "systemd",
+        "installed_source_version": "252.39-1~deb12u2",
+        "cve": "CVE-2023-31437",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "systemd",
+        "installed_source_version": "252.39-1~deb12u2",
+        "cve": "CVE-2023-31438",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "systemd",
+        "installed_source_version": "252.39-1~deb12u2",
+        "cve": "CVE-2023-31439",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "systemd",
+        "installed_source_version": "252.39-1~deb12u2",
+        "cve": "CVE-2026-15059",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "systemd",
+        "installed_source_version": "252.39-1~deb12u2",
+        "cve": "CVE-2026-16742",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "systemd",
+        "installed_source_version": "252.39-1~deb12u2",
+        "cve": "CVE-2026-40228",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "libtasn1-6",
+        "installed_source_version": "4.19.0-2+deb12u1",
+        "cve": "CVE-2025-13151",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "libtirpc",
+        "installed_source_version": "1.3.3+ds-1",
+        "cve": "CVE-2026-85231",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "libtirpc",
+        "installed_source_version": "1.3.3+ds-1",
+        "cve": "CVE-2026-85977",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "shadow",
+        "installed_source_version": "1:4.13+dfsg1-1+deb12u2",
+        "cve": "CVE-2007-5686",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "shadow",
+        "installed_source_version": "1:4.13+dfsg1-1+deb12u2",
+        "cve": "CVE-2024-56433",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "shadow",
+        "installed_source_version": "1:4.13+dfsg1-1+deb12u2",
+        "cve": "TEMP-0628843-DBAD28",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sysvinit",
+        "installed_source_version": "3.06-4",
+        "cve": "TEMP-0517018-A83CE6",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "tar",
+        "installed_source_version": "1.34+dfsg-1.2+deb12u1",
+        "cve": "CVE-2005-2541",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "tar",
+        "installed_source_version": "1.34+dfsg-1.2+deb12u1",
+        "cve": "CVE-2026-18477",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "tar",
+        "installed_source_version": "1.34+dfsg-1.2+deb12u1",
+        "cve": "CVE-2026-18508",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "tar",
+        "installed_source_version": "1.34+dfsg-1.2+deb12u1",
+        "cve": "CVE-2026-5704",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "tar",
+        "installed_source_version": "1.34+dfsg-1.2+deb12u1",
+        "cve": "TEMP-0290435-0B57B5",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "zlib",
+        "installed_source_version": "1:1.2.13.dfsg-1",
+        "cve": "CVE-2023-45853",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "contrib/minizip not built and src:zlib not producing binary packages",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "zlib",
+        "installed_source_version": "1:1.2.13.dfsg-1",
+        "cve": "CVE-2026-27171",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "zlib",
+        "installed_source_version": "1:1.2.13.dfsg-1",
+        "cve": "CVE-2026-85091",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      }
+    ],
+    "candidate": [
+      {
+        "source": "apt",
+        "installed_source_version": "2.6.2",
+        "cve": "CVE-2011-3374",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "bash",
+        "installed_source_version": "5.2.15-2",
+        "cve": "TEMP-0841856-B18BAF",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2022-0563",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2025-14104",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2026-13595",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2026-27456",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2026-3184",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "login not build from src:util-linux; only taken over in 2.40.2-3",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2026-53613",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2026-53615",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "util-linux",
+        "installed_source_version": "2.38.1-5+deb12u3",
+        "cve": "CVE-2026-78410",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "bubblewrap",
+        "installed_source_version": "0.8.0-2+deb12u1",
+        "cve": "CVE-2026-87766",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Intrusive backport due to a complete rewrite",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "coreutils",
+        "installed_source_version": "9.1-1",
+        "cve": "CVE-2016-2781",
+        "status": "open",
+        "urgency": "low",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "coreutils",
+        "installed_source_version": "9.1-1",
+        "cve": "CVE-2017-18018",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "coreutils",
+        "installed_source_version": "9.1-1",
+        "cve": "CVE-2025-5278",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "coreutils",
+        "installed_source_version": "9.1-1",
+        "cve": "CVE-2026-56391",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "coreutils",
+        "installed_source_version": "9.1-1",
+        "cve": "CVE-2026-56392",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2024-2379",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2025-0725",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2025-10966",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2025-14017",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2025-15079",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2025-15224",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-10536",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; needs rare CURLOPT_STREAM_DEPENDS + reset/cleanup",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-107928",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-11856",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; needs Digest auth + libcurl handle reuse across origins",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-12064",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; needs schemeless URL with --proto-default sftp/scp",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-13608",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-18924",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-1965",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-19931",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-4873",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-5545",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-6253",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-6276",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-6429",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-80230",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-82209",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-8286",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; STARTTLS connection reuse config mismatch",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-8458",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; needs HTTP Negotiate auth with differing service names",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-86409",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-86410",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-86414",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-87864",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; can be fixed with next release",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-87865",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; can be fixed with next release",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-87866",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-8924",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; trailing-dot super cookie; PSL-enabled build mitigates",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-8927",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; libcurl env-proxy Digest auth handle reuse",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-8932",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; libcurl mTLS handle-reuse config mismatch",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-92388",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; can be fixed with next release",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-92389",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; can be fixed with next release",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-92390",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; can be fixed with next release",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-92391",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-94266",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "curl",
+        "installed_source_version": "7.88.1-10+deb12u15",
+        "cve": "CVE-2026-9547",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "dash",
+        "installed_source_version": "0.5.12-2",
+        "cve": "CVE-2026-102473",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "dash",
+        "installed_source_version": "0.5.12-2",
+        "cve": "CVE-2026-102474",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "diffutils",
+        "installed_source_version": "1:3.8-4",
+        "cve": "CVE-2026-53910",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "dpkg",
+        "installed_source_version": "1.21.23",
+        "cve": "CVE-2026-91094",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gcc-12",
+        "installed_source_version": "12.2.0-14+deb12u1",
+        "cve": "CVE-2022-27943",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gcc-12",
+        "installed_source_version": "12.2.0-14+deb12u1",
+        "cve": "CVE-2026-102010",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue, not fixed in upstream 12 branch",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "gcc-12",
+        "installed_source_version": "12.2.0-14+deb12u1",
+        "cve": "CVE-2026-114690",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "gcc-12",
+        "installed_source_version": "12.2.0-14+deb12u1",
+        "cve": "CVE-2026-114691",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "gcc-12",
+        "installed_source_version": "12.2.0-14+deb12u1",
+        "cve": "CVE-2026-115456",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gcc-12",
+        "installed_source_version": "12.2.0-14+deb12u1",
+        "cve": "CVE-2026-125709",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gcc-12",
+        "installed_source_version": "12.2.0-14+deb12u1",
+        "cve": "CVE-2026-95619",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2018-1000021",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2022-24975",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2024-52005",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2026-105437",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2026-111760",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2026-113408",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2026-114466",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2026-114467",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "git",
+        "installed_source_version": "1:2.39.5-0+deb12u3",
+        "cve": "CVE-2026-114469",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnupg2",
+        "installed_source_version": "2.2.40-1.1+deb12u2",
+        "cve": "CVE-2022-3219",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnupg2",
+        "installed_source_version": "2.2.40-1.1+deb12u2",
+        "cve": "CVE-2025-30258",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "gnupg2",
+        "installed_source_version": "2.2.40-1.1+deb12u2",
+        "cve": "CVE-2025-68972",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "gnupg2",
+        "installed_source_version": "2.2.40-1.1+deb12u2",
+        "cve": "CVE-2026-105712",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "gnupg2",
+        "installed_source_version": "2.2.40-1.1+deb12u2",
+        "cve": "CVE-2026-57062",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "gzip",
+        "installed_source_version": "1.12-1",
+        "cve": "CVE-2026-41991",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "gzip",
+        "installed_source_version": "1.12-1",
+        "cve": "CVE-2026-41992",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "acl",
+        "installed_source_version": "2.3.1-3",
+        "cve": "CVE-2026-54369",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; libacl acl_*_file() follow symlinks; fix adds new acl_*_at() ABI, not individually backportable",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "acl",
+        "installed_source_version": "2.3.1-3",
+        "cve": "CVE-2026-54370",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; local TOCTOU in recursive setfacl/chacl; fix needs 2.4.0 acl_*_at() ABI + walk_tree rewrite, not individually backportable",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "attr",
+        "installed_source_version": "1:2.5.1-4",
+        "cve": "CVE-2026-54371",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; local symlink-traversal in recursive getfattr/setfattr; fix is a complete walk_tree rewrite, high regression risk",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "bzip2",
+        "installed_source_version": "1.0.8-5",
+        "cve": "CVE-2026-42250",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2010-4756",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2018-20796",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2019-1010022",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2019-1010023",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2019-1010024",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2019-1010025",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2019-9192",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-100290",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-115819",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-18374",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-19499",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-19542",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-5435",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-5450",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-5928",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-6238",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-6368",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-6791",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-77117",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-80489",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-84243",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-8674",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue, DoS",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-86805",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-89092",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue, performance degradation",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-95818",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "glibc",
+        "installed_source_version": "2.36-9+deb12u14",
+        "cve": "CVE-2026-97399",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u5",
+        "cve": "CVE-2023-52426",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u5",
+        "cve": "CVE-2025-66382",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue, revisit when fixed upstream",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u5",
+        "cve": "CVE-2026-113351",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; can be fixed in next update",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u5",
+        "cve": "CVE-2026-115506",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue, can be fixed in next update",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u5",
+        "cve": "CVE-2026-117610",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u5",
+        "cve": "CVE-2026-118370",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u5",
+        "cve": "CVE-2026-124317",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u5",
+        "cve": "CVE-2026-128241",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "expat",
+        "installed_source_version": "2.5.0-1+deb12u5",
+        "cve": "CVE-2026-41080",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "libgcrypt20",
+        "installed_source_version": "1.10.1-3+deb12u1",
+        "cve": "CVE-2018-6829",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "libgcrypt20",
+        "installed_source_version": "1.10.1-3+deb12u1",
+        "cve": "CVE-2024-2236",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnutls28",
+        "installed_source_version": "3.7.9-2+deb12u7",
+        "cve": "CVE-2011-3389",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnutls28",
+        "installed_source_version": "3.7.9-2+deb12u7",
+        "cve": "CVE-2026-67693",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnutls28",
+        "installed_source_version": "3.7.9-2+deb12u7",
+        "cve": "CVE-2026-88647",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnutls28",
+        "installed_source_version": "3.7.9-2+deb12u7",
+        "cve": "CVE-2026-88648",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnutls28",
+        "installed_source_version": "3.7.9-2+deb12u7",
+        "cve": "CVE-2026-95184",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "gnutls28",
+        "installed_source_version": "3.7.9-2+deb12u7",
+        "cve": "CVE-2026-95210",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2018-5709",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2024-26458",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2024-26461",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-107364",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-107708",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-107778",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-107884",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-111423",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112314",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112315",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112316",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112317",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112318",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112319",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112320",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112321",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112322",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-112323",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-118380",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-11850",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-119079",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-71199",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "krb5",
+        "installed_source_version": "1.20.1-2+deb12u5",
+        "cve": "CVE-2026-71200",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openldap",
+        "installed_source_version": "2.5.13+dfsg-5",
+        "cve": "CVE-2015-3276",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openldap",
+        "installed_source_version": "2.5.13+dfsg-5",
+        "cve": "CVE-2017-14159",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openldap",
+        "installed_source_version": "2.5.13+dfsg-5",
+        "cve": "CVE-2017-17740",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openldap",
+        "installed_source_version": "2.5.13+dfsg-5",
+        "cve": "CVE-2020-15719",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openldap",
+        "installed_source_version": "2.5.13+dfsg-5",
+        "cve": "CVE-2023-2953",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "openldap",
+        "installed_source_version": "2.5.13+dfsg-5",
+        "cve": "CVE-2026-22185",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "ncurses",
+        "installed_source_version": "6.4-4",
+        "cve": "CVE-2023-50495",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "ncurses",
+        "installed_source_version": "6.4-4",
+        "cve": "CVE-2025-6141",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "ncurses",
+        "installed_source_version": "6.4-4",
+        "cve": "CVE-2025-69720",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "nghttp2",
+        "installed_source_version": "1.52.0-1+deb12u3",
+        "cve": "CVE-2026-58055",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "p11-kit",
+        "installed_source_version": "0.24.1-2",
+        "cve": "CVE-2026-13757",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "p11-kit",
+        "installed_source_version": "0.24.1-2",
+        "cve": "CVE-2026-18938",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "pam",
+        "installed_source_version": "1.5.2-6+deb12u2",
+        "cve": "CVE-2024-10041",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; requires src:apparmor changes, cf #1110326",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "pam",
+        "installed_source_version": "1.5.2-6+deb12u2",
+        "cve": "CVE-2025-6020",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "pam",
+        "installed_source_version": "1.5.2-6+deb12u2",
+        "cve": "CVE-2025-8941",
+        "status": "undetermined",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "pam",
+        "installed_source_version": "1.5.2-6+deb12u2",
+        "cve": "CVE-2026-54411",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "perl",
+        "installed_source_version": "5.36.0-7+deb12u4",
+        "cve": "CVE-2011-4116",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "perl",
+        "installed_source_version": "5.36.0-7+deb12u4",
+        "cve": "CVE-2023-31486",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "perl",
+        "installed_source_version": "5.36.0-7+deb12u4",
+        "cve": "CVE-2026-15534",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "perl",
+        "installed_source_version": "5.36.0-7+deb12u4",
+        "cve": "CVE-2026-82560",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "perl",
+        "installed_source_version": "5.36.0-7+deb12u4",
+        "cve": "CVE-2026-9538",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue; wait for regressions upstream sorted out",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2025-12781",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Not backported to older Python releases due to compat concerns",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2025-15366",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Not backported to older Python releases due to compat concerns",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2025-15367",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Not backported to older Python releases due to compat concerns",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-0864",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-103995",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-114583",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-115557",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-115559",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-115791",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-116566",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-11940",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-11972",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-12003",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-12345",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-124249",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-16052",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-19552",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-3446",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Not backported to older Python releases due to compat concerns",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-3479",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-6879",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "python3.11",
+        "installed_source_version": "3.11.2-6+deb12u9",
+        "cve": "CVE-2026-7210",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "rtmpdump",
+        "installed_source_version": "2.4+20151223.gitfa8646d.1-2",
+        "cve": "CVE-2026-112060",
+        "status": "undetermined",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "rtmpdump",
+        "installed_source_version": "2.4+20151223.gitfa8646d.1-2",
+        "cve": "CVE-2026-112061",
+        "status": "undetermined",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "cyrus-sasl2",
+        "installed_source_version": "2.1.28+dfsg-10+deb12u1",
+        "cve": "CVE-2026-129483",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2021-45346",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2025-29088",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2025-70873",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2025-7458",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2025-7709",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-11822",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-11824",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119371",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119372",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119373",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119374",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119375",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119376",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119377",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119378",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119379",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119586",
+        "status": "undetermined",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-119591",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-50812",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue, DoS",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "sqlite3",
+        "installed_source_version": "3.40.1-2+deb12u2",
+        "cve": "CVE-2026-50813",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue, OOB read",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u2",
+        "cve": "CVE-2025-27587",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u2",
+        "cve": "CVE-2026-107496",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u2",
+        "cve": "CVE-2026-88822",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u2",
+        "cve": "CVE-2026-88823",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u2",
+        "cve": "CVE-2026-95691",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "openssl",
+        "installed_source_version": "3.0.22-1~deb12u2",
+        "cve": "CVE-2026-95692",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "systemd",
+        "installed_source_version": "252.39-1~deb12u2",
+        "cve": "CVE-2013-4392",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "systemd",
+        "installed_source_version": "252.39-1~deb12u2",
+        "cve": "CVE-2023-31437",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "systemd",
+        "installed_source_version": "252.39-1~deb12u2",
+        "cve": "CVE-2023-31438",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "systemd",
+        "installed_source_version": "252.39-1~deb12u2",
+        "cve": "CVE-2023-31439",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "systemd",
+        "installed_source_version": "252.39-1~deb12u2",
+        "cve": "CVE-2026-15059",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "systemd",
+        "installed_source_version": "252.39-1~deb12u2",
+        "cve": "CVE-2026-16742",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "systemd",
+        "installed_source_version": "252.39-1~deb12u2",
+        "cve": "CVE-2026-40228",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "libtasn1-6",
+        "installed_source_version": "4.19.0-2+deb12u1",
+        "cve": "CVE-2025-13151",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "libtirpc",
+        "installed_source_version": "1.3.3+ds-1",
+        "cve": "CVE-2026-85231",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "libtirpc",
+        "installed_source_version": "1.3.3+ds-1",
+        "cve": "CVE-2026-85977",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "shadow",
+        "installed_source_version": "1:4.13+dfsg1-1+deb12u2",
+        "cve": "CVE-2007-5686",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "shadow",
+        "installed_source_version": "1:4.13+dfsg1-1+deb12u2",
+        "cve": "CVE-2024-56433",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "shadow",
+        "installed_source_version": "1:4.13+dfsg1-1+deb12u2",
+        "cve": "TEMP-0628843-DBAD28",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "sysvinit",
+        "installed_source_version": "3.06-4",
+        "cve": "TEMP-0517018-A83CE6",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "tar",
+        "installed_source_version": "1.34+dfsg-1.2+deb12u1",
+        "cve": "CVE-2005-2541",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "tar",
+        "installed_source_version": "1.34+dfsg-1.2+deb12u1",
+        "cve": "CVE-2026-18477",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "tar",
+        "installed_source_version": "1.34+dfsg-1.2+deb12u1",
+        "cve": "CVE-2026-18508",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": "postponed"
+      },
+      {
+        "source": "tar",
+        "installed_source_version": "1.34+dfsg-1.2+deb12u1",
+        "cve": "CVE-2026-5704",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "tar",
+        "installed_source_version": "1.34+dfsg-1.2+deb12u1",
+        "cve": "TEMP-0290435-0B57B5",
+        "status": "open",
+        "urgency": "unimportant",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      },
+      {
+        "source": "zlib",
+        "installed_source_version": "1:1.2.13.dfsg-1",
+        "cve": "CVE-2023-45853",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "contrib/minizip not built and src:zlib not producing binary packages",
+        "nodsa_reason": "ignored"
+      },
+      {
+        "source": "zlib",
+        "installed_source_version": "1:1.2.13.dfsg-1",
+        "cve": "CVE-2026-27171",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": "Minor issue",
+        "nodsa_reason": ""
+      },
+      {
+        "source": "zlib",
+        "installed_source_version": "1:1.2.13.dfsg-1",
+        "cve": "CVE-2026-85091",
+        "status": "open",
+        "urgency": "not yet assigned",
+        "fixed_version": null,
+        "nodsa": null,
+        "nodsa_reason": null
+      }
+    ]
+  },
+  "summary": {
+    "baseline": {
+      "total": 271,
+      "high_or_critical": []
+    },
+    "candidate": {
+      "total": 244,
+      "high_or_critical": []
+    }
+  }
+}

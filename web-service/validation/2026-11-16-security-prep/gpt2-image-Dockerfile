@@ -1,0 +1,6 @@
+FROM gpt2-codex-runtime:0.154.0 AS preserved
+FROM node@sha256:e9f565d32859f0cbfb52125eafe8be39390f24dac302dc3cdf566e8ba3ab21ee
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends python3 git ca-certificates curl bubblewrap && rm -rf /var/lib/apt/lists/*
+COPY --from=preserved /usr/local/lib/node_modules/@openai /usr/local/lib/node_modules/@openai
+RUN ln -s ../lib/node_modules/@openai/codex/bin/codex.js /usr/local/bin/codex
+ENTRYPOINT ["codex"]

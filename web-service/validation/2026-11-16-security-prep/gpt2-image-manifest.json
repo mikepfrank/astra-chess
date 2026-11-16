@@ -1,0 +1,96 @@
+{
+  "staged_at_utc": "2026-11-16T19:31:17.365268+00:00",
+  "production_tag": "gpt2-codex-runtime:0.154.0",
+  "production_image_id": "sha256:9d9274de90e73ba2e215935f0dfbd09eb5c2fe248ba7a6b3052e45969de496fb",
+  "base_digest": "node@sha256:e9f565d32859f0cbfb52125eafe8be39390f24dac302dc3cdf566e8ba3ab21ee",
+  "candidate_tag": "gpt2-codex-security:20261116-node22.23.5",
+  "candidate_image_id": "sha256:cd4677302c525c03f02fefe65da2944ec07c6d4bb52aa0bf611a54dc504e71d1",
+  "codex_unchanged": true,
+  "live_configuration_changed": false,
+  "real_credentials_mounted": false,
+  "model_calls": 0,
+  "package_changes": [
+    {
+      "package": "apt",
+      "before": "2.6.1",
+      "after": "2.6.2"
+    },
+    {
+      "package": "ca-certificates",
+      "before": "20250419~deb12u1",
+      "after": "20250419~deb12u2"
+    },
+    {
+      "package": "libapt-pkg6.0:amd64",
+      "before": "2.6.1",
+      "after": "2.6.2"
+    },
+    {
+      "package": "libbrotli1:amd64",
+      "before": "1.0.9-2+b6",
+      "after": "1.0.9-2+deb12u1"
+    },
+    {
+      "package": "libexpat1:amd64",
+      "before": "2.5.0-1+deb12u4",
+      "after": "2.5.0-1+deb12u5"
+    },
+    {
+      "package": "libpcre2-8-0:amd64",
+      "before": "10.42-1+deb12u1",
+      "after": "10.42-1+deb12u2"
+    },
+    {
+      "package": "libpython3.11-minimal:amd64",
+      "before": "3.11.2-6+deb12u8",
+      "after": "3.11.2-6+deb12u9"
+    },
+    {
+      "package": "libpython3.11-stdlib:amd64",
+      "before": "3.11.2-6+deb12u8",
+      "after": "3.11.2-6+deb12u9"
+    },
+    {
+      "package": "libsasl2-2:amd64",
+      "before": "2.1.28+dfsg-10",
+      "after": "2.1.28+dfsg-10+deb12u1"
+    },
+    {
+      "package": "libsasl2-modules-db:amd64",
+      "before": "2.1.28+dfsg-10",
+      "after": "2.1.28+dfsg-10+deb12u1"
+    },
+    {
+      "package": "libssl3:amd64",
+      "before": "3.0.22-1~deb12u1",
+      "after": "3.0.22-1~deb12u2"
+    },
+    {
+      "package": "openssl",
+      "before": "3.0.22-1~deb12u1",
+      "after": "3.0.22-1~deb12u2"
+    },
+    {
+      "package": "python3.11",
+      "before": "3.11.2-6+deb12u8",
+      "after": "3.11.2-6+deb12u9"
+    },
+    {
+      "package": "python3.11-minimal",
+      "before": "3.11.2-6+deb12u8",
+      "after": "3.11.2-6+deb12u9"
+    },
+    {
+      "package": "tzdata",
+      "before": "2026b-0+deb12u1",
+      "after": "2026f-0+deb12u1"
+    }
+  ],
+  "artifacts": {
+    "Dockerfile": "37446513a3c180059eb05e4ff5f653652e1266c0d36c5f1cb36be5e571afebbe",
+    "baseline-inventory.json": "5adaa11c221cf42bb1e4ff43d95cf480ead92c5e8861f26b0d4c6975c26e736d",
+    "build.log": "1c7d0dc398b8fab2e42665fa76f3ec8d3328582c735d33019e567ffa75bd607b",
+    "candidate-inventory.json": "a839e72ebef3fb53736c4b0b69f992fab2b8f8c057ad89aba78de030bdbfbb22",
+    "debian-security-tracker.json": "67974f1ddc04389203d3f1fa928d1adfcb6a7834e55b4a050d032a439083ea88"
+  }
+}

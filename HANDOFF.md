@@ -1,5 +1,21 @@
 # Handoff: Arcturus development worktree
 
+## November 16: expanded preparation ready; downtime heads-up required
+
+Mike resumed maintenance, will take/confirm the AWS snapshot himself, and
+confirmed the private GPT-2 lab is idle with tabs closed/paused. He requested a
+heads-up just before actual downtime and retains the pause after each major step.
+[Today's preparation checkpoint](web-service/validation/2026-11-16-security-prep/README.md)
+records inactive GPT-2 Python/image candidates, tests, live unchanged checks,
+and the new reviewed lifecycle/backup helpers. The GPT-2 helper's `check` and
+`prepare` passed; its root-private checkpoint exists but routes remain ungated
+at this entry. All four services are still running on their old software.
+
+Next: announce downtime, drain GPT-2 with full public result retention and
+private idle checks, drain both chess services, make durable private backups,
+then **return to prompt for the AWS snapshot before installing updates**.
+Use any subsequent drain record as authoritative about actual current state.
+
 ## November 15: GPT-2 added to host maintenance scope
 
 Mike supplied `C:/Users/MikeFrank/Documents/=== FILES ===/-- AI --/GPT-2` and
