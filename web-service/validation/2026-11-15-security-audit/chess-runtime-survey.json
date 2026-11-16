@@ -1,0 +1,193 @@
+{
+  "runtimes": [
+    {
+      "user": "astra",
+      "rc": 0,
+      "data": {
+        "python": "3.12.14 (main, Sep  1 2026, 14:16:52) [Clang 22.1.3 ]",
+        "executable": "/home/astra/astra-chess/web-service/.venv/bin/python",
+        "base_prefix": "/home/astra/.local/share/astra-chess-runtime/python/cpython-3.12.14-linux-x86_64-gnu",
+        "openssl": "OpenSSL 3.5.8 25 Aug 2026",
+        "sqlite": "3.53.1",
+        "expat": "expat_2.8.4",
+        "packages": [
+          {
+            "name": "annotated-doc",
+            "version": "0.0.5"
+          },
+          {
+            "name": "annotated-types",
+            "version": "0.8.0"
+          },
+          {
+            "name": "anyio",
+            "version": "4.15.1"
+          },
+          {
+            "name": "certifi",
+            "version": "2026.7.22"
+          },
+          {
+            "name": "chess",
+            "version": "1.11.2"
+          },
+          {
+            "name": "click",
+            "version": "8.5.0"
+          },
+          {
+            "name": "fastapi",
+            "version": "0.141.1"
+          },
+          {
+            "name": "h11",
+            "version": "0.16.0"
+          },
+          {
+            "name": "httpcore",
+            "version": "1.0.9"
+          },
+          {
+            "name": "httpx",
+            "version": "0.28.1"
+          },
+          {
+            "name": "idna",
+            "version": "3.19"
+          },
+          {
+            "name": "pip",
+            "version": "25.0.1"
+          },
+          {
+            "name": "pydantic",
+            "version": "2.13.5"
+          },
+          {
+            "name": "pydantic_core",
+            "version": "2.46.5"
+          },
+          {
+            "name": "starlette",
+            "version": "1.6.0"
+          },
+          {
+            "name": "typing-inspection",
+            "version": "0.4.4"
+          },
+          {
+            "name": "typing_extensions",
+            "version": "4.16.0"
+          },
+          {
+            "name": "uvicorn",
+            "version": "0.52.4"
+          }
+        ]
+      },
+      "stderr": ""
+    },
+    {
+      "user": "or-chess",
+      "rc": 0,
+      "data": {
+        "python": "3.12.14 (main, Sep  1 2026, 14:16:52) [Clang 22.1.3 ]",
+        "executable": "/home/or-chess/astra-chess/web-service/.venv/bin/python",
+        "base_prefix": "/home/or-chess/.local/share/or-chess-runtime/python/cpython-3.12.14-linux-x86_64-gnu",
+        "openssl": "OpenSSL 3.5.8 25 Aug 2026",
+        "sqlite": "3.53.1",
+        "expat": "expat_2.8.4",
+        "packages": [
+          {
+            "name": "annotated-doc",
+            "version": "0.0.5"
+          },
+          {
+            "name": "annotated-types",
+            "version": "0.8.0"
+          },
+          {
+            "name": "anyio",
+            "version": "4.15.1"
+          },
+          {
+            "name": "certifi",
+            "version": "2026.7.22"
+          },
+          {
+            "name": "chess",
+            "version": "1.11.2"
+          },
+          {
+            "name": "click",
+            "version": "8.5.0"
+          },
+          {
+            "name": "fastapi",
+            "version": "0.141.1"
+          },
+          {
+            "name": "h11",
+            "version": "0.16.0"
+          },
+          {
+            "name": "httpcore",
+            "version": "1.0.9"
+          },
+          {
+            "name": "httpx",
+            "version": "0.28.1"
+          },
+          {
+            "name": "idna",
+            "version": "3.19"
+          },
+          {
+            "name": "pip",
+            "version": "25.0.1"
+          },
+          {
+            "name": "pydantic",
+            "version": "2.13.5"
+          },
+          {
+            "name": "pydantic_core",
+            "version": "2.46.5"
+          },
+          {
+            "name": "starlette",
+            "version": "1.6.0"
+          },
+          {
+            "name": "typing-inspection",
+            "version": "0.4.4"
+          },
+          {
+            "name": "typing_extensions",
+            "version": "4.16.0"
+          },
+          {
+            "name": "uvicorn",
+            "version": "0.52.4"
+          }
+        ]
+      },
+      "stderr": ""
+    }
+  ],
+  "caddy_build_info": "go\tgo1.26.3\npath\tcaddy\nmod\tcaddy\t(devel)\t\ndep\tcel.dev/expr\tv0.25.1\th1:1KrZg61W6TWSxuNZ37Xy49ps13NUovb66QLprthtwi4=\ndep\tcloud.google.com/go/auth\tv0.20.0\th1:kXTssoVb4azsVDoUiF8KvxAqrsQcQtB53DcSgta74CA=\ndep\tcloud.google.com/go/auth/oauth2adapt\tv0.2.8\th1:keo8NaayQZ6wimpNSmW5OPc283g65QNIiLpZnkHRbnc=\ndep\tcloud.google.com/go/compute/metadata\tv0.9.0\th1:pDUj4QMoPejqq20dK0Pg2N4yG9zIkYGdBtwLoEkH9Zs=\ndep\tdario.cat/mergo\tv1.0.2\th1:85+piFYR1tMbRrLcDwR18y4UKJ3aH1Tbzi24VRW1TK8=\ndep\tfilippo.io/bigmod\tv0.1.0\th1:UNzDk7y9ADKST+axd9skUpBQeW7fG2KrTZyOE4uGQy8=\ndep\tfilippo.io/edwards25519\tv1.2.0\th1:crnVqOiS4jqYleHd9vaKZ+HKtHfllngJIiOpNpoJsjo=\ndep\tgithub.com/BurntSushi/toml\tv1.6.0\th1:dRaEfpa2VI55EwlIW72hMRHdWouJeRF7TPYhI+AUQjk=\ndep\tgithub.com/DeRuina/timberjack\tv1.4.2\th1:4bKlzhKdsR+2oNkgef9mqb4n11ICow8VK88RfzJPzN8=\ndep\tgithub.com/KimMachineGun/automemlimit\tv0.7.5\th1:RkbaC0MwhjL1ZuBKunGDjE/ggwAX43DwZrJqVwyveTk=\ndep\tgithub.com/Masterminds/goutils\tv1.1.1\th1:5nUrii3FMTL5diU80unEVvNevw1nH4+ZV4DSLVJLSYI=\ndep\tgithub.com/Masterminds/semver/v3\tv3.4.0\th1:Zog+i5UMtVoCU8oKka5P7i9q9HgrJeGzI9SA1Xbatp0=\ndep\tgithub.com/Masterminds/sprig/v3\tv3.3.0\th1:mQh0Yrg1XPo6vjYXgtf5OtijNAKJRNcTdOOGZe3tPhs=\ndep\tgithub.com/alecthomas/chroma/v2\tv2.24.1\th1:m5ffpfZbIb++k8AqFEKy9uVgY12xIQtBsQlc6DfZJQM=\ndep\tgithub.com/antlr4-go/antlr/v4\tv4.13.1\th1:SqQKkuVZ+zWkMMNkjy5FZe5mr5WURWnlpmOuzYWrPrQ=\ndep\tgithub.com/aryann/difflib\tv0.0.0-20210328193216-ff5ff6dc229b\th1:uUXgbcPDK3KpW29o4iy7GtuappbWT0l5NaMo9H9pJDw=\ndep\tgithub.com/beorn7/perks\tv1.0.1\th1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=\ndep\tgithub.com/caddyserver/caddy/v2\tv2.11.4\th1:XKxkMTgNSizEvKG6QHue6cAsFOteU2qA61w2tKkCWi0=\ndep\tgithub.com/caddyserver/certmagic\tv0.25.3\th1:mGf5ba8F7xA4c5jfDZZbK2buY1VEkbnwpMDixaju94A=\ndep\tgithub.com/caddyserver/zerossl\tv0.1.5\th1:dkvOjBAEEtY6LIGAHei7sw2UgqSD6TrWweXpV7lvEvE=\ndep\tgithub.com/ccoveille/go-safecast/v2\tv2.0.0\th1:+5eyITXAUj3wMjad6cRVJKGnC7vDS55zk0INzJagub0=\ndep\tgithub.com/cenkalti/backoff/v5\tv5.0.3\th1:ZN+IMa753KfX5hd8vVaMixjnqRZ3y8CuJKRKj1xcsSM=\ndep\tgithub.com/cespare/xxhash/v2\tv2.3.0\th1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=\ndep\tgithub.com/chzyer/readline\tv1.5.1\th1:upd/6fQk4src78LMRzh5vItIt361/o4uq553V8B5sGI=\ndep\tgithub.com/cloudflare/circl\tv1.6.3\th1:9GPOhQGF9MCYUeXyMYlqTR6a5gTrgR/fBLXvUgtVcg8=\ndep\tgithub.com/coreos/go-oidc/v3\tv3.17.0\th1:hWBGaQfbi0iVviX4ibC7bk8OKT5qNr4klBaCHVNvehc=\ndep\tgithub.com/cpuguy83/go-md2man/v2\tv2.0.7\th1:zbFlGlXEAKlwXpmvle3d8Oe3YnkKIK4xSRTd3sHPnBo=\ndep\tgithub.com/dlclark/regexp2\tv1.12.0\th1:0j4c5qQmnC6XOWNjP3PIXURXN2gWx76rd3KvgdPkCz8=\ndep\tgithub.com/dustin/go-humanize\tv1.0.1\th1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=\ndep\tgithub.com/felixge/httpsnoop\tv1.0.4\th1:NFTV2Zj1bL4mc9sqWACXbQFVBBg2W3GPvqp8/ESS2Wg=\ndep\tgithub.com/fxamacker/cbor/v2\tv2.9.0\th1:NpKPmjDBgUfBms6tr6JZkTHtfFGcMKsw3eGcmD/sapM=\ndep\tgithub.com/go-chi/chi/v5\tv5.2.5\th1:Eg4myHZBjyvJmAFjFvWgrqDTXFyOzjj7YIm3L3mu6Ug=\ndep\tgithub.com/go-jose/go-jose/v3\tv3.0.5\th1:BLLJWbC4nMZOfuPVxoZIxeYsn6Nl2r1fITaJ78UQlVQ=\ndep\tgithub.com/go-jose/go-jose/v4\tv4.1.4\th1:moDMcTHmvE6Groj34emNPLs/qtYXRVcd6S7NHbHz3kA=\ndep\tgithub.com/go-logr/logr\tv1.4.3\th1:CjnDlHq8ikf6E492q6eKboGOC0T8CDaOvkHCIg8idEI=\ndep\tgithub.com/go-logr/stdr\tv1.2.2\th1:hSWxHoqTgW2S2qGc0LTAI563KZ5YKYRhT3MFKZMbjag=\ndep\tgithub.com/google/cel-go\tv0.28.1\th1:YWIwi77J4xIsYUwAF/iIuS6haffzIHS8yWI8glSbLWM=\ndep\tgithub.com/google/certificate-transparency-go\tv1.1.8-0.20240110162603-74a5dd331745\th1:heyoXNxkRT155x4jTAiSv5BVSVkueifPUm+Q8LUXMRo=\ndep\tgithub.com/google/go-tpm\tv0.9.8\th1:slArAR9Ft+1ybZu0lBwpSmpwhRXaa85hWtMinMyRAWo=\ndep\tgithub.com/google/go-tspi\tv0.3.0\th1:ADtq8RKfP+jrTyIWIZDIYcKOMecRqNJFOew2IT0Inus=\ndep\tgithub.com/google/s2a-go\tv0.1.9\th1:LGD7gtMgezd8a/Xak7mEWL0PjoTQFvpRudN895yqKW0=\ndep\tgithub.com/google/uuid\tv1.6.0\th1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=\ndep\tgithub.com/googleapis/enterprise-certificate-proxy\tv0.3.15\th1:xolVQTEXusUcAA5UgtyRLjelpFFHWlPQ4XfWGc7MBas=\ndep\tgithub.com/googleapis/gax-go/v2\tv2.22.0\th1:PjIWBpgGIVKGoCXuiCoP64altEJCj3/Ei+kSU5vlZD4=\ndep\tgithub.com/grpc-ecosystem/grpc-gateway/v2\tv2.28.0\th1:HWRh5R2+9EifMyIHV7ZV+MIZqgz+PMpZ14Jynv3O2Zs=\ndep\tgithub.com/huandu/xstrings\tv1.5.0\th1:2ag3IFq9ZDANvthTwTiqSSZLjDc+BedvHPAp5tJy2TI=\ndep\tgithub.com/klauspost/compress\tv1.18.6\th1:2jupLlAwFm95+YDR+NwD2MEfFO9d4z4Prjl1XXDjuao=\ndep\tgithub.com/klauspost/cpuid/v2\tv2.3.0\th1:S4CRMLnYUhGeDFDqkGriYKdfoFlDnMtqTiI/sFzhA9Y=\ndep\tgithub.com/libdns/libdns\tv1.1.1\th1:wPrHrXILoSHKWJKGd0EiAVmiJbFShguILTg9leS/P/U=\ndep\tgithub.com/manifoldco/promptui\tv0.9.0\th1:3V4HzJk1TtXW1MTZMP7mdlwbBpIinw3HztaIlYthEiA=\ndep\tgithub.com/mattn/go-colorable\tv0.1.14\th1:9A9LHSqF/7dyVVX6g0U9cwm9pG3kP9gSzcuIPHPsaIE=\ndep\tgithub.com/mattn/go-isatty\tv0.0.20\th1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWEY=\ndep\tgithub.com/mgutz/ansi\tv0.0.0-20200706080929-d51e80ef957d\th1:5PJl274Y63IEHC+7izoQE9x6ikvDFZS2mDVS3drnohI=\ndep\tgithub.com/mholt/acmez/v3\tv3.1.6\th1:eGVQNObP0pBN4sxqrXeg7MYqTOWyoiYpQqITVWlrevk=\ndep\tgithub.com/miekg/dns\tv1.1.72\th1:vhmr+TF2A3tuoGNkLDFK9zi36F2LS+hKTRW0Uf8kbzI=\ndep\tgithub.com/mitchellh/copystructure\tv1.2.0\th1:vpKXTN4ewci03Vljg/q9QvCGUDttBOGBIa15WveJJGw=\ndep\tgithub.com/mitchellh/go-ps\tv1.0.0\th1:i6ampVEEF4wQFF+bkYfwYgY+F/uYJDktmvLPf7qIgjc=\ndep\tgithub.com/mitchellh/reflectwalk\tv1.0.2\th1:G2LzWKi524PWgd3mLHV8Y5k7s6XUvT0Gef6zxSIeXaQ=\ndep\tgithub.com/munnerz/goautoneg\tv0.0.0-20191010083416-a7dc8b61c822\th1:C3w9PqII01/Oq1c1nUAm88MOHcQC9l5mIlSMApZMrHA=\ndep\tgithub.com/pbnjay/memory\tv0.0.0-20210728143218-7b4eea64cf58\th1:onHthvaw9LFnH4t2DcNVpwGmV9E1BkGknEliJkfwQj0=\ndep\tgithub.com/pires/go-proxyproto\tv0.12.0\th1:TTCxD66dU898tahivkqc3hoceZp7P44FnorWyo9d5vM=\ndep\tgithub.com/pkg/errors\tv0.9.1\th1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=\ndep\tgithub.com/prometheus/client_golang\tv1.23.2\th1:Je96obch5RDVy3FDMndoUsjAhG5Edi49h0RJWRi/o0o=\ndep\tgithub.com/prometheus/client_model\tv0.6.2\th1:oBsgwpGs7iVziMvrGhE53c/GrLUsZdHnqNwqPLxwZyk=\ndep\tgithub.com/prometheus/common\tv0.67.5\th1:pIgK94WWlQt1WLwAC5j2ynLaBRDiinoAb86HZHTUGI4=\ndep\tgithub.com/prometheus/otlptranslator\tv1.0.0\th1:s0LJW/iN9dkIH+EnhiD3BlkkP5QVIUVEoIwkU+A6qos=\ndep\tgithub.com/prometheus/procfs\tv0.20.1\th1:XwbrGOIplXW/AU3YhIhLODXMJYyC1isLFfYCsTEycfc=\ndep\tgithub.com/quic-go/qpack\tv0.6.0\th1:g7W+BMYynC1LbYLSqRt8PBg5Tgwxn214ZZR34VIOjz8=\ndep\tgithub.com/quic-go/quic-go\tv0.59.1\th1:0Gmua0HW1Tv7ANR7hUYwRyD0MG5OJfgvYSZasGZzBic=\ndep\tgithub.com/rs/xid\tv1.6.0\th1:fV591PaemRlL6JfRxGDEPl69wICngIQ3shQtzfy2gxU=\ndep\tgithub.com/russross/blackfriday/v2\tv2.1.0\th1:JIOH55/0cWyOuilr9/qlrm0BSXldqnqwMsf35Ld67mk=\ndep\tgithub.com/shopspring/decimal\tv1.4.0\th1:bxl37RwXBklmTi0C79JfXCEBD1cqqHt0bbgBAGFp81k=\ndep\tgithub.com/shurcooL/sanitized_anchor_name\tv1.0.0\th1:PdmoCO6wvbs+7yrJyMORt4/BmY5IYyJwS/kOiWx8mHo=\ndep\tgithub.com/sirupsen/logrus\tv1.9.4\th1:TsZE7l11zFCLZnZ+teH4Umoq5BhEIfIzfRDZ1Uzql2w=\ndep\tgithub.com/slackhq/nebula\tv1.10.3\th1:EstYj8ODEcv6T0R9X5BVq1zgWZnyU5gtPzk99QF1PMU=\ndep\tgithub.com/smallstep/certificates\tv0.30.2\th1:1G3xBi8sJ740iA1mMPW2Svv7EIZKJ4Zf/iQtA5QlN0Y=\ndep\tgithub.com/smallstep/cli-utils\tv0.12.2\th1:lGzM9PJrH/qawbzMC/s2SvgLdJPKDWKwKzx9doCVO+k=\ndep\tgithub.com/smallstep/go-attestation\tv0.4.4-0.20241119153605-2306d5b464ca\th1:VX8L0r8vybH0bPeaIxh4NQzafKQiqvlOn8pmOXbFLO4=\ndep\tgithub.com/smallstep/linkedca\tv0.25.0\th1:txT9QHGbCsJq0MhAghBq7qhurGY727tQuqUi+n4BVBo=\ndep\tgithub.com/smallstep/nosql\tv0.8.0\th1:FBTCUfKPmWYbrozW+RBKu+fnvbn+zr5rVli/XB4Jp4A=\ndep\tgithub.com/smallstep/pkcs7\tv0.2.1\th1:6Kfzr/QizdIuB6LSv8y1LJdZ3aPSfTNhTLqAx9CTLfA=\ndep\tgithub.com/smallstep/scep\tv0.0.0-20250318231241-a25cabb69492\th1:k23+s51sgYix4Zgbvpmy+1ZgXLjr4ZTkBTqXmpnImwA=\ndep\tgithub.com/smallstep/truststore\tv0.13.0\th1:90if9htAOblavbMeWlqNLnO9bsjjgVv2hQeQJCi/py4=\ndep\tgithub.com/spf13/cast\tv1.7.0\th1:ntdiHjuueXFgm5nzDRdOS4yfT43P5Fnud6DH50rz/7w=\ndep\tgithub.com/spf13/cobra\tv1.10.2\th1:DMTTonx5m65Ic0GOoRY2c16WCbHxOOw6xxezuLaBpcU=\ndep\tgithub.com/spf13/pflag\tv1.0.10\th1:4EBh2KAYBwaONj6b2Ye1GiHfwjqyROoF4RwYO+vPwFk=\ndep\tgithub.com/tailscale/tscert\tv0.0.0-20251216020129-aea342f6d747\th1:RnBbFMmodYzhC6adOjTbtUQXyzV8dcvKYbolzs6Qch0=\ndep\tgithub.com/urfave/cli\tv1.22.17\th1:SYzXoiPfQjHBbkYxbew5prZHS1TOLT3ierW8SYLqtVQ=\ndep\tgithub.com/x448/float16\tv0.8.4\th1:qLwI1I70+NjRFUR3zs1JPUCgaCXSh3SW62uAKT1mSBM=\ndep\tgithub.com/yuin/goldmark\tv1.8.2\th1:kEGpgqJXdgbkhcOgBxkC0X0PmoPG1ZyoZ117rDVp4zE=\ndep\tgithub.com/yuin/goldmark-highlighting/v2\tv2.0.0-20230729083705-37449abec8cc\th1:+IAOyRda+RLrxa1WC7umKOZRsGq4QrFFMYApOeHzQwQ=\ndep\tgithub.com/zeebo/blake3\tv0.2.4\th1:KYQPkhpRtcqh0ssGYcKLG1JYvddkEA8QwCM/yBqhaZI=\ndep\tgo.etcd.io/bbolt\tv1.4.3\th1:dEadXpI6G79deX5prL3QRNP6JB8UxVkqo4UPnHaNXJo=\ndep\tgo.opentelemetry.io/auto/sdk\tv1.2.1\th1:jXsnJ4Lmnqd11kwkBV2LgLoFMZKizbCi5fNZ/ipaZ64=\ndep\tgo.opentelemetry.io/contrib/bridges/prometheus\tv0.68.0\th1:w3zlHYETbDwXyWHZlyyR58ZC39XGi8rAhkBgUgJ9d5w=\ndep\tgo.opentelemetry.io/contrib/exporters/autoexport\tv0.68.0\th1:0D3GFvELGIwQGfC6agLsbrEYSGWZTRTxIXxcQUqrOuk=\ndep\tgo.opentelemetry.io/contrib/instrumentation/net/http/otelhttp\tv0.68.0\th1:CqXxU8VOmDefoh0+ztfGaymYbhdB/tT3zs79QaZTNGY=\ndep\tgo.opentelemetry.io/contrib/propagators/autoprop\tv0.68.0\th1:wLGFvNBPqQhzBn0QRBZjrriH8lZ9gqtTz8ufHEjLg7k=\ndep\tgo.opentelemetry.io/contrib/propagators/aws\tv1.43.0\th1:EwnsB3cXRLAh7/Nr/9rMuGw73nfb3z6uAvVDjRrbeUg=\ndep\tgo.opentelemetry.io/contrib/propagators/b3\tv1.43.0\th1:CETqV3QLLPTy5yNrqyMr41VnAOOD4lsRved7n4QG00A=\ndep\tgo.opentelemetry.io/contrib/propagators/jaeger\tv1.43.0\th1:peiLMz1+aqJE+3L4mOVtR9wlmv+yh/JVYXCBjqmzJJE=\ndep\tgo.opentelemetry.io/contrib/propagators/ot\tv1.43.0\th1:Hh1HahlGc81AOE7siqi1tVOlbanY/UxMMWedpb0d5oQ=\ndep\tgo.opentelemetry.io/otel\tv1.43.0\th1:mYIM03dnh5zfN7HautFE4ieIig9amkNANT+xcVxAj9I=\ndep\tgo.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc\tv0.19.0\th1:Dn8rkudDzY6KV9dr/D/bTUuWgqDf9xe0rr4G2elrn0Y=\ndep\tgo.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp\tv0.19.0\th1:HIBTQ3VO5aupLKjC90JgMqpezVXwFuq6Ryjn0/izoag=\ndep\tgo.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc\tv1.43.0\th1:8UQVDcZxOJLtX6gxtDt3vY2WTgvZqMQRzjsqiIHQdkc=\ndep\tgo.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp\tv1.43.0\th1:w1K+pCJoPpQifuVpsKamUdn9U0zM3xUziVOqsGksUrY=\ndep\tgo.opentelemetry.io/otel/exporters/otlp/otlptrace\tv1.43.0\th1:88Y4s2C8oTui1LGM6bTWkw0ICGcOLCAI5l6zsD1j20k=\ndep\tgo.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc\tv1.43.0\th1:RAE+JPfvEmvy+0LzyUA25/SGawPwIUbZ6u0Wug54sLc=\ndep\tgo.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp\tv1.43.0\th1:3iZJKlCZufyRzPzlQhUIWVmfltrXuGyfjREgGP3UUjc=\ndep\tgo.opentelemetry.io/otel/exporters/prometheus\tv0.65.0\th1:jOveH/b4lU9HT7y+Gfamf18BqlOuz2PWEvs8yM7Q6XE=\ndep\tgo.opentelemetry.io/otel/exporters/stdout/stdoutlog\tv0.19.0\th1:GJkybS+crDMdExT/BUNCEgfrmfboztcS6PhvSo88HKM=\ndep\tgo.opentelemetry.io/otel/exporters/stdout/stdoutmetric\tv1.43.0\th1:TC+BewnDpeiAmcscXbGMfxkO+mwYUwE/VySwvw88PfA=\ndep\tgo.opentelemetry.io/otel/exporters/stdout/stdouttrace\tv1.43.0\th1:mS47AX77OtFfKG4vtp+84kuGSFZHTyxtXIN269vChY0=\ndep\tgo.opentelemetry.io/otel/log\tv0.19.0\th1:KUZs/GOsw79TBBMfDWsXS+KZ4g2Ckzksd1ymzsIEbo4=\ndep\tgo.opentelemetry.io/otel/metric\tv1.43.0\th1:d7638QeInOnuwOONPp4JAOGfbCEpYb+K6DVWvdxGzgM=\ndep\tgo.opentelemetry.io/otel/sdk\tv1.43.0\th1:pi5mE86i5rTeLXqoF/hhiBtUNcrAGHLKQdhg4h4V9Dg=\ndep\tgo.opentelemetry.io/otel/sdk/log\tv0.19.0\th1:scYVLqT22D2gqXItnWiocLUKGH9yvkkeql5dBDiXyko=\ndep\tgo.opentelemetry.io/otel/sdk/metric\tv1.43.0\th1:S88dyqXjJkuBNLeMcVPRFXpRw2fuwdvfCGLEo89fDkw=\ndep\tgo.opentelemetry.io/otel/trace\tv1.43.0\th1:BkNrHpup+4k4w+ZZ86CZoHHEkohws8AY+WTX09nk+3A=\ndep\tgo.opentelemetry.io/proto/otlp\tv1.10.0\th1:IQRWgT5srOCYfiWnpqUYz9CVmbO8bFmKcwYxpuCSL2g=\ndep\tgo.step.sm/crypto\tv0.81.0\th1:e+ouzpNt3Xm4dp7HGXhgYB5y4iFik3vh3phHKWmvugU=\ndep\tgo.uber.org/automaxprocs\tv1.6.0\th1:O3y2/QNTOdbF+e/dpXNNW7Rx2hZ4sTIPyybbxyNqTUs=\ndep\tgo.uber.org/multierr\tv1.11.0\th1:blXXJkSxSSfBVBlC76pxqeO+LN3aDfLQo+309xJstO0=\ndep\tgo.uber.org/zap\tv1.28.0\th1:IZzaP1Fv73/T/pBMLk4VutPl36uNC+OSUh3JLG3FIjo=\ndep\tgo.uber.org/zap/exp\tv0.3.0\th1:6JYzdifzYkGmTdRR59oYH+Ng7k49H9qVpWwNSsGJj3U=\ndep\tgo.yaml.in/yaml/v2\tv2.4.4\th1:tuyd0P+2Ont/d6e2rl3be67goVK4R6deVxCUX5vyPaQ=\ndep\tgo.yaml.in/yaml/v3\tv3.0.4\th1:tfq32ie2Jv2UxXFdLJdh3jXuOzWiL1fo0bu/FbuKpbc=\ndep\tgolang.org/x/crypto\tv0.52.0\th1:RMs7fP2rXdep0CftQlK8Uf+kibLm7qkCcradZWYz988=\ndep\tgolang.org/x/crypto/x509roots/fallback\tv0.0.0-20260213171211-a408498e5541\th1:FmKxj9ocLKn45jiR2jQMwCVhDvaK7fKQFzfuT9GvyK8=\ndep\tgolang.org/x/exp\tv0.0.0-20251023183803-a4bb9ffd2546\th1:mgKeJMpvi0yx/sU5GsxQ7p6s2wtOnGAHZWCHUM4KGzY=\ndep\tgolang.org/x/net\tv0.55.0\th1:bcvxaJn3e1U6InsFWt1JUq1aSjnRxLzT2rtD2KfkDF8=\ndep\tgolang.org/x/oauth2\tv0.36.0\th1:peZ/1z27fi9hUOFCAZaHyrpWG5lwe0RJEEEeH0ThlIs=\ndep\tgolang.org/x/sync\tv0.20.0\th1:e0PTpb7pjO8GAtTs2dQ6jYa5BWYlMuX047Dco/pItO4=\ndep\tgolang.org/x/sys\tv0.45.0\th1:dO4czNzziLiiXplLQgBCEpCvXQ3dnkn0SdaZSYdQ+FY=\ndep\tgolang.org/x/term\tv0.43.0\th1:S4RLU2sB31O/NCl+zFN9Aru9A/Cq2aqKpTZJ6B+DwT4=\ndep\tgolang.org/x/text\tv0.37.0\th1:Cqjiwd9eSg8e0QAkyCaQTNHFIIzWtidPahFWR83rTrc=\ndep\tgolang.org/x/time\tv0.15.0\th1:bbrp8t3bGUeFOx08pvsMYRTCVSMk89u4tKbNOZbp88U=\ndep\tgoogle.golang.org/api\tv0.277.0\th1:HJfyJUiNeBBUMai7ez8u14wkp/gH/I4wpGbbO9o+cSk=\ndep\tgoogle.golang.org/genproto/googleapis/api\tv0.0.0-20260406210006-6f92a3bedf2d\th1:/aDRtSZJjyLQzm75d+a1wOJaqyKBMvIAfeQmoa3ORiI=\ndep\tgoogle.golang.org/genproto/googleapis/rpc\tv0.0.0-20260427160629-7cedc36a6bc4\th1:tEkOQcXgF6dH1G+MVKZrfpYvozGrzb91k6ha7jireSM=\ndep\tgoogle.golang.org/grpc\tv1.81.0\th1:W3G9N3KQf3BU+YuCtGKJk0CmxQNbAISICD/9AORxLIw=\ndep\tgoogle.golang.org/protobuf\tv1.36.11\th1:fV6ZwhNocDyBLK0dj+fg8ektcVegBBuEolpbTQyBNVE=\ndep\tgopkg.in/yaml.v3\tv3.0.1\th1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=\nbuild\t-buildmode=exe\nbuild\t-compiler=gc\nbuild\t-tags=nobadger,nomysql,nopgx\nbuild\t-trimpath=true\nbuild\tCGO_ENABLED=0\nbuild\tGOARCH=amd64\nbuild\tGOOS=linux\nbuild\tGOAMD64=v1\nbuild\tvcs=git\nbuild\tvcs.revision=e2eee6a7fce366321294c9c2a79f3146891dcbdf\nbuild\tvcs.time=2026-06-01T19:35:02Z\nbuild\tvcs.modified=false\n\n",
+  "codex": [
+    {
+      "user": "astra",
+      "path": "/home/astra/.codex/packages/standalone/releases/0.154.0-x86_64-unknown-linux-musl/bin/codex",
+      "version": "codex-cli 0.154.0",
+      "rc": 0
+    },
+    {
+      "user": "or-chess",
+      "path": "/home/or-chess/.local/share/or-chess-runtime/codex/bin/codex",
+      "version": "codex-cli 0.154.0",
+      "rc": 0
+    }
+  ]
+}

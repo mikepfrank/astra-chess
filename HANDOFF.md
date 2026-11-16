@@ -1,5 +1,21 @@
 # Handoff: Arcturus development worktree
 
+## November 15: host security-update survey (approval pending)
+
+The migrated host and both chess services were inspected read-only. The
+[survey, update table and staged maintenance plan](web-service/validation/2026-11-15-security-audit/README.md)
+record 325 applicable OS security notices (one Critical), a Critical private
+Python trust-bundle update, and private runtime/proxy/Codex maintenance needs.
+Both sites are healthy. **No software updates, restarts or paid model tests have
+been performed; Mike requested approval before those actions.**
+
+Use the saved manifests as a baseline, then recheck before maintenance. The live
+Astra revision is `60bc178`; preserve its intentional pause on new games and
+Caddy import/drop-in. Its newer local branch head includes unactivated backend
+work. Arcturus is live at `a98784c`. Codex remains 0.154.0 in both services and a
+new CLI requires contract tests before allowlisting. Preserve all game state,
+notifier state and the Arcturus monthly budget ledger.
+
 ## October 3: migration lifecycle scripts
 
 **Installed at `1cc6b2a`.** `arcturus-down.sh` / `arcturus-up.sh`, adapted from the hosted Astra
