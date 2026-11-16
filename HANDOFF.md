@@ -1,5 +1,23 @@
 # Handoff: Arcturus development worktree
 
+## November 16: public GPT-2 stopped; awaiting private lab tab closure
+
+**Current maintenance state:** public GPT-2 completed its 600-second retention
+and is stopped/boot-disabled behind its generation gate. Private GPT-2 lab,
+Astra, Arcturus and shared proxy remain running on original PIDs/software.
+Private lab shutdown safely refused because a paused browser tab still polls;
+Mike was asked to fully close all private lab tabs. Await confirmation and
+successful actual quiescence before stopping it. No OS update/reboot/runtime
+activation has occurred; no final backups/snapshot yet. Do not call `prepare`
+again or discard the existing GPT-2 checkpoint.
+
+[Exact state, helper paths and next commands](web-service/validation/2026-11-16-security-prep/maintenance-progress.md).
+Use the separately staged `gpt2_maintenance-v2.py` for subsequent operations;
+it adds clear closed-tab wording and progress without relaxing idle checks.
+Next finish private/chess drains and durable backups, then return to the prompt
+for Mike's AWS snapshot before installation. Keep the chess sites available
+while waiting for the private lab closure.
+
 ## November 16: expanded preparation ready; downtime heads-up required
 
 Mike resumed maintenance, will take/confirm the AWS snapshot himself, and

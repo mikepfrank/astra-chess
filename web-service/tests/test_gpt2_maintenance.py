@@ -98,7 +98,7 @@ class RetentionTests(unittest.TestCase):
     def test_work_reappearance_resets_timer(self):
         _, elapsed, calls = self.run_policy(observe=lambda t: health(1) if 300 <= t < 400 else health())
         self.assertEqual(elapsed, 1000)
-        self.assertEqual(len(calls), 2)
+        self.assertEqual(sum("Public queue drained" in line for line in calls), 2)
 
     def test_service_larger_ttl_is_honored(self):
         ttl, elapsed, _ = self.run_policy(observe=lambda t: health(ttl=900))
@@ -151,8 +151,30 @@ class LifecycleTests(unittest.TestCase):
         with patch.object(m, "unit", return_value={"MainPID": "11", "ExecMainStartTimestampMonotonic": "21"}), \
              patch.object(m, "lab_activity", return_value={"idle": True, "pending_human": 6}), \
              patch.object(m, "settled", return_value=True):
-            m.quiet_lab(state(), clock=clock.clock, sleep=clock.sleep)
+            m.quiet_lab(state(), clock=clock.clock, sleep=clock.sleep, emit=lambda _: None)
         self.assertEqual(clock.now, 60)
+
+    def test_lab_waits_for_existing_connection_then_full_quiet_window(self):
+        clock = Clock()
+        with patch.object(m, "unit", return_value={"MainPID": "11", "ExecMainStartTimestampMonotonic": "21"}), \
+             patch.object(m, "lab_activity", return_value={"idle": True}), \
+             patch.object(m, "settled", side_effect=lambda _: clock.now >= 120):
+            m.quiet_lab(state(), clock=clock.clock, sleep=clock.sleep, emit=lambda _: None)
+        self.assertEqual(clock.now, 180)
+
+    def test_lab_active_polling_still_fails_after_longer_deadline(self):
+        clock = Clock()
+        with patch.object(m, "unit", return_value={"MainPID": "11", "ExecMainStartTimestampMonotonic": "21"}), \
+             patch.object(m, "lab_activity", return_value={"idle": True}), \
+             patch.object(m, "settled", return_value=False):
+            with self.assertRaises(m.SafetyError):
+                m.quiet_lab(state(), clock=clock.clock, sleep=clock.sleep, emit=lambda _: None)
+        self.assertEqual(clock.now, 300)
+
+    def test_progress_flushes_during_piped_ssh_invocation(self):
+        with patch("builtins.print") as output:
+            m.progress("still waiting")
+        output.assert_called_once_with("still waiting", flush=True)
 
     def test_lab_containers_or_pending_worker_prevent_stop(self):
         s = state()

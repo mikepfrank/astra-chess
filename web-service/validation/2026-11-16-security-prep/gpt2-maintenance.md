@@ -14,34 +14,42 @@ never copy them into this repository or print their content.
 ## Commands and order
 
 Run the staged, reviewed helper as root, replacing `HELPER` below with its
-installed/staged absolute path. These commands document future actions.
+installed/staged absolute path. Use `python3 -u` for unbuffered SSH output;
+drain/quiet progress also explicitly flushes every 30 seconds. These commands
+document future actions.
 
-1. `python3 HELPER check`: only live read-only checks; prints queue/status counts,
+1. `python3 -u HELPER check`: only live read-only checks; prints queue/status counts,
    no chat contents/private URL. Requires the currently reviewed lab source hash.
-2. `python3 HELPER prepare`: snapshot original *individual GPT-2 site blocks*,
+2. `python3 -u HELPER prepare`: snapshot original *individual GPT-2 site blocks*,
    both app identities/boot states, and network-unit state; privately back up
    current proxy config; validate both candidate gates without installing them.
    Refuses to overwrite an existing checkpoint. Staging files for validation
    are private and temporary beside Caddyfile so relative imports resolve.
-3. **Downtime starts here:** `python3 HELPER gate-public`. Only POST
+3. **Downtime starts here:** `python3 -u HELPER gate-public`. Only POST
    `/api/message` and `/api/regenerate` receive 503/`accepted:false`; results,
    streams, health and static pages remain available.
    After public backend shutdown, its GET routes naturally return proxy 502
    until restart; only the generation POSTs show this maintenance response.
    This helper does not claim an all-page public maintenance banner.
-4. `python3 HELPER stop-public --timeout 1200`: observe queue idle and pre-gate
+4. `python3 -u HELPER stop-public --timeout 1200`: observe queue idle and pre-gate
    upstream connections settled; wait at least 600 uninterrupted idle seconds
    (honoring a larger advertised TTL), recheck at the boundary, then disable and
    stop. Work reappearing resets retention. Timeout leaves app running behind
    maintenance; it never forces a turn or declares success on timeout.
-5. Mike must have paused/closed **all private lab tabs after work finished**.
-   `python3 HELPER gate-lab --owner-idle` requires this explicit operator
+5. Mike must have **CLOSED all private lab tabs after work finished**. Merely
+   pausing activity is insufficient: paused tabs still poll every two seconds
+   and send presence heartbeats every fifteen seconds.
+   `python3 -u HELPER gate-lab --owner-idle` requires this explicit operator
    assertion and still checks actual sessions, labeled containers, cgroup child
    processes and upstream connections for 60 continuous idle seconds. This
-   exceeds the reviewed lab presence TTL of 45 seconds. It does not change any
+   exceeds the reviewed lab presence TTL of 45 seconds. The total quiet-check
+   deadline is 300 seconds to allow existing keepalive connections to expire
+   before the 60-second interval. Continued polling still causes refusal;
+   increasing this deadline does not relax any idle/connection check.
+   It does not change any
    session/pending flag or make a control/presence API call. Gating mid-turn
    would expire browser presence and cancel work; therefore it is refused.
-6. `python3 HELPER stop-lab`: final idle/gate/identity checks, then disable/stop.
+6. `python3 -u HELPER stop-lab`: final idle/gate/identity checks, then disable/stop.
    Pending human inputs are preserved. Network/Docker units are recorded but
    not stopped/disabled by this helper. `status` shows phases and safe unit data.
 7. Proceed with chess drain helpers and consistent offline backups/snapshot;
@@ -94,9 +102,22 @@ Do not launch concurrent commands: the operation lock is intentionally exclusive
 ## Validation
 
 `python -m unittest discover -s web-service/tests -p test_gpt2_maintenance.py`
-passed 25 tests locally. It covers scoped config changes/restoration with unrelated edits, invalid/duplicate
+passed 28 tests locally. It covers scoped config changes/restoration with unrelated edits, invalid/duplicate
 layouts, public queue/connection retention and boundary races, owner assertion
 plus actual lab quiescence, refusal to stop busy/ungated apps, and explicit
 reopening acknowledgement. Full live candidate adaptation/validation and
 read-only `check` should be run from the staged helper before the maintenance
 heads-up; do not confuse source-only test results with a completed live drain.
+
+## November 16 quiet-check refinement
+
+The initial 120-second private quiet check correctly refused to gate while
+upstream traffic continued. Source review confirms the paused UI keeps polling;
+the HTTP/1.1 backend uses a 15-second socket timeout, so recently active bytes
+are more consistent with an open tab than a long-unused connection. Source:
+`gpt2_local/web/codex.html` polling/presence timers and
+`gpt2_local/codex_chat.py` handler setup. Idle session records, even alongside
+an owner's pause assertion, do not exclude an in-flight mutation/Resume request.
+Keep the settled-connection and real worker/container checks; do not infer
+quiescence from SQLite status alone. This local helper refinement must not
+replace or interrupt an already-running public retention process.

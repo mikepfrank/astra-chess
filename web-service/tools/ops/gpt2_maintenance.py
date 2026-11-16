@@ -53,6 +53,10 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def progress(message):
+    print(message, flush=True)
+
+
 def command(args, *, user=None, timeout=30):
     if user:
         require(user in {"astra", "gpt-2"}, "Unexpected execution account")
@@ -385,9 +389,9 @@ def settled(name):
     return not any(line.split()[0] not in {"LISTEN", "TIME-WAIT"} for line in raw.splitlines())
 
 
-def retain_public(observe, connections_settled, *, timeout=1200, clock=time.monotonic, sleep=time.sleep, emit=print):
+def retain_public(observe, connections_settled, *, timeout=1200, clock=time.monotonic, sleep=time.sleep, emit=progress):
     """Pure/injectable retention policy. Never infer success from timeout."""
-    deadline, since = clock() + timeout, None
+    deadline, since, next_report = clock() + timeout, None, clock()
     while True:
         data = observe()
         queue = data.get("queue")
@@ -406,21 +410,32 @@ def retain_public(observe, connections_settled, *, timeout=1200, clock=time.mono
         if since is not None and clock() - since >= ttl:
             require(observe().get("queue") == {"waiting": 0, "running": False}, "Queue changed at retention boundary")
             return ttl
+        if clock() >= next_report:
+            elapsed = int(clock() - since) if since is not None else 0
+            emit("Public queue waiting %d, running %s; retained idle %ds/%ds." %
+                 (queue["waiting"], queue["running"], elapsed, ttl))
+            next_report = clock() + 30
         require(clock() < deadline, "Public drain/retention timed out; service remains running behind its gate")
         sleep(min(5, deadline - clock()))
 
 
-def quiet_lab(state, *, timeout=120, clock=time.monotonic, sleep=time.sleep):
-    deadline, since = clock() + timeout, None
+def quiet_lab(state, *, timeout=300, clock=time.monotonic, sleep=time.sleep, emit=progress):
+    deadline, since, next_report = clock() + timeout, None, clock()
     expected = state["services"][LAB]["identity"]
     while True:
         require(identity(unit(LAB)) == expected, "Lab restarted during idle check")
         data = lab_activity()
         # Wait longer than the reviewed 45s browser-presence TTL, with tabs already closed.
-        idle = data["idle"] and settled(LAB)
+        connections_settled = settled(LAB)
+        idle = data["idle"] and connections_settled
         since = clock() if idle and since is None else since if idle else None
         if since is not None and clock() - since >= 60:
             return
+        if clock() >= next_report:
+            elapsed = int(clock() - since) if since is not None else 0
+            emit("Private lab work idle %s; upstream connections settled %s; quiet %ds/60s. All lab tabs must be CLOSED." %
+                 (data["idle"], connections_settled, elapsed))
+            next_report = clock() + 30
         require(clock() < deadline, "Private lab is not quiet; no gate/stop performed")
         sleep(min(5, deadline - clock()))
 
@@ -450,7 +465,7 @@ def gate(state, name, owner_idle):
     require(item["phase"] in {"prepared", "gated"}, "Service is not in a gateable phase")
     require(identity(unit(name)) == item["identity"], "GPT-2 process changed since preparation")
     if name == LAB:
-        require(owner_idle, "Private lab requires owner-confirmed tabs closed/paused after work finished")
+        require(owner_idle, "Private lab requires owner-confirmed ALL tabs CLOSED after work finished; paused tabs still poll")
         quiet_lab(state)
     with lock(PROXY_LOCK):
         if name == LAB:
@@ -551,7 +566,7 @@ def check():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("check", "prepare", "status", "gate-public", "gate-lab", "stop-public", "stop-lab", "start-public", "start-lab", "reopen"))
-    parser.add_argument("--owner-idle", action="store_true", help="Operator confirmed private lab tabs closed/paused only after their work finished")
+    parser.add_argument("--owner-idle", action="store_true", help="Operator confirmed ALL private lab tabs CLOSED only after work finished; paused tabs still poll")
     parser.add_argument("--validated", action="store_true", help="Operator completed required regression/isolation checks")
     parser.add_argument("--timeout", type=int, default=1200)
     args = parser.parse_args()
