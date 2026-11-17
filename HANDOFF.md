@@ -1,5 +1,28 @@
 # Handoff: Arcturus development worktree
 
+## November 17: drain and backup complete — paused for Mike's fresh snapshot
+
+Mike resumed the flow and confirmed all private lab tabs closed. All four apps
+and both chess notifier timers are now stopped/boot-disabled with fresh retained
+maintenance checkpoints and verified HTTPS gates. Public GPT-2's full 600-second
+retention, private lab's strict quiet check and both chess quiet intervals passed.
+No guard bypass, pending-input deletion or runtime candidate activation.
+
+Fresh root-private backup `/var/backups/chess-security/20261117T174804Z` completed,
+hashed and fsynced successfully: 821 SQLite checks passed; 101,160 archive members.
+The new read-only verifier passed on-host: private modes/ownership, artifact
+sizes, seven key archived files versus stopped live files, Docker tag/config ID.
+19 local backup guard/verifier tests passed. See
+[checkpoint and evidence](web-service/validation/2026-11-17-runtime-window/maintenance-progress.md).
+
+**Pause for Mike's AWS console step:** stop `MPF_Lightsail_16GB`, create
+`MPF_Lightsail_16GB-pre-runtime-2026-11-17`, wait for completion, start the same
+instance and confirm SSH. Static IPv4 is `16.145.194.176`. Do not invoke up helpers
+yet; preserve prior snapshot/backup. After confirmation verify stopped checkpoints
+and staged artifacts survived boot, then proceed with controlled runtime updates
+and regressions, retaining major-stage pauses. Do not repeat the OS upgrade or
+unlock Astra's independent new-game pause. Codex migration remains separate.
+
 ## November 17: preparation recheck complete — leave services running
 
 Mike authorized **step 1 only** before bed; deployment/downtime remains paused

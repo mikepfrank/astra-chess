@@ -1,0 +1,41 @@
+{
+  "backup_directory": "/var/backups/chess-security/20261117T174804Z",
+  "complete": true,
+  "archive_members": 101160,
+  "sqlite": {
+    "astra": {
+      "checked": 299,
+      "all_ok": true
+    },
+    "or-chess": {
+      "checked": 438,
+      "all_ok": true
+    },
+    "gpt-2": {
+      "checked": 84,
+      "all_ok": true
+    }
+  },
+  "files": {
+    "applications.tar": {
+      "bytes": 11832238080,
+      "sha256": "d43db9f8959baa8db9cbdd54c197b1e9c2038ad078a20352390f4f7ab70e639a"
+    },
+    "gpt2-codex-image.tar": {
+      "bytes": 715110912,
+      "sha256": "6fb6d8d28a56fe1e4c8cecc9f815571725384ddac8af513a1745e7d83d29a07f"
+    },
+    "rpm-inventory.txt": {
+      "bytes": 26738,
+      "sha256": "6f85c5c0a1ff38964e0a04873664102d88334febff3a81ba03d0a4d9749e364d"
+    },
+    "installed-units.txt": {
+      "bytes": 21465,
+      "sha256": "f45f4056ba6f8f1f4f82ad04fdedf9313a4d2eef7ca50c46dfe925a1248c447d"
+    },
+    "iptables.txt": {
+      "bytes": 2095,
+      "sha256": "90301759aa08138777a9fceb08f90929602c6c874ff38f02beb22fabee2b3793"
+    }
+  }
+}

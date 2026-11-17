@@ -1,0 +1,17 @@
+{
+  "checked_at_utc": "2026-11-17T17:48:35.768026+00:00",
+  "all_scoped_maintenance_gates_verified": true,
+  "units": {
+    "astra-chess.service": {"MainPID": "0", "ActiveState": "inactive", "UnitFileState": "disabled"},
+    "or-chess.service": {"MainPID": "0", "ActiveState": "inactive", "UnitFileState": "disabled"},
+    "gpt2-public.service": {"MainPID": "0", "ActiveState": "inactive", "UnitFileState": "disabled"},
+    "gpt2-codex.service": {"MainPID": "0", "ActiveState": "inactive", "UnitFileState": "disabled"},
+    "astra-game-notify.timer": {"ActiveState": "inactive", "UnitFileState": "disabled"},
+    "or-chess-game-notify.timer": {"ActiveState": "inactive", "UnitFileState": "disabled"},
+    "astra-game-notify.service": {"MainPID": "0", "ActiveState": "inactive", "UnitFileState": "static"},
+    "or-chess-game-notify.service": {"MainPID": "0", "ActiveState": "inactive", "UnitFileState": "static"},
+    "gpt2-preview.service": {"MainPID": "0", "ActiveState": "inactive", "UnitFileState": "static"}
+  },
+  "all_checkpoints_stopped": true,
+  "no_private_lab_sandboxes": true
+}
