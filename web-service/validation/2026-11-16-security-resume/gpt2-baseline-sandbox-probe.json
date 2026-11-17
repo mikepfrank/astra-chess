@@ -1,0 +1,40 @@
+{
+  "checked_at_utc": "2026-11-17T00:59:58.005896+00:00",
+  "image": "gpt2-codex-runtime:0.154.0",
+  "scope": "Post-OS baseline-image only; no network, credentials, host mounts or model turns",
+  "probe": {
+    "uid": 1015,
+    "credentials_inherited": false,
+    "security": {
+      "CapEff": "0000000000000000",
+      "NoNewPrivs": "1",
+      "Seccomp": "2"
+    },
+    "root_write_blocked": true,
+    "root_write_errno": 30,
+    "nested_bubblewrap": {
+      "exit_code": 0,
+      "stderr": ""
+    },
+    "codex_linux_sandbox": {
+      "exit_code": 0,
+      "stderr": ""
+    },
+    "schema": {
+      "exit_code": 0,
+      "file_count": 305,
+      "tree_sha256": "bf9a67cadaa925dc1c8690874b17d39e17abc364b56b9e8cbd3dd074e3255e6c"
+    },
+    "initialize": {
+      "passed": true,
+      "result_keys": [
+        "codexHome",
+        "platformFamily",
+        "platformOs",
+        "userAgent"
+      ],
+      "error": null
+    },
+    "passed": true
+  }
+}

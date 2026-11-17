@@ -1,5 +1,22 @@
 # Handoff: Arcturus development worktree
 
+## November 16 evening: all four services resumed; private updates still pending
+
+Mike requested resumption after the OS upgrade, accepting troubleshooting as
+needed. Astra, Arcturus, public GPT-2 and private GPT-2/Codex are now live and
+boot-enabled; both chess notification timers restored and jobs have succeeded.
+The reviewed up/reopen helpers archived all active maintenance checkpoints.
+Public HTTPS checks pass from the host and laptop. Chess sandbox preflights,
+a short GPT-2 generation/stream/result/export test and the original container's
+no-key sandbox/initialization checks passed. No paid provider tests ran.
+Astra's independent new-game pause remains intact.
+
+**Pending:** staged private Python/certifi, Caddy and container-image updates
+were not activated; Codex promotion also remains separate. These tasks need a
+new coordinated drain now that services are live. Do not reuse the historical
+stopped-service assumption/checkpoints below. Keep the snapshot/backup.
+See [resumption details and evidence](web-service/validation/2026-11-16-security-resume/README.md).
+
 ## November 16: OS upgrade/reboot verified — paused before runtime activation
 
 Mike confirmed snapshot `MPF_Lightsail_16GB-pre-security-2026-11-16`, attached

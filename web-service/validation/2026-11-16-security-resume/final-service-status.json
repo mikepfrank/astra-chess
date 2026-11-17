@@ -1,0 +1,145 @@
+{
+  "checked_utc": "2026-11-17T01:07:05.322221+00:00",
+  "services": {
+    "astra-chess.service": {
+      "MainPID": "4105",
+      "Result": "success",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    },
+    "or-chess.service": {
+      "MainPID": "4317",
+      "Result": "success",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    },
+    "gpt2-public.service": {
+      "MainPID": "3982",
+      "Result": "success",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    },
+    "gpt2-codex.service": {
+      "MainPID": "4373",
+      "Result": "success",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    },
+    "astra-caddy.service": {
+      "MainPID": "5194",
+      "Result": "success",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    },
+    "astra-game-notify.timer": {
+      "Result": "success",
+      "ActiveState": "active",
+      "SubState": "waiting",
+      "UnitFileState": "enabled"
+    },
+    "or-chess-game-notify.timer": {
+      "Result": "success",
+      "ActiveState": "active",
+      "SubState": "waiting",
+      "UnitFileState": "enabled"
+    }
+  },
+  "https": {
+    "astraplayschess.com": {
+      "/health": {
+        "status": 200,
+        "body_bytes": 11
+      },
+      "/": {
+        "status": 200,
+        "body_bytes": 22174
+      },
+      "/games/": {
+        "status": 200,
+        "body_bytes": 1870
+      },
+      "/monitor/": {
+        "status": 200,
+        "body_bytes": 3236
+      }
+    },
+    "arcturuschess.com": {
+      "/health": {
+        "status": 200,
+        "body_bytes": 11
+      },
+      "/": {
+        "status": 200,
+        "body_bytes": 24397
+      },
+      "/games/": {
+        "status": 200,
+        "body_bytes": 1884
+      },
+      "/monitor/": {
+        "status": 200,
+        "body_bytes": 3970
+      }
+    },
+    "arcturus.astraplayschess.com": {
+      "/health": {
+        "status": 200,
+        "body_bytes": 11
+      },
+      "/": {
+        "status": 200,
+        "body_bytes": 24397
+      },
+      "/games/": {
+        "status": 200,
+        "body_bytes": 1884
+      },
+      "/monitor/": {
+        "status": 200,
+        "body_bytes": 3970
+      }
+    },
+    "gpt2-public.service": {
+      "health_status": 200,
+      "maintenance_header_absent": true
+    },
+    "gpt2-codex.service": {
+      "health_status": 200,
+      "maintenance_header_absent": true
+    }
+  },
+  "active_checkpoints_absent": true,
+  "astra_new_game_pause_preserved": true,
+  "failed_units": "",
+  "notification_jobs": {
+    "astra-game-notify.service": {
+      "Result": "success",
+      "ExecMainExitTimestamp": "Tue 2026-11-17 01:02:57 UTC",
+      "ExecMainStatus": "0",
+      "ActiveState": "inactive"
+    },
+    "or-chess-game-notify.service": {
+      "Result": "success",
+      "ExecMainExitTimestamp": "Tue 2026-11-17 01:05:06 UTC",
+      "ExecMainStatus": "0",
+      "ActiveState": "inactive"
+    }
+  },
+  "application_error_entries_since_resume": {
+    "astra-chess.service": 0,
+    "or-chess.service": 0,
+    "gpt2-public.service": 0,
+    "gpt2-codex.service": 0
+  },
+  "complete": true
+}

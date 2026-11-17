@@ -1,0 +1,33 @@
+{
+  "checked_at_utc": "2026-11-17T01:01:34.108410+00:00",
+  "scope": "One synthetic 16-token-cap GPT-2 generation via live loopback backend while public POSTs remain gated; no paid API, no browser-owned chat access",
+  "health_model": {
+    "id": "openai-community/gpt2-xl",
+    "revision": "15ea56dee5df4983c59b2538573817e1667135e2",
+    "context_tokens": 1024,
+    "precision": "FP32",
+    "device": "cpu"
+  },
+  "streaming": true,
+  "post_status": 202,
+  "sse_content_type": "text/event-stream; charset=utf-8",
+  "sse_event_types": [
+    "progress",
+    "progress",
+    "progress",
+    "progress",
+    "progress",
+    "progress",
+    "progress",
+    "complete"
+  ],
+  "completed_turns": 1,
+  "repeat_result_unchanged": true,
+  "export_import_roundtrip": true,
+  "queue_after": {
+    "waiting": 0,
+    "running": false
+  },
+  "elapsed_seconds": 40.482,
+  "passed": true
+}

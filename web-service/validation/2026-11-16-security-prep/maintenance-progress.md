@@ -1,4 +1,13 @@
-# Maintenance progress — OS stage complete; paused before runtime activation
+# Maintenance progress — services resumed; private updates remain pending
+
+## November 16 evening: services reopened at Mike's request
+
+All four apps and both notification timers are active/boot-enabled again;
+reviewed lifecycle helpers archived the old maintenance checkpoints. Focused
+checks passed. Private runtime/certifi/Caddy/image candidates remain inactive.
+See [the current resumption record](../2026-11-16-security-resume/README.md).
+Future activation requires a fresh coordinated drain; the stopped-state
+instructions below are historical and must not be assumed current.
 
 ## November 16 evening: snapshot, OS upgrade and reboot complete
 
