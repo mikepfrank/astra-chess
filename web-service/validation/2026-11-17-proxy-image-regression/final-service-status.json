@@ -1,0 +1,61 @@
+{
+  "checked_at_utc": "2026-11-17T20:35:50.454083+00:00",
+  "units": {
+    "astra-chess.service": {
+      "MainPID": "10123",
+      "Result": "success",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "UnitFileState": "disabled"
+    },
+    "or-chess.service": {
+      "MainPID": "10124",
+      "Result": "success",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "UnitFileState": "disabled"
+    },
+    "gpt2-public.service": {
+      "MainPID": "9959",
+      "Result": "success",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "UnitFileState": "disabled"
+    },
+    "gpt2-codex.service": {
+      "MainPID": "10059",
+      "Result": "success",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "UnitFileState": "disabled"
+    },
+    "astra-caddy.service": {
+      "MainPID": "7314",
+      "Result": "success",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    "astra-game-notify.timer": {
+      "Result": "success",
+      "ActiveState": "inactive",
+      "UnitFileState": "disabled"
+    },
+    "or-chess-game-notify.timer": {
+      "Result": "success",
+      "ActiveState": "inactive",
+      "UnitFileState": "disabled"
+    }
+  },
+  "error_priority_journal_entries_since_start": {
+    "astra-chess.service": 0,
+    "or-chess.service": 0,
+    "gpt2-public.service": 0,
+    "gpt2-codex.service": 0,
+    "astra-caddy.service": 0
+  },
+  "failed_units": 0,
+  "private_sandbox_firewall_preserved": true,
+  "private_sandbox_ipv6_disabled": true,
+  "private_sandbox_icc_disabled": true
+}

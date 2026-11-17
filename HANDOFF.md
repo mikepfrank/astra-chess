@@ -1,5 +1,46 @@
 # Handoff: Arcturus development worktree
 
+## November 17: proxy/image and gated regressions complete — PAUSE BEFORE REOPEN
+
+Mike authorized the next update/regression stage. Caddy 2.11.9 is activated;
+the private GPT-2 launcher selects immutable image
+`sha256:cd4677302c525c03f02fefe65da2944ec07c6d4bb52aa0bf611a54dc504e71d1`.
+Original binary, launcher and old image/tag remain for rollback. Configuration,
+Astra new-game restriction and sandbox policy are preserved. Versioned November
+17 backup helpers now cover GPT-2's venv symlink targets and new image/launcher;
+their stopped-state preflight passed. No new full archive was created.
+
+Both chess services passed two paid disposable move actions with thread
+continuation; notifier dry runs sent no mail and preserved delivery state.
+The corrected isolated private-lab test passed in 13.557 seconds: six provider
+requests, $0.023614 charged to its separate development ledger, two explicit
+comments, native workspace proof and thread callback. Production private DB
+bytes were unchanged and its budget ledger was not written. Earlier login-shell
+and `_thread` fixture corrections made zero provider calls.
+
+**All four applications are active behind maintenance gates and boot-disabled;
+both notification timers/jobs remain inactive. Pause before reopening.**
+Real-process runtime/TLS checks passed, as did direct health/board/config/monitor/
+game-list/replay routes and expected unauthenticated API denial. Public GPT-2
+completed one 16-token-cap generation (10 output tokens), HTTPS progress/complete
+streaming, stable result retrieval and export/import in 28.007 seconds; queue
+returned idle. Private lab retains its baseline 18 idle sessions and six pending
+human inputs, with zero children/containers; no pending inputs were edited.
+All 55 focused helper tests passed. Configuration, gates and process identities
+were preserved during the checks. Final 20:35:50 UTC (14:35:50 Chicago) inspection
+found zero automatic app restarts, no failed units and no app/Caddy error-priority
+journal entries since 20:29 UTC; GPT-2 firewall/network isolation remains intact.
+
+No new snapshot is needed. After Mike's next explicit continuation, use reviewed
+`astra-up.sh` / `arcturus-up.sh` to restore their routes/boot/timers, then GPT-2
+maintenance `reopen --validated`. Verify public HTTPS, enablement and logs.
+Never unlock Astra's separate October 11 new-game restriction. Codex 0.154.0
+remains unchanged and its possible migration is a separate future audit.
+Tests cover two move actions/thread continuation, not full games, authenticated
+monitor interaction or real mail delivery; notifier checks were dry runs only.
+
+See [current stage and evidence](web-service/validation/2026-11-17-proxy-image-regression/README.md).
+
 ## November 17: Python/certificate environments promoted — paused before proxy/image
 
 Mike confirmed fresh pre-runtime snapshot and restart. Post-boot OS/kernel,

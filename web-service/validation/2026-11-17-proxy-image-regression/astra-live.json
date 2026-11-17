@@ -1,0 +1,36 @@
+{
+  "mode": "astra-live",
+  "passed": true,
+  "result": {
+    "turns": [
+      {
+        "ply": 1,
+        "moves": [
+          "e4"
+        ],
+        "thread_saved": true,
+        "worker": {
+          "state": "idle",
+          "message": ""
+        },
+        "public_messages": 1
+      },
+      {
+        "ply": 3,
+        "moves": [
+          "e4",
+          "a6",
+          "d4"
+        ],
+        "thread_saved": true,
+        "worker": {
+          "state": "idle",
+          "message": ""
+        },
+        "public_messages": 2
+      }
+    ],
+    "paid_provider_actions": 2,
+    "disposable_game_only": true
+  }
+}

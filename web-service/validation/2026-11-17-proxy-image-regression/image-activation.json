@@ -1,0 +1,11 @@
+{
+  "component": "image",
+  "applied": true,
+  "placement": "activated",
+  "live_path": "/usr/local/libexec/gpt2-codex-sandbox",
+  "rollback_path": "/usr/local/libexec/gpt2-codex-sandbox.pre-security-20261117",
+  "active_sha256": "27bb9bcc0039037669acb41e5b129d682ebbd4c7376e8039fc5c011890de8f6e",
+  "apps_started": false,
+  "maintenance_gates_verified": true,
+  "preserved_configuration": true
+}

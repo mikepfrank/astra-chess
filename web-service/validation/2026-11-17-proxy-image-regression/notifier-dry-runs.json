@@ -1,0 +1,22 @@
+[
+  {
+    "mode": "astra-notifier",
+    "passed": true,
+    "result": {
+      "dry_run": true,
+      "queued_games": 0,
+      "state_unchanged": true,
+      "email_sent": false
+    }
+  },
+  {
+    "mode": "arcturus-notifier",
+    "passed": true,
+    "result": {
+      "dry_run": true,
+      "queued_games": 0,
+      "state_unchanged": true,
+      "email_sent": false
+    }
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "component": "caddy",
+  "applied": true,
+  "placement": "activated",
+  "live_path": "/home/astra/.local/bin/caddy",
+  "rollback_path": "/home/astra/.local/bin/caddy.pre-security-20261117",
+  "active_sha256": "e8903acf0e525a53d9ad7c8d72b10bc63b71392ff39f9b7786c15d51a0639d01",
+  "apps_started": false,
+  "maintenance_gates_verified": true,
+  "preserved_configuration": true
+}

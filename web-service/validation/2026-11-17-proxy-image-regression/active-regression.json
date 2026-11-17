@@ -1,0 +1,88 @@
+{
+  "passed": true,
+  "maintenance_gates": true,
+  "configuration_unchanged": true,
+  "process_identities_unchanged": true,
+  "notifier_timers_disabled": true,
+  "apps_boot_disabled": true,
+  "runtime": {
+    "astra-chess.service": {
+      "python": "3.12.16",
+      "openssl": "3.5.9",
+      "certifi": "2026.10.23",
+      "tls_context": true,
+      "running_executable_matches": true
+    },
+    "or-chess.service": {
+      "python": "3.12.16",
+      "openssl": "3.5.9",
+      "certifi": "2026.10.23",
+      "tls_context": true,
+      "running_executable_matches": true
+    },
+    "gpt2-public.service": {
+      "python": "3.12.16",
+      "openssl": "3.5.8",
+      "certifi": "2026.10.23",
+      "tls_context": true,
+      "running_executable_matches": true
+    },
+    "gpt2-codex.service": {
+      "python": "3.12.16",
+      "openssl": "3.5.8",
+      "certifi": "2026.10.23",
+      "tls_context": true,
+      "running_executable_matches": true
+    }
+  },
+  "chess": {
+    "astra": {
+      "routes": {
+        "/": 200,
+        "/health": 200,
+        "/api/config": 200,
+        "/monitor/": 200,
+        "/api/operator/games": 401,
+        "/api/games": 401,
+        "/games/": 200,
+        "/api/public-replays": 200
+      },
+      "published_replay_checked": true
+    },
+    "arcturus": {
+      "routes": {
+        "/": 200,
+        "/health": 200,
+        "/api/config": 200,
+        "/monitor/": 200,
+        "/api/operator/games": 401,
+        "/api/games": 401,
+        "/games/": 200,
+        "/api/public-replays": 200
+      },
+      "published_replay_checked": true
+    }
+  },
+  "gpt2": {
+    "public_ready": true,
+    "public_queue": {
+      "waiting": 0,
+      "running": false
+    },
+    "private_ready": true,
+    "private_activity": {
+      "sessions": 18,
+      "statuses": {
+        "idle": 18
+      },
+      "pending_human": 6,
+      "containers": 0,
+      "children": 0,
+      "idle": true
+    },
+    "sandbox_network_internal": true
+  },
+  "provider_requests": 0,
+  "sessions_created": 0,
+  "checker_sha256": "d1dd7d4b1356e9df0a0e735e9d19c95c4791e9ed3e96b2dc653ed23508cd07f4"
+}

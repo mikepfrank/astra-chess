@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "scope": "Two paid move actions in a fresh private operator game; no real player game used",
+  "first_action": {"ply": 1, "moves": ["d4"], "thread_saved": true, "worker_state": "idle", "public_messages": 1},
+  "deterministic_test_reply": "a7a6",
+  "second_action": {"ply": 3, "moves": ["d4", "a6", "Bf4"], "thread_saved": true, "worker_state": "idle", "public_messages": 2},
+  "python": "3.12.16",
+  "codex": "0.154.0",
+  "reasoning": "max",
+  "output_token_limit": 32768,
+  "actual_service_started": false,
+  "limit": "Move actions and saved-thread continuation; no separate chat-only action or context compaction was triggered"
+}

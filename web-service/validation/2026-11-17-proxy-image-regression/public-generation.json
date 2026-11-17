@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "generation_posts": 1,
+  "max_new_tokens": 16,
+  "output_tokens": 10,
+  "sse_through_public_https": true,
+  "sse_event_types": [
+    "progress",
+    "progress",
+    "progress",
+    "progress",
+    "progress",
+    "progress",
+    "progress",
+    "progress",
+    "progress",
+    "progress",
+    "progress",
+    "complete"
+  ],
+  "repeat_result_unchanged": true,
+  "export_import_roundtrip": true,
+  "queue_after": {
+    "waiting": 0,
+    "running": false
+  },
+  "elapsed_seconds": 28.007,
+  "probe_sha256": "8c8b25f9866b59df9b12e9c9e27aef2fc00d6b8fb4f870a56ded33ffdcf8c5db"
+}

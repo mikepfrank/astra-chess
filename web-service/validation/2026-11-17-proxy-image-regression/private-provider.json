@@ -1,0 +1,12 @@
+{
+  "native_workspace_proof": true,
+  "explicit_comment_tool": true,
+  "explicit_comments": 2,
+  "internal_thread_callback_acknowledged": true,
+  "development_budget": {"utc_day":"2026-11-17","daily_limit_usd":1.0,"charged_usd":0.023614,"unsettled_reserved_usd":0.0,"remaining_usd":0.976386,"requests":6,"unknown_usage_requests":0},
+  "production_ledger_written": false,
+  "passed": true,
+  "production_database_bytes_unchanged": true,
+  "elapsed_seconds": 13.557,
+  "probe_sha256":"826037bd0cbd5ea638a23427125a5ae7e995b48e0d741af595f1086ef3f0941a"
+}
