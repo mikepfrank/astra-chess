@@ -1,0 +1,204 @@
+{
+  "checked_utc": "2026-11-17T00:27:51.432174+00:00",
+  "kernel": "6.1.190-237.442.amzn2023.x86_64",
+  "release": "Amazon Linux release 2023.12.20261112 (Amazon Linux)",
+  "boot_id": "eef9e146-ab6b-412b-b612-7ddea76f6c3c",
+  "failed_units": "",
+  "units": {
+    "astra-chess.service": {
+      "MainPID": "0",
+      "Result": "success",
+      "ActiveState": "inactive",
+      "SubState": "dead",
+      "UnitFileState": "disabled"
+    },
+    "or-chess.service": {
+      "MainPID": "0",
+      "Result": "success",
+      "ActiveState": "inactive",
+      "SubState": "dead",
+      "UnitFileState": "disabled"
+    },
+    "gpt2-public.service": {
+      "MainPID": "0",
+      "Result": "success",
+      "ActiveState": "inactive",
+      "SubState": "dead",
+      "UnitFileState": "disabled"
+    },
+    "gpt2-codex.service": {
+      "MainPID": "0",
+      "Result": "success",
+      "ActiveState": "inactive",
+      "SubState": "dead",
+      "UnitFileState": "disabled"
+    },
+    "astra-game-notify.timer": {
+      "Result": "success",
+      "ActiveState": "inactive",
+      "SubState": "dead",
+      "UnitFileState": "disabled"
+    },
+    "or-chess-game-notify.timer": {
+      "Result": "success",
+      "ActiveState": "inactive",
+      "SubState": "dead",
+      "UnitFileState": "disabled"
+    },
+    "astra-caddy.service": {
+      "MainPID": "1951",
+      "Result": "success",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    },
+    "docker.service": {
+      "MainPID": "1960",
+      "Result": "success",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    },
+    "containerd.service": {
+      "MainPID": "1791",
+      "Result": "success",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "disabled"
+    },
+    "gpt2-codex-network.service": {
+      "MainPID": "0",
+      "Result": "success",
+      "ActiveState": "active",
+      "SubState": "exited",
+      "UnitFileState": "enabled"
+    },
+    "sshd.service": {
+      "MainPID": "1957",
+      "Result": "success",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    },
+    "amazon-ssm-agent.service": {
+      "MainPID": "1950",
+      "Result": "success",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    }
+  },
+  "reviewed_rpms": {
+    "count": 274,
+    "missing": [],
+    "comparison": "name/version/release/architecture"
+  },
+  "selected_packages": [
+    "system-release-2023.12.20261112-0.amzn2023.noarch",
+    "kernel-6.1.115-126.197.amzn2023.x86_64",
+    "kernel-6.1.158-180.294.amzn2023.x86_64",
+    "kernel-6.1.190-237.442.amzn2023.x86_64",
+    "amazon-ssm-agent-3.3.5828.0-1.amzn2023.x86_64",
+    "openssl-3.5.8-1.amzn2023.0.4.x86_64",
+    "openssh-server-9.9p1-16.amzn2023.0.1.x86_64",
+    "python3.12-3.12.16-2.amzn2023.0.1.x86_64",
+    "systemd-252.23-15.amzn2023.x86_64",
+    "glibc-2.34-231.amzn2023.0.6.x86_64",
+    "curl-minimal-8.21.0-5.amzn2023.0.5.x86_64",
+    "docker-25.0.18-1.amzn2023.0.3.x86_64",
+    "containerd-2.3.7-1.amzn2023.0.3.x86_64",
+    "runc-1.4.3-1.amzn2023.0.3.x86_64"
+  ],
+  "gates": {
+    "gpt2-public.service": "verified maintenance 503",
+    "gpt2-codex.service": "verified maintenance 503",
+    "astraplayschess.com": "verified maintenance 503",
+    "arcturuschess.com": "verified maintenance 503",
+    "arcturus.astraplayschess.com": "verified maintenance 503"
+  },
+  "docker_network": {
+    "Driver": "bridge",
+    "Internal": true,
+    "EnableIPv6": false,
+    "Options": {
+      "com.docker.network.bridge.enable_icc": "false"
+    },
+    "IPAM": {
+      "Driver": "default",
+      "Options": {},
+      "Config": [
+        {
+          "Subnet": "172.30.97.0/24",
+          "Gateway": "172.30.97.1"
+        }
+      ]
+    }
+  },
+  "firewall": {
+    "scoped_chain": [
+      "-N GPT2-CODEX-INPUT",
+      "-A GPT2-CODEX-INPUT -p tcp -m tcp --dport 8902 -j ACCEPT",
+      "-A GPT2-CODEX-INPUT -j DROP"
+    ],
+    "input_hook_first": true
+  },
+  "production_image": "sha256:9d9274de90e73ba2e215935f0dfbd09eb5c2fe248ba7a6b3052e45969de496fb",
+  "preserved_files": [
+    {
+      "path": "/usr/local/libexec/gpt2-codex-sandbox",
+      "sha256": "4aca8f953ec609268110b46374bab6c30f256143f18d56ca073068a0dafc2cbd",
+      "matches_backup": true
+    },
+    {
+      "path": "/usr/local/libexec/gpt2-codex-network",
+      "sha256": "9fd9532439449e7e6a8d00b4aa38a1616773ecab971a2060220deb02bac12af7",
+      "matches_backup": true
+    },
+    {
+      "path": "/usr/local/libexec/gpt2-codex-cleanup",
+      "sha256": "9eb6d3b8ad8550a50844755c33d6c51debd6735c163de2a950a04867f7b0c595",
+      "matches_backup": true
+    },
+    {
+      "path": "/usr/local/libexec/gpt2-codex-seccomp.json",
+      "sha256": "2731edb3cd1cba35a8a374540ba2114d1cd5f25678485aa6ecd19cbf0eaa7ae2",
+      "matches_backup": true
+    },
+    {
+      "path": "/etc/sudoers.d/gpt2-codex",
+      "sha256": "e3f236bf5a079ca84f111a6025a9a6c5c3438804ecfedc87b28d560186711399",
+      "matches_backup": true
+    },
+    {
+      "path": "/home/astra/.config/astra-chess/Caddyfile",
+      "sha256": "66e66b9153f133230b5f07fec9e9b65e89de085774bae701d1e1af05c54843c7",
+      "matches_backup": true
+    },
+    {
+      "path": "/home/astra/.config/astra-chess/new-games.caddy",
+      "sha256": "d0fc152dd30a6e0b0c2cb94a038d0537c014d49b1732480eb7e0c05a12e2f58c",
+      "matches_backup": true
+    },
+    {
+      "path": "/home/astra/.local/share/astra-chess/new-games-paused",
+      "sha256": "184bb65397d5155ddfda4857347d3e3195d47133b7c4c8ddbf65bd391c6cfcae",
+      "matches_backup": true
+    },
+    {
+      "path": "/var/lib/astra-chess-ops/maintenance.json",
+      "sha256": "eca747c5e9146a040e40c034b5d989d2642d54f3809614ff499438aa56576ddd",
+      "matches_backup": true
+    },
+    {
+      "path": "/var/lib/arcturus-chess-ops/maintenance.json",
+      "sha256": "3ce7d80629af7804b94f6c69673c5609167d83e9a2d7baffff348a86c9e39655",
+      "matches_backup": true
+    },
+    {
+      "path": "/var/lib/gpt2-maintenance-ops/maintenance.json",
+      "sha256": "edd4c751f1d1b80c5a16dc79a5d982a7020f41418f344814c0f1c5867d6c68df",
+      "matches_backup": true
+    }
+  ],
+  "complete": true
+}

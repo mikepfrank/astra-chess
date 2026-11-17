@@ -1,4 +1,15 @@
-# Maintenance progress — backups verified; ready for AWS snapshot
+# Maintenance progress — OS stage complete; paused before runtime activation
+
+## November 16 evening: snapshot, OS upgrade and reboot complete
+
+Mike confirmed the stopped-instance snapshot and same-host restart. The pinned
+OS transaction completed successfully and the host rebooted onto the new
+kernel. All apps and notifier timers remain stopped/disabled; maintenance gates,
+private lab isolation and recovery checkpoints verified. **Current pause is
+before runtime/certifi/Caddy/image activation and regression testing.** See
+[the OS checkpoint](../2026-11-16-security-os/README.md) for versions, evidence,
+warnings resolved, and the exact next stage. The snapshot instructions below
+are historical, completed prerequisites; do not repeat them on resumption.
 
 ## Completed drain/backup checkpoint, November 16, 23:30 UTC
 

@@ -1,5 +1,22 @@
 # Handoff: Arcturus development worktree
 
+## November 16: OS upgrade/reboot verified — paused before runtime activation
+
+Mike confirmed snapshot `MPF_Lightsail_16GB-pre-security-2026-11-16`, attached
+static IP 16.145.194.176, and restart of the same host. The pinned OS upgrade
+completed successfully (252 upgrades, 22 installs), followed by reboot onto
+AL2023 `2023.12.20261112`, kernel `6.1.190-237.442.amzn2023.x86_64`. All 274
+reviewed RPM versions are installed; refreshed package/security checks find no
+remaining updates for that pinned OS release. No failed units; SSH works.
+Maintenance gates and stopped/disabled apps/timers persisted. GPT-2 network,
+firewall, image, launcher/seccomp and saved checkpoints verified; Astra's
+independent new-game pause remains. **Pause here at Mike's requested OS-stage
+checkpoint.** Private Python/certifi/Caddy/image candidates remain inactive;
+regression tests and reopening are next, using the runbook and GPT-2 checklist.
+No model calls/emails or AWS automatic-snapshot configuration changes occurred.
+DNF cleared download-only RPMs after success; retain their checksum manifest.
+See [OS checkpoint and evidence](web-service/validation/2026-11-16-security-os/README.md).
+
 ## November 16: drain/backups complete — pause for AWS snapshot
 
 Mike found and closed the remaining lab page. The strict private-lab quiet

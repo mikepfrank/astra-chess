@@ -1,0 +1,44 @@
+{
+  "checked_utc": "2026-11-17T00:28:30.963331+00:00",
+  "remaining_package_updates": {
+    "command": ["dnf", "--releasever=2023.12.20261112", "--refresh", "check-update"],
+    "returncode": 0,
+    "packages_listed": 0
+  },
+  "remaining_security_advisories": {
+    "command": ["dnf", "--releasever=2023.12.20261112", "updateinfo", "list", "--security", "--available"],
+    "returncode": 0,
+    "advisories_listed": 0
+  },
+  "dependency_check": {"command": ["dnf", "check"], "returncode": 0, "output": ""},
+  "rpm_database_check": {"command": ["rpm", "--verifydb"], "returncode": 0, "output": ""},
+  "ssh_syntax": {"command": ["sshd", "-t"], "returncode": 0, "output": ""},
+  "ssh_effective": {
+    "permitrootlogin": "without-password",
+    "pubkeyauthentication": "yes",
+    "passwordauthentication": "no",
+    "kbdinteractiveauthentication": "no",
+    "permitemptypasswords": "no"
+  },
+  "transaction": {
+    "started_utc": "2026-11-17T00:21:04.619951+00:00",
+    "command": ["/usr/bin/dnf", "--releasever=2023.12.20261112", "upgrade", "--assumeyes"],
+    "snapshot_confirmed_by_owner": "MPF_Lightsail_16GB-pre-security-2026-11-16",
+    "backup": "/var/backups/chess-security/20261116T232418Z",
+    "exit_code": 0,
+    "finished_utc": "2026-11-17T00:25:06.035008+00:00"
+  },
+  "before_reboot": {
+    "boot_id": "279c626f-af17-4e11-b0aa-cf90c8d155b4",
+    "kernel": "6.1.158-180.294.amzn2023.x86_64",
+    "reboot_scheduled_utc": "2026-11-17T00:25:38.856998+00:00"
+  },
+  "boot_changed": true,
+  "ssh_config_followup": {
+    "sshd_rpmnew_present": true,
+    "active_directive_keys_differ": ["authorizedkeyscommand", "authorizedkeyscommanduser", "trustedusercakeys"],
+    "original_sshd_config_matches_backup": true,
+    "rpm_database_path": "/var/lib/rpm",
+    "selinux_mode": "Permissive"
+  }
+}
