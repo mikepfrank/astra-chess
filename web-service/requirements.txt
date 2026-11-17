@@ -1,8 +1,9 @@
 # Resolved and tested on Python 3.12, 2026-09-09.
+# Security refresh staged on Python 3.12.16, 2026-11-15: certifi only.
 annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.15.1
-certifi==2026.7.22
+certifi==2026.10.23
 # Rules and notation for standalone replay export only; not the playing engine.
 chess==1.11.2
 click==8.5.0
