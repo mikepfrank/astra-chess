@@ -1,0 +1,48 @@
+{
+  "checks": {
+    "service_user": true,
+    "openrouter_key_present": true,
+    "openai_keys_absent": true,
+    "application_path": true,
+    "data_path": true,
+    "codex_path": true,
+    "shared_budget_path": true,
+    "fixed_profile": true,
+    "bounded_codex_workers": true,
+    "https_origin": true,
+    "legacy_origin_alias": true,
+    "python_312": true,
+    "arcturus_prompt": true,
+    "existing_private_budget": true,
+    "password_hashing": true,
+    "repository_readable": true,
+    "codex_bundle": true,
+    "operator_and_production_files_hidden": true,
+    "source_read_only": true,
+    "runtime_read_only": true,
+    "private_data_writable": true,
+    "memory_limit": true,
+    "process_limit": true,
+    "cpu_limit": true,
+    "nice_priority": true,
+    "reviewed_codex_version": true
+  },
+  "limits": {
+    "memory.max": "2147483648",
+    "pids.max": "128",
+    "cpu.max": "200000 100000"
+  },
+  "runtime": {
+    "profile_version": 4,
+    "reasoning": "max",
+    "max_workers": 2,
+    "max_output_tokens": 32768,
+    "context_window": 1310720,
+    "compact_limit": 250000,
+    "max_turn_tokens": 2000000,
+    "max_daily_tokens": 200000000
+  },
+  "python": "3.12.16",
+  "sqlite": "3.53.1",
+  "codex": "codex-cli 0.154.0"
+}

@@ -1,0 +1,148 @@
+{
+  "audit_directory": "/home/or-chess/.local/share/or-chess/operator-checks/wire/model-wire-0t8qpdl4",
+  "external_provider_contacted": false,
+  "real_credentials_inherited": false,
+  "candidate_version": "0.154.0",
+  "catalog_configured": false,
+  "request_captured": true,
+  "expected_reasoning": "max",
+  "expected_max_output_tokens": 32768,
+  "restrict_builtins_probe": false,
+  "through_gateway": true,
+  "request_path": "/api/v1/responses",
+  "instructions_match": true,
+  "instructions_sha256": "7fe5defa47e7b34685b465c488af0ae12735d3e99b4e937d67e2278b2a8ac688",
+  "requested_model": "z-ai/glm-5.3-flash:nitro",
+  "reasoning": {
+    "effort": "max"
+  },
+  "stream": true,
+  "max_output_tokens": 32768,
+  "tool_types": [
+    "function",
+    "function",
+    "function",
+    "function",
+    "function",
+    "function",
+    "function"
+  ],
+  "tool_names": [
+    "chess_status",
+    "chess_candidate",
+    "chess_query",
+    "chess_query_details",
+    "chess_critical",
+    "chess_choose",
+    "chess_comment"
+  ],
+  "extra_tool_structure": [],
+  "canonical_schemas_match": {
+    "chess_status": true,
+    "chess_candidate": true,
+    "chess_query": true,
+    "chess_query_details": true,
+    "chess_critical": true,
+    "chess_choose": true,
+    "chess_comment": true
+  },
+  "canonical_schema_differences": {
+    "chess_status": [],
+    "chess_candidate": [],
+    "chess_query": [],
+    "chess_query_details": [],
+    "chess_critical": [],
+    "chess_choose": [],
+    "chess_comment": []
+  },
+  "request_keys": [
+    "client_metadata",
+    "include",
+    "input",
+    "instructions",
+    "max_output_tokens",
+    "model",
+    "parallel_tool_calls",
+    "prompt_cache_key",
+    "reasoning",
+    "store",
+    "stream",
+    "tool_choice",
+    "tools"
+  ],
+  "dummy_auth_verified": true,
+  "seven_chess_tools_only": true,
+  "profile_wire_verified": true,
+  "gateway_request_count": 1,
+  "gateway_budget_check_count": 1,
+  "gateway_evidence": [
+    {
+      "requested_model": "z-ai/glm-5.3-flash:nitro",
+      "observed_model": null,
+      "requested_reasoning": "max",
+      "max_output_tokens": 32768,
+      "profile_version": 4,
+      "request_kind": "chess",
+      "comment_reminder_added": false,
+      "response_id": null,
+      "provider": null,
+      "usage": {},
+      "stream_complete": false,
+      "request_index": 1,
+      "started_at": "2026-11-17T19:09:50.805885+00:00",
+      "request_metadata": {
+        "version": 1,
+        "canonical_payload": {
+          "json_bytes": 27035,
+          "sha256": "0a5c3f75fb26064dc360cc9ccb60c957e41551c2e81300293aa6ac274fdd5a29"
+        },
+        "instructions": {
+          "json_bytes": 18375,
+          "sha256": "31f503c508ab85018306966d78d08839bed1f6c76065bb0b6f8a5733cce5230c"
+        },
+        "tools": {
+          "json_bytes": 3759,
+          "sha256": "bbf47291a22c7f80b12f7f7ff79ef578449fb91d5e721f919b4e40a0bb108ee9",
+          "count": 7
+        },
+        "input": {
+          "json_bytes": 3549,
+          "sha256": "dc1aa603958d66f9e2c3a72a9e99e46ca79b51769f3068fdeeacdc587eaab78a",
+          "format": "list",
+          "count": 3
+        },
+        "previous_response_id_present": false,
+        "categories": {
+          "developer": {
+            "count": 1,
+            "json_bytes": 3159,
+            "sha256": "9c473205db1e8e2e869e74f631d4dea1e8e5e19487ef5191e22d07ec51cc28f5"
+          },
+          "user": {
+            "count": 2,
+            "json_bytes": 386,
+            "sha256": "d6fd4b0eb0975f201d604edeae1ef012990b9ff7905ca1520b2351bbcb0c773e"
+          }
+        },
+        "reasoning_bytes": {
+          "text": 0,
+          "summary": 0,
+          "encrypted": 0
+        }
+      },
+      "instructions_verified": true,
+      "instructions_sha256": "7fe5defa47e7b34685b465c488af0ae12735d3e99b4e937d67e2278b2a8ac688",
+      "upstream_status": 400,
+      "finished_at": "2026-11-17T19:09:50.808781+00:00",
+      "duration_ms": 2.894
+    }
+  ],
+  "gateway_rejections": [
+    {
+      "status": 400,
+      "code": "upstream_http_error",
+      "upstream_status": 400
+    }
+  ],
+  "stage": "complete"
+}

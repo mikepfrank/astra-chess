@@ -1,0 +1,20 @@
+{
+  "placement": "activated",
+  "applied": true,
+  "inventories": {
+    "original": 20634,
+    "candidate": 20635
+  },
+  "runtime": {
+    "python": "3.12.16",
+    "openssl": "OpenSSL 3.5.8 25 Aug 2026",
+    "certifi": "2026.10.23",
+    "base_prefix": "/usr",
+    "package_digest": "a6fbb60f2a026548d60659351070694986d939cfc405964f1afb1ecbd6a352ac",
+    "pip_check": true
+  },
+  "live_path": "/home/gpt-2/.venvs/gpt2-public",
+  "candidate_path": "/home/gpt-2/.venvs/gpt2-public-security-20261116",
+  "rollback_path": "/home/gpt-2/.venvs/gpt2-public-pre-security-20261117",
+  "services_started": false
+}

@@ -1,5 +1,30 @@
 # Handoff: Arcturus development worktree
 
+## November 17: Python/certificate environments promoted — paused before proxy/image
+
+Mike confirmed fresh pre-runtime snapshot and restart. Post-boot OS/kernel,
+maintenance gates, stopped checkpoints and GPT-2 isolation checks passed.
+Both chess venv paths now select their tested private Python 3.12.16/OpenSSL
+3.5.9 environments; both GPT-2 apps select the tested shared certifi venv on OS
+Python 3.12.16/OpenSSL 3.5.8. All four now use certifi 2026.10.23. Original venv
+directories are retained with `pre-security-20261117` names; Astra's old Python
+alias is unchanged. Exact certifi-only source commits are deployed: Astra
+`995a587063bb6a7719f53965f85a4dacfeac5f9c`, Arcturus
+`fa184aba3a212fb542d59ef3592c7484b3a96caa` (separate pushed security branches).
+
+24 helper tests, four runtime sandbox checks, both full chess preflights and
+Arcturus's mock-provider wire audit passed. No real model requests/emails.
+**All apps/timers remain stopped and boot-disabled behind maintenance gates.**
+Caddy and GPT-2 container image are still the prior versions. Pause here as
+requested; next promote those two artifacts, then real-process/generation/
+provider/notifier regressions before the separate reopening checkpoint.
+Codex migration remains deferred; never unlock Astra's new-game pause.
+
+See [activation details, rollback paths and evidence](web-service/validation/2026-11-17-python-activation/README.md).
+Before any subsequent backup, refresh the versioned backup helper bundle to
+include GPT-2's now-symlinked candidate/rollback directories and the new image
+identity; the existing pre-runtime archive/snapshot remain valid and retained.
+
 ## November 17: drain and backup complete — paused for Mike's fresh snapshot
 
 Mike resumed the flow and confirmed all private lab tabs closed. All four apps

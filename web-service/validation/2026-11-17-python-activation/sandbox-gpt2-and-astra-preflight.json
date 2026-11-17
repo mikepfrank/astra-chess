@@ -1,0 +1,61 @@
+[
+  {
+    "target": "gpt2-public",
+    "mode": "runtime",
+    "verified": true,
+    "result": {
+      "certifi": "2026.10.23",
+      "expat": "expat_2.8.3",
+      "openssl": "OpenSSL 3.5.8 25 Aug 2026",
+      "python": "3.12.16",
+      "sqlite": "3.40.0",
+      "tiny_tensor": true,
+      "tls_context": true,
+      "torch": "2.14.1+cpu"
+    }
+  },
+  {
+    "target": "gpt2-lab",
+    "mode": "runtime",
+    "verified": true,
+    "result": {
+      "certifi": "2026.10.23",
+      "expat": "expat_2.8.3",
+      "openssl": "OpenSSL 3.5.8 25 Aug 2026",
+      "python": "3.12.16",
+      "sqlite": "3.40.0",
+      "tiny_tensor": true,
+      "tls_context": true,
+      "torch": "2.14.1+cpu"
+    }
+  },
+  {
+    "target": "astra",
+    "mode": "astra-preflight",
+    "verified": true,
+    "result": {
+      "checks": {
+        "service_user": true,
+        "api_key_present": true,
+        "python_312": true,
+        "password_hashing": true,
+        "repository_readable": true,
+        "codex_bundle": true,
+        "operator_files_hidden": true,
+        "source_read_only": true,
+        "private_data_writable": true,
+        "memory_limit": true,
+        "process_limit": true,
+        "cpu_limit": true
+      },
+      "limits": {
+        "memory.max": "2147483648",
+        "pids.max": "64",
+        "cpu.max": "100000 100000"
+      },
+      "python": "3.12.16",
+      "sqlite": "3.53.1",
+      "codex": "codex-cli 0.154.0"
+    }
+  }
+]

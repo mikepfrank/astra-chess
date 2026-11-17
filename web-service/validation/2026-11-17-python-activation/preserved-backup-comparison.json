@@ -1,0 +1,9 @@
+{
+  "verified": true,
+  "artifact_sizes_match_manifest": true,
+  "selected_files_match_stopped_live_files": 7,
+  "comparison_scope": "3 primary databases, 3 maintenance checkpoints, Caddyfile",
+  "docker_tag_and_configuration_digest_verified": true,
+  "full_archive_rehash_performed": false,
+  "scope_note": "Producer hashes are recorded, not recomputed; other archived contents and Docker layers were not byte-compared."
+}

@@ -1,0 +1,21 @@
+{
+  "dependency_only_promotions": {
+    "astra": {
+      "base": "60bc178f3b442a2c333ed35dc304a99e17106b00",
+      "deployed": "995a587063bb6a7719f53965f85a4dacfeac5f9c",
+      "changed_files": [
+        "web-service/requirements.txt"
+      ],
+      "tracked_tree_clean": true
+    },
+    "or-chess": {
+      "base": "a98784cdafacbe5e6616cc55b0e94a34e8056bf2",
+      "deployed": "fa184aba3a212fb542d59ef3592c7484b3a96caa",
+      "changed_files": [
+        "web-service/requirements.txt"
+      ],
+      "tracked_tree_clean": true
+    }
+  },
+  "all_apps_stopped": true
+}

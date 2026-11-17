@@ -1,0 +1,75 @@
+{
+  "checked_at_utc": "2026-11-17T19:10:33.648551+00:00",
+  "units": {
+    "astra-chess.service": {
+      "MainPID": "0",
+      "ActiveState": "inactive",
+      "UnitFileState": "disabled"
+    },
+    "or-chess.service": {
+      "MainPID": "0",
+      "ActiveState": "inactive",
+      "UnitFileState": "disabled"
+    },
+    "gpt2-public.service": {
+      "MainPID": "0",
+      "ActiveState": "inactive",
+      "UnitFileState": "disabled"
+    },
+    "gpt2-codex.service": {
+      "MainPID": "0",
+      "ActiveState": "inactive",
+      "UnitFileState": "disabled"
+    },
+    "astra-game-notify.timer": {
+      "ActiveState": "inactive",
+      "UnitFileState": "disabled"
+    },
+    "or-chess-game-notify.timer": {
+      "ActiveState": "inactive",
+      "UnitFileState": "disabled"
+    },
+    "astra-game-notify.service": {
+      "MainPID": "0",
+      "ActiveState": "inactive",
+      "UnitFileState": "static"
+    },
+    "or-chess-game-notify.service": {
+      "MainPID": "0",
+      "ActiveState": "inactive",
+      "UnitFileState": "static"
+    },
+    "gpt2-preview.service": {
+      "MainPID": "0",
+      "ActiveState": "inactive",
+      "UnitFileState": "static"
+    }
+  },
+  "gates_verified": true,
+  "runtime_paths": {
+    "/home/astra/astra-chess/web-service/.venv": {
+      "target": "/home/astra/.local/share/astra-chess-runtime/venvs/security-20261115",
+      "python": "/home/astra/.local/share/astra-chess-runtime/python/cpython-3.12.16-linux-x86_64-gnu/bin/python3.12"
+    },
+    "/home/or-chess/astra-chess/web-service/.venv": {
+      "target": "/home/or-chess/.local/share/or-chess-runtime/venvs/security-20261115",
+      "python": "/home/or-chess/.local/share/or-chess-runtime/python/cpython-3.12.16-linux-x86_64-gnu/bin/python3.12"
+    },
+    "/home/gpt-2/.venvs/gpt2-public": {
+      "target": "/home/gpt-2/.venvs/gpt2-public-security-20261116",
+      "python": "/usr/bin/python3.12"
+    }
+  },
+  "rollback_directories": [
+    "/home/astra/astra-chess/web-service/.venv-pre-security-20261117",
+    "/home/or-chess/astra-chess/web-service/.venv-pre-security-20261117",
+    "/home/gpt-2/.venvs/gpt2-public-pre-security-20261117"
+  ],
+  "deployed_commits": {
+    "astra": "995a587063bb6a7719f53965f85a4dacfeac5f9c",
+    "or-chess": "fa184aba3a212fb542d59ef3592c7484b3a96caa"
+  },
+  "astra_old_python_alias": "/home/astra/.local/share/astra-chess-runtime/python/cpython-3.12.14-linux-x86_64-gnu",
+  "astra_new_games_paused": true,
+  "failed_units": false
+}

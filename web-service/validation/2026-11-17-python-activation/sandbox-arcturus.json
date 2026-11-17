@@ -1,0 +1,13 @@
+{
+  "target": "arcturus",
+  "mode": "runtime",
+  "verified": true,
+  "result": {
+    "certifi": "2026.10.23",
+    "expat": "expat_2.10.0",
+    "openssl": "OpenSSL 3.5.9 29 Sep 2026",
+    "python": "3.12.16",
+    "sqlite": "3.53.1",
+    "tls_context": true
+  }
+}
