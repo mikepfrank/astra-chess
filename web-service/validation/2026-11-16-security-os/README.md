@@ -106,3 +106,25 @@ snapshot-size forecast. Keep the manual pre-update snapshot through successful
 regression testing. Running-instance automatic snapshots supplement consistent
 application backups; [AWS recommends stopping for snapshot consistency](https://aws.amazon.com/lightsail/faq/).
 No AWS snapshot schedule or other AWS configuration was changed by this stage.
+
+## AWS console warning follow-up
+
+Mike supplied console warnings for PHP CVE-2026-109618/CVE-2026-109619 and
+kernel CVE-2026-98432. Read-only checks at about 00:54 UTC November 17 confirmed
+the booted kernel remains `6.1.190-237.442.amzn2023.x86_64`. AWS's
+[Lightsail kernel guidance](https://docs.aws.amazon.com/lightsail/latest/userguide/update-amazon-linux.html)
+lists `6.1.189-236.400.amzn2023` as the fixed AL2023 6.1 threshold; the host's
+DNF metadata marks [ALAS2023-2026-3365](https://alas.aws.amazon.com/AL2023/ALAS2023-2026-3365.html)
+installed. The update and reboot therefore address this specific warning.
+
+No RPM package containing PHP, PHP executable on the administrative PATH,
+PHP systemd unit or PHP process was found; Caddy has no `php_fastcgi` directive.
+There are no running Docker containers (the old Langfuse/Redis/Postgres containers
+are exited), and the four maintained applications are Python services. No PHP
+usage was identified in the maintained services; this is not an exhaustive
+search of manually copied files in every account or dormant image filesystem.
+[AWS notes](https://docs.aws.amazon.com/lightsail/latest/userguide/amazon-lightsail-update-php-security-vulnerabilities.html)
+that Amazon Linux OS blueprints do not include PHP unless subsequently installed.
+The potential-impact banner alone does not establish PHP presence or an affected
+running kernel. All four apps remain stopped/disabled; no maintenance changes
+were made in this follow-up.
