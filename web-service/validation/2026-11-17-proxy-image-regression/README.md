@@ -1,5 +1,9 @@
 # Proxy/container activation and regressions — complete, services reopened
 
+The [complete two-window upgrade inventory](complete-upgrade-inventory.txt)
+lists all 274 host RPM targets with prior versions, all 15 container package
+updates, Caddy's 112 module differences, and the application runtime changes.
+
 ## Operational restoration completed at Mike's request
 
 At 23:04 UTC November 17, all four apps and both notifier timers are active and

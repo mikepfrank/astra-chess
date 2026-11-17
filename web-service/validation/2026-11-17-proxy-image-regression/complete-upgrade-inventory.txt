@@ -1,0 +1,479 @@
+LIGHTSAIL UPGRADE INVENTORY - NOVEMBER 16-17, 2026
+Historical completed maintenance; compiled from retained before/after evidence.
+Dates below are America/Chicago. This is not a new available-update scan.
+
+WINDOW 1 - HOST OS (November 16 evening)
+Amazon Linux 2023.9.20251208 -> 2023.12.20261112.
+252 upgraded RPMs + 22 installed RPMs = 274 verified target RPMs.
+Booted kernel 6.1.158-180.294.amzn2023 -> 6.1.190-237.442.amzn2023.
+Transaction 18:21-18:25 Chicago; reboot verified at 18:26.
+No remaining package updates/security advisories for the pinned release at post-update check.
+
+WINDOW 2 - PRIVATE RUNTIMES, CERTIFICATES, PROXY AND SANDBOX (November 17)
+Both chess services: private Python 3.12.14 -> 3.12.16.
+Both chess services: bundled OpenSSL 3.5.8 -> 3.5.9; Expat 2.8.4 -> 2.10.0.
+Both chess venvs: pip 25.0.1 -> 26.3; certifi 2026.7.22 -> 2026.10.23.
+Both GPT-2 services: shared venv certifi 2026.7.22 -> 2026.10.23.
+GPT-2 uses OS Python/OpenSSL, already upgraded in window 1 to 3.12.16/3.5.8.
+Caddy shared HTTPS proxy: 2.11.4 -> 2.11.9, custom security build.
+Caddy embedded Go compiler/runtime: 1.26.3 -> 1.27.4.
+Caddy x/net: 0.55.0 -> 0.62.0; klauspost/compress: 1.18.6 -> 1.20.4.
+Caddy module changes are listed in full below; Go build tooling is private staging, not a host-wide default change.
+Private GPT-2 Codex container: Node.js 22.23.3 -> 22.23.5 and 15 Debian packages below.
+Container launcher selects immutable image cd4677302c525c03f02fefe65da2944ec07c6d4bb52aa0bf611a54dc504e71d1.
+
+APPLICATION AND MAINTENANCE CODE
+Astra/Arcturus deployed requirements pins updated only for certifi; no gameplay changes.
+Added/updated guarded activation, shutdown/startup, backup verification, sandbox and regression helpers.
+Updated backup coverage for the new venv symlinks and container identity; retained prior backup scripts.
+All services, startup enablement and notification timers restored; maintenance checkpoints archived.
+
+UNCHANGED / DEFERRED
+Codex CLI remains 0.154.0 for chess and the private lab; 0.169.0 assessment did not promote it.
+Chess SQLite remains 3.53.1; core chess web dependencies and tactical engine unchanged.
+GPT-2 Torch 2.14.1+cpu, Transformers 5.18.0, tokenizers 0.23.2 and other venv packages unchanged.
+GPT-2 model weights/revision, chess models/personas/reasoning settings, games and budgets unchanged.
+No PHP upgrade: no PHP usage was identified in maintained services.
+Astra new-game pause, SSH configuration, sandbox policies and private network/firewall preserved.
+Existing virtual host size was not changed; automatic AWS snapshot scheduling was not changed.
+Original venvs, Caddy binary, launcher, Docker image and pre-maintenance backups/snapshots retained.
+
+FULL HOST RPM TRANSACTION (274)
+Each line: action | name.arch | previous version(s) -> installed version.
+RPM epoch values are omitted; version-release and architecture follow the saved RPM inventory.
+Kernel is an install alongside old retained kernels, not removal of their rollback copies.
+libbpf is a new package name replacing kernel-libbpf; see replacement note after the list.
+
+upgrade | acl.x86_64 | 2.3.1-2.amzn2023.0.2 -> 2.4.0-1.amzn2023.0.1
+upgrade | alsa-lib.x86_64 | 1.2.7.2-1.amzn2023.0.2 -> 1.2.7.2-1.amzn2023.0.5
+upgrade | amazon-chrony-config.noarch | 4.3-1.amzn2023.0.5 -> 4.3-1.amzn2023.0.6
+upgrade | amazon-ec2-net-utils.noarch | 2.7.1-1.amzn2023.0.1 -> 2.7.7-1.amzn2023.0.1
+upgrade | amazon-linux-repo-s3.noarch | 2023.9.20251208-2.amzn2023 -> 2023.12.20261112-0.amzn2023
+upgrade | amazon-linux-sb-keys.noarch | 2023.1-1.amzn2023.0.5 -> 2023.1-1.amzn2023.0.6
+upgrade | amazon-rpm-config.noarch | 228-10.amzn2023.0.1 -> 228-11.amzn2023.0.1
+upgrade | amazon-ssm-agent.x86_64 | 3.3.3050.0-1.amzn2023 -> 3.3.5828.0-1.amzn2023
+upgrade | aws-cfn-bootstrap.noarch | 2.0-37.amzn2023 -> 2.0-42.amzn2023
+upgrade | awscli-2.noarch | 2.32.1-1.amzn2023.0.1 -> 2.38.0-1.amzn2023.0.1
+upgrade | bind-libs.x86_64 | 9.18.33-1.amzn2023.0.4 -> 9.18.50-1.amzn2023.0.5
+upgrade | bind-license.noarch | 9.18.33-1.amzn2023.0.4 -> 9.18.50-1.amzn2023.0.5
+upgrade | bind-utils.x86_64 | 9.18.33-1.amzn2023.0.4 -> 9.18.50-1.amzn2023.0.5
+upgrade | c-ares.x86_64 | 1.19.1-1.amzn2023.0.1 -> 1.19.1-1.amzn2023.0.2
+upgrade | ca-certificates.noarch | 2025.2.76-1.0.amzn2023.0.2 -> 2025.2.76-1.0.amzn2023.0.5
+upgrade | chrony.x86_64 | 4.3-1.amzn2023.0.5 -> 4.3-1.amzn2023.0.6
+upgrade | cloud-utils-growpart.x86_64 | 0.31-8.amzn2023.0.3 -> 0.31-8.amzn2023.0.4
+upgrade | container-selinux.noarch | 2.242.0-1.amzn2023 -> 2.245.0-1.amzn2023
+upgrade | containerd.x86_64 | 2.1.5-1.amzn2023.0.1 -> 2.3.7-1.amzn2023.0.3
+upgrade | coreutils.x86_64 | 8.32-30.amzn2023.0.4 -> 8.32-30.amzn2023.0.5
+upgrade | coreutils-common.x86_64 | 8.32-30.amzn2023.0.4 -> 8.32-30.amzn2023.0.5
+upgrade | crypto-policies.noarch | 20240828-2.git626aa59.amzn2023.0.1 -> 20260224-1.gitea0f072.amzn2023.0.6
+upgrade | crypto-policies-scripts.noarch | 20240828-2.git626aa59.amzn2023.0.1 -> 20260224-1.gitea0f072.amzn2023.0.6
+upgrade | cups-filesystem.noarch | 2.4.14-1.amzn2023.0.1 -> 2.4.20-1.amzn2023.0.1
+upgrade | cups-libs.x86_64 | 2.4.14-1.amzn2023.0.1 -> 2.4.20-1.amzn2023.0.1
+upgrade | curl-minimal.x86_64 | 8.11.1-4.amzn2023.0.3 -> 8.21.0-5.amzn2023.0.5
+upgrade | cyrus-sasl-lib.x86_64 | 2.1.27-18.amzn2023.0.3 -> 2.1.27-18.amzn2023.0.4
+upgrade | cyrus-sasl-plain.x86_64 | 2.1.27-18.amzn2023.0.3 -> 2.1.27-18.amzn2023.0.4
+upgrade | device-mapper.x86_64 | 1.02.185-1.amzn2023.0.5 -> 1.02.185-1.amzn2023.0.6
+upgrade | device-mapper-libs.x86_64 | 1.02.185-1.amzn2023.0.5 -> 1.02.185-1.amzn2023.0.6
+upgrade | dnf.noarch | 4.14.0-1.amzn2023.0.6 -> 4.14.0-1.amzn2023.0.9
+upgrade | dnf-data.noarch | 4.14.0-1.amzn2023.0.6 -> 4.14.0-1.amzn2023.0.9
+upgrade | dnf-plugin-release-notification.noarch | 1.2-1.amzn2023.0.2 -> 1.4-1.amzn2023
+upgrade | dnf-plugin-support-info.noarch | 1.9-1.amzn2023 -> 2.0.0-231.amzn2023
+upgrade | dnf-plugins-core.noarch | 4.3.0-13.amzn2023.0.5 -> 4.3.0-13.amzn2023.0.7
+upgrade | dnf-utils.noarch | 4.3.0-13.amzn2023.0.5 -> 4.3.0-13.amzn2023.0.7
+upgrade | docker.x86_64 | 25.0.13-1.amzn2023.0.2 -> 25.0.18-1.amzn2023.0.3
+upgrade | dracut.x86_64 | 102-3.amzn2023.0.1 -> 102-3.amzn2023.0.4
+upgrade | dracut-config-generic.x86_64 | 102-3.amzn2023.0.1 -> 102-3.amzn2023.0.4
+upgrade | ec2-hibinit-agent.noarch | 1.0.10-0.amzn2023 -> 1.0.12-0.amzn2023
+upgrade | ec2-utils.noarch | 2.2.0-1.amzn2023.0.2 -> 2.3.0-1.amzn2023.0.1
+upgrade | emacs.x86_64 | 28.2-3.amzn2023.0.10 -> 28.2-3.amzn2023.0.13
+upgrade | emacs-common.x86_64 | 28.2-3.amzn2023.0.10 -> 28.2-3.amzn2023.0.13
+upgrade | emacs-filesystem.noarch | 28.2-3.amzn2023.0.10 -> 28.2-3.amzn2023.0.13
+upgrade | enchant2.x86_64 | 2.8.1-2.amzn2023.0.1 -> 2.8.1-2.amzn2023.0.2
+upgrade | expat.x86_64 | 2.6.3-1.amzn2023.0.3 -> 2.8.3-1.amzn2023.0.1
+upgrade | freetype.x86_64 | 2.13.2-5.amzn2023.0.1 -> 2.13.2-5.amzn2023.0.2
+upgrade | gawk.x86_64 | 5.1.0-3.amzn2023.0.3 -> 5.1.0-3.amzn2023.0.4
+install | gawk-all-langpacks.x86_64 | (not installed) -> 5.1.0-3.amzn2023.0.4
+upgrade | gdk-pixbuf2.x86_64 | 2.42.12-180.amzn2023 -> 2.42.12-186.amzn2023
+upgrade | gdk-pixbuf2-modules.x86_64 | 2.42.12-180.amzn2023 -> 2.42.12-186.amzn2023
+upgrade | giflib.x86_64 | 5.2.1-9.amzn2023.0.2 -> 5.2.1-9.amzn2023.0.4
+upgrade | git.x86_64 | 2.50.1-1.amzn2023.0.1 -> 2.50.1-1.amzn2023.0.2
+upgrade | git-core.x86_64 | 2.50.1-1.amzn2023.0.1 -> 2.50.1-1.amzn2023.0.2
+upgrade | git-core-doc.noarch | 2.50.1-1.amzn2023.0.1 -> 2.50.1-1.amzn2023.0.2
+upgrade | glib-networking.x86_64 | 2.80.0-186.amzn2023.0.1 -> 2.80.0-187.amzn2023.0.2
+upgrade | glib2.x86_64 | 2.82.2-767.amzn2023 -> 2.82.2-771.amzn2023
+upgrade | glibc.x86_64 | 2.34-231.amzn2023.0.1 -> 2.34-231.amzn2023.0.6
+upgrade | glibc-all-langpacks.x86_64 | 2.34-231.amzn2023.0.1 -> 2.34-231.amzn2023.0.6
+upgrade | glibc-common.x86_64 | 2.34-231.amzn2023.0.1 -> 2.34-231.amzn2023.0.6
+upgrade | glibc-devel.x86_64 | 2.34-231.amzn2023.0.1 -> 2.34-231.amzn2023.0.6
+upgrade | glibc-gconv-extra.x86_64 | 2.34-231.amzn2023.0.1 -> 2.34-231.amzn2023.0.6
+upgrade | glibc-headers-x86.noarch | 2.34-231.amzn2023.0.1 -> 2.34-231.amzn2023.0.6
+upgrade | glibc-locale-source.x86_64 | 2.34-231.amzn2023.0.1 -> 2.34-231.amzn2023.0.6
+upgrade | gnupg2-minimal.x86_64 | 2.3.7-1.amzn2023.0.5 -> 2.3.7-1.amzn2023.0.9
+upgrade | gnutls.x86_64 | 3.8.3-8.amzn2023.0.1 -> 3.8.10-4.amzn2023.0.2
+upgrade | graphite2.x86_64 | 1.3.14-7.amzn2023.0.2 -> 1.3.14-7.amzn2023.0.3
+upgrade | grub2-common.noarch | 2.06-61.amzn2023.0.20 -> 2.06-61.amzn2023.0.24
+upgrade | grub2-efi-x64-ec2.x86_64 | 2.06-61.amzn2023.0.20 -> 2.06-61.amzn2023.0.24
+upgrade | grub2-pc-modules.noarch | 2.06-61.amzn2023.0.20 -> 2.06-61.amzn2023.0.24
+upgrade | grub2-tools.x86_64 | 2.06-61.amzn2023.0.20 -> 2.06-61.amzn2023.0.24
+upgrade | grub2-tools-minimal.x86_64 | 2.06-61.amzn2023.0.20 -> 2.06-61.amzn2023.0.24
+upgrade | highway.x86_64 | 1.2.0-30.amzn2023.0.1 -> 1.2.0-31.amzn2023.0.2
+upgrade | jq.x86_64 | 1.7.1-51.amzn2023 -> 1.8.1-60.amzn2023
+upgrade | jxl-pixbuf-loader.x86_64 | 0.10.3-54.amzn2023 -> 0.10.3-56.amzn2023
+upgrade | kbd.x86_64 | 2.4.0-2.amzn2023.0.3 -> 2.4.0-2.amzn2023.0.4
+upgrade | kbd-misc.noarch | 2.4.0-2.amzn2023.0.3 -> 2.4.0-2.amzn2023.0.4
+install | kernel.x86_64 | 6.1.115-126.197.amzn2023; 6.1.158-180.294.amzn2023 -> 6.1.190-237.442.amzn2023
+upgrade | kernel-headers.x86_64 | 6.1.158-180.294.amzn2023 -> 6.1.190-237.442.amzn2023
+upgrade | kernel-livepatch-repo-s3.noarch | 2023.9.20251208-2.amzn2023 -> 2023.12.20261112-0.amzn2023
+upgrade | kernel-tools.x86_64 | 6.1.158-180.294.amzn2023 -> 6.1.190-237.442.amzn2023
+upgrade | kmod.x86_64 | 29-2.amzn2023.0.5 -> 29-2.amzn2023.0.6
+upgrade | kmod-libs.x86_64 | 29-2.amzn2023.0.5 -> 29-2.amzn2023.0.6
+upgrade | kpatch-runtime.noarch | 0.9.10-1.amzn2023.0.4 -> 0.9.10-1.amzn2023.0.5
+upgrade | krb5-libs.x86_64 | 1.21.3-6.amzn2023.0.1 -> 1.21.3-8.amzn2023.0.2
+upgrade | lcms2.x86_64 | 2.16-73.amzn2023 -> 2.19-75.amzn2023.0.1
+upgrade | libX11.x86_64 | 1.8.10-2.amzn2023.0.1 -> 1.8.10-2.amzn2023.0.3
+upgrade | libX11-common.noarch | 1.8.10-2.amzn2023.0.1 -> 1.8.10-2.amzn2023.0.3
+upgrade | libX11-xcb.x86_64 | 1.8.10-2.amzn2023.0.1 -> 1.8.10-2.amzn2023.0.3
+upgrade | libXi.x86_64 | 1.8.2-1.amzn2023.0.1 -> 1.8.4-1.amzn2023.0.1
+upgrade | libXpm.x86_64 | 3.5.17-3.amzn2023.0.1 -> 3.5.17-3.amzn2023.0.2
+upgrade | libXrender.x86_64 | 0.9.11-6.amzn2023.0.1 -> 0.9.11-6.amzn2023.0.2
+upgrade | libXtst.x86_64 | 1.2.5-1.amzn2023.0.1 -> 1.2.5-1.amzn2023.0.2
+upgrade | libacl.x86_64 | 2.3.1-2.amzn2023.0.2 -> 2.4.0-1.amzn2023.0.1
+upgrade | libarchive.x86_64 | 3.7.4-2.amzn2023.0.4 -> 3.7.4-2.amzn2023.0.5
+upgrade | libblkid.x86_64 | 2.37.4-1.amzn2023.0.4 -> 2.37.4-1.amzn2023.0.7
+install | libbpf.x86_64 | (not installed) -> 1.6.1-3.amzn2023
+upgrade | libbrotli.x86_64 | 1.0.9-4.amzn2023.0.2 -> 1.1.0-1.amzn2023.0.2
+upgrade | libcap.x86_64 | 2.73-1.amzn2023.0.4 -> 2.73-1.amzn2023.0.8
+upgrade | libcurl-minimal.x86_64 | 8.11.1-4.amzn2023.0.3 -> 8.21.0-5.amzn2023.0.5
+upgrade | libdnf.x86_64 | 0.69.0-8.amzn2023.0.6 -> 0.69.0-8.amzn2023.0.9
+upgrade | libeconf.x86_64 | 0.4.0-1.amzn2023.0.3 -> 0.7.9-1.amzn2023.0.1
+upgrade | libevent.x86_64 | 2.1.12-3.amzn2023.0.3 -> 2.1.12-3.amzn2023.0.4
+upgrade | libfdisk.x86_64 | 2.37.4-1.amzn2023.0.4 -> 2.37.4-1.amzn2023.0.7
+upgrade | libgcrypt.x86_64 | 1.10.2-1.amzn2023.0.2 -> 1.10.2-1.amzn2023.0.3
+upgrade | libjxl.x86_64 | 0.10.3-54.amzn2023 -> 0.10.3-56.amzn2023
+upgrade | libmount.x86_64 | 2.37.4-1.amzn2023.0.4 -> 2.37.4-1.amzn2023.0.7
+upgrade | libnghttp2.x86_64 | 1.59.0-3.amzn2023.0.1 -> 1.59.0-3.amzn2023.0.2
+upgrade | libpcap.x86_64 | 1.10.1-1.amzn2023.0.2 -> 1.10.7-1.amzn2023.0.1
+upgrade | libpng.x86_64 | 1.6.37-10.amzn2023.0.7 -> 1.6.37-10.amzn2023.0.13
+upgrade | librsvg2.x86_64 | 2.59.2-317.amzn2023 -> 2.59.2-320.amzn2023
+upgrade | libsmartcols.x86_64 | 2.37.4-1.amzn2023.0.4 -> 2.37.4-1.amzn2023.0.7
+upgrade | libsolv.x86_64 | 0.7.22-1.amzn2023.0.2 -> 0.7.22-1.amzn2023.0.5
+upgrade | libsoup.x86_64 | 2.72.0-6.amzn2023.0.8 -> 2.72.0-6.amzn2023.0.16
+upgrade | libsoup3.x86_64 | 3.6.5-53.amzn2023 -> 3.7.3-1.amzn2023
+upgrade | libsss_certmap.x86_64 | 2.9.4-1.amzn2023.0.3 -> 2.9.4-1.amzn2023.0.5
+upgrade | libsss_idmap.x86_64 | 2.9.4-1.amzn2023.0.3 -> 2.9.4-1.amzn2023.0.5
+upgrade | libsss_nss_idmap.x86_64 | 2.9.4-1.amzn2023.0.3 -> 2.9.4-1.amzn2023.0.5
+upgrade | libsss_sudo.x86_64 | 2.9.4-1.amzn2023.0.3 -> 2.9.4-1.amzn2023.0.5
+upgrade | libstoragemgmt.x86_64 | 1.9.4-5.amzn2023.0.2 -> 1.9.4-5.amzn2023.0.3
+upgrade | libtasn1.x86_64 | 4.19.0-1.amzn2023.0.5 -> 4.19.0-1.amzn2023.0.6
+upgrade | libtiff.x86_64 | 4.4.0-4.amzn2023.0.24 -> 4.4.0-4.amzn2023.0.28
+upgrade | libusbx.x86_64 | 1.0.24-2.amzn2023.0.2 -> 1.0.24-2.amzn2023.0.3
+upgrade | libuuid.x86_64 | 2.37.4-1.amzn2023.0.4 -> 2.37.4-1.amzn2023.0.7
+upgrade | libxml2.x86_64 | 2.10.4-1.amzn2023.0.13 -> 2.10.4-1.amzn2023.0.22
+install | libxslt.x86_64 | (not installed) -> 1.1.43-1.amzn2023.0.3
+upgrade | microcode_ctl.x86_64 | 2.1-53.amzn2023.0.14 -> 2.1-53.amzn2023.0.16
+upgrade | ncurses.x86_64 | 6.2-4.20200222.amzn2023.0.6 -> 6.6-1.amzn2023.0.1
+upgrade | ncurses-base.noarch | 6.2-4.20200222.amzn2023.0.6 -> 6.6-1.amzn2023.0.1
+upgrade | ncurses-libs.x86_64 | 6.2-4.20200222.amzn2023.0.6 -> 6.6-1.amzn2023.0.1
+upgrade | nspr.x86_64 | 4.35.0-6.amzn2023.0.1 -> 4.39.0-1.amzn2023.0.3
+upgrade | nss.x86_64 | 3.90.0-6.amzn2023.0.1 -> 3.124.0-1.amzn2023.0.3
+upgrade | nss-softokn.x86_64 | 3.90.0-6.amzn2023.0.1 -> 3.124.0-1.amzn2023.0.3
+upgrade | nss-softokn-freebl.x86_64 | 3.90.0-6.amzn2023.0.1 -> 3.124.0-1.amzn2023.0.3
+upgrade | nss-sysinit.x86_64 | 3.90.0-6.amzn2023.0.1 -> 3.124.0-1.amzn2023.0.3
+upgrade | nss-util.x86_64 | 3.90.0-6.amzn2023.0.1 -> 3.124.0-1.amzn2023.0.3
+upgrade | openexr-libs.x86_64 | 3.1.5-1.amzn2023.0.5 -> 3.1.5-1.amzn2023.0.12
+upgrade | openssh.x86_64 | 8.7p1-8.amzn2023.0.15 -> 9.9p1-16.amzn2023.0.1
+upgrade | openssh-clients.x86_64 | 8.7p1-8.amzn2023.0.15 -> 9.9p1-16.amzn2023.0.1
+upgrade | openssh-server.x86_64 | 8.7p1-8.amzn2023.0.15 -> 9.9p1-16.amzn2023.0.1
+upgrade | openssl.x86_64 | 3.2.2-1.amzn2023.0.2 -> 3.5.8-1.amzn2023.0.4
+upgrade | openssl-fips-provider-latest.x86_64 | 3.2.2-1.amzn2023.0.2 -> 3.5.8-1.amzn2023.0.4
+upgrade | openssl-libs.x86_64 | 3.2.2-1.amzn2023.0.2 -> 3.5.8-1.amzn2023.0.4
+upgrade | pam.x86_64 | 1.5.1-8.amzn2023.0.7 -> 1.5.1-8.amzn2023.0.8
+upgrade | parted.x86_64 | 3.4-2.amzn2023.0.2 -> 3.4-2.amzn2023.0.3
+upgrade | pcre2.x86_64 | 10.40-1.amzn2023.0.3 -> 10.40-1.amzn2023.0.5
+upgrade | pcre2-syntax.noarch | 10.40-1.amzn2023.0.3 -> 10.40-1.amzn2023.0.5
+install | perl-AutoLoader.noarch | (not installed) -> 5.74-477.amzn2023.0.11
+install | perl-B.x86_64 | (not installed) -> 1.80-477.amzn2023.0.11
+upgrade | perl-Class-Struct.noarch | 0.66-477.amzn2023.0.7 -> 0.66-477.amzn2023.0.11
+install | perl-Data-Dumper.x86_64 | (not installed) -> 2.191-522.amzn2023.0.3
+install | perl-Digest.noarch | (not installed) -> 1.20-1.amzn2023.0.2
+install | perl-Digest-MD5.x86_64 | (not installed) -> 2.59-521.amzn2023.0.2
+upgrade | perl-DynaLoader.x86_64 | 1.47-477.amzn2023.0.7 -> 1.47-477.amzn2023.0.11
+upgrade | perl-Encode.x86_64 | 3.15-462.amzn2023.0.2 -> 3.21-520.amzn2023.0.2
+upgrade | perl-Errno.x86_64 | 1.30-477.amzn2023.0.7 -> 1.30-477.amzn2023.0.11
+upgrade | perl-Error.noarch | 0.17029-5.amzn2023.0.2 -> 0.17030-2.amzn2023.0.1
+upgrade | perl-Exporter.noarch | 5.74-459.amzn2023.0.2 -> 5.79-520.amzn2023.0.1
+upgrade | perl-Fcntl.x86_64 | 1.13-477.amzn2023.0.7 -> 1.13-477.amzn2023.0.11
+upgrade | perl-File-Basename.noarch | 2.85-477.amzn2023.0.7 -> 2.85-477.amzn2023.0.11
+upgrade | perl-File-Find.noarch | 1.37-477.amzn2023.0.7 -> 1.37-477.amzn2023.0.11
+upgrade | perl-File-Temp.noarch | 0.231.100-2.amzn2023.0.2 -> 0.231.200-2.amzn2023.0.1
+upgrade | perl-File-stat.noarch | 1.09-477.amzn2023.0.7 -> 1.09-477.amzn2023.0.11
+install | perl-FileHandle.noarch | (not installed) -> 2.03-477.amzn2023.0.11
+upgrade | perl-Getopt-Long.noarch | 2.52-2.amzn2023.0.2 -> 2.58-521.amzn2023.0.1
+upgrade | perl-Getopt-Std.noarch | 1.12-477.amzn2023.0.7 -> 1.12-477.amzn2023.0.11
+upgrade | perl-Git.noarch | 2.50.1-1.amzn2023.0.1 -> 2.50.1-1.amzn2023.0.2
+upgrade | perl-HTTP-Tiny.noarch | 0.078-1.amzn2023.0.3 -> 0.092-2.amzn2023.0.3
+upgrade | perl-IO.x86_64 | 1.43-477.amzn2023.0.7 -> 1.43-477.amzn2023.0.11
+install | perl-IO-Socket-IP.noarch | (not installed) -> 0.43-522.amzn2023.0.1
+install | perl-IO-Socket-SSL.noarch | (not installed) -> 2.075-1.amzn2023.0.3
+upgrade | perl-IPC-Open3.noarch | 1.21-477.amzn2023.0.7 -> 1.21-477.amzn2023.0.11
+upgrade | perl-MIME-Base64.x86_64 | 3.16-2.amzn2023.0.2 -> 3.16-2.amzn2023.0.3
+install | perl-Net-SSLeay.x86_64 | (not installed) -> 1.94-3.amzn2023.0.5
+upgrade | perl-POSIX.x86_64 | 1.94-477.amzn2023.0.7 -> 1.94-477.amzn2023.0.11
+upgrade | perl-PathTools.x86_64 | 3.78-459.amzn2023.0.2 -> 3.78-459.amzn2023.0.3
+upgrade | perl-Scalar-List-Utils.x86_64 | 1.56-459.amzn2023.0.2 -> 1.56-459.amzn2023.0.3
+upgrade | perl-SelectSaver.noarch | 1.02-477.amzn2023.0.7 -> 1.02-477.amzn2023.0.11
+upgrade | perl-Socket.x86_64 | 2.032-1.amzn2023.0.2 -> 2.032-1.amzn2023.0.4
+upgrade | perl-Storable.x86_64 | 3.21-458.amzn2023.0.2 -> 3.37-522.amzn2023.0.3
+upgrade | perl-Symbol.noarch | 1.08-477.amzn2023.0.7 -> 1.08-477.amzn2023.0.11
+upgrade | perl-TermReadKey.x86_64 | 2.38-9.amzn2023.0.2 -> 2.38-9.amzn2023.0.3
+install | perl-Time-HiRes.x86_64 | (not installed) -> 1.9764-460.amzn2023.0.3
+install | perl-URI.noarch | (not installed) -> 5.18-1.amzn2023.0.2
+install | perl-Unicode-Normalize.x86_64 | (not installed) -> 1.27-459.amzn2023.0.3
+install | perl-base.noarch | (not installed) -> 2.27-477.amzn2023.0.11
+upgrade | perl-if.noarch | 0.60.800-477.amzn2023.0.7 -> 0.60.800-477.amzn2023.0.11
+upgrade | perl-interpreter.x86_64 | 5.32.1-477.amzn2023.0.7 -> 5.32.1-477.amzn2023.0.11
+upgrade | perl-lib.x86_64 | 0.65-477.amzn2023.0.7 -> 0.65-477.amzn2023.0.11
+install | perl-libnet.noarch | (not installed) -> 3.13-2.amzn2023.0.2
+upgrade | perl-libs.x86_64 | 5.32.1-477.amzn2023.0.7 -> 5.32.1-477.amzn2023.0.11
+upgrade | perl-mro.x86_64 | 1.23-477.amzn2023.0.7 -> 1.23-477.amzn2023.0.11
+upgrade | perl-overload.noarch | 1.31-477.amzn2023.0.7 -> 1.31-477.amzn2023.0.11
+upgrade | perl-overloading.noarch | 0.02-477.amzn2023.0.7 -> 0.02-477.amzn2023.0.11
+upgrade | perl-podlators.noarch | 4.14-458.amzn2023.0.2 -> 4.14-458.amzn2023.0.3
+upgrade | perl-subs.noarch | 1.03-477.amzn2023.0.7 -> 1.03-477.amzn2023.0.11
+upgrade | perl-vars.noarch | 1.05-477.amzn2023.0.7 -> 1.05-477.amzn2023.0.11
+upgrade | pigz.x86_64 | 2.5-1.amzn2023.0.3 -> 2.5-1.amzn2023.0.4
+upgrade | policycoreutils.x86_64 | 3.4-6.amzn2023.0.2 -> 3.4-6.amzn2023.0.3
+upgrade | policycoreutils-python-utils.noarch | 3.4-6.amzn2023.0.2 -> 3.4-6.amzn2023.0.3
+upgrade | publicsuffix-list-dafsa.noarch | 20240212-61.amzn2023 -> 20260116-1.amzn2023.0.1
+upgrade | python3.x86_64 | 3.9.25-1.amzn2023.0.1 -> 3.9.25-1.amzn2023.0.11
+upgrade | python3-awscrt.x86_64 | 0.28.4-1.amzn2023.0.1 -> 0.37.0-1.amzn2023.0.1
+upgrade | python3-dnf.noarch | 4.14.0-1.amzn2023.0.6 -> 4.14.0-1.amzn2023.0.9
+upgrade | python3-dnf-plugins-core.noarch | 4.3.0-13.amzn2023.0.5 -> 4.3.0-13.amzn2023.0.7
+install | python3-elementpath.noarch | (not installed) -> 2.3.2-2.amzn2023
+upgrade | python3-hawkey.x86_64 | 0.69.0-8.amzn2023.0.6 -> 0.69.0-8.amzn2023.0.9
+upgrade | python3-idna.noarch | 2.10-3.amzn2023.0.3 -> 2.10-3.amzn2023.0.4
+upgrade | python3-libdnf.x86_64 | 0.69.0-8.amzn2023.0.6 -> 0.69.0-8.amzn2023.0.9
+upgrade | python3-libs.x86_64 | 3.9.25-1.amzn2023.0.1 -> 3.9.25-1.amzn2023.0.11
+upgrade | python3-libstoragemgmt.x86_64 | 1.9.4-5.amzn2023.0.2 -> 1.9.4-5.amzn2023.0.3
+install | python3-lxml.x86_64 | (not installed) -> 4.7.1-3.amzn2023.0.3
+upgrade | python3-pip.noarch | 21.3.1-2.amzn2023.0.14 -> 21.3.1-2.amzn2023.0.22
+upgrade | python3-pip-wheel.noarch | 21.3.1-2.amzn2023.0.14 -> 21.3.1-2.amzn2023.0.22
+upgrade | python3-policycoreutils.noarch | 3.4-6.amzn2023.0.2 -> 3.4-6.amzn2023.0.3
+upgrade | python3-rpm.x86_64 | 4.16.1.3-29.amzn2023.0.6 -> 4.16.1.3-29.amzn2023.0.10
+install | python3-supportinfo.noarch | (not installed) -> 1.0.0-1.amzn2023
+upgrade | python3-urllib3.noarch | 1.25.10-5.amzn2023.0.5 -> 1.25.10-5.amzn2023.0.9
+install | python3-xmlschema.noarch | (not installed) -> 1.4.2-1.amzn2023.0.2
+upgrade | python3.11.x86_64 | 3.11.14-1.amzn2023.0.2 -> 3.11.18-1.amzn2023.0.1
+upgrade | python3.11-libs.x86_64 | 3.11.14-1.amzn2023.0.2 -> 3.11.18-1.amzn2023.0.1
+upgrade | python3.11-pip.noarch | 22.3.1-2.amzn2023.0.8 -> 22.3.1-2.amzn2023.0.15
+upgrade | python3.11-pip-wheel.noarch | 22.3.1-2.amzn2023.0.8 -> 22.3.1-2.amzn2023.0.15
+upgrade | python3.12.x86_64 | 3.12.12-2.amzn2023.0.2 -> 3.12.16-2.amzn2023.0.1
+upgrade | python3.12-libs.x86_64 | 3.12.12-2.amzn2023.0.2 -> 3.12.16-2.amzn2023.0.1
+upgrade | python3.12-pip.noarch | 23.2.1-4.amzn2023.0.5 -> 23.2.1-4.amzn2023.0.12
+upgrade | python3.12-pip-wheel.noarch | 23.2.1-4.amzn2023.0.5 -> 23.2.1-4.amzn2023.0.12
+upgrade | rng-tools.x86_64 | 6.14-1.git.56626083.amzn2023.0.3 -> 6.17-1.amzn2023.0.1
+upgrade | rpcbind.x86_64 | 1.2.6-0.amzn2023.0.2 -> 1.2.6-0.amzn2023.0.3
+upgrade | rpm.x86_64 | 4.16.1.3-29.amzn2023.0.6 -> 4.16.1.3-29.amzn2023.0.10
+upgrade | rpm-build-libs.x86_64 | 4.16.1.3-29.amzn2023.0.6 -> 4.16.1.3-29.amzn2023.0.10
+upgrade | rpm-libs.x86_64 | 4.16.1.3-29.amzn2023.0.6 -> 4.16.1.3-29.amzn2023.0.10
+upgrade | rpm-plugin-selinux.x86_64 | 4.16.1.3-29.amzn2023.0.6 -> 4.16.1.3-29.amzn2023.0.10
+upgrade | rpm-plugin-systemd-inhibit.x86_64 | 4.16.1.3-29.amzn2023.0.6 -> 4.16.1.3-29.amzn2023.0.10
+upgrade | rpm-sign-libs.x86_64 | 4.16.1.3-29.amzn2023.0.6 -> 4.16.1.3-29.amzn2023.0.10
+upgrade | rsvg-pixbuf-loader.x86_64 | 2.59.2-317.amzn2023 -> 2.59.2-320.amzn2023
+upgrade | rsync.x86_64 | 3.4.0-1.amzn2023.0.3 -> 3.5.1-1.amzn2023.0.1
+upgrade | runc.x86_64 | 1.3.3-2.amzn2023.0.1 -> 1.4.3-1.amzn2023.0.3
+upgrade | rust-toolset-srpm-macros.noarch | 1.91.0-1.amzn2023.0.1 -> 1.99.1-1.amzn2023
+upgrade | selinux-policy.noarch | 38.1.65-1.amzn2023.0.1 -> 38.1.76-1.amzn2023.0.3
+upgrade | selinux-policy-targeted.noarch | 38.1.65-1.amzn2023.0.1 -> 38.1.76-1.amzn2023.0.3
+upgrade | sqlite.x86_64 | 3.40.0-1.amzn2023.0.7 -> 3.40.0-1.amzn2023.0.9
+upgrade | sqlite-libs.x86_64 | 3.40.0-1.amzn2023.0.7 -> 3.40.0-1.amzn2023.0.9
+upgrade | sssd-client.x86_64 | 2.9.4-1.amzn2023.0.3 -> 2.9.4-1.amzn2023.0.5
+upgrade | sssd-common.x86_64 | 2.9.4-1.amzn2023.0.3 -> 2.9.4-1.amzn2023.0.5
+upgrade | sssd-kcm.x86_64 | 2.9.4-1.amzn2023.0.3 -> 2.9.4-1.amzn2023.0.5
+upgrade | sssd-nfs-idmap.x86_64 | 2.9.4-1.amzn2023.0.3 -> 2.9.4-1.amzn2023.0.5
+upgrade | strace.x86_64 | 6.8-1.amzn2023.0.1 -> 6.12-1.amzn2023.0.1
+upgrade | sudo.x86_64 | 1.9.15-1.p5.amzn2023.0.2 -> 1.9.15-1.p5.amzn2023.0.4
+upgrade | system-release.noarch | 2023.9.20251208-2.amzn2023 -> 2023.12.20261112-0.amzn2023
+upgrade | systemd.x86_64 | 252.23-10.amzn2023 -> 252.23-15.amzn2023
+upgrade | systemd-libs.x86_64 | 252.23-10.amzn2023 -> 252.23-15.amzn2023
+upgrade | systemd-networkd.x86_64 | 252.23-10.amzn2023 -> 252.23-15.amzn2023
+upgrade | systemd-pam.x86_64 | 252.23-10.amzn2023 -> 252.23-15.amzn2023
+upgrade | systemd-resolved.x86_64 | 252.23-10.amzn2023 -> 252.23-15.amzn2023
+upgrade | systemd-udev.x86_64 | 252.23-10.amzn2023 -> 252.23-15.amzn2023
+upgrade | systemtap-runtime.x86_64 | 5.2-1.amzn2023.0.5 -> 5.4-1.amzn2023.0.2
+upgrade | tmux.x86_64 | 3.2a-3.amzn2023.0.2 -> 3.6a-1.amzn2023.0.1
+upgrade | tzdata.noarch | 2025b-1.amzn2023.0.1 -> 2026f-1.amzn2023.0.1
+upgrade | unzip.x86_64 | 6.0-57.amzn2023.0.2 -> 6.0-68.amzn2023.0.2
+upgrade | update-motd.noarch | 2.3-1.amzn2023 -> 2.3-1.amzn2023.0.1
+upgrade | util-linux.x86_64 | 2.37.4-1.amzn2023.0.4 -> 2.37.4-1.amzn2023.0.7
+upgrade | util-linux-core.x86_64 | 2.37.4-1.amzn2023.0.4 -> 2.37.4-1.amzn2023.0.7
+upgrade | vim-common.x86_64 | 9.1.1591-1.amzn2023.0.1 -> 9.2.920-1.amzn2023.0.1
+upgrade | vim-data.noarch | 9.1.1591-1.amzn2023.0.1 -> 9.2.920-1.amzn2023.0.1
+upgrade | vim-enhanced.x86_64 | 9.1.1591-1.amzn2023.0.1 -> 9.2.920-1.amzn2023.0.1
+upgrade | vim-filesystem.noarch | 9.1.1591-1.amzn2023.0.1 -> 9.2.920-1.amzn2023.0.1
+upgrade | vim-minimal.x86_64 | 9.1.1591-1.amzn2023.0.1 -> 9.2.920-1.amzn2023.0.1
+upgrade | wget.x86_64 | 1.21.3-1.amzn2023.0.4 -> 1.21.3-1.amzn2023.0.5
+upgrade | xfsprogs.x86_64 | 6.12.0-3.amzn2023.0.1 -> 6.12.0-3.amzn2023.0.3
+upgrade | xxd.x86_64 | 9.1.1591-1.amzn2023.0.1 -> 9.2.920-1.amzn2023.0.1
+upgrade | yum.noarch | 4.14.0-1.amzn2023.0.6 -> 4.14.0-1.amzn2023.0.9
+upgrade | zip.x86_64 | 3.0-28.amzn2023.0.2 -> 3.0-28.amzn2023.0.4
+upgrade | zlib.x86_64 | 1.2.11-33.amzn2023.0.5 -> 1.2.11-33.amzn2023.0.6
+
+Replacement: kernel-libbpf 6.1.158-180.294.amzn2023 -> libbpf 1.6.1-3.amzn2023.
+
+FULL PRIVATE CONTAINER DEBIAN CHANGES (15)
+
+apt | 2.6.1 -> 2.6.2
+ca-certificates | 20250419~deb12u1 -> 20250419~deb12u2
+libapt-pkg6.0:amd64 | 2.6.1 -> 2.6.2
+libbrotli1:amd64 | 1.0.9-2+b6 -> 1.0.9-2+deb12u1
+libexpat1:amd64 | 2.5.0-1+deb12u4 -> 2.5.0-1+deb12u5
+libpcre2-8-0:amd64 | 10.42-1+deb12u1 -> 10.42-1+deb12u2
+libpython3.11-minimal:amd64 | 3.11.2-6+deb12u8 -> 3.11.2-6+deb12u9
+libpython3.11-stdlib:amd64 | 3.11.2-6+deb12u8 -> 3.11.2-6+deb12u9
+libsasl2-2:amd64 | 2.1.28+dfsg-10 -> 2.1.28+dfsg-10+deb12u1
+libsasl2-modules-db:amd64 | 2.1.28+dfsg-10 -> 2.1.28+dfsg-10+deb12u1
+libssl3:amd64 | 3.0.22-1~deb12u1 -> 3.0.22-1~deb12u2
+openssl | 3.0.22-1~deb12u1 -> 3.0.22-1~deb12u2
+python3.11 | 3.11.2-6+deb12u8 -> 3.11.2-6+deb12u9
+python3.11-minimal | 3.11.2-6+deb12u8 -> 3.11.2-6+deb12u9
+tzdata | 2026b-0+deb12u1 -> 2026f-0+deb12u1
+
+CADDY GO MODULE DIFFERENCES
+Each line includes upgraded, added or removed modules in the binary build metadata.
+
+cel.dev/cel-go | (absent) -> v0.32.0
+cel.dev/expr | v0.25.1 -> v0.25.3
+cloud.google.com/go/auth | v0.20.0 -> v0.23.3
+cloud.google.com/go/compute/metadata | v0.9.0 -> v0.9.1
+github.com/AndreasBriese/bbloom | (absent) -> v0.0.0-20190825152654-46b345b51c96
+github.com/DeRuina/timberjack | v1.4.2 -> v1.4.8
+github.com/KimMachineGun/automemlimit | v0.7.5 -> v1.0.0
+github.com/Masterminds/semver/v3 | v3.4.0 -> v3.5.0
+github.com/alecthomas/chroma/v2 | v2.24.1 -> v2.27.0
+github.com/bits-and-blooms/bitset | (absent) -> v1.25.0
+github.com/caddyserver/caddy/v2 | v2.11.4 -> v2.11.9
+github.com/caddyserver/certmagic | v0.25.3 -> v0.25.6
+github.com/caddyserver/zerossl | v0.1.5 -> v0.1.6
+github.com/ccoveille/go-safecast/v2 | v2.0.0 -> v2.0.1
+github.com/cespare/xxhash | (absent) -> v1.1.0
+github.com/cloudflare/circl | v1.6.3 -> v1.6.5
+github.com/coreos/go-oidc/v3 | v3.17.0 -> v3.21.0
+github.com/dgraph-io/badger | (absent) -> v1.6.2
+github.com/dgraph-io/badger/v2 | (absent) -> v2.2007.4
+github.com/dgraph-io/ristretto | (absent) -> v0.2.0
+github.com/dgryski/go-farm | (absent) -> v0.0.0-20240924180020-3414d57e47da
+github.com/dlclark/regexp2 | v1.12.0 -> (absent)
+github.com/dlclark/regexp2/v2 | (absent) -> v2.8.0
+github.com/dunglas/go-urlpattern | (absent) -> v1.0.0
+github.com/dunglas/httpsfv | (absent) -> v1.1.1
+github.com/dustin/go-humanize | v1.0.1 -> v1.1.0
+github.com/felixge/httpsnoop | v1.0.4 -> v1.1.0
+github.com/fxamacker/cbor/v2 | v2.9.0 -> v2.9.4
+github.com/go-chi/chi/v5 | v5.2.5 -> v5.4.0
+github.com/go-jose/go-jose/v4 | v4.1.4 -> v4.1.6
+github.com/go-logr/logr | v1.4.3 -> v1.4.4
+github.com/go-sql-driver/mysql | (absent) -> v1.10.1
+github.com/golang/protobuf | (absent) -> v1.5.4
+github.com/golang/snappy | (absent) -> v1.0.0
+github.com/google/cel-go | v0.28.1 -> (absent)
+github.com/google/certificate-transparency-go | v1.1.8-0.20240110162603-74a5dd331745 -> v1.3.3
+github.com/google/s2a-go | v0.1.9 -> v0.1.10
+github.com/googleapis/enterprise-certificate-proxy | v0.3.15 -> v0.3.22
+github.com/googleapis/gax-go/v2 | v2.22.0 -> v2.25.0
+github.com/grpc-ecosystem/grpc-gateway/v2 | v2.28.0 -> v2.30.0
+github.com/huandu/xstrings | v1.5.0 -> v1.6.1
+github.com/jackc/pgpassfile | (absent) -> v1.0.0
+github.com/jackc/pgservicefile | (absent) -> v0.0.0-20240606120523-5a60cdf6a761
+github.com/jackc/pgx/v5 | (absent) -> v5.11.0
+github.com/jackc/puddle/v2 | (absent) -> v2.2.2
+github.com/klauspost/compress | v1.18.6 -> v1.20.4
+github.com/klauspost/cpuid/v2 | v2.3.0 -> v2.4.0
+github.com/mattn/go-colorable | v0.1.14 -> v0.1.15
+github.com/mattn/go-isatty | v0.0.20 -> v0.0.24
+github.com/mholt/acmez/v3 | v3.1.6 -> v3.1.7
+github.com/miekg/dns | v1.1.72 -> v1.1.73
+github.com/nlnwa/whatwg-url | (absent) -> v0.6.2
+github.com/pires/go-proxyproto | v0.12.0 -> v0.15.0
+github.com/prometheus/client_golang | v1.23.2 -> v1.24.1
+github.com/prometheus/client_model | v0.6.2 -> v0.6.3
+github.com/prometheus/common | v0.67.5 -> v0.71.0
+github.com/prometheus/procfs | v0.20.1 -> v0.22.0
+github.com/quic-go/quic-go | v0.59.1 -> v0.63.0
+github.com/sirupsen/logrus | v1.9.4 -> v1.10.2
+github.com/slackhq/nebula | v1.10.3 -> v1.11.2
+github.com/smallstep/go-attestation | v0.4.4-0.20241119153605-2306d5b464ca -> v0.4.4-0.20260814222900-a849f4e2cd68
+github.com/smallstep/linkedca | v0.25.0 -> v0.26.0
+github.com/smallstep/pkcs7 | v0.2.1 -> v0.2.3
+github.com/smallstep/scep | v0.0.0-20250318231241-a25cabb69492 -> v0.0.0-20260331191114-261f960a40d1
+github.com/spf13/cast | v1.7.0 -> v1.10.0
+github.com/yuin/goldmark | v1.8.2 -> v1.8.6
+go.etcd.io/bbolt | v1.4.3 -> v1.5.0
+go.opentelemetry.io/contrib/bridges/prometheus | v0.68.0 -> v0.71.0
+go.opentelemetry.io/contrib/exporters/autoexport | v0.68.0 -> v0.71.0
+go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp | v0.68.0 -> v0.71.0
+go.opentelemetry.io/contrib/propagators/autoprop | v0.68.0 -> v0.71.0
+go.opentelemetry.io/contrib/propagators/aws | v1.43.0 -> v1.46.0
+go.opentelemetry.io/contrib/propagators/b3 | v1.43.0 -> v1.46.0
+go.opentelemetry.io/contrib/propagators/jaeger | v1.43.0 -> v1.46.0
+go.opentelemetry.io/contrib/propagators/ot | v1.43.0 -> v1.46.0
+go.opentelemetry.io/otel | v1.43.0 -> v1.46.0
+go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc | v0.19.0 -> v0.22.0
+go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp | v0.19.0 -> v0.22.0
+go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc | v1.43.0 -> v1.46.0
+go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp | v1.43.0 -> v1.46.0
+go.opentelemetry.io/otel/exporters/otlp/otlptrace | v1.43.0 -> v1.46.0
+go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc | v1.43.0 -> v1.46.0
+go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp | v1.43.0 -> v1.46.0
+go.opentelemetry.io/otel/exporters/prometheus | v0.65.0 -> v0.68.0
+go.opentelemetry.io/otel/exporters/stdout/stdoutlog | v0.19.0 -> v0.22.0
+go.opentelemetry.io/otel/exporters/stdout/stdoutmetric | v1.43.0 -> v1.46.0
+go.opentelemetry.io/otel/exporters/stdout/stdouttrace | v1.43.0 -> v1.46.0
+go.opentelemetry.io/otel/log | v0.19.0 -> v0.22.0
+go.opentelemetry.io/otel/metric | v1.43.0 -> v1.46.0
+go.opentelemetry.io/otel/sdk | v1.43.0 -> v1.46.0
+go.opentelemetry.io/otel/sdk/log | v0.19.0 -> v0.22.0
+go.opentelemetry.io/otel/sdk/metric | v1.43.0 -> v1.46.0
+go.opentelemetry.io/otel/trace | v1.43.0 -> v1.46.0
+go.opentelemetry.io/proto/otlp | v1.10.0 -> v1.11.0
+go.step.sm/crypto | v0.81.0 -> v0.91.0
+go.yaml.in/yaml/v2 | v2.4.4 -> (absent)
+go.yaml.in/yaml/v3 | v3.0.4 -> v3.0.5
+golang.org/x/crypto | v0.52.0 -> v0.58.0
+golang.org/x/crypto/x509roots/fallback | v0.0.0-20260213171211-a408498e5541 -> v0.0.0-20261030153154-30a33513ff6d
+golang.org/x/exp | v0.0.0-20251023183803-a4bb9ffd2546 -> v0.0.0-20260908205506-85c1c2202aba
+golang.org/x/net | v0.55.0 -> v0.62.0
+golang.org/x/oauth2 | v0.36.0 -> v0.37.0
+golang.org/x/sync | v0.20.0 -> v0.24.0
+golang.org/x/sys | v0.45.0 -> v0.49.0
+golang.org/x/term | v0.43.0 -> v0.47.0
+golang.org/x/text | v0.37.0 -> v0.43.0
+golang.org/x/time | v0.15.0 -> v0.16.0
+google.golang.org/api | v0.277.0 -> v0.298.0
+google.golang.org/genproto/googleapis/api | v0.0.0-20260406210006-6f92a3bedf2d -> v0.0.0-20260921155816-b14227669459
+google.golang.org/genproto/googleapis/rpc | v0.0.0-20260427160629-7cedc36a6bc4 -> v0.0.0-20260921155816-b14227669459
+google.golang.org/grpc | v1.81.0 -> v1.83.2
+google.golang.org/protobuf | v1.36.11 -> v1.36.12
+
+VERIFICATION
+Prior to activation: 1,457 application fixture passes, six expected platform skips.
+Runtime activation: 24 guard/runtime helper tests; proxy/image stage: 55 focused tests.
+Both chess services: two paid disposable move actions with thread continuation.
+Private GPT-2: real provider, tool execution, workspace proof and two explicit comments.
+Public GPT-2: one 16-token-cap response, real HTTPS SSE, stable result, export/import.
+Both notifier dry runs passed; after reopening both scheduled notifier jobs completed successfully.
+All four apps active/enabled; public/private health checks passed; no startup errors observed.
+Manual user play-tests follow; no claim of full-game, compaction or email-inbox retest.
+
+SOURCE RECORDS (relative to web-service/validation)
+2026-11-15-security-audit/host-package-survey.json (installed baseline)
+2026-11-15-security-stage/os-rpm-manifest.json (signed transaction payload)
+2026-11-16-security-os/post-reboot-verification.json (all 274 target RPMs verified)
+2026-11-16-security-os/package-checks.json (transaction and post-update checks)
+2026-11-15-security-audit/chess-runtime-survey.json (private runtime baseline)
+2026-11-15-security-stage/caddy-stage.json (new Caddy module/build manifest)
+2026-11-16-security-prep/gpt2-image-manifest.json (15 container package changes)
+2026-11-16-security-prep/gpt2-python-preparation.json (GPT-2 venv diff)
+2026-11-17-python-activation/README.md (activation)
+2026-11-17-proxy-image-regression/README.md (activation and regressions)
+2026-11-17-proxy-image-regression/reopened-service-status.json (operational state)
