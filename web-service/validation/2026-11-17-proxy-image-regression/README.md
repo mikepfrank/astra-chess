@@ -1,4 +1,26 @@
-# Proxy/container activation and gated regressions — complete, pause before reopen
+# Proxy/container activation and regressions — complete, services reopened
+
+## Operational restoration completed at Mike's request
+
+At 23:04 UTC November 17, all four apps and both notifier timers are active and
+boot-enabled. Both notifier jobs completed successfully; all three maintenance
+checkpoints have been archived. The reviewed Astra and Arcturus up helpers
+restored their scoped routes/settings, followed by GPT-2 `reopen --validated`.
+App processes remained unchanged; shared Caddy restarted/reloaded as intended.
+
+Primary and alias chess HTTPS health/board/games/monitor routes return 200;
+unauthenticated operator APIs correctly return 401. Both GPT-2 HTTPS health
+checks passed, and malformed empty generation requests now reach app validation
+(400) instead of maintenance (503), without generating output. Independent
+Windows-laptop health requests to all three chess hostnames and public GPT-2
+also return 200. No failed units, automatic app restarts or error-priority log
+entries since startup. Astra's separate new-game pause/include hash/bind remain
+intact. No new model requests or manually triggered test emails were sent.
+
+See [restored operational state](reopened-service-status.json). Mike will now
+manually play-test; further maintenance is paused. The gated-state notes below
+are historical and must not be used to infer current service/checkpoint state.
+Retain rollback artifacts/snapshots; Codex CLI migration remains separate.
 
 Mike authorized the next update and regression stage after the completed Python
 activation checkpoint. Keep public traffic gated and pause with results before

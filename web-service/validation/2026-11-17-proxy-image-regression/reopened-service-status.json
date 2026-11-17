@@ -1,0 +1,120 @@
+{
+  "checked_at_utc": "2026-11-17T23:04:02.283158+00:00",
+  "services": {
+    "astra-chess.service": {
+      "MainPID": "10123",
+      "Result": "success",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    "or-chess.service": {
+      "MainPID": "10124",
+      "Result": "success",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    "gpt2-public.service": {
+      "MainPID": "9959",
+      "Result": "success",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    "gpt2-codex.service": {
+      "MainPID": "10059",
+      "Result": "success",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    "astra-caddy.service": {
+      "MainPID": "15765",
+      "Result": "success",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    "astra-game-notify.timer": {
+      "Result": "success",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    "or-chess-game-notify.timer": {
+      "Result": "success",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    }
+  },
+  "notifier_jobs": {
+    "astra-game-notify.service": {
+      "Result": "success",
+      "ExecMainExitTimestamp": "Tue 2026-11-17 23:02:46 UTC",
+      "ExecMainStatus": "0",
+      "ActiveState": "inactive"
+    },
+    "or-chess-game-notify.service": {
+      "Result": "success",
+      "ExecMainExitTimestamp": "Tue 2026-11-17 23:03:00 UTC",
+      "ExecMainStatus": "0",
+      "ActiveState": "inactive"
+    }
+  },
+  "checkpoints": {
+    "astra-chess-ops": {
+      "active_checkpoint": false,
+      "completed_audit_present": true
+    },
+    "arcturus-chess-ops": {
+      "active_checkpoint": false,
+      "completed_audit_present": true
+    },
+    "gpt2-maintenance-ops": {
+      "active_checkpoint": false,
+      "completed_audit_present": true
+    }
+  },
+  "https_routes": {
+    "astraplayschess.com": {
+      "/health": 200,
+      "/": 200,
+      "/games/": 200,
+      "/monitor/": 200,
+      "/api/operator/games": 401
+    },
+    "arcturuschess.com": {
+      "/health": 200,
+      "/": 200,
+      "/games/": 200,
+      "/monitor/": 200,
+      "/api/operator/games": 401
+    },
+    "arcturus.astraplayschess.com": {
+      "/health": 200,
+      "/": 200,
+      "/games/": 200,
+      "/monitor/": 200,
+      "/api/operator/games": 401
+    },
+    "www.astraplayschess.com": {
+      "/": 301
+    },
+    "www.arcturuschess.com": {
+      "/": 308
+    }
+  },
+  "gpt2_public_https_ready": true,
+  "gpt2_private_https_ready": true,
+  "gpt2_generation_routes_open_invalid_requests_rejected": true,
+  "astra_new_games_remain_paused": true,
+  "error_priority_entries_since_start": {
+    "astra-chess.service": 0,
+    "or-chess.service": 0,
+    "gpt2-public.service": 0,
+    "gpt2-codex.service": 0,
+    "astra-caddy.service": 0
+  },
+  "failed_units": 0,
+  "synthetic_generations": 0
+}

@@ -1,5 +1,28 @@
 # Handoff: Arcturus development worktree
 
+## November 17: services reopened — awaiting Mike's manual play-tests
+
+Mike authorized full operational restoration after the gated regressions.
+Reviewed Astra/Arcturus up helpers and GPT-2 `reopen --validated` completed.
+All four apps and both notification timers are active and boot-enabled; both
+notifier jobs have completed successfully. All three maintenance checkpoints
+were archived. App PIDs stayed unchanged; Caddy restarted as intended for the
+chess route restorations, then reloaded GPT-2 routes.
+
+At 23:04 UTC, primary/alias chess HTTPS health, board, games and monitor shells
+returned 200; unauthenticated operator APIs returned 401. Both GPT-2 HTTPS
+health checks passed; public generation routes reach application validation
+instead of maintenance responses. No failed units, automatic app restarts or
+error-priority entries since startup. Astra's October 11 new-game pause,
+unchanged include hash and proxy binding remain intact. No inference or test
+emails were initiated during reopening; saved user data was not changed.
+
+**Services are available for Mike's manual tests. Pause further maintenance
+while he tests.** Do not repeat the old stopped/gated-state instructions below.
+Keep rollback artifacts and snapshots. Codex 0.154.0 remains unchanged; any
+future migration still needs its separate compatibility audit.
+See [reopened status](web-service/validation/2026-11-17-proxy-image-regression/reopened-service-status.json).
+
 ## November 17: proxy/image and gated regressions complete — PAUSE BEFORE REOPEN
 
 Mike authorized the next update/regression stage. Caddy 2.11.9 is activated;
