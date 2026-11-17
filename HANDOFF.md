@@ -1,5 +1,24 @@
 # Handoff: Arcturus development worktree
 
+## November 17: preparation recheck complete — leave services running
+
+Mike authorized **step 1 only** before bed; deployment/downtime remains paused
+until he returns and resumes the sequence. All inactive candidate integrity and
+post-OS tests passed: chess 279+591 passes with six expected Windows-only skips,
+GPT-2 206+381 passes, isolated Caddy protocol/TLS tests, and candidate-image
+no-key sandbox/schema/initialization. Total 1,457 passes, six skips, no failures.
+Original reports preserved, no candidate rebuilds or promotions. Five app/proxy
+PIDs unchanged (4105/4317/3982/4373/5194), zero restarts, health 200, timers
+active/enabled, no failed units. No real inference/API calls/test emails ran.
+
+Mike's own post-OS tests passed for private GPT-2, public GPT-2 and Arcturus.
+Astra is online but new games remain intentionally disabled; do not unlock it.
+See [recheck evidence](web-service/validation/2026-11-17-security-recheck/README.md)
+and [the next-window checklist](web-service/validation/2026-11-17-security-recheck/next-window.md).
+Pending security candidates are still inactive; real production namespace,
+gateway/provider and final deployment checks remain for a new coordinated
+maintenance window. Codex 0.169.0 still needs its separate compatibility audit.
+
 ## November 16 evening: all four services resumed; private updates still pending
 
 Mike requested resumption after the OS upgrade, accepting troubleshooting as

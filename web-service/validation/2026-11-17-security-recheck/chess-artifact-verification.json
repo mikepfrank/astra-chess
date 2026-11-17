@@ -1,0 +1,48 @@
+{
+  "checked_utc": "2026-11-17T06:58:39.143562+00:00",
+  "scope": "Read-only sealed-artifact, installed-file, package, and TLS recheck; no live path switches or provider requests",
+  "seal": {
+    "wheel-manifest.json": "0f9ab694a3bb3b96d30d529442d07ffb9f4a5ec930517a804352020e3d1e39c5",
+    "requirements-hashed.txt": "96773569c651f8cc0c92b009c463d2e79987d69be3f9b06124440e99552c1549",
+    "runtime-manifest.json": "a72ea355f823c76fa319a937ea32a460ce52749af5140fd9ff7cd605f283444c"
+  },
+  "verified_wheels": 18,
+  "runtime_archive_sha256": "c2f87d4b4e8db3abddb0f116c6ccfc503d0cbdbb9ee8faacddad1b679ec12e99",
+  "users": {
+    "astra": {
+      "source_revision": "60bc178f3b442a2c333ed35dc304a99e17106b00",
+      "candidate_runtime": "/home/astra/.local/share/astra-chess-runtime/python/cpython-3.12.16-linux-x86_64-gnu",
+      "candidate_venv": "/home/astra/.local/share/astra-chess-runtime/venvs/security-20261115",
+      "versions": {
+        "python": "3.12.16", "openssl": "OpenSSL 3.5.9 29 Sep 2026",
+        "sqlite": "3.53.1", "expat": "expat_2.10.0",
+        "certifi": "2026.10.23", "pip": "26.3"
+      },
+      "pip_check": "No broken requirements found.",
+      "package_manifest_match": true,
+      "runtime_archive_files_matched": 3519,
+      "installed_record_hashes_verified": 1036,
+      "active_venv_inode": 16808495,
+      "active_venv_is_directory": true,
+      "active_pyvenv_cfg_sha256": "8d98898f644bd436f71291494cdc48f4b5c0ceed78f32ce406acf4ec1f9ee9c1"
+    },
+    "or-chess": {
+      "source_revision": "a98784cdafacbe5e6616cc55b0e94a34e8056bf2",
+      "candidate_runtime": "/home/or-chess/.local/share/or-chess-runtime/python/cpython-3.12.16-linux-x86_64-gnu",
+      "candidate_venv": "/home/or-chess/.local/share/or-chess-runtime/venvs/security-20261115",
+      "versions": {
+        "python": "3.12.16", "openssl": "OpenSSL 3.5.9 29 Sep 2026",
+        "sqlite": "3.53.1", "expat": "expat_2.10.0",
+        "certifi": "2026.10.23", "pip": "26.3"
+      },
+      "pip_check": "No broken requirements found.",
+      "package_manifest_match": true,
+      "runtime_archive_files_matched": 3519,
+      "installed_record_hashes_verified": 1036,
+      "active_venv_inode": 186297196,
+      "active_venv_is_directory": true,
+      "active_pyvenv_cfg_sha256": "100d467cc899dd35030e0a6f28b280db6a098e98f00f3d82847b6aa5d1eea25a"
+    }
+  },
+  "complete": true
+}

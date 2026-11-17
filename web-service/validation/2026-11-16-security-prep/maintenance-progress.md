@@ -1,5 +1,15 @@
 # Maintenance progress — services resumed; private updates remain pending
 
+## November 17: preparation rechecked; no downtime authorized tonight
+
+Mike authorized preparation only before bed. Post-OS candidate integrity and
+isolated checks passed: 1,457 application tests, six expected Windows-only
+skips, Caddy protocol fixtures and candidate-image sandbox probes. All production
+processes/settings/routes remain unchanged and available. See
+[the current checkpoint](../2026-11-17-security-recheck/README.md) and
+[next-window instructions](../2026-11-17-security-recheck/next-window.md).
+Do not begin draining or deployment until Mike returns and resumes the work.
+
 ## November 16 evening: services reopened at Mike's request
 
 All four apps and both notification timers are active/boot-enabled again;

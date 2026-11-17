@@ -1,0 +1,128 @@
+{
+  "started_utc": "2026-11-17T07:01:46.887385+00:00",
+  "completed_utc": "2026-11-17T07:06:37.354963+00:00",
+  "remote_directory": "/var/tmp/chess-security-fixtures-20261117-ajyas3tb",
+  "scope": "Isolated candidate fixtures, no live state/network/credentials/model requests",
+  "limits": {
+    "cpu_percent": 50,
+    "memory_gib": 2,
+    "tasks": 128,
+    "nice": 10,
+    "runtime_seconds": 600
+  },
+  "source_copies_read_only": true,
+  "services_before": {
+    "astra-chess.service": {
+      "MainPID": "4105",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "or-chess.service": {
+      "MainPID": "4317",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "gpt2-public.service": {
+      "MainPID": "3982",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "gpt2-codex.service": {
+      "MainPID": "4373",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "astra-caddy.service": {
+      "MainPID": "5194",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    }
+  },
+  "services_after": {
+    "astra-chess.service": {
+      "MainPID": "4105",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "or-chess.service": {
+      "MainPID": "4317",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "gpt2-public.service": {
+      "MainPID": "3982",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "gpt2-codex.service": {
+      "MainPID": "4373",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "astra-caddy.service": {
+      "MainPID": "5194",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    }
+  },
+  "production_processes_unchanged": true,
+  "results": [
+    {
+      "user": "astra",
+      "returncode": 0,
+      "seconds": 118.38,
+      "candidate": "/home/astra/.local/share/astra-chess-runtime/venvs/security-20261115",
+      "source_revision": "60bc178f3b442a2c333ed35dc304a99e17106b00",
+      "source_files_matching_retained_git_archive": 912,
+      "source_archive_sha256": "52d3323986b232145429e2b61c2c6afd871d2fb8cd6f616bbf73bc859264813b",
+      "status": [
+        "Ran 282 tests in 116.008s",
+        "OK (skipped=3)"
+      ],
+      "skipped_tests": [
+        "test_windows_job_reaps_separate_runtime_child_on_timeout (test_codex_bridge.CodexBridgeTests.test_windows_job_reaps_separate_runtime_child_on_timeout) ... skipped 'Windows job-object descendant cleanup'",
+        "test_current_user_dpapi_round_trip_and_corruption_rejection (test_local_setup.LocalSetupTests.test_current_user_dpapi_round_trip_and_corruption_rejection) ... skipped 'Windows DPAPI round trip'",
+        "test_success_stores_ciphertext_and_failure_preserves_existing_files (test_local_setup.LocalSetupTests.test_success_stores_ciphertext_and_failure_preserves_existing_files) ... skipped 'Windows encrypted persistence'"
+      ],
+      "passed": true
+    },
+    {
+      "user": "or-chess",
+      "returncode": 0,
+      "seconds": 169.91,
+      "candidate": "/home/or-chess/.local/share/or-chess-runtime/venvs/security-20261115",
+      "source_revision": "a98784cdafacbe5e6616cc55b0e94a34e8056bf2",
+      "source_files_matching_retained_git_archive": 1017,
+      "source_archive_sha256": "7ab7f6616af2248ee68ca4cceaf14ed46671dfd352ff34fb1cabe995b89f5d71",
+      "status": [
+        "Ran 594 tests in 167.102s",
+        "OK (skipped=3)"
+      ],
+      "skipped_tests": [
+        "test_windows_job_reaps_separate_runtime_child_on_timeout (test_codex_bridge.CodexBridgeTests.test_windows_job_reaps_separate_runtime_child_on_timeout) ... skipped 'Windows job-object descendant cleanup'",
+        "test_current_user_dpapi_round_trip_and_corruption_rejection (test_local_setup.LocalSetupTests.test_current_user_dpapi_round_trip_and_corruption_rejection) ... skipped 'Windows DPAPI round trip'",
+        "test_success_stores_ciphertext_and_failure_preserves_existing_files (test_local_setup.LocalSetupTests.test_success_stores_ciphertext_and_failure_preserves_existing_files) ... skipped 'Windows encrypted persistence'"
+      ],
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "fixture_units": {
+    "chess-candidate-fixtures-astra-ajyas3tb.service": {
+      "MainPID": "0",
+      "LoadState": "not-found",
+      "ActiveState": "inactive"
+    },
+    "chess-candidate-fixtures-or-chess-ajyas3tb.service": {
+      "MainPID": "0",
+      "LoadState": "not-found",
+      "ActiveState": "inactive"
+    }
+  },
+  "initial_guard_only_attempt": {
+    "directory": "/var/tmp/chess-security-fixtures-20261117-nr1nca1g",
+    "tests_executed": false,
+    "cause": "exists() rejected systemd unreadable placeholder at InaccessiblePaths; guard corrected to os.access(R_OK) before successful test runs",
+    "candidate_changes": false
+  }
+}

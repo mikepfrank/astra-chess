@@ -1,0 +1,39 @@
+{
+  "checked_at_utc": "2026-11-17T06:56:39.368188+00:00",
+  "inventories": {
+    "live": {
+      "files": 20634,
+      "changed_count": 0,
+      "digest": "80ba8af4d3c6be3756d4216e149fc6c4c3c0a90a9e5163772bb5ea4622f1899b"
+    },
+    "candidate": {
+      "files": 20635,
+      "changed_count": 0,
+      "digest": "87ae9d531b9c4ae378eef417cff19ead37f5141d2048ea284cfab6dd59b67f6a"
+    },
+    "source-public": {"files": 41, "changed_count": 0},
+    "deployed-source-public": {"manifest_files_checked": 41, "mismatch_count": 0},
+    "source-lab": {"files": 75, "changed_count": 0},
+    "deployed-source-lab": {"manifest_files_checked": 75, "mismatch_count": 0}
+  },
+  "inventory_digests_match_committed_preparation_report": true,
+  "deployed_source_full_scope_followup": {
+    "checked_at_utc": "2026-11-17T06:59:22.410100+00:00",
+    "public_files": 41,
+    "lab_files": 75,
+    "mismatch_count_including_additions": 0,
+    "candidate_ownership_mismatch_count": 0,
+    "live_services_unchanged": {
+      "gpt2-public.service": {"pid": 3982, "state": "active", "automatic_restarts": 0},
+      "gpt2-codex.service": {"pid": 4373, "state": "active", "automatic_restarts": 0}
+    }
+  },
+  "wheel": {
+    "filename": "certifi-2026.10.23-py3-none-any.whl",
+    "sha256": "e9b54de76e530bb6cf0ccd036787103acb58fd42ba930ea8bf948ddbaa2f61d1",
+    "matches": true
+  },
+  "pip_check": {"rc": 0, "output": "No broken requirements found."},
+  "candidate_inactive": true,
+  "passed": true
+}

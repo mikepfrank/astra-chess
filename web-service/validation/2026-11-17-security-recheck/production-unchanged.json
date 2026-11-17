@@ -1,0 +1,65 @@
+{
+  "checked_utc": "2026-11-17T07:08:28.965214+00:00",
+  "units": {
+    "astra-chess.service": {
+      "MainPID": "4105",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    "or-chess.service": {
+      "MainPID": "4317",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    "gpt2-public.service": {
+      "MainPID": "3982",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    "gpt2-codex.service": {
+      "MainPID": "4373",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    "astra-caddy.service": {
+      "MainPID": "5194",
+      "NRestarts": "0",
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    }
+  },
+  "https": {
+    "astraplayschess.com": 200,
+    "arcturuschess.com": 200,
+    "arcturus.astraplayschess.com": 200,
+    "gpt2-public.service": 200,
+    "gpt2-codex.service": 200
+  },
+  "active_venvs": {
+    "astra": {
+      "unchanged_directory_and_config": true
+    },
+    "or-chess": {
+      "unchanged_directory_and_config": true
+    }
+  },
+  "notification_timers": {
+    "astra-game-notify.timer": {
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    },
+    "or-chess-game-notify.timer": {
+      "ActiveState": "active",
+      "UnitFileState": "enabled"
+    }
+  },
+  "new_maintenance_checkpoints_absent": true,
+  "astra_new_game_pause_preserved": true,
+  "failed_units": "",
+  "memory": "               total        used        free      shared  buff/cache   available\nMem:           15791        2589         322           8       12879       12864\nSwap:              0           0           0\n",
+  "passed": true
+}

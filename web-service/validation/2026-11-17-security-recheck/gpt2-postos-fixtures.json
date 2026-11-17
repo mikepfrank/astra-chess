@@ -1,0 +1,76 @@
+{
+  "started_utc": "2026-11-17T06:57:59.936217+00:00",
+  "result_dir": "/home/gpt-2/.local/share/gpt2-security-stage/20261116/python/recheck-20261117T065759Z/results",
+  "suites": {
+    "public": {
+      "returncode": 0,
+      "report": {
+        "suite": "public",
+        "tests_run": 206,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0,
+        "skip_reasons": [],
+        "excluded_operator_tests": 36,
+        "excluded_operator_modules": [
+          "test_gpt2_exclusive_preflight",
+          "test_lightsail_preview",
+          "test_lightsail_promote",
+          "test_lightsail_update"
+        ],
+        "failed_tests": [],
+        "error_tests": [],
+        "elapsed_seconds": 17.83,
+        "python": "3.12.16",
+        "openssl": "OpenSSL 3.5.8 25 Aug 2026",
+        "packages": {
+          "torch": "2.14.1+cpu",
+          "transformers": "5.18.0",
+          "tokenizers": "0.23.2",
+          "certifi": "2026.10.23",
+          "httpx": "0.28.1"
+        },
+        "tiny_tensor_and_tls_context_check": true,
+        "real_model_loaded": false,
+        "real_api_calls": 0
+      }
+    },
+    "lab": {
+      "returncode": 0,
+      "report": {
+        "suite": "lab",
+        "tests_run": 381,
+        "failures": 0,
+        "errors": 0,
+        "skips": 0,
+        "skip_reasons": [],
+        "excluded_operator_tests": 51,
+        "excluded_operator_modules": [
+          "test_gpt2_exclusive_preflight",
+          "test_lightsail_preview",
+          "test_lightsail_promote",
+          "test_lightsail_update"
+        ],
+        "failed_tests": [],
+        "error_tests": [],
+        "elapsed_seconds": 34.69,
+        "python": "3.12.16",
+        "openssl": "OpenSSL 3.5.8 25 Aug 2026",
+        "packages": {
+          "torch": "2.14.1+cpu",
+          "transformers": "5.18.0",
+          "tokenizers": "0.23.2",
+          "certifi": "2026.10.23",
+          "httpx": "0.28.1"
+        },
+        "tiny_tensor_and_tls_context_check": true,
+        "real_model_loaded": false,
+        "real_api_calls": 0
+      }
+    }
+  },
+  "scope": "Candidate-only fixtures; no production data/model weights/network/credentials; 50 percent CPU and 2 GiB RAM, sequential suites",
+  "prior_results_unchanged": true,
+  "finished_utc": "2026-11-17T06:58:55.823312+00:00",
+  "passed": true
+}

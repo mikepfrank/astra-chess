@@ -1,0 +1,140 @@
+{
+  "checked_at_utc": "2026-11-17T06:59:16.354025+00:00",
+  "production_units_before": {
+    "astra-chess.service": {
+      "MainPID": "4105",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "or-chess.service": {
+      "MainPID": "4317",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "gpt2-public.service": {
+      "MainPID": "3982",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "gpt2-codex.service": {
+      "MainPID": "4373",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "astra-caddy.service": {
+      "MainPID": "5194",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    }
+  },
+  "caddy_artifact": {
+    "binary_sha256": "e8903acf0e525a53d9ad7c8d72b10bc63b71392ff39f9b7786c15d51a0639d01",
+    "version": "v2.11.9 h1:bhZtcRKQOq0fuLvEgCdPYvUxXyGn9kzjG4lh2332DTE=",
+    "go_archive_matches": true,
+    "go_mod_and_sum_match": true,
+    "build_info_matches": true
+  },
+  "caddy_config": {
+    "adapted_as_user": "astra",
+    "canonical_configs_equal": true,
+    "canonical_config_sha256": "56496eddb36386f5e2ea1bb2043fe62b1fecbc8a3327f49444edfeaa79ee5e14",
+    "installed_module_count": 132,
+    "candidate_module_count": 136,
+    "missing_modules": [],
+    "live_config_provisioned": false
+  },
+  "caddy_fixture": {
+    "automatic_https": false,
+    "fixture_config_validated": true,
+    "fixture_terminated": true,
+    "gzip_response": true,
+    "http1_post_headers_body": true,
+    "http1_verified_tls": true,
+    "http2_sse_streaming": true,
+    "http2_verified_tls": true,
+    "loopback_http_port": 34171,
+    "loopback_https_port": 39575,
+    "production_changed": false,
+    "redirect": true,
+    "success": true,
+    "websocket_echo": true,
+    "zstd_response": true,
+    "private_network": true,
+    "cpu_quota": "50%",
+    "memory_max": "768M"
+  },
+  "image_artifact": {
+    "candidate_id": "sha256:cd4677302c525c03f02fefe65da2944ec07c6d4bb52aa0bf611a54dc504e71d1",
+    "production_id": "sha256:9d9274de90e73ba2e215935f0dfbd09eb5c2fe248ba7a6b3052e45969de496fb",
+    "sealed_manifest_artifacts_verified": 5,
+    "codex_unchanged": true
+  },
+  "image_probe": {
+    "uid": 1015,
+    "credentials_inherited": false,
+    "security": {
+      "CapEff": "0000000000000000",
+      "NoNewPrivs": "1",
+      "Seccomp": "2"
+    },
+    "root_write_blocked": true,
+    "root_write_errno": 30,
+    "nested_bubblewrap": {
+      "exit_code": 0,
+      "stderr": ""
+    },
+    "codex_linux_sandbox": {
+      "exit_code": 0,
+      "stderr": ""
+    },
+    "schema": {
+      "exit_code": 0,
+      "file_count": 305,
+      "tree_sha256": "bf9a67cadaa925dc1c8690874b17d39e17abc364b56b9e8cbd3dd074e3255e6c"
+    },
+    "initialize": {
+      "passed": true,
+      "result_keys": [
+        "codexHome",
+        "platformFamily",
+        "platformOs",
+        "userAgent"
+      ],
+      "error": null
+    },
+    "passed": true,
+    "schema_matches_baseline": true
+  },
+  "previous_reports_and_policy_unchanged": true,
+  "production_files_unchanged": true,
+  "production_units_after": {
+    "astra-chess.service": {
+      "MainPID": "4105",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "or-chess.service": {
+      "MainPID": "4317",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "gpt2-public.service": {
+      "MainPID": "3982",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "gpt2-codex.service": {
+      "MainPID": "4373",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    },
+    "astra-caddy.service": {
+      "MainPID": "5194",
+      "NRestarts": "0",
+      "ActiveState": "active"
+    }
+  },
+  "production_units_unchanged": true,
+  "passed": true,
+  "scope": "Preparation only; no production restart/reload/promotion, real provider request or email"
+}
