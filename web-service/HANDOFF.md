@@ -1,5 +1,11 @@
 # Handoff: the hosted Astra Chess service
 
+**Current operator status (November 18, 2026):** start with the worktree's
+[root HANDOFF.md](../HANDOFF.md). Both security-maintenance windows are complete,
+services were reopened November 17, and further routine upgrades are deferred
+while Mike tests. The dated deployment/checkpoint instructions below are
+historical; do not infer current stopped-service state from them.
+
 For the separate `codex/openrouter-chess` experimental branch, start with the
 [September 13 alternate-model orientation](OPENROUTER-EXPERIMENT.md). The hosted
 baseline and its deployment history are preserved below.

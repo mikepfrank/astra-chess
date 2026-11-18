@@ -1,5 +1,91 @@
 # Handoff: Arcturus development worktree
 
+## November 18: maintenance complete; further upgrades deferred; new project separate
+
+**Current decision:** Mike will manually test the restored services and start a
+separate agentic-harness project. Leave these services operational and pause
+further routine upgrades. This section supersedes all historical stopped/gated
+checkpoints below. No host changes were made for this handoff update.
+
+The last live verification was November 17 at 23:04 UTC (17:04 Chicago): all four
+apps and both chess notification timers active and boot-enabled, both notifier
+jobs successful, public/private HTTPS checks passed, all maintenance checkpoints
+archived, no automatic app restarts or startup errors. Mike's manual tests of
+the second-window upgrades are still pending; do not describe them as passed.
+The earlier successful manual tests concerned the first, OS-only window.
+
+### Deferred upgrades and security assessment boundary
+
+The November 15–17 audit's identified Critical/High-priority updates were
+installed: OS/SSM/kernel/system libraries/container stack, certificate bundles,
+private Python libraries, Caddy/Go and private GPT-2 Node/container packages.
+The November 18 review found no confirmed applicable Critical/High update with
+an available fix left unapplied in that assessed scope. This was a review of
+the retained evidence plus a targeted official Codex advisory check, not a new
+host-wide vulnerability scan.
+
+Codex remains **0.154.0**. Candidate **0.169.0** was staged and given limited
+startup/protocol checks, but was not activated; its integration/continuation/
+sandbox audit is deferred. Newer Codex versions contain security hardening,
+so this is not a claim that upgrading has no security benefit. The official
+[listed High advisory](https://github.com/openai/codex/security/advisories/GHSA-w5fx-fh39-j5rw)
+checked November 18 affects older releases through 0.38.0 and was fixed in
+0.39.0. Routine FastAPI/Starlette/Uvicorn/Pydantic and similar framework updates
+are also deferred; no applicable advisory was identified for those retained
+chess dependencies in the original survey.
+
+Residual limits remain: the container assessment retained open/unclassified
+tracker findings with no fixed Bookworm version recorded in its snapshot;
+native Codex and npm dependencies were not exhaustively audited. Caddy's
+remaining module-only OpenPGP warning concerned code confirmed not imported.
+Revisit maintenance if a specific applicable advisory emerges or Mike resumes
+it; do not infer that periodic monitoring or automatic updates were configured.
+
+### Orientation for the separate agentic harness
+
+Mike describes the new project as **another agentic harness, independent of
+the existing chess and GPT-2 applications**, potentially reusing infrastructure.
+No new project, account, domain or deployment has been created by this chat.
+Its detailed requirements and infrastructure-sharing choices are still open.
+
+- This development worktree is `Chess/openrouter-worktree`, branch
+  `codex/openrouter-chess`, remote `mikepfrank/astra-chess`. Keep main and other
+  development branches intact. Existing production checkouts intentionally
+  contain only their reviewed changes; do not deploy this entire branch to
+  either service merely to reuse infrastructure or helpers.
+- Shared host: SSH alias `lightsail`, last verified as `MPF_Lightsail_16GB`,
+  16 GiB / 4 vCPUs, static IPv4 `16.145.194.176`. Refresh live inventory before
+  future deployment; a historical idle/capacity observation is not a reservation.
+- Existing units/loopback ports: `astra-chess.service` (8788),
+  `or-chess.service` (8792), `gpt2-public.service` (8899),
+  `gpt2-codex.service` (8900), private GPT-2 gateway (172.30.97.1:8902).
+  Shared proxy is `astra-caddy.service`; its configuration lives at
+  `/home/astra/.config/astra-chess/Caddyfile`. Coordinate scoped edits using
+  `/run/lock/astra-caddy-config.lock`; preserve other routes, TLS storage and
+  systemd file-bind visibility. Avoid concurrent proxy/lifecycle edits.
+- Use separate code, runtime/configuration, service identities, writable data
+  and accounting for the new harness. Reuse reviewed patterns with a fresh
+  threat-model/compatibility review; GPT-2's root-owned sandbox launcher,
+  seccomp policy and internal network are specific to that service. Never
+  expose its private capability URL or copy live credentials into project docs.
+  Preserve its scoped firewall; avoid global Docker pruning or weakening
+  existing isolation to accommodate a new project.
+- Preserve existing games, chat history, per-game continuations, pending lab
+  inputs, clocks, spending/delivery ledgers and model/persona settings. Astra's
+  October 11 new-game restriction remains intentional; keep it closed.
+- Old maintenance checkpoints are completed. Future disruptive work needs a
+  fresh coordinated drain/checkpoint; do not rerun old activation probes that
+  assume stopped services. Retain the two manual snapshots, verified backups,
+  original venvs/Caddy/launcher/image for rollback; no cleanup was requested.
+  Roll back software without overwriting newer user activity with old databases.
+
+Reference [complete two-window upgrade inventory](web-service/validation/2026-11-17-proxy-image-regression/complete-upgrade-inventory.txt),
+[regression and reopening record](web-service/validation/2026-11-17-proxy-image-regression/README.md),
+and [deferred Codex assessment](web-service/validation/2026-11-15-security-stage/codex-assessment.md).
+For GPT-2-specific work, read that project's current handoff under
+`C:/Users/MikeFrank/Documents/=== FILES ===/-- AI --/GPT-2` and its relevant
+worktree before assuming the chess repository describes the whole deployment.
+
 ## November 17: services reopened — awaiting Mike's manual play-tests
 
 Mike authorized full operational restoration after the gated regressions.
