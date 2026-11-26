@@ -72,11 +72,23 @@ function renderRows(){
   $('monitor-older').disabled=pageIndex+1>=pageCount;
 }
 function firstPage(){pageIndex=0;renderRows();}
+function completedResults(games){
+  const counts={win:0,loss:0,draw:0,unknown:0};
+  for(const game of games){
+    if(game.status!=='finished')continue;
+    const outcome={loss:'win',win:'loss',draw:'draw'}[game.human_outcome];
+    counts[outcome||'unknown']++;
+  }
+  const parts=[`${number(counts.win)} ${counts.win===1?'win':'wins'}`,`${number(counts.loss)} ${counts.loss===1?'loss':'losses'}`,`${number(counts.draw)} ${counts.draw===1?'draw':'draws'}`];
+  if(counts.unknown)parts.push(`${number(counts.unknown)} unrecorded`);
+  return `AI: ${parts.join(' · ')}`;
+}
 function render(data){
   snapshot=data;$('monitor-access').hidden=true;$('monitor-data').hidden=false;
   const summary=$('monitor-summary');summary.replaceChildren();
   for(const [value,label] of [[data.summary.player_games,'Player games'],[data.summary.finished_player_games,'Finished'],[data.summary.unfinished_player_games,'Unfinished'],[data.activity.active_responses,'AI responses in progress']]){
     const card=append(summary,'div','');append(card,'strong',number(value));append(card,'span',label);
+    if(label==='Finished')append(card,'small',completedResults(data.games),'monitor-results');
   }
   const budget=data.today_budget;
   $('monitor-budget').textContent=budget?`UTC daily usage (${budget.day}): ${number(budget.tokens)} tokens of ${number(data.max_daily_tokens)} · ${number(budget.turns)} model actions`:'No model usage recorded today.';

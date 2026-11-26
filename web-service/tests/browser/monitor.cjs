@@ -54,6 +54,7 @@ async function visible(data,hidden){await data.page.evaluate(value=>{Object.defi
     await fs.mkdir(outputDir,{recursive:true});
     const owner=await fixture(browser);
     assert.equal(await owner.page.locator('#monitor-rows tr').count(),3);
+    assert.equal(await owner.page.locator('.monitor-results').innerText(),'AI: 1 win · 0 losses · 0 draws');
     assert.match(await owner.page.locator('#monitor-rows tr').first().innerText(),/<img src=x onerror=alert\(1\)>/);
     assert.equal(await owner.page.locator('#monitor-rows img').count(),0,'Player names are text, never markup');
     assert.match(await owner.page.locator('#monitor-rows').innerText(),/AI won; checkmate/);
@@ -72,6 +73,7 @@ async function visible(data,hidden){await data.page.evaluate(value=>{Object.defi
     owner.snapshot.games[1].active_response=false;owner.snapshot.games[1].worker_state='idle';
 
     const paged=await fixture(browser,{snapshot:pagedInventory()});
+    assert.equal(await paged.page.locator('.monitor-results').innerText(),'AI: 0 wins · 0 losses · 0 draws · 12 unrecorded','Missing outcomes are not counted as draws');
     assert.equal(await paged.page.locator('#monitor-page-size').inputValue(),'10');
     assert.equal(await paged.page.locator('#monitor-rows tr').count(),10,'Default page contains ten games');
     assert.equal(await paged.page.locator('#monitor-count').innerText(),'Showing 1–10 of 34 games');
@@ -172,6 +174,27 @@ async function visible(data,hidden){await data.page.evaluate(value=>{Object.defi
     assert.equal(await mobile.page.locator('.monitor-table-wrap').evaluate(el=>el.scrollWidth>el.clientWidth),true,'Mobile table scrolls inside its own region');
     await mobile.page.screenshot({path:path.join(outputDir,'monitor-mobile.png'),fullPage:true});
 
+    const resultsSnapshot=pagedInventory();
+    const outcomes=['loss','loss','win','draw'];
+    resultsSnapshot.games.forEach((row,index)=>{
+      row.human_side=index%2?'black':'white';
+      row.human_outcome=row.status==='finished'?outcomes[(index/3)%4]:'win';
+    });
+    const results=await fixture(browser,{snapshot:resultsSnapshot});
+    const resultText='AI: 6 wins · 3 losses · 3 draws';
+    assert.equal(await results.page.locator('.monitor-results').innerText(),resultText,'Totals use finished outcomes from both human colors, across all pages');
+    await results.page.locator('#monitor-older').click();
+    await results.page.locator('#monitor-filter').selectOption('unfinished');
+    await results.page.locator('#monitor-search').fill('Page player 02');
+    assert.equal(await results.page.locator('.monitor-results').innerText(),resultText,'Paging and filtering do not change overall results');
+    results.snapshot.games[0].human_outcome='draw';await refresh(results);
+    assert.equal(await results.page.locator('.monitor-results').innerText(),'AI: 5 wins · 3 losses · 4 draws','Refresh recalculates results');
+    await results.page.locator('#monitor-search').fill('');await results.page.locator('#monitor-filter').selectOption('all');
+    await results.page.screenshot({path:path.join(outputDir,'monitor-results-desktop.png'),fullPage:true});
+    await results.page.setViewportSize({width:390,height:844});
+    assert.equal(await results.page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true,'Result summary fits mobile width');
+    await results.page.screenshot({path:path.join(outputDir,'monitor-results-mobile.png'),fullPage:true});
+
     const login=await fixture(browser,{start:'/?monitor=1&next=https://outside.invalid/',user:null,operator:false});
     assert.equal(await login.page.locator('#identity-title').innerText(),'Welcome back.');
     assert.equal(await login.page.locator('#monitor-link').isVisible(),false);
@@ -183,6 +206,6 @@ async function visible(data,hidden){await data.page.evaluate(value=>{Object.defi
     await wrongLogin.page.locator('#identity-name').fill('Ordinary preview');await wrongLogin.page.locator('#identity-password').fill('fixture-password');await wrongLogin.page.locator('#identity-submit').click();
     await wrongLogin.page.waitForFunction(()=>document.getElementById('toast').textContent.includes('does not have monitor access'));
     assert.equal(new URL(wrongLogin.page.url()).pathname,'/');assert.equal(await wrongLogin.page.locator('#monitor-link').isVisible(),false);
-    assert.deepEqual(errors,[]);console.log('Monitor browser QA passed: private access, escaped names, filters/statuses/replays, ten-game pagination and page sizes, boundary navigation, refresh clamping, stale recovery, bounded visible polling, no overlap, logout/pagehide clearing, desktop/mobile and safe sign-in return.');
+    assert.deepEqual(errors,[]);console.log('Monitor browser QA passed: private access, escaped names, filters/statuses/replays, completed AI results independent of filtering/pagination, unknown outcomes, ten-game pagination and page sizes, boundary navigation, refresh clamping, stale recovery, bounded visible polling, no overlap, logout/pagehide clearing, desktop/mobile and safe sign-in return.');
   }finally{for(const context of contexts)await context.close();await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});
