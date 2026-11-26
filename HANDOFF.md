@@ -1,5 +1,31 @@
 # Handoff: Arcturus development worktree
 
+## November 25: monitor completed-game results deployed
+
+The Arcturus monitor's **Finished** card now includes a small
+`AI: N wins · N losses · N draws` line, from the AI's perspective. It counts
+all finished games in the authorized monitor snapshot, independent of table
+filters and pagination; the API's existing fixture exclusions apply. Missing
+outcomes are shown as `unrecorded`, never assumed to be draws.
+
+- Development change: `5ac159d` on `codex/openrouter-chess`.
+- Production: `7512aa2` on `/home/or-chess/astra-chess`'s existing
+  `codex/openrouter-chess` branch, fast-forwarded from `fa184ab`. The isolated
+  deployment branch is `codex/arcturus-monitor-results-20261125`, in local
+  `Chess/arcturus-monitor-worktree`, and is pushed to the remote. Only
+  `monitor.js`, `monitor.css`, and the corresponding browser check changed.
+- Verification: intercepted browser checks passed, desktop/mobile screenshots
+  inspected, public JS/CSS returned HTTP 200 with the exact deployed hashes
+  and `no-cache`. Read-only live inventory: 55 player games, 18 finished;
+  **18 AI wins, 0 losses, 0 draws, 0 unrecorded**.
+- No service restart, game mutation, model call, email, proxy edit, or routine
+  maintenance. All five checked service PIDs stayed unchanged; Astra's checkout
+  remains `995a587`. The maintenance deferral below still applies.
+
+Refresh the browser page once to load the new JavaScript. The monitor's own
+30-second data refresh does not reload its scripts. Details are in
+[the verification record](web-service/validation/2026-11-25-monitor-results.md).
+
 ## November 18: maintenance complete; further upgrades deferred; new project separate
 
 **Current decision:** Mike will manually test the restored services and start a

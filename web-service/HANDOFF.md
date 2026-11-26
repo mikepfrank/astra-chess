@@ -1,7 +1,8 @@
 # Handoff: the hosted Astra Chess service
 
-**Current operator status (November 18, 2026):** start with the worktree's
-[root HANDOFF.md](../HANDOFF.md). Both security-maintenance windows are complete,
+**Current operator status (November 25, 2026):** start with the worktree's
+[root HANDOFF.md](../HANDOFF.md). The Arcturus monitor's finished-games result
+breakdown is deployed at `7512aa2` without a restart. Both security-maintenance windows are complete,
 services were reopened November 17, and further routine upgrades are deferred
 while Mike tests. The dated deployment/checkpoint instructions below are
 historical; do not infer current stopped-service state from them.
